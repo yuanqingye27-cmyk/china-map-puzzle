@@ -23,207 +23,207 @@
   const DISTRICTS = {
     "110000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 北京市
     "120000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 天津市
     "130000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 河北省
     "140000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 山西省
     "150000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 内蒙古自治区
     "210000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 辽宁省
     "220000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 吉林省
     "230000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 黑龙江省
     "310000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 上海市
     "320000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 江苏省
     "330000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 浙江省
     "340000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 安徽省
     "350000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 福建省
     "360000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 江西省
     "370000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 山东省
     "410000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 河南省
     "420000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 湖北省
     "430000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 湖南省
     "440000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 广东省
     "450000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 广西壮族自治区
     "460000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 海南省
     "500000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 重庆市
     "510000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 四川省
     "520000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 贵州省
     "530000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 云南省
     "540000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 西藏自治区
     "610000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 陕西省
     "620000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 甘肃省
     "630000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 青海省
     "640000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 宁夏回族自治区
     "650000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 新疆维吾尔自治区
     "710000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 台湾省
     "810000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 香港特别行政区
     "820000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 澳门特别行政区
   };
 
@@ -234,7 +234,7 @@
       name: '第一关',
       short: '第一关',
       color: '#9e39d0',
-      blurb: '（待补充：说明这一关的分组依据，比如"中心城区"或"沿江城市带"）',
+      blurb: '📖 本关资料收录中，欢迎参与共建',
       adcodes: [110000, 120000, 130000, 140000, 150000, 210000, 220000, 230000],
     },
     {
@@ -242,7 +242,7 @@
       name: '第二关',
       short: '第二关',
       color: '#d03980',
-      blurb: '（待补充：说明这一关的分组依据，比如"中心城区"或"沿江城市带"）',
+      blurb: '📖 本关资料收录中，欢迎参与共建',
       adcodes: [310000, 320000, 330000, 340000, 350000, 360000, 370000, 410000],
     },
     {
@@ -250,7 +250,7 @@
       name: '第三关',
       short: '第三关',
       color: '#d07539',
-      blurb: '（待补充：说明这一关的分组依据，比如"中心城区"或"沿江城市带"）',
+      blurb: '📖 本关资料收录中，欢迎参与共建',
       adcodes: [420000, 430000, 440000, 450000, 460000, 500000, 510000, 520000],
     },
     {
@@ -258,7 +258,7 @@
       name: '第四关',
       short: '第四关',
       color: '#a8d039',
-      blurb: '（待补充：说明这一关的分组依据，比如"中心城区"或"沿江城市带"）',
+      blurb: '📖 本关资料收录中，欢迎参与共建',
       adcodes: [530000, 540000, 610000, 620000, 630000, 640000, 650000, 710000],
     },
     {
@@ -266,7 +266,7 @@
       name: '第五关',
       short: '第五关',
       color: '#39d04d',
-      blurb: '（待补充：说明这一关的分组依据，比如"中心城区"或"沿江城市带"）',
+      blurb: '📖 本关资料收录中，欢迎参与共建',
       adcodes: [810000, 820000],
     },
   ];

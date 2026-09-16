@@ -153,7 +153,8 @@ async function main() {
   const url = `http://127.0.0.1:${PORT}/tools/shot.html?map=${encodeURIComponent(mapId)}` +
     (drag ? '&drag=1' : '') + (debug ? '&debug=1' : '') +
     (vw && vh ? '&vw=' + vw + '&vh=' + vh : '') +
-    (args.level ? '&level=' + args.level : '');
+    (args.level ? '&level=' + args.level : '') +
+    (args.fit ? '&fit=' + args.fit : '');
   const userDataDir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'shot-'));
 
   console.log('地址：' + url);

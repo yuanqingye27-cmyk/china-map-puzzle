@@ -23,39 +23,39 @@
   const DISTRICTS = {
     "510302": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 自流井区
     "510303": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 贡井区
     "510304": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 大安区
     "510311": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 沿滩区
     "510321": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 荣县
     "510322": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 富顺县
   };
 
@@ -66,7 +66,7 @@
       name: '第一关',
       short: '第一关',
       color: '#39d0d0',
-      blurb: '（待补充：说明这一关的分组依据，比如"中心城区"或"沿江城市带"）',
+      blurb: '📖 本关资料收录中，欢迎参与共建',
       adcodes: [510302, 510303, 510304, 510311, 510321, 510322],
     },
   ];

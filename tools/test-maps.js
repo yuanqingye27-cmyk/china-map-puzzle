@@ -131,6 +131,21 @@ slugs.forEach((slug) => {
   }
 });
 
+/* 成品口径：不允许"待补充"这类施工痕迹出现在任何资料文件里（换成共建文案）。
+ * 注意：这是**措辞**检查，不是内容检查 —— 我们仍然不伪造任何资料。 */
+(function checkPlaceholderSoftened() {
+  const { execSync } = require('child_process');
+  let hits = '';
+  try {
+    hits = execSync('grep -rl "待补充" js/maps --include=*.data.js || true',
+      { cwd: tree.ROOT, encoding: 'utf8' }).trim();
+  } catch (e) { hits = ''; }
+  check('资料文件里没有"待补充"这类施工痕迹', hits === '', '仍有：' + hits.split('\n').join('、'));
+  const build = execSync('grep -rl "欢迎参与共建" js/maps --include=*.data.js || true',
+    { cwd: tree.ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean).length;
+  check('占位资料已统一为共建文案（' + build + ' 个文件）', build > 0, '一个都没有');
+})();
+
 /* 九段线专项：中国地图必须包含「南海诸岛及海上界线」这条非行政区要素，
  * 且它的纬度要伸到南海（否则地图范围到不了那里，等于没画）。
  * 官方数据把它作为 MultiLineString 给出，我们在下载时转成了细长多边形并进 geo。 */

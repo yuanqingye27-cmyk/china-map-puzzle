@@ -158,6 +158,27 @@
 
     dbg('ready=' + mapId + ' engine=' + (W.__ENGINE__ ? 'ok' : 'none') +
         ' pieces=' + D.querySelectorAll('.piece').length + ' slots=' + D.querySelectorAll('.slot').length);
+    // --fit=all：把视图拉到"整张地图"（含底图所有要素，如九段线），
+    // 用于拍"总览"图。引擎每关会推近视图，所以这里在就绪后重新设 viewBox。
+    if (q.get('fit') === 'all') {
+      const base = D.getElementById('layerBase');
+      const svg = D.getElementById('map');
+      if (base && svg && base.getBBox) {
+        const b = base.getBBox();
+        const pad = 8;
+        const vb = [(b.x - pad).toFixed(1), (b.y - pad).toFixed(1),
+          (b.width + pad * 2).toFixed(1), (b.height + pad * 2).toFixed(1)].join(' ');
+        /* 引擎在关卡切换时会逐帧插值改 viewBox，压一次会被下一帧盖回去。
+         * 所以：先放行 load（Chrome 马上要拍），然后**一直压着**不放 ——
+         * 这个循环本来就活不到截图之后（进程会被收走），所以是无害的。 */
+        new Image().src = '/__release__';
+        for (;;) {
+          svg.setAttribute('viewBox', vb);
+          await sleep(30);
+        }
+      }
+    }
+
     if (wantDrag) await placeOne(W, D);
     await sleep(400);
 

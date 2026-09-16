@@ -1652,6 +1652,51 @@ body.intro-open { overflow: hidden; }
   .crumb.is-current { padding: 2px 6px; }
 }
 
+/* =====================================================================
+ * 成品打磨：入场淡入 + 微交互
+ * ---------------------------------------------------------------------
+ * 两条铁律：
+ *   1. **只动 opacity / color / border，绝不在容器上动 transform** ——
+ *      拖拽的落点判定用的是 getScreenCTM() 与 clientX/clientY 的换算，
+ *      祖先元素一旦有 transform，坐标系就变了，拼图会判错位。
+ *   2. 时长压在 400ms 内，且系统开了"减少动态效果"时会被全局规则压成 0.01ms。
+ * ===================================================================== */
+@keyframes appFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes chromeFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* 整页入场：切换地图 = 换 URL 重新加载，所以这就是"切图淡入" */
+.app { animation: appFadeIn 0.38s ease-out both; }
+
+/* 导航条比主体稍晚一点出现，视觉上有"层层展开"的节奏 */
+.mapbar { animation: chromeFadeIn 0.5s ease-out 0.06s both; }
+
+/* 面包屑可点项：hover 时轻微上浮 + 底色亮起（用 padding 的微小变化代替 transform） */
+.crumb-link {
+  transition: color 0.16s ease, background 0.16s ease, border-color 0.16s ease,
+              box-shadow 0.16s ease;
+}
+.crumb-link:hover {
+  box-shadow: 0 2px 10px rgb(var(--c-jade) / 0.16);
+}
+.crumb-link:active { background: rgb(var(--c-line) / 0.18); }
+
+/* 地图选择器：hover 背景亮一档 */
+.map-select:hover {
+  background: rgb(12 34 28 / 0.9);
+  border-color: rgb(var(--c-jade) / 0.5);
+}
+.map-select:active { background: rgb(8 24 20 / 0.95); }
+
+/* 层级标签 / 主题点 / 音效：统一的轻量反馈（原本只有部分有） */
+.level-tab, .theme-dot, .sound-btn { transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease, box-shadow 0.16s ease; }
+
 /* ---------- 手机性能降级 ----------
  * 手机上这几样东西最吃 GPU：
  *   1. backdrop-filter —— 每帧都要重新模糊背后的内容，是最大的一笔开销

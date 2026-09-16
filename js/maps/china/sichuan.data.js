@@ -23,129 +23,129 @@
   const DISTRICTS = {
     "510100": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 成都市
     "510300": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 自贡市
     "510400": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 攀枝花市
     "510500": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 泸州市
     "510600": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 德阳市
     "510700": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 绵阳市
     "510800": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 广元市
     "510900": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 遂宁市
     "511000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 内江市
     "511100": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 乐山市
     "511300": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 南充市
     "511400": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 眉山市
     "511500": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 宜宾市
     "511600": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 广安市
     "511700": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 达州市
     "511800": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 雅安市
     "511900": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 巴中市
     "512000": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 资阳市
     "513200": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 阿坝藏族羌族自治州
     "513300": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 甘孜藏族自治州
     "513400": {
       area: null,                    // TODO 面积（km²，数字）
-      landmark: '（待补充）',
-      tagline: '（待补充）',
-      funFact: '（待补充）',
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
     }, // 凉山彝族自治州
   };
 
@@ -156,7 +156,7 @@
       name: '第一关',
       short: '第一关',
       color: '#3939d0',
-      blurb: '（待补充：说明这一关的分组依据，比如"中心城区"或"沿江城市带"）',
+      blurb: '📖 本关资料收录中，欢迎参与共建',
       adcodes: [510100, 510300, 510400, 510500, 510600, 510700, 510800, 510900],
     },
     {
@@ -164,7 +164,7 @@
       name: '第二关',
       short: '第二关',
       color: '#bc39d0',
-      blurb: '（待补充：说明这一关的分组依据，比如"中心城区"或"沿江城市带"）',
+      blurb: '📖 本关资料收录中，欢迎参与共建',
       adcodes: [511000, 511100, 511300, 511400, 511500, 511600, 511700, 511800],
     },
     {
@@ -172,7 +172,7 @@
       name: '第三关',
       short: '第三关',
       color: '#d03961',
-      blurb: '（待补充：说明这一关的分组依据，比如"中心城区"或"沿江城市带"）',
+      blurb: '📖 本关资料收录中，欢迎参与共建',
       adcodes: [511900, 512000, 513200, 513300, 513400],
     },
   ];
