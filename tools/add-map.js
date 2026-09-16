@@ -31,6 +31,16 @@
  *   --geo-only       只重新下载并刷新 .geo.js，人工文件一律不动
  *   --dry-run        只打印计划，不联网、不写盘
  *   --quiet          安静模式
+ *
+ * 【同时是一个库】核心逻辑抽在 `addMap(opts)` 里，**不打印、不退出、不动注册表**，
+ * 于是 tools/batch-add-maps.js 可以真的调用它（而不是抄一份逻辑）：
+ *
+ *   const { addMap } = require('./add-map');
+ *   const r = await addMap({ adcode: 510300, slug: 'zigong', parentSlug: 'sichuan' });
+ *
+ * CLI 只是在它外面套了参数解析、打印和"重新生成注册表"。
+ * ⚠️ 所以本文件末尾的 main() 必须用 `require.main === module` 守住 ——
+ *   否则别的脚本一 require 它就会把 CLI 跑起来。
  * ===================================================================== */
 
 const fs = require('fs');
@@ -39,23 +49,10 @@ const path = require('path');
 const tree = require('./lib/map-tree');
 const geoLib = require('./lib/inline-geo');
 
-/* ---------------- 内置省级 slug 表（adcode 前两位 → 目录名） ----------------
- * 只有这一张表是"写死"的：因为县级地图必须靠人给 --parent，
- * 而省级 slug 无法从 adcode 反推（总不能让目录叫 51），所以内置一份。
- * 有了它，--parent=sichuan 就能自动补出 510000 这张地图。
- * ------------------------------------------------------------------------ */
-const PROVINCE_SLUGS = {
-  11: 'beijing', 12: 'tianjin', 13: 'hebei', 14: 'shanxi', 15: 'neimenggu',
-  21: 'liaoning', 22: 'jilin', 23: 'heilongjiang',
-  31: 'shanghai', 32: 'jiangsu', 33: 'zhejiang', 34: 'anhui', 35: 'fujian',
-  36: 'jiangxi', 37: 'shandong',
-  41: 'henan', 42: 'hubei', 43: 'hunan', 44: 'guangdong', 45: 'guangxi', 46: 'hainan',
-  50: 'chongqing', 51: 'sichuan', 52: 'guizhou', 53: 'yunnan', 54: 'xizang',
-  61: 'shaanxi', 62: 'gansu', 63: 'qinghai', 64: 'ningxia', 65: 'xinjiang',
-  71: 'taiwan', 81: 'hongkong', 82: 'macau',
-};
-
-const CHINA = { slug: 'china', adcode: 100000, parentSlug: null };
+/* slug 表（省级 / 地级）与 adcode 层级推断都在公共库里，见 tools/lib/slugs.js */
+const slugs = require('./lib/slugs');
+const PROVINCE_SLUGS = slugs.PROVINCE_SLUGS;
+const CHINA = slugs.CHINA;
 
 /** 自动分关时每关放几个下级行政区 */
 const LEVEL_SIZE = 8;
@@ -63,10 +60,7 @@ const LEVEL_SIZE = 8;
 const CN_NUM = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
 const cnLevel = (i) => (i < CN_NUM.length ? '第' + CN_NUM[i] + '关' : '第' + (i + 1) + '关');
 
-const slugToProvinceAdcode = (slug) => {
-  const hit = Object.keys(PROVINCE_SLUGS).find((k) => PROVINCE_SLUGS[k] === slug);
-  return hit ? Number(hit) * 10000 : null;
-};
+const slugToProvinceAdcode = slugs.slugToProvinceAdcode;
 
 /* ============================ 参数解析 ============================ */
 
@@ -200,7 +194,7 @@ function autoLevels(features, adcode) {
     name: cnLevel(i),
     short: cnLevel(i),
     color: hslToHex(hueFor(adcode, i), 62, 52),
-    blurb: '（待补充：说明这一关的分组依据，比如"中心城区"或"沿江城市带"）',
+    blurb: '【待补充：' + cnLevel(i) + '的分组依据，例如"中心城区"或"沿江城市带"】',
     adcodes: group,
   }));
 }
@@ -219,12 +213,14 @@ function renderDataModule(planItem, features, label, levels, generator) {
   const districtLines = features
     .map((f) => {
       const p = f.properties;
+      // 占位符里带上名字：人工补资料时一眼就知道这条该填哪个地方的什么
+      const who = String(p.name || '').replace(/'/g, '’');
       return (
         '    ' + JSON.stringify(String(p.adcode)) + ': {\n' +
         '      area: null,                    // TODO 面积（km²，数字）\n' +
-        '      landmark: \'（待补充）\',\n' +
-        '      tagline: \'（待补充）\',\n' +
-        '      funFact: \'（待补充）\',\n' +
+        "      landmark: '【待补充：" + who + "地标】',\n" +
+        "      tagline: '【待补充：" + who + "一句话介绍】',\n" +
+        "      funFact: '【待补充：" + who + "冷知识】',\n" +
         '    }, // ' + p.name
       );
     })
@@ -389,22 +385,39 @@ function readExistingGeoFeatures(dirRel, slug) {
   }
 }
 
-/* ============================ 主流程 ============================ */
+/* ============================ 核心：接入一张地图 ============================
+ * 这是本文件真正的核心。CLI（下面的 main）和 tools/batch-add-maps.js 都调它。
+ * 约定：**不打印、不 process.exit、不动注册表** —— 输出交给 log，
+ * 注册表由调用方在合适的时机统一重建（批量时只重建一次，而不是 21 次）。
+ * ========================================================================= */
 
-async function main() {
-  const args = parseArgs(process.argv.slice(2));
-  const dryRun = args.flags.has('dry-run');
-  const force = args.flags.has('force');
-  const geoOnly = args.flags.has('geo-only');
-  const quiet = args.flags.has('quiet');
+/**
+ * 接入一张地图；父级还没接入时会把祖先链一起补齐。
+ *
+ * @param {object} opts
+ *   adcode     number  必填，6 位行政区划代码
+ *   slug       string  必填，地图包 id（= 文件名 = 目录名）
+ *   parentSlug string  父级 id；不传则按 adcode 推断
+ *   force      boolean 连人工写的 .data.js / .js 一起覆盖
+ *   geoOnly    boolean 只刷新 .geo.js，人工文件一律不动
+ *   dryRun     boolean 只算计划，不联网、不写盘
+ *   log        function 逐行输出（默认什么都不打印）
+ * @returns {Promise<object>} 结构化结果，给报告/汇总用
+ */
+async function addMap(opts) {
+  const log = opts.log || (() => {});
+  const force = !!opts.force;
+  const geoOnly = !!opts.geoOnly;
+  const dryRun = !!opts.dryRun;
+  const adcode = opts.adcode;
+  const slug = opts.slug;
+  const parentSlug = opts.parentSlug;
 
-  const { adcode, slug, parentSlug } = validateArgs(args);
   const generator = 'node tools/add-map.js --adcode=' + adcode + ' --name=' + slug +
-    (parentSlug === undefined ? '' : ' --parent=' + parentSlug);
+    (parentSlug === undefined || parentSlug === null ? '' : ' --parent=' + parentSlug);
 
   const scan = tree.scanMaps();
-  const planResult = planChain({ adcode, slug, parentSlug }, scan.maps);
-  const { plan } = planResult;
+  const { plan } = planChain({ adcode, slug, parentSlug }, scan.maps);
 
   /* --force / --geo-only 时，即使目标已接入也要重新走一遍：
    *   --force     覆盖一切（含人工写的 .data.js / .js）
@@ -420,49 +433,49 @@ async function main() {
     });
   }
 
+  const planSummary = plan.map((p) => ({
+    slug: p.slug,
+    adcode: p.adcode,
+    parentSlug: p.parentSlug,
+    dir: p.dir,
+  }));
+
   if (!plan.length) {
-    console.log('ℹ 这张地图已经接入过了：' + slug);
-    console.log('  刷新边界数据：node tools/add-map.js … --geo-only（只重写 .geo.js，人工资料不动）');
-    const res = tree.regenerateRegistry({});
-    if (res.ok) {
-      console.log('✔ registry.js 已是最新（共 ' + Object.keys(res.model.maps).length + ' 张地图）');
-    } else {
-      res.errors.forEach((p) => console.log('  ✘ ' + p.message));
-      process.exit(1);
-    }
-    return;
+    log('ℹ 这张地图已经接入过了：' + slug);
+    log('  刷新边界数据：node tools/add-map.js … --geo-only（只重写 .geo.js，人工资料不动）');
+    return { status: 'existing', slug, adcode, plan: [], maps: [] };
   }
 
-  console.log('══════════ 接入计划 ══════════');
+  log('══════════ 接入计划 ══════════');
   plan.forEach((p, i) => {
     const pt = p.parentSlug === null ? '（根）' : p.parentSlug;
-    console.log(
+    log(
       '  ' + (i + 1) + '. ' + p.slug.padEnd(12) + ' adcode=' + p.adcode +
-      '  parent=' + String(pt).padEnd(10) +
+      '  parent=' + String(pt).padEnd(12) +
       ' → js/maps/' + (p.dir ? p.dir + '/' : '') + p.slug + '{.js,.geo.js,.data.js}'
     );
   });
-  if (geoOnly) console.log('  （--geo-only：只刷新 .geo.js，已存在的人工文件不碰）');
+  if (geoOnly) log('  （--geo-only：只刷新 .geo.js，已存在的人工文件不碰）');
 
   if (dryRun) {
-    console.log('\n（--dry-run：只打印计划，没有联网、没有写盘）');
-    return;
+    log('\n（--dry-run：只打印计划，没有联网、没有写盘）');
+    return { status: 'dry-run', slug, adcode, plan: planSummary, maps: [] };
   }
 
   /* 记忆本次已下载的 features，供下级借显示名 */
   const featuresBySlug = {};
+  const results = [];
 
   for (const item of plan) {
     const dirRel = item.dir;
     const baseAbs = tree.absOf((dirRel ? dirRel + '/' : '') + item.slug);
+    const relOf = (abs) => abs.replace(tree.ROOT + '/', '');
 
-    console.log('\n──── ' + item.slug + '（adcode ' + item.adcode + '）────');
+    log('\n──── ' + item.slug + '（adcode ' + item.adcode + '）────');
 
     // 1) 下载边界
-    const { raw, url, hasChildren } = await geoLib.fetchDatavGeo(item.adcode, {
-      log: quiet ? () => {} : (m) => console.log('  ' + m),
-    });
-    const geo = geoLib.normalizeGeo(raw);
+    const { raw, url, hasChildren } = await geoLib.fetchDatavGeo(item.adcode, { log });
+    const geo = geoLib.normalizeGeo(raw, url);
     const features = geo.features;
     featuresBySlug[item.slug] = features;
 
@@ -481,7 +494,7 @@ async function main() {
     if (!label) label = item.slug; // 实在借不到就用 slug 兜底
 
     if (!hasChildren) {
-      console.log('  ⚠ DataV 上这张地图没有下级区划（只拿到它自己 1 个 feature），拼图会只有 1 块');
+      log('  ⚠ DataV 上这张地图没有下级区划（只拿到它自己 1 个 feature），拼图会只有 1 块');
     }
 
     // 3) 写 .geo.js（构建产物，总是刷新）
@@ -493,44 +506,101 @@ async function main() {
       sourceUrl: url,
       generator,
     });
-    console.log('  ✔ ' + geoFile.replace(tree.ROOT + '/', '') +
+    log('  ✔ ' + relOf(geoFile) +
       '（' + features.length + ' 个下级行政区，' + (written.bytes / 1024).toFixed(1) + ' KB）');
 
     // 4) 写 .data.js（人工资料，默认不覆盖）
-    const dataFile = baseAbs + '.data.js';
-
-    // 只有真正的行政区才是"拼图块"；非行政区 feature（如九段线）留在 geo 里画底图
+    //    只有真正的行政区才是"拼图块"；非行政区 feature（如九段线）留在 geo 里画底图
     const blocks = adminFeatures(features);
-    const skipped = features.filter((f) => !geoLib.isAdminAdcode(f.properties.adcode));
+    const skipped = features
+      .filter((f) => !geoLib.isAdminAdcode(f.properties.adcode))
+      .map((f) => ({ adcode: String(f.properties.adcode), name: f.properties.name || '' }));
     if (skipped.length) {
-      console.log('  ℹ 跳过 ' + skipped.length + ' 个非行政区 feature（' +
-        skipped.map((f) => String(f.properties.adcode) + (f.properties.name ? ' ' + f.properties.name : '')).join('、') +
+      log('  ℹ 跳过 ' + skipped.length + ' 个非行政区 feature（' +
+        skipped.map((s) => s.adcode + (s.name ? ' ' + s.name : '')).join('、') +
         '）：它画在底图上，但不作为拼图块');
     }
+
     const levels = autoLevels(blocks, item.adcode);
+
+    const dataFile = baseAbs + '.data.js';
+    let dataWritten = false;
     if (fs.existsSync(dataFile) && !force) {
-      console.log('  · ' + dataFile.replace(tree.ROOT + '/', '') + ' 已存在，保留不动（人工数据优先）');
+      log('  · ' + relOf(dataFile) + ' 已存在，保留不动（人工数据优先）');
     } else {
       fs.mkdirSync(path.dirname(dataFile), { recursive: true });
       fs.writeFileSync(dataFile, renderDataModule(item, blocks, label, levels, generator), 'utf8');
-      console.log('  ✔ ' + dataFile.replace(tree.ROOT + '/', '') + '（' + levels.length + ' 关，占位）');
+      dataWritten = true;
+      log('  ✔ ' + relOf(dataFile) + '（' + blocks.length + ' 个下级行政区 × 4 项，' +
+        levels.length + ' 关，全是占位）');
     }
 
     // 5) 写配置文件（默认不覆盖）
     const configFile = baseAbs + '.js';
+    let configWritten = false;
     if (fs.existsSync(configFile) && !force) {
-      console.log('  · ' + configFile.replace(tree.ROOT + '/', '') + ' 已存在，保留不动（人工数据优先）');
+      log('  · ' + relOf(configFile) + ' 已存在，保留不动（人工数据优先）');
     } else {
       fs.writeFileSync(configFile, renderConfigModule(item, label, levels, blocks.length, generator), 'utf8');
-      console.log('  ✔ ' + configFile.replace(tree.ROOT + '/', ''));
+      configWritten = true;
+      log('  ✔ ' + relOf(configFile));
     }
 
-    item.label = label;
-    item.districtCount = blocks.length;
-    item.levelCount = levels.length;
+    results.push({
+      slug: item.slug,
+      adcode: item.adcode,
+      name: label,
+      parentSlug: item.parentSlug,
+      dir: dirRel,
+      hasChildren,
+      featureCount: features.length,
+      districtCount: blocks.length,
+      levelCount: levels.length,
+      skippedFeatures: skipped,
+      files: {
+        geo: relOf(geoFile),
+        data: relOf(dataFile),
+        config: relOf(configFile),
+        geoBytes: written.bytes,
+      },
+      // 占位符清单：报告里据此告诉人"哪些文件、哪些字段还得补"
+      placeholders: dataWritten
+        ? {
+            file: relOf(dataFile),
+            fields: ['area', 'landmark', 'tagline', 'funFact'],
+            perDistrict: blocks.length,
+            levelBlurbs: levels.length,
+          }
+        : null,
+      wrote: { geo: true, data: dataWritten, config: configWritten },
+    });
   }
 
-  // 6) 重新生成注册表
+  return { status: 'created', slug, adcode, plan: planSummary, maps: results };
+}
+
+/* ============================ CLI ============================ */
+
+async function main() {
+  const args = parseArgs(process.argv.slice(2));
+  const quiet = args.flags.has('quiet');
+  const log = quiet ? () => {} : (m) => console.log(m);
+
+  const { adcode, slug, parentSlug } = validateArgs(args);
+
+  const result = await addMap({
+    adcode,
+    slug,
+    parentSlug,
+    force: args.flags.has('force'),
+    geoOnly: args.flags.has('geo-only'),
+    dryRun: args.flags.has('dry-run'),
+    log,
+  });
+
+  if (result.status === 'dry-run') return;
+
+  // 注册表：批量脚本会自己统一做一次，CLI 每次做完都顺手重建
   console.log('\n══════════ 更新注册表 ══════════');
   const regen = tree.regenerateRegistry({});
   regen.warns.forEach((p) => console.log('  ⚠ ' + p.message));
@@ -544,18 +614,39 @@ async function main() {
   if (regen.model.orphans.length) {
     console.log('  ℹ 父级待接入：' + regen.model.orphans.map((o) => o.id + '→' + o.parent).join(', '));
   }
+  if (!regen.warns.length && !regen.errors.length) console.log('  （无告警）');
 
-  // 7) 收尾清单
-  console.log('\n══════════ 还需要人工做的事 ══════════');
-  plan.forEach((p) => {
-    console.log('  · js/maps/' + (p.dir ? p.dir + '/' : '') + p.slug + '.data.js' +
-      ' → ' + p.districtCount + ' 个下级行政区的 area / landmark / tagline / funFact，' +
-      '以及 ' + p.levelCount + ' 关的分组依据与 blurb');
-  });
+  // 收尾清单
+  if (result.maps.length) {
+    console.log('\n══════════ 还需要人工做的事 ══════════');
+    result.maps.forEach((m) => {
+      if (!m.placeholders) {
+        console.log('  · ' + m.files.data + '（已存在，未改动）');
+        return;
+      }
+      console.log(
+        '  · ' + m.files.data + ' → ' + m.districtCount + ' 个下级行政区的 ' +
+        m.placeholders.fields.join(' / ') + '，以及 ' + m.levelCount + ' 关的分组依据与 blurb'
+      );
+    });
+  }
   console.log('  · 跑一遍测试确认没带坏老地图：node tools/e2e-test.js');
 }
 
-main().catch((err) => {
-  console.error('\n✘ ' + err.message);
-  process.exit(1);
-});
+/* 只有 "node tools/add-map.js" 直接运行时才走 CLI。
+ * 别的脚本 require 它（比如批量脚本）时不能顺手把 CLI 跑起来。 */
+if (require.main === module) {
+  main().catch((err) => {
+    console.error('\n✘ ' + err.message);
+    process.exit(1);
+  });
+}
+
+module.exports = {
+  addMap,
+  planChain,
+  parseArgs,
+  validateArgs,
+  LEVEL_SIZE,
+  slugForAdcode: slugs.slugForAdcode,
+};
