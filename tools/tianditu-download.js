@@ -124,7 +124,11 @@ async function main() {
         const level = portal.levelForAdcode(t.adcode);
         const r = await portal.fetchRegionMap(node.gb, level, { log });
         const skipped = [];
-        const geo = portal.normalizeOfficialGeo(r.geo, { onSkip: (info) => skipped.push(info) });
+        const geo = portal.normalizeOfficialGeo(r.geo, {
+          onSkip: (info) => skipped.push(info),
+          // 中国这一层要把「境界线」（含九段线）转成细面并进来，否则地图范围到不了南海
+          includeLines: t.adcode === 100000,
+        });
         const file = path.join(outDir, t.adcode + '_full.json');
         fs.writeFileSync(file, JSON.stringify(geo) + '\n', 'utf8');
         ok++;

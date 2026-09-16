@@ -47,7 +47,8 @@
     frame.style.height = vh + 'px';
     document.body.style.padding = '0';
   }
-  frame.src = '../index.html?map=' + encodeURIComponent(mapId);
+  const level = q.get('level');
+  frame.src = '../index.html?map=' + encodeURIComponent(mapId) + (level ? '&level=' + level : '');
 
   const debugOn = q.get('debug') === '1';
   /* 日志直接写进【被测页面】的 DOM：headless 里没有控制台，

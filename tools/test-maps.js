@@ -131,6 +131,35 @@ slugs.forEach((slug) => {
   }
 });
 
+/* 九段线专项：中国地图必须包含「南海诸岛及海上界线」这条非行政区要素，
+ * 且它的纬度要伸到南海（否则地图范围到不了那里，等于没画）。
+ * 官方数据把它作为 MultiLineString 给出，我们在下载时转成了细长多边形并进 geo。 */
+(function checkNineDashLine() {
+  const chinaFile = path.join(tree.MAPS_DIR, 'china.geo.js');
+  if (!fs.existsSync(chinaFile)) return;
+  const win = sandboxLoad([chinaFile]);
+  const fc = win.MAP_GEO && win.MAP_GEO.china;
+  const extra = fc ? fc.features.filter((f) => !/^\d{6}$/.test(String(f.properties.adcode))) : [];
+  check('中国地图含非行政区要素（南海诸岛及海上界线）', extra.length > 0,
+    '一条都没有 —— 九段线会缺失');
+  if (extra.length) {
+    let minLat = Infinity;
+    const walk = (x) => {
+      if (typeof x[0] === 'number') { if (x[1] < minLat) minLat = x[1]; return; }
+      x.forEach(walk);
+    };
+    walk(extra[0].geometry.coordinates);
+    check('九段线伸到南海（纬度 < 5°N，实测 ' + minLat.toFixed(2) + '°N）', minLat < 5,
+      '最低只到 ' + minLat.toFixed(2) + '°N，说明要素不对');
+    check('九段线不参与拼图（非数字 adcode 不进关卡）',
+      (win.MAP_DATA && win.MAP_DATA.china ? win.MAP_DATA.china.levels : [])
+        .every((l) => l.adcodes.every((a) => /^\d{6}$/.test(String(a)))) ||
+      !extra.some((f) => (win.MAP_DATA.china.levels || [])
+        .some((l) => l.adcodes.includes(f.properties.adcode))),
+      '九段线被塞进关卡了');
+  }
+})();
+
 console.log('\n  → ' + passed + ' 通过 / ' + failed + ' 失败');
 if (failed) console.log('  失败项：' + failures.join('、'));
 if (broken) console.log('  ⚠ 其中有 ' + broken + ' 张地图存在"会让引擎崩"的问题');

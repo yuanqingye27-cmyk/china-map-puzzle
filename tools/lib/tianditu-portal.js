@@ -140,6 +140,8 @@ function gbToAdcode(gb) {
  */
 function normalizeOfficialGeo(raw, opts) {
   const onSkip = (opts && opts.onSkip) || (() => {});
+  const includeLines = !!(opts && opts.includeLines);
+  const lineFeatures = [];
   const features = [];
   raw.features.forEach((f) => {
     const p = f.properties || {};
@@ -151,6 +153,10 @@ function normalizeOfficialGeo(raw, opts) {
      * ⚠️ 注意：南海诸岛/九段线这类要素也在这一层，跳过意味着底图不画它 ——
      *    这一条要单独作为合规事项处理，不能默默丢掉。 */
     if (!geom || (geom.type !== 'Polygon' && geom.type !== 'MultiPolygon')) {
+      if (includeLines && geom && /LineString/.test(geom.type)) {
+        lineFeatures.push(f);   // 稍后统一转成细长多边形并进来
+        return;
+      }
       onSkip({ name: p.name || '(无名)', gb: p.gb, type: geom && geom.type, reason: '非面几何' });
       return;
     }
@@ -170,7 +176,66 @@ function normalizeOfficialGeo(raw, opts) {
       geometry: geom,
     });
   });
+
+  /* 中国这一层：把「境界线」（含九段线）转成细长多边形并进来。
+   * 它有非数字 adcode，所以不进关卡、不进资料卡，只作为底图上的线（见坑 #24）。 */
+  if (includeLines && lineFeatures.length) {
+    const boundary = linesToBoundaryFeature(lineFeatures, opts);
+    if (boundary) features.push(boundary);
+  }
+
   return { type: 'FeatureCollection', features };
+}
+
+
+/**
+ * 把官方的「境界线」（MultiLineString：九段线、海上界线、未定国界段）
+ * 转成**细长多边形**，作为一条非行政区要素并入 geo。
+ *
+ * 为什么要这么绕：引擎只认面（拼图块必须是面），而九段线是线。
+ * 但九段线又必须画出来（地图审核要求），且它的纬度一路到 3.4°N ——
+ * 如果不把它放进 geo，地图的范围就只到海南（约 18°N），九段线会落在画布外。
+ * 所以做法是：给每条线按 ±halfWidth 做个极窄的"缓冲带"，拼成一个面要素。
+ * 这和 DataV 当年那条 `100000_JD` 是同一个套路，只是几何换成了官方数据。
+ *
+ * 它带一个**非数字 adcode**，因此：不进关卡、不进资料卡、不参与拼图，
+ * 只作为底图上的一条线存在（这条约定见 SOP 坑 #24）。
+ */
+function linesToBoundaryFeature(lineFeatures, opts) {
+  const halfWidth = (opts && opts.halfWidth) || 0.004; // 度 ≈ 440 米，国境尺度上看得见
+  const adcode = (opts && opts.adcode) || '100000_JD';
+  const name = (opts && opts.name) || '南海诸岛及海上界线';
+
+  const polys = [];
+  lineFeatures.forEach((f) => {
+    const parts = f.geometry.type === 'MultiLineString' ? f.geometry.coordinates : [f.geometry.coordinates];
+    parts.forEach((line) => {
+      const ring = [];
+      for (let i = 0; i + 1 < line.length; i++) {
+        const a = line[i];
+        const b = line[i + 1];
+        const dx = b[0] - a[0];
+        const dy = b[1] - a[1];
+        const len = Math.hypot(dx, dy) || 1;
+        const nx = (-dy / len) * halfWidth;
+        const ny = (dx / len) * halfWidth;
+        ring.push(
+          [a[0] + nx, a[1] + ny],
+          [b[0] + nx, b[1] + ny],
+          [b[0] - nx, b[1] - ny],
+          [a[0] - nx, a[1] - ny]
+        );
+      }
+      if (ring.length >= 4) polys.push([ring]);
+    });
+  });
+
+  if (!polys.length) return null;
+  return {
+    type: 'Feature',
+    properties: { adcode, name, center: null, kind: 'boundary-lines' },
+    geometry: { type: 'MultiPolygon', coordinates: polys },
+  };
 }
 
 /** 遍历整棵树，收集 gb → { gb, name, level, pGb, adcode } */
@@ -226,6 +291,7 @@ module.exports = {
   fetchRegionMap,
   gbToAdcode,
   normalizeOfficialGeo,
+  linesToBoundaryFeature,
   flattenMenu,
   levelForAdcode,
 };

@@ -92,7 +92,10 @@ const PROVIDERS = {
       const level = portal.levelForAdcode(adcode);
       const r = await portal.fetchRegionMap(gb, level, { log: opts && opts.log });
       const skipped = [];
-      const geo = portal.normalizeOfficialGeo(r.geo, { onSkip: (i) => skipped.push(i) });
+      const geo = portal.normalizeOfficialGeo(r.geo, {
+        onSkip: (i) => skipped.push(i),
+        includeLines: adcode === 100000, // 中国的九段线/海上界线
+      });
       return {
         geo,
         url: r.url,
@@ -176,7 +179,11 @@ const PROVIDERS = {
         return isFinite(a) && isDirectChild(a);
       });
 
-      const picked = children.length ? children : fc.features;
+      /* 两种模式语义不同：
+       *   --dir：<adcode>_full.json 就是这个地图包的全部内容，**原样使用** ——
+       *          否则非行政区要素（中国的九段线/海上界线）会被"下级过滤"误伤掉。
+       *   --file：一个大的全国数据集，这时才需要按 adcode 层级规则挑出直接下级。 */
+      const picked = file ? (children.length ? children : fc.features) : fc.features;
       return {
         geo: geoLib.normalizeGeo({ type: 'FeatureCollection', features: picked }, url),
         url,

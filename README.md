@@ -109,6 +109,7 @@ tools/lib/wkt.js              天地图返回的是 WKT，这一层转成 GeoJSO
 tools/lib/tianditu-geo.js     天地图行政区划接口客户端（需 Key）
 tools/lib/geo-source.js       数据源抽象：datav | tianditu | file
 tools/test-wkt.js             WKT 转换的离线单测（13 项）
+tools/test-maps.js            地图包自洽离线自检（118 项）
 tools/lib/slugs.js            adcode ↔ 拼音 slug（省表 / 地级表 / 兜底命名）
 batch-report.json             最近一次批量接入的报告（成功/失败/待人工补清单）
 tools/build-registry.js       扫描 js/maps/ 生成登记册（children 由 parent 反推）
@@ -353,7 +354,7 @@ body.scrollWidth   468   ← 整页横向溢出，右侧按钮被推出屏幕
 
 ## 测试
 
-项目带**三套端到端测试 + 两项离线检查，共 879 项断言**，全部在真实浏览器里模拟真人操作：
+项目带**三套端到端测试 + 两项离线检查，共 882 项断言**，全部在真实浏览器里模拟真人操作：
 
 ```bash
 node tools/e2e-test.js
@@ -398,9 +399,13 @@ node tools/replace-geo-source.js --source=file --dir=data/tianditu-official
 所以**新加地图不带参数也是官方数据**。
 
 > 两点如实说明：① 官方边界是**简化边界**（成都顶点数约为 DataV 的 29%），形状更"方"，
-> 但相邻区县共用顶点、**没有细缝**；② 中国层的"境界线"（含南海诸岛）是线要素，
-> 引擎只认面，目前未绘制 —— 这是待处理的合规遗留项。详见
-> [SOP 5.12 地图合规与数据来源](成都拼图项目开发SOP与经验复盘.md)。
+> 但相邻区县共用顶点、**没有细缝**；② 中国层的「境界线」（九段线、海上界线、未定国界段）
+> 在下载时被转成极窄多边形并入了 geo，因此底图会正常绘制 —— 见下图（第四关含海南，视野覆盖南海）：
+>
+> ![南海诸岛及九段线](docs/ui-china-nanhai.png)
+>
+> 引擎每关会把视图推近到本关范围，所以九段线只在视野覆盖南海时可见。
+> 详见 [SOP 5.12 地图合规与数据来源](成都拼图项目开发SOP与经验复盘.md)。
 
 ## 数据来源与口径
 
