@@ -39,6 +39,12 @@ const DEFAULT_DELAY_MS = 600;
 const MAX_ATTEMPTS = 2;
 const HTTP_TIMEOUT_MS = 20000;
 
+/* 必须伪装成浏览器 UA。实测：不带 UA 时天地图的 WAF 直接返回 403/418（HTML 错误页），
+ * 带上 UA 才会走到接口本身、返回 {"code":301001,"msg":"非法key"} 这种正经 JSON。
+ * 这是本地实测出来的，不是猜的。 */
+const USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 ' +
+  '(KHTML, like Gecko) Chrome/124.0 Safari/537.36';
+
 /* 这些错误码重试没有意义（Key 不对 / 没配额 / 参数错），要求"立刻失败并说清原因" */
 const FATAL_CODES = {
   301001: 'Key 非法（请到天地图控制台确认 tk 是否正确、是否绑定了服务端调用）',
@@ -96,22 +102,38 @@ function resolveKey(explicit) {
 function httpGetJson(url) {
   return new Promise((resolve, reject) => {
     const mod = url.startsWith('https') ? https : http;
-    const req = mod.get(url, { timeout: HTTP_TIMEOUT_MS }, (res) => {
-      if (res.statusCode !== 200) {
-        res.resume();
-        // WAF 拦截会返回 HTML 页面（实测：不带 tk 时被 CloudWAF 拦成 418）
-        reject(new Error('HTTP ' + res.statusCode + '（可能是被 WAF 拦了，检查请求头/参数）'));
-        return;
-      }
+    const req = mod.get(url, {
+      timeout: HTTP_TIMEOUT_MS,
+      headers: {
+        'User-Agent': USER_AGENT,
+        'Accept': 'application/json, text/plain, */*',
+        'Referer': 'https://www.tianditu.gov.cn/',
+      },
+    }, (res) => {
+      /* ⚠️ 实测结论（用假 Key 打出来的）：**天地图对"非法 Key"返回的是 HTTP 403，
+       * 但 body 是正经 JSON** —— {"code":301001,"msg":"非法key",...}。
+       * 所以绝不能只看状态码，必须先把 body 读出来：
+       *   能解析成 JSON  → 交给上层按 code 判断（业务错误）
+       *   解析不出来     → 才是 WAF/网关拦的 HTML 页（那种才是"网络层"问题）
+       * 一开始我按状态码直接判成 WAF，把真正的鉴权错误盖掉了。 */
       const chunks = [];
       res.on('data', (c) => chunks.push(c));
       res.on('end', () => {
         const text = Buffer.concat(chunks).toString('utf8');
+        let json = null;
         try {
-          resolve(JSON.parse(text));
+          json = JSON.parse(text);
         } catch (e) {
-          reject(new Error('返回的不是 JSON（前 80 字）：' + text.slice(0, 80)));
+          json = null;
         }
+        if (json) { resolve(json); return; }
+
+        const snippet = text.replace(/\s+/g, ' ').slice(0, 80);
+        const err = new Error('HTTP ' + res.statusCode + '，返回的不是 JSON（' + snippet + '）' +
+          '—— 多半被 WAF 拦了：检查 UA / 换网络出口');
+        // WAF 拦截重试无意义（实测不带 UA 时会持续 403/418）
+        if (res.statusCode === 403 || res.statusCode === 418) err.fatal = true;
+        reject(err);
       });
     });
     req.on('timeout', () => req.destroy(new Error('请求超时（' + HTTP_TIMEOUT_MS + 'ms）')));
