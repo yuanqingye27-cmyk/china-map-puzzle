@@ -1,0 +1,182 @@
+/* =====================================================================
+ * 地图包 · 四川省 · 资料与关卡【占位骨架，等待人工补全】
+ * ---------------------------------------------------------------------
+ * 路径：js/maps/china/sichuan.data.js
+ * 生成：node tools/add-map.js --adcode=510000 --name=sichuan
+ *
+ * ⚠️ 这是脚本生成的占位内容，自动化流程**不会**再覆盖本文件：
+ *    重新跑 add-map.js 只会刷新 .geo.js，你在这里写的文字是安全的。
+ *
+ * 待补清单（21 个下级行政区 × 4 项）：
+ *   1. area      面积（km²，数字；缺失时信息卡显示"—"）
+ *   2. landmark  地标
+ *   3. tagline   一句话介绍
+ *   4. funFact   冷知识
+ * 关卡（levels）现在只是"每 8 个一组"的机械切分，
+ * 真正好玩的关卡应当按地理/文化逻辑重新分组，并补上 blurb。
+ * ===================================================================== */
+
+(function (global) {
+  'use strict';
+
+  /** 下级行政区资料，key 是国家行政区划代码（adcode） */
+  const DISTRICTS = {
+    "510100": {
+      area: null,                    // TODO 面积（km²，数字）
+      landmark: '（待补充）',
+      tagline: '（待补充）',
+      funFact: '（待补充）',
+    }, // 成都市
+    "510300": {
+      area: null,                    // TODO 面积（km²，数字）
+      landmark: '（待补充）',
+      tagline: '（待补充）',
+      funFact: '（待补充）',
+    }, // 自贡市
+    "510400": {
+      area: null,                    // TODO 面积（km²，数字）
+      landmark: '（待补充）',
+      tagline: '（待补充）',
+      funFact: '（待补充）',
+    }, // 攀枝花市
+    "510500": {
+      area: null,                    // TODO 面积（km²，数字）
+      landmark: '（待补充）',
+      tagline: '（待补充）',
+      funFact: '（待补充）',
+    }, // 泸州市
+    "510600": {
+      area: null,                    // TODO 面积（km²，数字）
+      landmark: '（待补充）',
+      tagline: '（待补充）',
+      funFact: '（待补充）',
+    }, // 德阳市
+    "510700": {
+      area: null,                    // TODO 面积（km²，数字）
+      landmark: '（待补充）',
+      tagline: '（待补充）',
+      funFact: '（待补充）',
+    }, // 绵阳市
+    "510800": {
+      area: null,                    // TODO 面积（km²，数字）
+      landmark: '（待补充）',
+      tagline: '（待补充）',
+      funFact: '（待补充）',
+    }, // 广元市
+    "510900": {
+      area: null,                    // TODO 面积（km²，数字）
+      landmark: '（待补充）',
+      tagline: '（待补充）',
+      funFact: '（待补充）',
+    }, // 遂宁市
+    "511000": {
+      area: null,                    // TODO 面积（km²，数字）
+      landmark: '（待补充）',
+      tagline: '（待补充）',
+      funFact: '（待补充）',
+    }, // 内江市
+    "511100": {
+      area: null,                    // TODO 面积（km²，数字）
+      landmark: '（待补充）',
+      tagline: '（待补充）',
+      funFact: '（待补充）',
+    }, // 乐山市
+    "511300": {
+      area: null,                    // TODO 面积（km²，数字）
+      landmark: '（待补充）',
+      tagline: '（待补充）',
+      funFact: '（待补充）',
+    }, // 南充市
+    "511400": {
+      area: null,                    // TODO 面积（km²，数字）
+      landmark: '（待补充）',
+      tagline: '（待补充）',
+      funFact: '（待补充）',
+    }, // 眉山市
+    "511500": {
+      area: null,                    // TODO 面积（km²，数字）
+      landmark: '（待补充）',
+      tagline: '（待补充）',
+      funFact: '（待补充）',
+    }, // 宜宾市
+    "511600": {
+      area: null,                    // TODO 面积（km²，数字）
+      landmark: '（待补充）',
+      tagline: '（待补充）',
+      funFact: '（待补充）',
+    }, // 广安市
+    "511700": {
+      area: null,                    // TODO 面积（km²，数字）
+      landmark: '（待补充）',
+      tagline: '（待补充）',
+      funFact: '（待补充）',
+    }, // 达州市
+    "511800": {
+      area: null,                    // TODO 面积（km²，数字）
+      landmark: '（待补充）',
+      tagline: '（待补充）',
+      funFact: '（待补充）',
+    }, // 雅安市
+    "511900": {
+      area: null,                    // TODO 面积（km²，数字）
+      landmark: '（待补充）',
+      tagline: '（待补充）',
+      funFact: '（待补充）',
+    }, // 巴中市
+    "512000": {
+      area: null,                    // TODO 面积（km²，数字）
+      landmark: '（待补充）',
+      tagline: '（待补充）',
+      funFact: '（待补充）',
+    }, // 资阳市
+    "513200": {
+      area: null,                    // TODO 面积（km²，数字）
+      landmark: '（待补充）',
+      tagline: '（待补充）',
+      funFact: '（待补充）',
+    }, // 阿坝藏族羌族自治州
+    "513300": {
+      area: null,                    // TODO 面积（km²，数字）
+      landmark: '（待补充）',
+      tagline: '（待补充）',
+      funFact: '（待补充）',
+    }, // 甘孜藏族自治州
+    "513400": {
+      area: null,                    // TODO 面积（km²，数字）
+      landmark: '（待补充）',
+      tagline: '（待补充）',
+      funFact: '（待补充）',
+    }, // 凉山彝族自治州
+  };
+
+  /** 关卡：自动切分的占位版本，请按地理逻辑重排 */
+  const LEVELS = [
+    {
+      id: 'l1',
+      name: '第一关',
+      short: '第一关',
+      color: '#3939d0',
+      blurb: '（待补充：说明这一关的分组依据，比如"中心城区"或"沿江城市带"）',
+      adcodes: [510100, 510300, 510400, 510500, 510600, 510700, 510800, 510900],
+    },
+    {
+      id: 'l2',
+      name: '第二关',
+      short: '第二关',
+      color: '#bc39d0',
+      blurb: '（待补充：说明这一关的分组依据，比如"中心城区"或"沿江城市带"）',
+      adcodes: [511000, 511100, 511300, 511400, 511500, 511600, 511700, 511800],
+    },
+    {
+      id: 'l3',
+      name: '第三关',
+      short: '第三关',
+      color: '#d03961',
+      blurb: '（待补充：说明这一关的分组依据，比如"中心城区"或"沿江城市带"）',
+      adcodes: [511900, 512000, 513200, 513300, 513400],
+    },
+  ];
+
+  const MAP_DATA = (global.MAP_DATA = global.MAP_DATA || {});
+  MAP_DATA['sichuan'] = { districts: DISTRICTS, levels: LEVELS };
+})(window);

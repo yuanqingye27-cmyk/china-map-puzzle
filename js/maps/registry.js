@@ -43,14 +43,42 @@
   const REGISTRY =
   {
     "version": 1,
-    "roots": [],
-    "orphans": [
-      {
-        "id": "chengdu",
-        "parent": "sichuan"
-      }
+    "roots": [
+      "china"
     ],
+    "orphans": [],
     "maps": {
+      "china": {
+        "id": "china",
+        "name": "中国",
+        "parent": null,
+        "adcode": 100000,
+        "children": [
+          "sichuan"
+        ],
+        "dir": "",
+        "scripts": [
+          "china.geo.js",
+          "china.data.js",
+          "china.js"
+        ]
+      },
+      "sichuan": {
+        "id": "sichuan",
+        "name": "四川省",
+        "parent": "china",
+        "adcode": 510000,
+        "children": [
+          "chengdu",
+          "zigong"
+        ],
+        "dir": "china",
+        "scripts": [
+          "china/sichuan.geo.js",
+          "china/sichuan.data.js",
+          "china/sichuan.js"
+        ]
+      },
       "chengdu": {
         "id": "chengdu",
         "name": "成都",
@@ -62,6 +90,19 @@
           "china/sichuan/chengdu.geo.js",
           "china/sichuan/chengdu.data.js",
           "china/sichuan/chengdu.js"
+        ]
+      },
+      "zigong": {
+        "id": "zigong",
+        "name": "自贡市",
+        "parent": "sichuan",
+        "adcode": 510300,
+        "children": [],
+        "dir": "china/sichuan",
+        "scripts": [
+          "china/sichuan/zigong.geo.js",
+          "china/sichuan/zigong.data.js",
+          "china/sichuan/zigong.js"
         ]
       }
     }

@@ -1,13 +1,14 @@
 /**
- * 端到端测试驱动（一次跑两套）。
+ * 端到端测试驱动（一次跑三套）。
  *
  * 思路：起一个本地 HTTP 服务，然后把测试载体页丢进 headless Chrome。
  * 载体页把被测页面装进 iframe、在里面模拟真人操作，跑完用隐表单 POST
  * 把结果回传（不吃 CORS 限制，也不吃 URL 长度限制）。
  *
- * 两套测试各管一段：
+ * 三套测试各管一段：
  *   selftest.html     城市回归 · 成都真实数据 + UI/动画（被测页 = index.html）
  *   engine-test.html  引擎功能 · 虚构 tiny-city 数据（被测页 = engine-host.html）
+ *   map-smoke.html    多地图冒烟 · 登记册里每一张地图都真能玩（被测页 = index.html?map=<id>）
  * 每套单独起一个 Chrome（独立 user-data-dir），因此两边的 localStorage 互不可见。
  *
  * 为什么不直接上 CDP？headless Chrome 153 在 Runtime.enable 时会 SIGTRAP 崩溃，
@@ -26,10 +27,17 @@ const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const HTTP_PORT = 9451;
 const TIMEOUT_MS = 90000;
 
-/** 要跑的两套测试（顺序执行，每套各起一个 Chrome） */
+/**
+ * 要跑的测试套件（顺序执行，每套各起一个 Chrome）。
+ * 三套各管一段：
+ *   selftest.html     城市回归 · 成都真实数据 + 全部 UI/动画细节
+ *   engine-test.html  引擎功能 · 只用虚构 tiny-city，证明引擎与具体地图无关
+ *   map-smoke.html    多地图冒烟 · 登记册里【每一张】地图都真能玩（生成物验收）
+ */
 const SUITES = [
   { name: '城市回归 · 成都（真实数据 + UI/动画）', page: 'selftest.html' },
   { name: '引擎功能 · 虚构 tiny-city（通用逻辑）', page: 'engine-test.html' },
+  { name: '多地图冒烟 · 登记册里的每一张地图', page: 'map-smoke.html' },
 ];
 
 /** 当前正在跑的套件；页面回传结果时用它把 Promise 收尾 */

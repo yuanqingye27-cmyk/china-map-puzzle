@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>多地图冒烟 · 每一张已登记地图都真的能玩吗</title>
+<style>
+  body { font: 13px/1.6 ui-monospace, Menlo, monospace; margin: 0; padding: 12px; background: #10161a; color: #cfe; }
+  h1 { font-size: 15px; margin: 0 0 8px; }
+  iframe { width: 1600px; height: 1000px; border: 0; display: block; background: #fff; }
+  pre { white-space: pre-wrap; }
+  /* ⚠️ 被测 iframe 必须留在**正常文档流**里（不能藏到屏幕外、不能 display:none）。
+     原因：拖拽测试要把「碎片中心」(getBoundingClientRect，iframe 视口坐标) 和
+     「凹槽内的落点」(getScreenCTM，可能带上 iframe 在父页里的偏移) 混用；
+     一旦 iframe 被挪到远离原点的地方，这两个坐标系就差了十万八千里，
+     落点会被判成"没落在任何凹槽里"，于是每一张地图都"拖不进去" —— 假故障。 */
+</style>
+</head>
+<body>
+<!-- ⚠️ 被测 iframe 必须放在 body 最前面（与 selftest.html 同款）。
+     拖拽要靠 getBoundingClientRect（碎片中心）和 getScreenCTM（凹槽落点）两套坐标，
+     它们在 iframe 内部是一致的，但页面顶部若先塞了标题/日志把 iframe 推下去，
+     实测会让落点整体偏移几十像素，于是"每一张地图都拖不进去"—— 假故障，白排查半天。 -->
+<div id="frames"></div>
+
+<h1>多地图冒烟 · 每一张已登记地图都真的能玩吗</h1>
+<pre id="result">running…</pre>
+
+<form id="rform" method="post" target="rsink" style="display:none"></form>
+<iframe name="rsink" style="display:none" title="report sink"></iframe>
+
+<!-- 直接读登记册：它只是一份元信息，没有 DOM 依赖 -->
+<script src="../js/maps/registry.js"></script>
+<script>
+/* =====================================================================
+ * 多地图冒烟套件
+ * ---------------------------------------------------------------------
+ * 前面两套测的是"引擎逻辑"和"成都这张图"。这一套管的是**地图工厂**：
+ * 对 registry 里登记的每一张地图，都真的把 index.html?map=<id> 打开一遍，
+ * 检查"它是不是一张能玩的拼图"，而不是"文件生成了就算成功"。
+ *
+ * 每张地图验八件事：
+ *   1. 就绪标记 = 这张地图的 id（说明 loader 按需注入成功）
+ *   2. 凹槽数 = 当前关卡的下级行政区数
+ *   3. 托盘碎片数与凹槽数一致
+ *   4. 三关（或 N 关）加起来正好覆盖 GeoJSON 的全部行政区，不多不少不重复
+ *   5. 每个凹槽都能查到资料卡
+ *   6. **真的拖一块进去能拼上**（这是"能玩"的唯一硬证据）
+ *   7. 拼上后信息卡显示的是正确那个区的名字
+ *   8. 全程没有未捕获异常
+ *
+ * 为什么值得单独一套：自动化脚本能"生成文件"，但生成物能不能玩只有跑起来才知道。
+ * 这套第一次运行就抓出了真相（见仓库 SOP）。
+ * ===================================================================== */
+(function () {
+  'use strict';
+
+  const PORT = new URLSearchParams(location.search).get('port');
+  const ONLY = new URLSearchParams(location.search).get('maps'); // 可选：?maps=zigong,chengdu
+  const out = [];
+  let passed = 0;
+  let failed = 0;
+  const failures = [];
+
+  function check(name, cond, detail) {
+    if (cond) { passed++; out.push('  ✔ ' + name); }
+    else { failed++; failures.push(name); out.push('  ✘ ' + name + (detail ? '  → ' + detail : '')); }
+  }
+  function section(title) { out.push('\n【' + title + '】'); }
+  function info(text) { out.push('  · ' + text); }
+
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  async function waitFor(fn, timeoutMs, label) {
+    const deadline = Date.now() + (timeoutMs || 10000);
+    for (;;) {
+      let v = null;
+      try { v = fn(); } catch (e) { v = null; }
+      if (v) return v;
+      if (Date.now() > deadline) throw new Error('等待超时：' + (label || '条件未满足'));
+      await sleep(50);
+    }
+  }
+
+  let reported = false;
+  function report(payload) {
+    if (reported) return;
+    reported = true;
+    out.push('\n合计：' + payload.passed + ' 通过 / ' + payload.failed + ' 失败');
+    if (payload.failed) out.push('失败项：' + (payload.failures || []).join('、'));
+    document.getElementById('result').textContent = out.join('\n');
+    document.title = 'TESTRESULT ' + payload.passed + 'P/' + payload.failed + 'F';
+    try {
+      const form = document.getElementById('rform');
+      form.action = 'http://127.0.0.1:' + PORT + '/report';
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'd';
+      input.value = JSON.stringify(payload);
+      form.appendChild(input);
+      form.submit();
+    } catch (e) {
+      out.push('上报失败：' + e.message);
+    }
+  }
+
+  /* ---------------- iframe 内的操作辅助（与其它两套同款） ---------------- */
+
+  function fire(W, D, target, type, x, y, extra) {
+    const opts = Object.assign(
+      {
+        bubbles: true, cancelable: true, composed: true,
+        clientX: x, clientY: y, pointerId: 1, pointerType: 'mouse',
+        isPrimary: true, button: 0, buttons: type === 'pointerup' ? 0 : 1,
+      },
+      extra || {}
+    );
+    target.dispatchEvent(new W.PointerEvent(type, opts));
+  }
+
+  /** 在凹槽形状内部找一个确实落在多边形里的点（bbox 中心对凹形可能落在外面） */
+  function insidePointOf(W, D, adcode) {
+    const pathEl = D.querySelector('.slot[data-adcode="' + adcode + '"] path');
+    if (!pathEl) return null;
+    const bb = pathEl.getBBox();
+    const ctm = pathEl.getScreenCTM();
+    for (let iy = 1; iy <= 9; iy++) {
+      for (let ix = 1; ix <= 9; ix++) {
+        const p = new W.DOMPoint(bb.x + bb.width * ix / 10, bb.y + bb.height * iy / 10);
+        if (pathEl.isPointInFill(p)) {
+          const s = p.matrixTransform(ctm);
+          return { x: s.x, y: s.y };
+        }
+      }
+    }
+    return null;
+  }
+
+  /**
+   * 等地图视图停下动画。
+   *
+   * 为什么必须有这一步：关卡开始时引擎会用 viewBox 插值把视图**平滑推近**到本关范围，
+   * 动画期间 getScreenCTM() 每一帧都在变。如果在这期间取凹槽坐标、再慢慢拖过去，
+   * 等松手时引擎拿到的是"新的一帧"的 CTM —— 落点就飘到别处去了，
+   * 表现为"每一张地图都拖不进去"，而其实点和逻辑都没错。实测就栽在这里。
+   */
+  async function waitViewStable(D) {
+    let prev = null;
+    for (let i = 0; i < 80; i++) {
+      const el = D.getElementById('map');
+      const m = el && el.getScreenCTM ? el.getScreenCTM() : null;
+      const key = m ? [m.a, m.d, m.e, m.f].join(',') : 'null';
+      if (prev === key) return true;
+      prev = key;
+      await sleep(100);
+    }
+    return false;
+  }
+
+  /**
+   * 模拟一次拖拽，并**等这次尝试真正结算完**再返回。
+   *
+   * ⚠️ 为什么必须等、不能 sleep 一个固定值：
+   *   判定正确之后，引擎先播 SNAP_MS(300ms) 的吸附动画，动画结束才真正落位
+   *   （把碎片标记为已用、从 state.placed 里加进去、弹信息卡）。
+   *   第一版这里睡了 280ms —— 差 20ms，于是每一张地图都"拖不进去"，
+   *   看起来像引擎坏了，其实是测试在跟动画抢时间。
+   *   现在改成轮询：幽灵层消失 + tries 已累加，才算这次拖拽结算完毕。
+   */
+  async function drag(W, D, adcode, to, steps) {
+    steps = steps || 6;
+    const triesBefore = (W.__ENGINE__ && W.__ENGINE__.getState().tries) || 0;
+
+    const piece = D.querySelector('.piece[data-adcode="' + adcode + '"]');
+    const r = piece.getBoundingClientRect();
+    const from = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+
+    fire(W, D, piece, 'pointerdown', from.x, from.y);
+    for (let i = 1; i <= steps; i++) {
+      const t = i / steps;
+      fire(W, D, D, 'pointermove', from.x + (to.x - from.x) * t, from.y + (to.y - from.y) * t);
+      await sleep(24);
+    }
+
+    // 幽灵层在 → 说明确实进入了"拖拽"而不是被当成"点击选中"
+    const ghostEl = D.querySelector('.drag-ghost');
+    const ghost = D.querySelectorAll('.drag-ghost').length;
+    let ghostCenter = null;
+    if (ghostEl) {
+      const gr = ghostEl.getBoundingClientRect();
+      ghostCenter = { x: gr.left + gr.width / 2, y: gr.top + gr.height / 2 };
+    }
+    fire(W, D, D, 'pointerup', to.x, to.y);
+
+    // 三种结局耗时不同（拼对 300ms / 放错 420ms 抖动 / 没落上立即），所以轮询而不是定时
+    try {
+      await waitFor(() => {
+        const st = W.__ENGINE__ ? W.__ENGINE__.getState() : null;
+        return st && st.tries > triesBefore && !D.querySelector('.drag-ghost');
+      }, 5000, '拖拽结算');
+    } catch (e) { /* 超时也让断言去报，detail 里能看到现场 */ }
+
+    return {
+      ghost,
+      ghostCenter,
+      toast: (D.getElementById('boardToast') || {}).textContent,
+      selected: !!D.querySelector('.piece[data-adcode="' + adcode + '"].is-selected'),
+      // 用引擎自己的公式复算：它会把这个落点解析到哪个凹槽？
+      resolved: (function () {
+        const mapEl = D.getElementById('map');
+        if (!mapEl || !mapEl.getScreenCTM) return 'no #map';
+        const mp = new W.DOMPoint(to.x, to.y).matrixTransform(mapEl.getScreenCTM().inverse());
+        let hit = null;
+        D.querySelectorAll('.slot').forEach((g) => {
+          const pth = g.querySelector('path');
+          if (pth && pth.isPointInFill(mp)) hit = Number(g.dataset.adcode);
+        });
+        return hit;
+      })(),
+    };
+  }
+
+  /* ---------------- 单张地图的体检 ---------------- */
+
+  async function inspectMap(id, entry) {
+    section('地图 ' + id + '（' + entry.name + '，parent=' + (entry.parent || '根') + '）');
+
+    const frame = document.createElement('iframe');
+    frame.src = '../index.html?map=' + encodeURIComponent(id);
+    document.getElementById('frames').appendChild(frame);
+
+    const pageErrors = [];
+    try {
+      await new Promise((r) => frame.addEventListener('load', r, { once: true }));
+      const W0 = frame.contentWindow;
+      W0.addEventListener('error', (e) => pageErrors.push(e.message));
+      W0.addEventListener('unhandledrejection', (e) => pageErrors.push('unhandled: ' + e.reason));
+    } catch (e) { /* 下面统一按超时处理 */ }
+
+    let ready = null;
+    try {
+      ready = await waitFor(
+        () => frame.contentDocument.documentElement.getAttribute('data-map-ready'),
+        25000,
+        id + ' 就绪'
+      );
+    } catch (e) {
+      // 加载失败时 game.js 会把原因写进 body，把它原样带出来，别让人猜
+      let why = '';
+      try { why = (frame.contentDocument.body.textContent || '').slice(0, 160); } catch (e2) { why = '（读不到内容）'; }
+      check('[' + id + '] 地图能加载并就绪', false, why || '超时');
+      frame.remove();
+      return;
+    }
+
+    const W = frame.contentWindow;
+    const D = frame.contentDocument;
+
+    check('[' + id + '] 就绪标记正确', ready === id, '实际 ' + ready);
+
+    const config = W.MAP_PACKAGES[id];
+    check('[' + id + '] 配置已登记到 MAP_PACKAGES', !!config);
+    if (!config || !config.geo) { frame.remove(); return; }
+
+    // 开场动画会盖住整页，先点掉（同一次会话只播一次）
+    const intro = D.getElementById('intro');
+    if (intro && !intro.hidden) { intro.click(); await sleep(700); }
+
+    const geoAdcodes = config.geo.features.map((f) => f.properties.adcode).sort((a, b) => a - b);
+    const geoSet = new Set(geoAdcodes);
+    // 行政区才该进关卡；非行政区 feature（如九段线 "100000_JD"）画底图但不当拼图块
+    const adminAdcodes = geoAdcodes.filter((a) => /^\d{6}$/.test(String(a)));
+    const nonAdmin = config.geo.features.filter((f) => !/^\d{6}$/.test(String(f.properties.adcode)));
+    const levelAdcodes = [];
+    (config.levels || []).forEach((l) => l.adcodes.forEach((a) => levelAdcodes.push(a)));
+    levelAdcodes.sort((a, b) => a - b);
+
+    if (nonAdmin.length) {
+      info(id + ' 有 ' + nonAdmin.length + ' 个非行政区 feature（' +
+        nonAdmin.map((f) => String(f.properties.adcode)).join('、') + '），只画底图、不进关卡');
+    }
+
+    // 1) 关卡数据一致性：不重复、都能在 geo 里找到、且覆盖全部行政区
+    //    （写关卡时漏一个区县 / 写错 adcode 是这里最常见的错）
+    check('[' + id + '] 关卡里的 adcode 不重复',
+      levelAdcodes.length === new Set(levelAdcodes).size,
+      levelAdcodes.length + ' 个 / 去重 ' + new Set(levelAdcodes).size + ' 个');
+    check('[' + id + '] 关卡里的 adcode 都能在 GeoJSON 里找到',
+      levelAdcodes.every((a) => geoSet.has(a)),
+      '找不到的：' + levelAdcodes.filter((a) => !geoSet.has(a)).join(', '));
+    check('[' + id + '] 关卡覆盖全部行政区（' + adminAdcodes.length + ' 个）',
+      adminAdcodes.length === levelAdcodes.length &&
+      adminAdcodes.every((a, i) => a === levelAdcodes[i]),
+      '关卡覆盖 ' + levelAdcodes.length + ' 个');
+
+    // 2) 资料卡覆盖
+    const missing = adminAdcodes.filter((a) => !config.districts || !config.districts[a]);
+    check('[' + id + '] 每个下级行政区都有资料卡', missing.length === 0, '缺 ' + missing.join(', '));
+
+    // 3) 屏上是"当前关卡"的凹槽
+    const firstLevel = config.levels[0];
+    const slots = [...D.querySelectorAll('.slot')].map((g) => Number(g.dataset.adcode));
+    check('[' + id + '] 凹槽数 = 第一关的下级行政区数（' + firstLevel.adcodes.length + '）',
+      slots.length === firstLevel.adcodes.length,
+      '实际 ' + slots.length);
+    check('[' + id + '] 凹槽的 adcode 就是第一关那批',
+      slots.slice().sort((a, b) => a - b).join(',') === firstLevel.adcodes.slice().sort((a, b) => a - b).join(','),
+      slots.join(','));
+
+    const pieces = [...D.querySelectorAll('.piece')].filter((p) => !p.classList.contains('is-used'));
+    check('[' + id + '] 托盘碎片数与凹槽数一致', pieces.length === slots.length,
+      pieces.length + ' 块 vs ' + slots.length + ' 个空位');
+
+    // 4) 可用性诊断：碎片是不是真的都在屏幕里
+    //    "能玩但点不到"这类问题只有量几何才看得见。
+    //    必须在拖拽**之前**量：拖过之后那块碎片已经拼上、尺寸归零，会误报。
+    let offscreen = 0;
+    let zeroSize = 0;
+    pieces.forEach((p) => {
+      const r = p.getBoundingClientRect();
+      if (r.width < 1 || r.height < 1) zeroSize++;
+      else if (r.left < -1 || r.top < -1 || r.right > W.innerWidth + 1 || r.bottom > W.innerHeight + 1) offscreen++;
+    });
+    info(id + ' 几何：视口 ' + W.innerWidth + '×' + W.innerHeight +
+      '，碎片共 ' + pieces.length + ' 块，完全在视口内 ' + (pieces.length - offscreen - zeroSize) +
+      ' 块，超出视口 ' + offscreen + ' 块，零尺寸 ' + zeroSize + ' 块');
+    check('[' + id + '] 碎片尺寸正常（没有零尺寸）', zeroSize === 0, zeroSize + ' 块零尺寸');
+
+    // 5) 真实拖拽：这是"能玩"的唯一硬证据
+    //    先等视图推近动画停下来，否则算出来的落点在松手时已经"过期"了
+    const stable = await waitViewStable(D);
+    check('[' + id + '] 视图推近动画会停下来（能取到稳定坐标）', stable, '等了 8 秒仍在动');
+
+    const target = pieces[0];
+    const adcode = Number(target.dataset.adcode);
+    const point = insidePointOf(W, D, adcode);
+    if (!point) {
+      check('[' + id + '] 能在凹槽内部找到落点', false, 'adcode ' + adcode);
+    } else {
+      // 先自检落点：算出来的坐标在屏幕上是否真的压在这个凹槽上。
+      // 这条断言不值钱，但能把"坐标算错"和"引擎不认"这两类故障一次分开。
+      const hitEl = D.elementFromPoint(point.x, point.y);
+      const onSlot = !!(hitEl && hitEl.closest && hitEl.closest('.slot'));
+      check('[' + id + '] 落点在屏幕上确实压在该凹槽上', onSlot,
+        '命中 ' + (hitEl ? hitEl.tagName : 'null') + '，落点=(' +
+        Math.round(point.x) + ',' + Math.round(point.y) + ')');
+
+      const info2 = await drag(W, D, adcode, point);
+      const placed = D.querySelectorAll('.placed').length;
+      const stillInTray = !!D.querySelector('.piece[data-adcode="' + adcode + '"]:not(.is-used)');
+      const st = (W.__ENGINE__ && W.__ENGINE__.getState()) || {};
+      check('[' + id + '] 真的能拖一块进去拼上', placed === 1 && !stillInTray,
+        'placed=' + placed + '，碎片还在托盘=' + stillInTray +
+        '，tries=' + st.tries + '，目标=' + adcode + '，幽灵层=' + info2.ghost +
+        '，引擎解析到=' + info2.resolved + '，被当成点击选中=' + info2.selected +
+        '，落点=(' + Math.round(point.x) + ',' + Math.round(point.y) + ')' +
+        '，幽灵中心=' + (info2.ghostCenter
+          ? '(' + Math.round(info2.ghostCenter.x) + ',' + Math.round(info2.ghostCenter.y) + ')'
+          : '无') +
+        '，飘字=' + JSON.stringify(info2.toast) +
+        '，状态=' + JSON.stringify(st));
+      check('[' + id + '] 拼上后信息卡显示的是这一块的名字',
+        (D.querySelector('.info-name') || {}).textContent === config.geo.features
+          .find((f) => f.properties.adcode === adcode).properties.name,
+        (D.querySelector('.info-name') || {}).textContent);
+    }
+
+    // 6) 页面级不溢出（和城市回归同一条断言，这里对每张地图都查）
+    check('[' + id + '] 页面没有横向溢出',
+      D.body.scrollWidth <= W.innerWidth + 1,
+      'scrollWidth=' + D.body.scrollWidth + ' vs 视口=' + W.innerWidth);
+
+    check('[' + id + '] 运行期没有未捕获异常', pageErrors.length === 0, pageErrors.join(' | '));
+
+    frame.remove();
+  }
+
+  /* ---------------- 主流程 ---------------- */
+
+  async function run() {
+    const registry = window.MAP_REGISTRY || { maps: {} };
+    let ids = Object.keys(registry.maps).sort(
+      (a, b) => (registry.maps[a].adcode || 0) - (registry.maps[b].adcode || 0) || a.localeCompare(b)
+    );
+
+    if (ONLY) {
+      const want = ONLY.split(',').map((s) => s.trim()).filter(Boolean);
+      ids = ids.filter((id) => want.includes(id));
+    }
+
+    section('登记册');
+    out.push('  已登记 ' + Object.keys(registry.maps).length + ' 张地图：' + ids.join(', '));
+    out.push('  根：' + JSON.stringify(registry.roots) + '　父级待接入：' + JSON.stringify(registry.orphans));
+    check('登记册里至少有一张地图', ids.length > 0);
+
+    for (const id of ids) {
+      try {
+        await inspectMap(id, registry.maps[id]);
+      } catch (err) {
+        check('[' + id + '] 体检过程没有异常', false, err && err.message);
+      }
+    }
+
+    report({ passed: passed, failed: failed, failures: failures, log: out.join('\n') });
+  }
+
+  run().catch((err) => {
+    failed++;
+    failures.push('测试脚本自身异常');
+    out.push('\n!! 测试执行出错：' + (err && err.stack ? err.stack : err));
+    report({ passed: passed, failed: failed, failures: failures, log: out.join('\n') });
+  });
+})();
+</script>
+</body>
+</html>

@@ -75,7 +75,11 @@
     global.MapLoader.load(id)
       .then((config) => {
         // 配置缺失时引擎内部会兜底并提示（不会抛）
-        global.MapPuzzleEngine.create(config).start();
+        // 注意 start() 不返回任何东西，实例要先接住再启动
+        const engine = global.MapPuzzleEngine.create(config);
+        engine.start();
+        // 暴露实例给测试和调试用（getState() 是引擎的公开接口，不是内部状态）
+        global.__ENGINE__ = engine;
         markReady(id);
       })
       .catch((err) => {

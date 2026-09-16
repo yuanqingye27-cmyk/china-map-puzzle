@@ -35,6 +35,21 @@ const round = (n) => Number(n.toFixed(PRECISION));
 const roundRing = (ring) => ring.map(([lon, lat]) => [round(lon), round(lat)]);
 
 /**
+ * 是不是一个"真正的行政区划代码"（6 位数字）。
+ *
+ * 为什么要判这个：DataV 的全国数据里混着**非行政区**的 feature ——
+ * 南海九段线的 adcode 是字符串 `"100000_JD"`。它必须留在 GeoJSON 里
+ * （底图要画出这段国界），但**不能当拼图块**：
+ *   - 它不是一块可以"拼对"的行政区
+ *   - 它的 adcode 不是数字，写成对象字面量的 key 会变成非法 JS（真实踩过）
+ */
+const isAdminAdcode = (adcode) => /^\d{6}$/.test(String(adcode));
+
+/** 数字串的 adcode 统一成 Number，保证 Map 的 key、比较、排序都一致 */
+const normalizeAdcode = (adcode) =>
+  /^\d+$/.test(String(adcode)) ? Number(adcode) : adcode;
+
+/**
  * 把任意 DataV GeoJSON 规范化成引擎吃的样子：
  *   - 几何一律补齐成 MultiPolygon（DataV 有的给 Polygon、有的给 MultiPolygon）
  *   - 坐标降精度
@@ -59,7 +74,7 @@ function normalizeGeo(raw, source) {
     const polygons = geo.type === 'MultiPolygon' ? geo.coordinates : [geo.coordinates];
 
     const props = {
-      adcode: f.properties.adcode,
+      adcode: normalizeAdcode(f.properties.adcode),
       name: f.properties.name,
     };
     // center 是 DataV 给的标注点；引擎的落点判定用的是 geomap 自己算的质心，
@@ -207,6 +222,8 @@ module.exports = {
   PRECISION,
   DATAV_BASE,
   DATAV_ATTEMPTS,
+  isAdminAdcode,
+  normalizeAdcode,
   normalizeGeo,
   renderGeoModule,
   writeGeoModule,

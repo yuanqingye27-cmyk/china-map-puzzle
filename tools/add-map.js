@@ -188,7 +188,7 @@ function hslToHex(h, s, l) {
   return '#' + [f(0), f(8), f(4)].map((v) => v.toString(16).padStart(2, '0')).join('');
 }
 
-/** 关卡占位：按 adcode 升序每 LEVEL_SIZE 个一关 */
+/** 关卡占位：按 adcode 升序每 LEVEL_SIZE 个一关（只收真正的行政区，见下） */
 function autoLevels(features, adcode) {
   const adcodes = features.map((f) => f.properties.adcode);
   const groups = [];
@@ -205,12 +205,22 @@ function autoLevels(features, adcode) {
   }));
 }
 
+/**
+ * 只挑出"能当拼图块"的 feature。
+ * DataV 的全国数据里混着非行政区 feature（南海九段线，adcode `"100000_JD"`）：
+ * 它要留在 GeoJSON 里画底图，但**不能进关卡和资料卡** —— 它不是一块可拼的行政区，
+ * 而且它的 adcode 不是数字，当成对象 key 写出来会变成非法 JS（真实踩过）。
+ */
+function adminFeatures(features) {
+  return features.filter((f) => geoLib.isAdminAdcode(f.properties.adcode));
+}
+
 function renderDataModule(planItem, features, label, levels, generator) {
   const districtLines = features
     .map((f) => {
       const p = f.properties;
       return (
-        '    ' + p.adcode + ': {\n' +
+        '    ' + JSON.stringify(String(p.adcode)) + ': {\n' +
         '      area: null,                    // TODO 面积（km²，数字）\n' +
         '      landmark: \'（待补充）\',\n' +
         '      tagline: \'（待补充）\',\n' +
@@ -488,12 +498,21 @@ async function main() {
 
     // 4) 写 .data.js（人工资料，默认不覆盖）
     const dataFile = baseAbs + '.data.js';
-    const levels = autoLevels(features, item.adcode);
+
+    // 只有真正的行政区才是"拼图块"；非行政区 feature（如九段线）留在 geo 里画底图
+    const blocks = adminFeatures(features);
+    const skipped = features.filter((f) => !geoLib.isAdminAdcode(f.properties.adcode));
+    if (skipped.length) {
+      console.log('  ℹ 跳过 ' + skipped.length + ' 个非行政区 feature（' +
+        skipped.map((f) => String(f.properties.adcode) + (f.properties.name ? ' ' + f.properties.name : '')).join('、') +
+        '）：它画在底图上，但不作为拼图块');
+    }
+    const levels = autoLevels(blocks, item.adcode);
     if (fs.existsSync(dataFile) && !force) {
       console.log('  · ' + dataFile.replace(tree.ROOT + '/', '') + ' 已存在，保留不动（人工数据优先）');
     } else {
       fs.mkdirSync(path.dirname(dataFile), { recursive: true });
-      fs.writeFileSync(dataFile, renderDataModule(item, features, label, levels, generator), 'utf8');
+      fs.writeFileSync(dataFile, renderDataModule(item, blocks, label, levels, generator), 'utf8');
       console.log('  ✔ ' + dataFile.replace(tree.ROOT + '/', '') + '（' + levels.length + ' 关，占位）');
     }
 
@@ -502,12 +521,12 @@ async function main() {
     if (fs.existsSync(configFile) && !force) {
       console.log('  · ' + configFile.replace(tree.ROOT + '/', '') + ' 已存在，保留不动（人工数据优先）');
     } else {
-      fs.writeFileSync(configFile, renderConfigModule(item, label, levels, features.length, generator), 'utf8');
+      fs.writeFileSync(configFile, renderConfigModule(item, label, levels, blocks.length, generator), 'utf8');
       console.log('  ✔ ' + configFile.replace(tree.ROOT + '/', ''));
     }
 
     item.label = label;
-    item.districtCount = features.length;
+    item.districtCount = blocks.length;
     item.levelCount = levels.length;
   }
 

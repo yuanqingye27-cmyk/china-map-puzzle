@@ -149,8 +149,11 @@ function scanMaps() {
         message: rel + ' 的文件名（' + expectId + '.js）与配置里的 id（' + meta.id + '）不一致',
       });
     }
-    if (typeof meta.adcode !== 'number') {
-      problems.push({ level: 'error', message: rel + ' 缺 adcode（数字）' });
+    if (typeof meta.adcode !== 'number' && meta.adcode !== null) {
+      problems.push({
+        level: 'error',
+        message: rel + ' 的 adcode 必须是数字，或 null（世界/大洲这类没有区划代码的层级）',
+      });
     }
 
     maps[meta.id] = {
@@ -210,7 +213,10 @@ function buildRegistryModel(scan) {
   const maps = scan.maps;
   const problems = (scan.problems || []).slice();
 
-  const byAdcode = (a, b) => (maps[a].adcode || 0) - (maps[b].adcode || 0);
+  /* 按 adcode 升序；adcode 为 null 的（世界/大洲）视为 0 排在最前，
+   * 同 adcode 时再按 id 字典序，保证生成结果稳定可复现 */
+  const byAdcode = (a, b) =>
+    (maps[a].adcode || 0) - (maps[b].adcode || 0) || a.localeCompare(b);
 
   // 反向填充：children
   const childrenOf = {};
