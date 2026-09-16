@@ -59,6 +59,111 @@
     }
   }
 
+  /* ================== 地图导航（宿主层） ==================
+   * 引擎完全不认识 parent / children / adcode 这些层级字段，
+   * "在一棵树里上下走"是宿主页的事，所以下面这些一行都不进 engine.js。
+   * 数据全部来自 js/maps/registry.js（由 tools/build-registry.js 生成）。
+   * ====================================================== */
+
+  /** 切到某张地图的 URL：只换查询串，其余一概不动 */
+  function urlForMap(id) {
+    return '?map=' + encodeURIComponent(id);
+  }
+
+  /** 切换地图 = 换 URL 重新加载页面 */
+  function goToMap(id) {
+    global.location.href = urlForMap(id);
+  }
+
+  /** 把标题栏的文案换成当前这张地图的（换地图后不该还写着"成都"） */
+  function updateBrand(config, id) {
+    const name = (config && config.name) || id;
+    const title = document.getElementById('brandTitle');
+    const sub = document.getElementById('brandSub');
+    // 数量以配置里的 districtCount 为准：geo 里可能还混着非行政区 feature
+    // （比如全国数据里的南海九段线），拿 features.length 会多说一个
+    const count = (config && config.texts && config.texts.districtCount) ||
+      (config && config.geo && config.geo.features.length) || 0;
+    if (title) title.textContent = name + '地图拼图';
+    if (sub) sub.textContent = '拖动碎片，拼出' + name + (count ? '的 ' + count + ' 个下级行政区' : '');
+    const mapEl = document.getElementById('map');
+    if (mapEl) mapEl.setAttribute('aria-label', name + '行政区划拼图板');
+  }
+
+  /** 渲染面包屑：中国 › 四川省 › 自贡市（前几级可点，末级是当前） */
+  function renderBreadcrumb(currentId) {
+    const list = document.getElementById('breadcrumb');
+    if (!list) return;
+    const trail = global.MapLoader.trail(currentId);
+    list.innerHTML = '';
+    trail.forEach((m, i) => {
+      const li = document.createElement('li');
+      if (i === trail.length - 1) {
+        li.className = 'crumb is-current';
+        li.setAttribute('aria-current', 'page');
+        li.textContent = m.name;
+      } else {
+        const a = document.createElement('a');
+        a.className = 'crumb-link';
+        a.href = urlForMap(m.id);
+        a.textContent = m.name;
+        // 上层地图就是"返回上一级"，所以不再单独做一个按钮
+        a.title = '回到' + m.name;
+        li.appendChild(a);
+      }
+      list.appendChild(li);
+    });
+  }
+
+  /**
+   * 渲染地图选择器：把 registry 里的树按层级缩进排成下拉项。
+   * 父级还没接入的地图（registry.orphans）挂到顶层并注明，不藏起来 ——
+   * 它是一个"父级空位还等着填"的信号，不该让用户在界面上找不到这张图。
+   */
+  function renderSelect(currentId) {
+    const sel = document.getElementById('mapSelect');
+    if (!sel) return;
+    const reg = global.MAP_REGISTRY || { roots: [], orphans: [], maps: {} };
+
+    const option = (id, depth, note) => {
+      const m = global.MapLoader.entry(id);
+      if (!m) return;
+      const o = document.createElement('option');
+      o.value = id;
+      o.textContent = '　'.repeat(depth) + m.name + (note ? '（' + note + '）' : '');
+      if (id === currentId) o.selected = true;
+      sel.appendChild(o);
+    };
+
+    // 从根往下递归，depth 决定缩进 —— 山东下的济南会显示在济南下面
+    const walk = (id, depth, guard) => {
+      if (guard > 16) return; // 防止 parent 成环把自己递归死
+      option(id, depth);
+      global.MapLoader.childrenOf(id).forEach((c) => walk(c.id, depth + 1, guard + 1));
+    };
+
+    sel.innerHTML = '';
+    (reg.roots || []).forEach((id) => walk(id, 0, 0));
+    (reg.orphans || []).forEach((o) => option(o.id, 0, '父级 ' + o.parent + ' 待接入'));
+    sel.onchange = () => goToMap(sel.value);
+  }
+
+  /** 组装整条导航；只有一张地图、又没有上下级时就把导航条收起来 */
+  function renderNav(currentId) {
+    const bar = document.getElementById('mapbar');
+    if (!bar || !global.MAP_REGISTRY || !global.MapLoader) return;
+
+    const total = global.MapLoader.list().length;
+    const trail = global.MapLoader.trail(currentId);
+    if (total < 2 && trail.length < 2 && global.MapLoader.childrenOf(currentId).length === 0) {
+      bar.hidden = true;
+      return;
+    }
+    bar.hidden = false;
+    renderBreadcrumb(currentId);
+    renderSelect(currentId);
+  }
+
   function boot() {
     // 引擎文件没加载出来（路径写错 / 被浏览器拦），给一句人话提示
     if (!global.MapPuzzleEngine) {
@@ -80,6 +185,11 @@
         engine.start();
         // 暴露实例给测试和调试用（getState() 是引擎的公开接口，不是内部状态）
         global.__ENGINE__ = engine;
+
+        // 导航 UI 属于宿主层：引擎起来之后再渲染，它就是"最后一件事"
+        updateBrand(config, id);
+        renderNav(id);
+
         markReady(id);
       })
       .catch((err) => {

@@ -364,12 +364,178 @@
         (D.querySelector('.info-name') || {}).textContent);
     }
 
-    // 6) 页面级不溢出（和城市回归同一条断言，这里对每张地图都查）
+    // 6) 地图导航（宿主层 UI：面包屑 + 选择器）
+    const registry = window.MAP_REGISTRY || { maps: {} };
+    const bar = D.getElementById('mapbar');
+    check('[' + id + '] 导航条已渲染', !!bar && !bar.hidden);
+
+    const sel = D.getElementById('mapSelect');
+    const optIds = sel ? [...sel.options].map((o) => o.value) : [];
+    const allIds = Object.keys(registry.maps);
+    check('[' + id + '] 选择器列出了全部 ' + allIds.length + ' 张地图',
+      optIds.length === allIds.length && allIds.every((m) => optIds.indexOf(m) >= 0),
+      '实际 [' + optIds.join(', ') + ']');
+    check('[' + id + '] 选择器当前选中的就是这张地图', !!sel && sel.value === id,
+      sel ? sel.value : '没有 #mapSelect');
+
+    // 期望的面包屑：从根一路到当前地图
+    const expectTrail = [];
+    for (let cur = registry.maps[id], guard = 0; cur && guard < 16; guard++) {
+      expectTrail.unshift(cur);
+      cur = cur.parent ? registry.maps[cur.parent] : null;
+    }
+    const crumbs = [...D.querySelectorAll('#breadcrumb li')];
+    check('[' + id + '] 面包屑层级正确（' + expectTrail.map((m) => m.name).join(' › ') + '）',
+      crumbs.length === expectTrail.length, '实际 ' + crumbs.length + ' 级');
+    const lastCrumb = crumbs[crumbs.length - 1];
+    check('[' + id + '] 面包屑末级是当前地图且不可点',
+      !!lastCrumb && lastCrumb.textContent === entry.name && !lastCrumb.querySelector('a'),
+      lastCrumb ? lastCrumb.textContent : '没有面包屑');
+    if (expectTrail.length > 1) {
+      const parentCrumb = crumbs[crumbs.length - 2];
+      const link = parentCrumb ? parentCrumb.querySelector('a') : null;
+      check('[' + id + '] 面包屑上一级可点击，且指向父级地图',
+        !!link && link.getAttribute('href') === '?map=' + expectTrail[expectTrail.length - 2].id,
+        link ? link.getAttribute('href') : '没有链接');
+    }
+    check('[' + id + '] 标题栏文案跟着地图走',
+      (D.getElementById('brandTitle') || {}).textContent === entry.name + '地图拼图',
+      (D.getElementById('brandTitle') || {}).textContent);
+
+    // 7) 进度持久化：拼上的那一块，刷新后应当还在（每张地图各自一套存档 key）
+    const reloaded = new Promise((r) => frame.addEventListener('load', r, { once: true }));
+    frame.contentWindow.location.reload();
+    await reloaded;
+    try {
+      await waitFor(() => frame.contentDocument.documentElement.getAttribute('data-map-ready') === id,
+        25000, id + ' 刷新后就绪');
+    } catch (e) { /* 交给下面的断言报 */ }
+    const D2 = frame.contentDocument;
+    const placedAfter = D2.querySelectorAll('.placed').length;
+    check('[' + id + '] 刷新后进度还在（每张地图独立存档）', placedAfter === 1,
+      '刷新后 placed=' + placedAfter + '，存档 key=' + config.storage.save);
+    check('[' + id + '] 刷新后导航条依然正确',
+      !!D2.getElementById('mapbar') && !D2.getElementById('mapbar').hidden &&
+      !!D2.getElementById('mapSelect') && D2.getElementById('mapSelect').value === id,
+      D2.getElementById('mapSelect') ? D2.getElementById('mapSelect').value : '没有选择器');
+
+    // 8) 页面级不溢出（和城市回归同一条断言，这里对每张地图都查）
     check('[' + id + '] 页面没有横向溢出',
       D.body.scrollWidth <= W.innerWidth + 1,
       'scrollWidth=' + D.body.scrollWidth + ' vs 视口=' + W.innerWidth);
 
     check('[' + id + '] 运行期没有未捕获异常', pageErrors.length === 0, pageErrors.join(' | '));
+
+    frame.remove();
+  }
+
+  /* ---------------- 窄屏（手机）专项 ----------------
+   * 导航条是宿主层新加的一行，最容易被挤出屏幕，而前面那些浏览器测试全跑在
+   * 1600px 宽的 iframe 里 —— 这个盲区已经漏过一次真 bug：
+   * 窄屏时 .topbar 变成 column 排列，.mapbar 的 flex-basis:100% 从"宽度"变成"高度"，
+   * 结果导航条被撑成一整列高、还溢到屏幕外（body.scrollWidth 779 vs 视口 500）。
+   * 所以这里单独用 390×844 的 iframe 验一遍。
+   * ------------------------------------------------- */
+  async function checkNarrow() {
+    section('窄屏专项（390×844 · 导航条最容易被挤出屏幕）');
+
+    const frame = document.createElement('iframe');
+    frame.style.cssText = 'width:390px;height:844px;border:0;display:block';
+    frame.src = '../index.html?map=chengdu';
+    document.getElementById('frames').appendChild(frame);
+
+    await new Promise((r) => frame.addEventListener('load', r, { once: true }));
+    try {
+      await waitFor(() => frame.contentDocument.documentElement.getAttribute('data-map-ready'), 25000,
+        '窄屏地图就绪');
+    } catch (e) {
+      check('[窄屏] 地图能加载', false, e.message);
+      frame.remove();
+      return;
+    }
+
+    const W = frame.contentWindow;
+    const D = frame.contentDocument;
+    const vw = W.innerWidth;
+
+    const edge = (sel) => {
+      const el = D.querySelector(sel);
+      return el ? el.getBoundingClientRect().right : -1;
+    };
+
+    check('[窄屏] 视口确实很窄（' + vw + 'px）', vw <= 620, '实际 ' + vw);
+    check('[窄屏] 导航条显示着', !!D.getElementById('mapbar') && !D.getElementById('mapbar').hidden);
+    check('[窄屏] 页面没有横向溢出',
+      D.body.scrollWidth <= vw + 1,
+      'scrollWidth=' + D.body.scrollWidth + ' vs 视口=' + vw);
+    check('[窄屏] 导航条没有溢出屏幕', edge('#mapbar') <= vw + 1, '右边 ' + Math.round(edge('#mapbar')));
+    check('[窄屏] 地图选择器没有溢出屏幕', edge('#mapSelect') <= vw + 1, '右边 ' + Math.round(edge('#mapSelect')));
+    check('[窄屏] 音效 / 主题按钮都还在屏幕内',
+      edge('#soundBtn') <= vw + 1 && edge('#themeSwitch') <= vw + 1,
+      'sound=' + Math.round(edge('#soundBtn')) + ' theme=' + Math.round(edge('#themeSwitch')));
+
+    frame.remove();
+  }
+
+  /* ---------------- 点选切换 ----------------
+   * 前面那些断言只验了"导航渲染得对不对"，还没验"点了真的会换地图"。
+   * 这里真的改一次下拉、真的点一次面包屑，看页面有没有加载到目标那张图。
+   * ------------------------------------------- */
+  async function checkSwitch() {
+    section('点选切换（选择器 / 面包屑 → 真的换地图）');
+
+    const frame = document.createElement('iframe');
+    frame.style.cssText = 'width:1200px;height:800px;border:0';
+    frame.src = '../index.html?map=chengdu';
+    document.getElementById('frames').appendChild(frame);
+
+    const readyIs = (id) => {
+      try { return frame.contentDocument.documentElement.getAttribute('data-map-ready') === id; }
+      catch (e) { return false; }
+    };
+    const waitReady = (id, label) => waitFor(() => readyIs(id), 25000, label);
+
+    try {
+      await waitReady('chengdu', '成都就绪');
+    } catch (e) {
+      check('[切换] 起始地图能加载', false, e.message);
+      frame.remove();
+      return;
+    }
+
+    // ① 用选择器切到自贡
+    const W1 = frame.contentWindow;
+    const D1 = frame.contentDocument;
+    const sel = D1.getElementById('mapSelect');
+    sel.value = 'zigong';
+    sel.dispatchEvent(new W1.Event('change'));
+    try {
+      await waitReady('zigong', '切到自贡');
+      check('[切换] 在下拉里选「自贡市」能真的切过去', true);
+    } catch (e) {
+      check('[切换] 在下拉里选「自贡市」能真的切过去', false, e.message);
+    }
+
+    const D2 = frame.contentDocument;
+    check('[切换] 切换后标题栏、面包屑、选择器三处都跟着变',
+      (D2.getElementById('brandTitle') || {}).textContent === '自贡市地图拼图' &&
+      D2.getElementById('breadcrumb').textContent.indexOf('自贡市') >= 0 &&
+      D2.getElementById('mapSelect').value === 'zigong',
+      (D2.getElementById('brandTitle') || {}).textContent + ' / ' +
+      D2.getElementById('breadcrumb').textContent);
+
+    // ② 点面包屑的"上一级"回到四川
+    const up = D2.querySelector('#breadcrumb a[href="?map=sichuan"]');
+    check('[切换] 面包屑里有指向上一级（四川省）的链接', !!up, '没找到 ?map=sichuan 的链接');
+    if (up) {
+      up.click();
+      try {
+        await waitReady('sichuan', '回到四川');
+        check('[切换] 点面包屑上一级能真的回到「四川省」', true);
+      } catch (e) {
+        check('[切换] 点面包屑上一级能真的回到「四川省」', false, e.message);
+      }
+    }
 
     frame.remove();
   }
@@ -399,6 +565,9 @@
         check('[' + id + '] 体检过程没有异常', false, err && err.message);
       }
     }
+
+    await checkNarrow();
+    await checkSwitch();
 
     report({ passed: passed, failed: failed, failures: failures, log: out.join('\n') });
   }

@@ -1505,6 +1505,135 @@ body.intro-open { overflow: hidden; }
   .board-intro .intro-title { font-size: 20px; }
 }
 
+/* =====================================================================
+ * 地图导航条（宿主层 UI · 面包屑 + 地图选择器）
+ * ---------------------------------------------------------------------
+ * 数据来自 js/maps/registry.js，由 js/game.js 渲染。
+ * 它是 .topbar 的一个 flex 子项，靠 flex-basis:100% 自己换到第二行 ——
+ * 这样就不必去动 .app 那条 grid-template-rows（改动面最小）。
+ * ===================================================================== */
+.mapbar {
+  flex-basis: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+/* --- 面包屑：中国 › 四川省 › 自贡市 --- */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-wrap: wrap;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+}
+
+.breadcrumb li {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+/* 分隔符用 CSS 生成，免得 HTML 里塞一堆 › 影响无障碍朗读 */
+.breadcrumb li + li::before {
+  content: '›';
+  margin: 0 7px;
+  color: var(--faint);
+}
+
+.crumb-link {
+  color: var(--dim);
+  text-decoration: none;
+  padding: 3px 8px;
+  border-radius: 9px;
+  border: 1px solid transparent;
+  transition: color 0.18s, background 0.18s, border-color 0.18s;
+}
+
+.crumb-link:hover {
+  color: var(--text);
+  background: rgb(var(--c-line) / 0.1);
+  border-color: var(--line);
+}
+
+.crumb-link:focus-visible {
+  outline: 2px solid rgb(var(--c-jade) / 0.75);
+  outline-offset: 2px;
+}
+
+/* 当前这一级：不可点，用主色标出来 */
+.crumb.is-current {
+  color: var(--text);
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 9px;
+  background: rgb(var(--c-jade) / 0.14);
+  border: 1px solid rgb(var(--c-jade) / 0.28);
+}
+
+/* --- 地图选择器 --- */
+.map-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.map-picker-text {
+  font-size: 12.5px;
+  color: var(--faint);
+  letter-spacing: 0.04em;
+}
+
+.map-select {
+  max-width: 220px;
+  padding: 6px 10px;
+  border-radius: 11px;
+  border: 1px solid var(--line-2);
+  background: rgb(8 24 20 / 0.72);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s;
+}
+
+.map-select:hover { border-color: rgb(var(--c-jade) / 0.5); }
+
+.map-select:focus-visible {
+  outline: 2px solid rgb(var(--c-jade) / 0.75);
+  outline-offset: 2px;
+}
+
+/* 下拉展开的选项由系统绘制，给它配上深底，免得白底黑字糊在暗色页面上 */
+.map-select option {
+  background: var(--panel-solid);
+  color: var(--text);
+}
+
+/* 窄屏：导航条再占两行就太贵了，把"切换地图"四个字收起来，只留下拉本身 */
+@media (max-width: 620px) {
+  /* ⚠️ 窄屏时 .topbar 会变成 flex-direction: column（见上面的布局块），
+     那时 flex-basis 的参照系从"宽度"变成"高度" —— 100% 会把导航条撑成一整列高、
+     还被挤出屏幕（实测 body.scrollWidth 779 vs 视口 500）。
+     纵向排列本来就是各占一行，所以这里把 100% 撤掉即可。 */
+  .mapbar { flex-basis: auto; }
+  .map-picker-text { display: none; }
+  .map-select { max-width: 46vw; font-size: 12.5px; padding: 5px 8px; }
+  .breadcrumb { font-size: 12px; }
+  .breadcrumb li + li::before { margin: 0 4px; }
+  .crumb-link,
+  .crumb.is-current { padding: 2px 6px; }
+}
+
 /* ---------- 手机性能降级 ----------
  * 手机上这几样东西最吃 GPU：
  *   1. backdrop-filter —— 每帧都要重新模糊背后的内容，是最大的一笔开销

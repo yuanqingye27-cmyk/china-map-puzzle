@@ -259,8 +259,8 @@ try {
         <svg viewBox="0 0 64 64" aria-hidden="true"><use href="#i-panda"/></svg>
       </div>
       <div class="brand-text">
-        <h1>成都地图拼图</h1>
-        <p>拖动碎片，拼出成都的 20 个区县</p>
+        <h1 id="brandTitle">成都地图拼图</h1>
+        <p id="brandSub">拖动碎片，拼出成都的 20 个区县</p>
       </div>
     </div>
     <div class="topbar-right">
@@ -283,6 +283,24 @@ try {
                 title="蜀锦朱砂" aria-label="蜀锦朱砂"></button>
       </div>
     </div>
+
+    <!-- ================= 地图导航（宿主层，引擎不管） =================
+         面包屑 + 地图选择器，数据全部来自 js/maps/registry.js，由 js/game.js 渲染。
+
+         为什么放在宿主层而不是引擎里：引擎只认"怎么拼一张图"（geo / levels / 配色…），
+         它**完全不认识** parent / children / adcode 这些层级字段（多传了也直接无视）。
+         "在一棵树里上下走"是宿主页的事，所以这段 UI 一行都不进 engine.js。
+
+         为什么用 flex-basis:100% 而不是在 .app 里加一行：
+         .app 是 grid-template-rows: auto minmax(0,1fr)，加行要动那条被测试盯着的规则；
+         而 .topbar 自带 flex-wrap，让这一条自己换行，布局风险最小。 -->
+    <nav class="mapbar" id="mapbar" aria-label="地图导航" hidden>
+      <ol class="breadcrumb" id="breadcrumb"></ol>
+      <label class="map-picker">
+        <span class="map-picker-text">切换地图</span>
+        <select class="map-select" id="mapSelect" aria-label="选择地图"></select>
+      </label>
+    </nav>
   </header>
 
   <!-- ======================= 主舞台 ======================= -->
