@@ -1,8 +1,8 @@
 # 地图拼图项目开发 SOP 与经验复盘
 
-> 项目：地图拼图（用交互式拼图讲解城市的县级行政区；当前内置成都 20 个区县）
+> 项目：地图拼图（用交互式拼图讲解行政区划；已接入中国 / 四川 / 成都 / 自贡四级地图）
 > 形态：零依赖纯前端单页，双击 `index.html` 即可运行
-> 架构：**通用引擎 `MapPuzzleEngine` + 城市配置** —— 加一个新城市只需写一份 config，不动引擎
+> 架构：**通用引擎 `MapPuzzleEngine` + 地图工厂** —— 加一张地图只需一条命令 + 补文案，不动引擎
 > 本文用途：记录架构决策、踩坑过程、解决方法，以及下次做同类项目可复用的流程
 
 ---
@@ -24,13 +24,13 @@
 
 | 项 | 值 |
 | --- | --- |
-| 目标 | 用拼图游戏讲解城市的县级行政区；已抽成可复用引擎，支持多城市 |
+| 目标 | 用拼图游戏讲解行政区划；已抽成"通用引擎 + 地图工厂"，可自动接入无限多张地图 |
 | 技术栈 | 原生 HTML / CSS / JavaScript，**无任何依赖、无任何外链** |
-| 数据 | 阿里云 DataV.GeoAtlas 的成都 GeoJSON（20 个区县、6279 个顶点，`MultiPolygon`） |
+| 数据 | 阿里云 DataV.GeoAtlas：中国（34 省级）/ 四川（21 市州）/ 成都（20 区县）/ 自贡（6 区县） |
 | 运行方式 | 双击 `index.html`（`file://`），无需构建、无需服务器 |
-| 代码规模 | `engine.js` 1554 行（通用逻辑）、`cities/chengdu.js` 96 行（城市配置）、`game.js` 34 行（启动器）、`style.css` 1566 行、`index.html` 411 行 |
-| 总体积 | 1.1 MB（其中 648 KB 是 README 的 5 张配图） |
-| 测试 | **166 项端到端断言**（89 城市回归 + 77 引擎功能）+ 1 项 CSS 静态检查，全部通过 |
+| 代码规模 | `engine.js` 1554 行（通用逻辑）、`game.js` 98 行（启动器）、`loader.js` 141 行（按需加载）、`add-map.js` 561 行（接入脚本）、`style.css` 1566 行、`index.html` 413 行 |
+| 首屏体积 | **75 KB**（registry + loader + geomap + engine + game）；地图数据按需注入（成都 145 KB） |
+| 测试 | **231 项端到端断言**（89 城市回归 + 77 引擎功能 + 65 多地图冒烟）+ 1 项 CSS 静态检查，全部通过 |
 
 **为什么坚持零依赖**：这是一份"送给别人也能直接打开"的小作品。任何 `npm install`、CDN、构建步骤都会成为分享时的摩擦点。事后看这个决定是正确的 —— 它倒逼出了几个有意思的实现（手写墨卡托、内联数据、自己搭测试），也避开了所有网络相关的坑。
 
@@ -254,6 +254,228 @@ engine.getState();   // 运行状态快照：levelIndex / placed / tries / hints
 **为什么用工厂函数而不是 class**：内部 `state` / `drag` / `el` / `shapes` 全是 `create()` 的闭包变量，天然做到"每个实例一套状态"，同时省掉了把上百处引用改成 `this.xxx` 的机械改动 —— **改动面越小，越不容易在重构里引入新 bug**。
 
 **为什么引擎不自动启动**：`start()` 由宿主页显式调用，于是"同一页创建多个实例""测试宿主页用假数据启动"都变得自然，而不需要给引擎加一堆开关。
+
+---
+
+### 3.5 世界地图层级规范（地图工厂）
+
+> 这一节是**地图包的契约**：工具（`tools/add-map.js`、`tools/build-registry.js`）、
+> 运行时（`js/maps/loader.js`）、以及将来任何一张新地图，都按它来。
+> 契约一旦破坏，`build-registry.js` 会报错拒绝生成登记册 —— 校验写在工具里，不靠自觉。
+
+#### 3.5.1 一张地图 = 三个文件
+
+按**谁来维护**拆开，这是整套自动化的前提：
+
+| 文件 | 谁维护 | 内容 | 会被脚本覆盖吗 |
+| --- | --- | --- | --- |
+| `<id>.geo.js` | 构建产物 | GeoJSON（内联成 `window.MAP_GEO[<id>]`） | ✔ 每次重刷都会重写 |
+| `<id>.data.js` | **人** | 下级行政区资料卡 + 关卡设定（`window.MAP_DATA[<id>]`） | ✘ **永不覆盖** |
+| `<id>.js` | 半自动 | 配置：层级、配色、存储 key、文案（`window.MAP_PACKAGES[<id>]`） | ✘ 已存在就不动 |
+
+**为什么必须拆**：面积、地标、冷知识这类文字是人工核实过的资产，脚本编不出来也不该瞎编。
+拆分之后，"重新下载边界数据"这个高频操作永远碰不到人写的文字 —— 这是把"会不会冲掉人工成果"从**靠小心**变成**靠结构**。
+
+#### 3.5.2 目录规则（一条递归规则，没有例外）
+
+> **地图 `X` 的包文件路径 = 父地图的子目录 + `X.js`**
+> **某地图的子目录 = 它包文件所在目录 + 它自己的 id + `/`**
+
+推导出来的布局：
+
+| 地图 | id | parent | 包文件 | 子地图目录 |
+| --- | --- | --- | --- | --- |
+| 中国 | `china` | `null`（根） | `js/maps/china.js` | `js/maps/china/` |
+| 四川 | `sichuan` | `china` | `js/maps/china/sichuan.js` | `js/maps/china/sichuan/` |
+| 成都 | `chengdu` | `sichuan` | `js/maps/china/sichuan/chengdu.js` | `js/maps/china/sichuan/chengdu/` |
+| 自贡 | `zigong` | `sichuan` | `js/maps/china/sichuan/zigong.js` | （暂无下级地图） |
+
+要点：
+
+- **根地图直接放在 `js/maps/` 下**（`parent = null`）
+- 地图有没有下级**不影响它自己的位置**：叶子地图和带下级的地图放在同一层，
+  将来长出下级也不会被迫搬家（只有"接入世界层"那一次特殊搬迁，见 3.5.7）
+- 目录名 = 文件名的前缀 = 配置里的 `id` = `MAP_PACKAGES` / `MAP_GEO` / `MAP_DATA` 的 key，
+  **四处必须完全一致**，`build-registry.js` 会把不一致直接判为 error
+
+#### 3.5.3 字段规范
+
+**引擎强制**的只有 `geo` 和 `levels`；后面几项是**地图工厂强制**的（少了它们，这张地图就没法被登记、被选择、被导航）：
+
+| 字段 | 谁强制 | 说明 |
+| --- | --- | --- |
+| `id` | 地图工厂 | 唯一 id，= 文件名 = 目录名；只允许小写英文、数字、`_`、`-` |
+| `name` | 地图工厂 | 显示名，如 `自贡市`（从父地图 GeoJSON 里自动借到） |
+| `parent` | 地图工厂 | **上一级地图 id**；根地图写 `null` |
+| `adcode` | 地图工厂 | 本级行政区划代码（6 位数字）；**世界/大洲等自然地理层级写 `null`** |
+| `geo` | 引擎 | GeoJSON FeatureCollection；每个 feature 需 `properties.adcode` / `properties.name`；`Polygon` 与 `MultiPolygon` 都吃 |
+| `levels` | 引擎 | `[{ id, name, short, blurb, adcodes, hue? }]` |
+| `districts` | — | `adcode → { area, landmark, tagline, funFact }`；缺失时信息卡显示 `—`，不会崩 |
+| `palette` | — | `hueByLevel` / `fallbackHue` / `saturation` / `lightBase` / `lightStep` / `lightSpan` / `hueSpread` |
+| `map` | — | `{ width, padding }` 画布逻辑尺寸 |
+| `piece` | — | `{ max, minSide, pieces }` 碎片尺寸档位 |
+| `storage` | — | **每张地图必须换新前缀**，否则两张地图的存档互相覆盖 |
+| `themes` | — | `{ list, fallback }` |
+| `texts` | — | `{ cityName, districtCount, missingDataHint }` |
+
+配置里**还可以**写 `children`，但它是**可选的自我声明**：
+
+- 真相由子地图的 `parent` 反推（下节），父地图不写 `children` 也完全正确
+- 若写了，`build-registry.js` 会拿它和反推结果对照，不一致就报警告
+  （防的是"父子两处都手写、结果打架"这种最难查的错）
+
+#### 3.5.4 父子关系：只写 `parent`，`children` 反推
+
+新增一张地图时，**你只需要在新包自己的配置里写 `parent`**，不需要回头改父地图的文件。
+`tools/build-registry.js` 扫描全部包、反推 `children`、生成登记册：
+
+```
+js/maps/**/*.js  ──扫描+沙箱求值──▶  { id, name, parent, adcode }
+                                        │
+                       按 parent 反推 children
+                                        ▼
+                              js/maps/registry.js（自动生成，勿手改）
+```
+
+一条实测证据（`sichuan` 从未声明过自己的孩子，`chengdu` 也从未声明过兄弟）：
+
+```
+roots: ["china"] | orphans: []
+  china    中国    parent=null    children=[sichuan]
+  sichuan  四川省  parent=china   children=[chengdu, zigong]   ← 反推出来的
+  chengdu  成都    parent=sichuan children=[]
+  zigong   自贡市  parent=sichuan children=[]
+```
+
+**为什么这样设计**：如果 `children` 也要手写，那么"加一张地图"就得改两个文件，
+而且两份声明迟早会不一致。把 `parent` 定为唯一真相来源后，加地图是**纯粹的追加操作**，
+天然可并行、不会冲突 —— 这正是"地图工厂"能自动化下去的前提。
+
+`registry.js` 里另有两个诊断字段：
+
+- `roots`：`parent = null` 的地图（树的根）
+- `orphans`：声明了 `parent` 但**父级还没接入**的地图，如 `[{ id, parent }]`
+  这不是错误，而是"父级空位还等着填"的信号（接入四川之前，成都就一直挂在这里）
+
+#### 3.5.5 registry.js：元信息清单，与加载策略
+
+`registry.js` 只装**元信息**（每张地图几十字节），不含任何 GeoJSON，所以可以一次性全量加载：
+
+| 字段 | 说明 |
+| --- | --- |
+| `version` | 登记册结构版本 |
+| `roots` | 根地图 id 数组 |
+| `orphans` | 父级待接入的地图 |
+| `maps[id].id / name / parent / adcode / children` | 层级信息 |
+| `maps[id].dir` | 相对 `js/maps/` 的目录，如 `china/sichuan`（根为 `""`） |
+| `maps[id].scripts` | 该地图三个文件的路径，相对 `js/maps/`，按依赖顺序 |
+
+运行时由 `js/maps/loader.js` 按需注入：
+
+```
+首屏固定加载： registry.js(2.9KB) + loader.js(4.7KB) + geomap + engine + game  ≈ 75KB
+用户选中某地图： 才注入它的三个文件            成都 ≈ 145KB
+```
+
+- 于是**地图数量再多，首屏也不变重**
+- 注入用 `<script>` 而不是 `fetch`：`file://` 下浏览器会拦 fetch 本地 JSON，`<script>` 不受影响 ——
+  **"双击即玩"这条底线决定了加载方式，不是随便选的**
+- `scripts` 路径相对 **`js/maps/`**，loader 用自己 `<script src>` 的地址推算基准目录，
+  所以宿主页放在哪一层都不会错
+
+#### 3.5.6 面包屑 / "返回上一级"：为什么不在引擎里，怎么实现
+
+**引擎不参与层级导航。** 引擎只认 `geo / levels / districts / palette / storage / texts` 这些
+"渲染和玩法"字段，`parent` / `children` / `adcode` 它**完全不认识**（多传了也直接无视）。
+这不是偷懒，而是分层原则：**引擎负责"拼一张图"，宿主层负责"在树里走"**。
+
+所以"返回上一级"按钮和面包屑属于**宿主层**（`js/game.js` / 将来的选择器 UI），
+它拿 `js/maps/loader.js` 的公开接口拼路径：
+
+```js
+// loader.js 已提供（运行时读 registry，不碰引擎）
+MapLoader.trail('zigong')
+// → [{ id:'china', name:'中国' }, { id:'sichuan', name:'四川省' }, { id:'zigong', name:'自贡市' }]
+MapLoader.parentOf('zigong')   // → 四川省这条记录（父级未接入时返回 null）
+MapLoader.childrenOf('sichuan')// → [chengdu, zigong]
+```
+
+导航规则（第四步实现 UI 时按这个来）：
+
+1. 用 `trail(id)` 渲染面包屑：`中国 › 四川省 › 自贡市`，每级可点
+2. "返回上一级"按钮 = `parentOf(id)`；**父级未接入（`orphans`）时按钮不显示**，
+   而不是显示一个点了报错的死按钮
+3. 切换地图 = 改 URL 的 `?map=<id>` 重新加载页面。
+   **为什么是重新加载而不是就地切换**：引擎没有 `destroy()`，也刻意不加（红线），
+   而"换地图"意味着换掉 geo/关卡/存档 key 一整套状态；重新加载最干净，也顺手让
+   每张地图的进度天然独立（各自的 `storage` key）
+4. 层级相关的 UI **一律不许塞进 `engine.js`**。若有一天真的必须在引擎内做，
+   先单独提出来讨论（见 3.4 的引擎接口只有 `create / start / getState` 三个）
+
+#### 3.5.7 层级与现实行政区划、以及世界层（待接入）
+
+当前只做了中国区划（DataV 数据源），层级深度靠 adcode 天然对应：
+
+| 层级 | adcode 形态 | 例子 | 数据源 |
+| --- | --- | --- | --- |
+| 世界 | `null` | `world` | **DataV 没有，待接入** |
+| 大洲 | `null` | `asia` | **DataV 没有，待接入** |
+| 国家 | `100000` | 中国 | DataV ✔ |
+| 一级行政区（省） | `XX0000` | `510000` 四川省 | DataV ✔ |
+| 二级（地级市） | `XXXX00` | `510300` 自贡市 | DataV ✔ |
+| 三级（区县） | `XXXXXX` | `510302` 自流井区 | DataV ✔ |
+
+**已实测：DataV 没有世界地图数据**（`areas_v3/bound/world.json` 返回 404），
+世界/大洲层必须换数据源（Natural Earth、world-atlas 的 TopoJSON 是常见选择）。
+
+接入时有两个必须提前知道的约束：
+
+1. **仍要内联成 `.js`**：为了 `file://` 双击可用，任何数据源最终都得在构建期转成
+   `window.MAP_GEO[<id>] = {...}`，不能让浏览器去 fetch
+2. **TopoJSON 需要拓扑重建**：Natural Earth 官方是 Shapefile/GeoJSON，world-atlas 是 TopoJSON
+   （坐标是量化后的增量，需要解码）。若选 TopoJSON，构建脚本里要自带一个小解码器；
+   若选 GeoJSON，体积会大不少（世界级边界几 MB），可能需要再做简化
+3. **一次搬迁**：世界层一旦接入，中国就不再是根了 —— `parent` 改成 `asia`，
+   包文件从 `js/maps/china.js` 移到 `js/maps/world/asia/china.js`，
+   子目录 `js/maps/china/` 跟着变成 `js/maps/world/asia/china/`。
+   目录规则本身支持这次搬迁（`parent` 一改，`build-registry.js` 会告诉你"放错位置"），
+   但要**单独作为一次任务做**，不要和别的改动混在一起
+
+> 世界层数据源调研与接入是**独立任务**，不混进中国区划这一轮 ——
+> 混做会同时动到"数据源、几何精度、层级根节点"三样东西，出问题很难定位。
+
+#### 3.5.8 新增一张地图的标准流程
+
+中国区划（DataV 有数据）——一条命令：
+
+```bash
+node tools/add-map.js --adcode=510300 --name=zigong --parent=sichuan
+```
+
+它会：
+
+1. 算出这张地图该放在哪个目录（父级还没接入时**自动补全祖先链**，如自贡会先补出四川、中国）
+2. 下载边界（网络失败最多重试 **2 次**，仍失败就停下报错，不死磕）
+3. 生成三个文件：`.geo.js` 覆盖刷新、`.data.js` 与 `.js` **已存在就不动**
+4. 调 `build-registry.js` 重新生成登记册（`children` 自动反推）
+5. 打印**还需要人工补什么**（哪几个区的面积/地标/冷知识/关卡分组）
+
+常用参数：`--dry-run`（只打印计划，不联网不写盘）、`--geo-only`（只刷新边界，
+人工文件一律不动）、`--force`（连人工文件一起覆盖，慎用）。
+
+跑完必须做的事：
+
+```bash
+node tools/e2e-test.js     # 166 项必须全绿（新地图不许带坏老地图）
+```
+
+**脚本的边界**：能自动生成 `geo`、`levels` 的骨架、`palette` 的色相、`storage` 的 key；
+**不能**生成面积、地标、冷知识、以及"为什么这样分关"——这些是内容，不是数据。
+生成出来的占位长这样，跑得起来、信息卡显示 `—` 或"（待补充）"：
+
+```js
+510302: { area: null, landmark: '（待补充）', tagline: '（待补充）', funFact: '（待补充）' }
+```
 
 ---
 
@@ -672,6 +894,59 @@ btn.addEventListener('keydown', (ev) => {
 
 ---
 
+### 4.7 地图工厂这一轮踩的坑
+
+#### 坑 #23：块注释里写 `js/maps/**/*.js`，`**/` 里的 `*/` 把注释提前闭合了
+
+**现象**：给 `engine.js` 改**注释**（纯注释，没动一行代码），166 项测试直接掉到 8 通过，报 `SyntaxError: Unexpected token '<'`。
+
+**根因**：注释里写了 `js/maps/**/<id>.js`。`**/` 这个序列里含 `*/`，块注释在那里就结束了，后面的 `<id>.js` 变成了代码。
+
+**教训**：**"改动都在注释行内"不等于"注释没被提前闭合"**。我当时的自查是"逐行看 diff 是否以 `*` 开头"，全部通过 —— 但注释早已断开。
+改注释后必须跑 `node --check`（或测试），**别用肉眼审注释**。另外文档里引用通配路径时，别在块注释里写 `**/`。
+
+#### 坑 #24：DataV 全国数据里混着非行政区 feature，把生成物写成了非法 JS
+
+**现象**：自动生成的中国地图包一加载就崩，`china.data.js` 语法错误。
+
+**根因**：`100000_full.json` 有 35 个 feature，其中一个是**南海九段线**，`adcode` 是字符串 `"100000_JD"`。
+资料文件是按 `adcode` 当对象 key 生成的，于是写出了 `100000_JD: {` —— 非法 JS 字面量。
+
+**修法**（两层）：
+1. 生成 key 时一律 `JSON.stringify`（防御性，数字 key 也加引号）
+2. 明确区分"行政区"与"非行政区"：`isAdminAdcode()` 只认 6 位数字，**非行政区 feature 留在 GeoJSON 里画底图，但不进关卡、不进资料卡**
+3. adcode 是数字串的统一转成 `Number`，否则 `Map` 的 key 类型会不一致
+
+**教训**：真实数据里总有"看着像但不是"的脏数据。生成代码时**永远不要相信字段的合法形态** ——
+把它当 key 写进代码前，先问一句"这玩意儿一定是合法标识符吗"。
+
+#### 坑 #25：测试跟 300ms 的吸附动画抢时间，看起来像引擎坏了
+
+**现象**：新写的多地图冒烟套件里，**每一张**地图（包括本来能跑通的成都）都"拖不进去"：
+`placed=0`、碎片还在托盘、`tries=1`、没有任何飘字。
+
+**排查过程**（值得记的是方法，不是结论）：
+1. 先怀疑坐标算错 → 给 iframe 里的 `getScreenCTM` / `isPointInFill` **打桩**，记录引擎实际问了哪个点、得到什么答案
+2. 记录显示：引擎拿到的是正确坐标、`isPointInFill` 返回 `true`、候选高亮也亮了 —— **引擎完全正常**
+3. 既然判定正确，就去读 `commitPlace`：它只播吸附动画，真正的落位在 `SNAP_MS` 之后由 `revealDistrict()` 完成
+4. 而测试只等了 **280ms**，`SNAP_MS = 300ms` —— 差 20ms
+
+**修法**：不要 sleep 一个"看起来够大"的固定值，改成**等结果**：
+轮询"幽灵层消失 + tries 已累加"才认为这次拖拽结算完（三种结局耗时不同，定时值必然踩坑）。
+
+**教训**：
+- **动画时长是实现的内部细节，测试不该知道它**。凡是要等某个副作用出现，就轮询它出现，而不是猜时间。这个项目里同一个错误犯过两次（第一次是等地图就绪，第二次是等落位）
+- 排查时**先证明被测对象有没有问题**，再怀疑自己的测试。打桩记录"它实际收到什么"，比反复读代码猜快得多
+
+> 同一轮里还有两个**测试环境**的坑，一并记下：
+> **① 被测 iframe 必须留在正常文档流里**。第一版把 iframe 藏到 `left:-99999px`，
+> 拖拽要靠 `getBoundingClientRect`（碎片中心）和 `getScreenCTM`（落点）两套坐标，
+> 藏太远会让两者错开几十像素，于是"每一张地图都拖不进去"。
+> **② 关卡开始时视图会用 `viewBox` 插值推近**，动画期间取坐标必然错位；
+> 套件里要先等 CTM 稳定再算落点。
+
+---
+
 ## 五、开发 SOP
 
 ### 5.1 每次动手前的三步
@@ -722,10 +997,28 @@ btn.addEventListener('keydown', (ev) => {
 
 ### 5.7 如何重新生成地图数据
 
+新地图（或刷新某张地图的边界）走自动化脚本，**不要手写**：
+
+```bash
+# 接入一张新地图（父级没接入会自动补全祖先链）
+node tools/add-map.js --adcode=510300 --name=zigong --parent=sichuan
+
+# 只想刷新某张地图的边界，人工写的资料一个字都不动
+node tools/add-map.js --adcode=510100 --name=chengdu --parent=sichuan --geo-only
+
+# 先看它打算干什么，不联网、不写盘
+node tools/add-map.js --adcode=510300 --name=zigong --parent=sichuan --dry-run
+```
+
+成都这张图还留了一个薄封装（内部和 `add-map.js` 共用同一份转换逻辑）：
+
 ```bash
 curl -o /tmp/cd_full.json https://geo.datav.aliyun.com/areas_v3/bound/510100_full.json
 node tools/build-data.js /tmp/cd_full.json
 ```
+
+> 自检小技巧：重构构建脚本后，用同源数据重新生成一次，
+> 和旧产物做**逐字节比对**——一致才说明重构没改变行为。
 
 ### 5.8 怎么跑测试
 
@@ -733,24 +1026,54 @@ node tools/build-data.js /tmp/cd_full.json
 node tools/e2e-test.js
 ```
 
-- 一次跑两套，末尾打汇总。正常输出是 **`合计：166 通过 / 0 失败`**（城市回归 89 + 引擎功能 77）
-- 只想过其中一套：把另一套从 `tools/e2e-test.js` 顶部的 `SUITES` 数组里注掉即可
+- 一次跑三套，末尾打汇总。正常输出是 **`合计：231 通过 / 0 失败`**（城市回归 89 + 引擎功能 77 + 多地图冒烟 65）
+- 只想过其中一套：把别的从 `tools/e2e-test.js` 顶部的 `SUITES` 数组里注掉即可
 - 脚本里带的 `--no-sandbox` 是**这台机器必需的**（见坑 #2），换机器可以去掉
 - 测试失败时会打印布局诊断（各层宽度、`elementFromPoint` 命中结果），便于快速定位
 - 每套测试各起一个独立 Chrome（独立 `user-data-dir`），因此两边的 `localStorage` 互不可见 —— 引擎套件里"没有污染 `chengdu-*` 存档 key"那条断言就是这么成立的
+- **新增地图后必须跑一遍**：第三套会自动把登记册里**每一张**地图都打开、真的拖一块进去，验"生成物能不能玩"
 
-### 5.9 如何加一个新城市（只写一份 config）
+三套的分工：
 
-引擎不认识任何具体城市，所以**一行 `engine.js` 都不用改**：
+| 套件 | 被测页 | 管什么 |
+| --- | --- | --- |
+| `tools/selftest.html` | `index.html` | 成都这张图的全部 UI/动画细节、方位、存档、主题、键盘 |
+| `tools/engine-test.html` | `tools/engine-host.html` | 引擎通用性（只用虚构 tiny-city，断言里不含真实地名） |
+| `tools/map-smoke.html` | `index.html?map=<id>` | **地图工厂的验收**：登记册里每张地图都真能加载、数据自洽、能拖进去 |
 
-1. **准备数据**：把该城市的 GeoJSON 处理成 `window.XXX_GEO = {...}`（可参考 `tools/build-data.js`；`Polygon` 和 `MultiPolygon` 引擎都吃）
-2. **新建配置**：`js/cities/<city>.js`，照着 `js/cities/chengdu.js` 填 `id / name / geo / districts / levels / palette / storage / themes / texts`
-3. **换两样东西**：`storage` 的 key（避免和别的城市互相覆盖存档）和 `palette`（这就是这个城市的主色调）
-4. **接进页面**：按顺序加载 `数据 → 城市配置 → geomap.js → engine.js → game.js`，在 `game.js` 里把 `MAP_PUZZLE_CONFIG` 指向你要启动的那份配置
-5. **跑测试**：`node tools/e2e-test.js`，确认城市回归那 89 项没被带坏
-6. （可选）仿照 `tools/fixtures/tiny-city.js`，给这个城市也补一套 fixture 测试
+> 第三套是"文件生成了 ≠ 东西能用"的那道闸。它第一次运行就抓出了两个真问题
+> （全国数据里的非行政区 feature 把资料文件写成了非法 JS；以及测试自己跟 300ms 吸附动画抢时间）。
 
-**目前还没有的**：`?city=xxx` 这类多城市入口。本轮只做了引擎解耦，入口留到下一轮（见[已知限制](#七已知限制)）。
+### 5.9 如何加一张新地图（一条命令 + 补文案）
+
+完整规范见 [3.5 世界地图层级规范](#35-世界地图层级规范地图工厂)，动手流程就两步：
+
+**第一步 · 脚本生成骨架**
+
+```bash
+node tools/add-map.js --adcode=510300 --name=zigong --parent=sichuan
+```
+
+它会补全祖先链、下载边界、生成三件套、更新 `registry.js`，最后打印一张"还需人工补什么"的清单。
+
+**第二步 · 人工补内容**（脚本编不出来的部分）
+
+| 要补的 | 在哪个文件 | 说明 |
+| --- | --- | --- |
+| `area` / `landmark` / `tagline` / `funFact` | `<id>.data.js` | 面积、地标、一句话介绍、冷知识 |
+| 关卡分组与 `blurb` | `<id>.data.js` | 脚本只按"每 8 个一组"机械切分，好玩的关卡要按地理/文化逻辑重排 |
+| 主色调 | `<id>.js` 的 `palette` | 脚本按 adcode 派生了一个稳定色相，觉得不好看就改 |
+
+**注意**：`.data.js` 与 `.js` 已存在时脚本**永不覆盖**，所以你补的内容是安全的；
+重新下载边界请用 `--geo-only`，**不要**用 `--force`（那会连人工文件一起冲掉）。
+
+然后跑测试：
+
+```bash
+node tools/e2e-test.js            # 166 项必须全绿
+```
+
+调试单张地图：`index.html?map=<id>` 直接打开即可（如 `?map=zigong`）。
 
 ### 5.10 如何写一套 fixture 测试（新玩法）
 
@@ -772,7 +1095,7 @@ node tools/e2e-test.js
 
 ```
 deepseekharness/
-├── index.html                      411 行 · 页面结构 + 手绘图案库（12 个 <symbol>）
+├── index.html                      413 行 · 页面结构 + 手绘图案库（12 个 <symbol>）
 ├── README.md                      · 项目说明文档
 ├── 成都拼图项目开发SOP与经验复盘.md   · 本文
 │
@@ -780,19 +1103,38 @@ deepseekharness/
 │   └── style.css                  1566 行 · 设计令牌 / 三套主题 / 全部动画
 │
 ├── js/
-│   ├── map-data.js                 · 成都 GeoJSON（构建产物，勿手改）
-│   ├── districts.js               183 行 · 20 个区县资料 + 关卡设定
+│   ├── engine.js                 1554 行 · 通用引擎 MapPuzzleEngine（不含任何地图数据）
 │   ├── geomap.js                  181 行 · 墨卡托投影 + path/bbox/质心（两种 GeoJSON 写法都吃）
-│   ├── engine.js                 1554 行 · 通用引擎 MapPuzzleEngine（不含任何城市数据）
-│   ├── game.js                     34 行 · 启动器：读配置 → 交给引擎 start()
-│   └── cities/
-│       └── chengdu.js              96 行 · 成都配置（数据 + 配色 + 存储 key + 文案）
+│   ├── game.js                     98 行 · 启动器：?map= → loader 加载 → 交给引擎 start()
+│   └── maps/                       · 地图工厂（层级目录，规则见 3.5）
+│       ├── registry.js            113 行 · 总登记册【自动生成，勿手改】
+│       ├── loader.js              141 行 · 运行时按需注入脚本 + trail() 面包屑接口
+│       ├── china.js                75 行 · 中国配置（根地图，34 个省级行政区）
+│       ├── china.geo.js           514.0 KB · 全国边界【构建产物，勿手改】
+│       ├── china.data.js          276 行 · 34 个省级资料 + 五关（占位，待人工补）
+│       └── china/
+│           ├── sichuan.js          73 行 · 四川省配置（21 个市州）
+│           ├── sichuan.geo.js     144.6 KB · 四川边界【构建产物】
+│           ├── sichuan.data.js    182 行 · 21 个市州资料 + 三关（占位）
+│           └── sichuan/
+│               ├── chengdu.js           118 行 · 成都配置（层级/配色/存储/文案）
+│               ├── chengdu.geo.js      130.9 KB · 成都 GeoJSON【构建产物】
+│               ├── chengdu.data.js     196 行 · 20 个区县资料 + 三关设定（人工维护）
+│               ├── zigong.js            71 行 · 自贡市配置（6 个区县）【脚本生成】
+│               ├── zigong.geo.js       120.1 KB · 自贡边界【构建产物】
+│               └── zigong.data.js       76 行 · 6 个区县资料（占位，待人工补）
 │
 ├── tools/
-│   ├── build-data.js               构建：GeoJSON → 内联 js
-│   ├── e2e-test.js                230 行 · 测试驱动（跑两套 + CSS 静态检查 + 汇总）
-│   ├── selftest.html              城市回归套件（89 项 · 成都真实数据 + UI/动画）
-│   ├── engine-test.html           引擎功能套件（77 项 · 只用虚构数据）
+│   ├── add-map.js                 561 行 · 一键接入新地图（下载→生成三件套→更新注册表）
+│   ├── build-registry.js           71 行 · 扫描 js/maps/ 生成 registry（children 反推）
+│   ├── build-data.js               64 行 · 只重刷成都边界的薄封装（新地图请用 add-map）
+│   ├── lib/
+│   │   ├── inline-geo.js          229 行 · 公共库：GeoJSON 规范化 / 内联模块 / DataV 下载
+│   │   └── map-tree.js            371 行 · 公共库：目录规则 / 包元信息扫描 / registry 生成
+│   ├── e2e-test.js                238 行 · 测试驱动（跑三套 + CSS 静态检查 + 汇总）
+│   ├── selftest.html              560 行 · 城市回归套件（89 项 · 成都真实数据 + UI/动画）
+│   ├── engine-test.html           503 行 · 引擎功能套件（77 项 · 只用虚构数据）
+│   ├── map-smoke.html             415 行 · 多地图冒烟套件（每张已登记地图都真拖一块）
 │   ├── engine-host.html           引擎测试宿主页（与 index.html 同构的瘦页面）
 │   ├── fixtures/
 │   │   └── tiny-city.js           虚构测试城市（3 个假区县 + 2 关 + 自配色）
@@ -810,13 +1152,15 @@ deepseekharness/
 **加载顺序**（`index.html` 末尾，不可调换）：
 
 ```html
-<script src="js/map-data.js"></script>       <!-- 先有数据 -->
-<script src="js/districts.js"></script>      <!-- 再有区县资料与关卡 -->
-<script src="js/cities/chengdu.js"></script> <!-- 组装成城市配置 -->
+<script src="js/maps/registry.js"></script>  <!-- 轻量元信息：谁是谁的父级、脚本在哪 -->
+<script src="js/maps/loader.js"></script>    <!-- 按 registry 在选中地图时注入脚本 -->
 <script src="js/geomap.js"></script>         <!-- 投影与几何 -->
-<script src="js/engine.js"></script>         <!-- 通用引擎 -->
-<script src="js/game.js"></script>           <!-- 最后启动 -->
+<script src="js/engine.js"></script>         <!-- 通用引擎（不自动启动） -->
+<script src="js/game.js"></script>           <!-- 读 ?map= → loader.load() → start() -->
 ```
+
+> 注意：具体的**地图包不再写死在 `index.html` 里**。成都的三个文件是运行时由
+> `loader.js` 注入的，所以地图从 1 张长到 100 张，首屏依然是上面这 5 个脚本（≈75KB）。
 
 **运行方式**：
 
@@ -836,9 +1180,12 @@ deepseekharness/
 3. **预览页依赖 http**：`file://` 下无法读取图案库，页面里已给出明确提示。
 4. **测试依赖系统 Chrome**：硬编码了 macOS 的 Chrome 路径，换平台需调整 `tools/e2e-test.js` 里的 `CHROME` 常量。
 5. **`--no-sandbox`**：当前机器的 Chrome sandbox 不可用，测试脚本必须带此参数。
-6. **没有多城市入口**：引擎已完全解耦，但页面仍固定加载 `js/cities/chengdu.js`；`?city=xxx` 之类的入口留到下一轮。
-7. **fixture 没覆盖 `palette.fallbackHue`**：只有"关卡既不自带 `hue`、`hueByLevel` 里也查不到"时才会走这条分支，要覆盖它得再加一关（`tools/fixtures/tiny-city.js` 顶部已注明）。
-8. **引擎套件依赖宿主页**：引擎按 id 缓存 DOM，所以必须有 `tools/engine-host.html`。宿主页的 DOM 结构或 id 一旦改动，这个文件要跟着改。
+6. **地图选择器 UI 还没做**：加载链路与层级数据都已就位（`?map=<id>` 已可用、`MapLoader.trail()` 已可用），但界面上还没有可视化的选择器和面包屑按钮 —— 留给第四步。
+7. **世界/大洲层没有数据源**：DataV 只覆盖中国区划（`world.json` 实测 404），世界层需要换 Natural Earth / world-atlas，是独立任务（见 [3.5.7](#357-层级与现实行政区划以及世界层待接入)）。
+8. **自动生成的资料是占位**：`add-map.js` 生成的下级行政区资料是 `area: null` + "（待补充）"，面积/地标/冷知识必须人工补；关卡也只是"每 8 个一组"的机械切分。
+9. **fixture 没覆盖 `palette.fallbackHue`**：只有"关卡既不自带 `hue`、`hueByLevel` 里也查不到"时才会走这条分支，要覆盖它得再加一关（`tools/fixtures/tiny-city.js` 顶部已注明）。
+10. **引擎套件依赖宿主页**：引擎按 id 缓存 DOM，所以必须有 `tools/engine-host.html`。宿主页的 DOM 结构或 id 一旦改动，这个文件要跟着改。
+11. **孤儿地图**：子地图声明的 `parent` 若还没接入，它会挂在 `registry.orphans` 里（能玩、能选，但没有"返回上一级"）。这是过渡态信号，不是错误。
 
 ---
 
@@ -884,4 +1231,4 @@ deepseekharness/
 
 ---
 
-*文档完 · 2026-09（最后更新：引擎化重构 + 双测试体系）*
+*文档完 · 2026-09（最后更新：地图工厂 + 层级架构 + 三套测试体系）*
