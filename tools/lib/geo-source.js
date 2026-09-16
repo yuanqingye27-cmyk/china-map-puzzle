@@ -28,6 +28,7 @@ const path = require('path');
 
 const geoLib = require('./inline-geo');
 const tianditu = require('./tianditu-geo');
+const portal = require('./tianditu-portal');
 const wkt = require('./wkt');
 const slugs = require('./slugs');
 
@@ -68,6 +69,34 @@ const PROVIDERS = {
       return {
         geo: r.geo,
         url: r.url,
+        source: {
+          provider: this.id,
+          label: this.label,
+          approval: this.approval,
+          note: this.note,
+        },
+      };
+    },
+  },
+
+  /* ---- 天地图服务中心官方行政区划服务（**当前的默认数据源**）----
+   * 不需要 Key、不需要登录；一次请求拿到某行政区全部下级的边界。
+   * 返回体是打包过的二进制，解码见 tools/lib/tianditu-portal.js。 */
+  'tianditu-portal': {
+    id: 'tianditu-portal',
+    label: portal.PROVIDER_LABEL,
+    approval: portal.APPROVAL,
+    note: '官方行政区划服务（无需 Key/登录）；边界为官方打包二进制，经 tools/lib/tianditu-portal.js 解码',
+    async fetchGeo(adcode, opts) {
+      const gb = '156' + String(adcode).padStart(6, '0'); // 156 = 中国的 ISO 数字码
+      const level = portal.levelForAdcode(adcode);
+      const r = await portal.fetchRegionMap(gb, level, { log: opts && opts.log });
+      const skipped = [];
+      const geo = portal.normalizeOfficialGeo(r.geo, { onSkip: (i) => skipped.push(i) });
+      return {
+        geo,
+        url: r.url,
+        skipped,
         source: {
           provider: this.id,
           label: this.label,
@@ -165,8 +194,13 @@ const PROVIDERS = {
   },
 };
 
-/** 当前项目默认用哪个源（还没换完之前保持 datav，避免把已有 23 张图搞乱） */
-const DEFAULT_SOURCE = 'datav';
+/**
+ * 项目默认数据源。
+ * 已全量切换到天地图官方（2026-09），所以默认值就是官方通道 ——
+ * 这样"新加地图忘了带 --source"也不会混进别的数据源。
+ * （历史值：'datav' = 开发期用的阿里云 DataV，无审图号、不可商用）
+ */
+const DEFAULT_SOURCE = 'tianditu-portal';
 
 function getProvider(name) {
   const id = name || DEFAULT_SOURCE;

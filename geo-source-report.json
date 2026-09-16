@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-09-16T20:12:15.231Z",
-  "command": "node tools/replace-geo-source.js --source=file --only=chengdu,zigong",
+  "generatedAt": "2026-09-16T20:15:11.811Z",
+  "command": "node tools/replace-geo-source.js --source=file",
   "dataSource": {
     "provider": "file",
     "label": "本地官方行政区划数据包",
@@ -8,14 +8,30 @@
     "note": "由 --dir / --file 指定；请确认为带审图号的官方数据"
   },
   "summary": {
-    "total": 2,
-    "replaced": 2,
+    "total": 23,
+    "replaced": 23,
     "failed": 0
   },
   "registry": {
     "totalMaps": 23
   },
   "maps": [
+    {
+      "slug": "china",
+      "adcode": 100000,
+      "status": "replaced",
+      "file": "js/maps/china.geo.js",
+      "kb": 1490.1,
+      "districts": 34
+    },
+    {
+      "slug": "sichuan",
+      "adcode": 510000,
+      "status": "replaced",
+      "file": "js/maps/china/sichuan.geo.js",
+      "kb": 218.9,
+      "districts": 21
+    },
     {
       "slug": "chengdu",
       "adcode": 510100,
@@ -31,6 +47,158 @@
       "file": "js/maps/china/sichuan/zigong.geo.js",
       "kb": 16.1,
       "districts": 6
+    },
+    {
+      "slug": "panzhihua",
+      "adcode": 510400,
+      "status": "replaced",
+      "file": "js/maps/china/sichuan/panzhihua.geo.js",
+      "kb": 13.3,
+      "districts": 5
+    },
+    {
+      "slug": "luzhou",
+      "adcode": 510500,
+      "status": "replaced",
+      "file": "js/maps/china/sichuan/luzhou.geo.js",
+      "kb": 20.5,
+      "districts": 7
+    },
+    {
+      "slug": "deyang",
+      "adcode": 510600,
+      "status": "replaced",
+      "file": "js/maps/china/sichuan/deyang.geo.js",
+      "kb": 13.8,
+      "districts": 6
+    },
+    {
+      "slug": "mianyang",
+      "adcode": 510700,
+      "status": "replaced",
+      "file": "js/maps/china/sichuan/mianyang.geo.js",
+      "kb": 31.2,
+      "districts": 9
+    },
+    {
+      "slug": "guangyuan",
+      "adcode": 510800,
+      "status": "replaced",
+      "file": "js/maps/china/sichuan/guangyuan.geo.js",
+      "kb": 27.4,
+      "districts": 7
+    },
+    {
+      "slug": "suining",
+      "adcode": 510900,
+      "status": "replaced",
+      "file": "js/maps/china/sichuan/suining.geo.js",
+      "kb": 15.4,
+      "districts": 5
+    },
+    {
+      "slug": "neijiang",
+      "adcode": 511000,
+      "status": "replaced",
+      "file": "js/maps/china/sichuan/neijiang.geo.js",
+      "kb": 15.6,
+      "districts": 5
+    },
+    {
+      "slug": "leshan",
+      "adcode": 511100,
+      "status": "replaced",
+      "file": "js/maps/china/sichuan/leshan.geo.js",
+      "kb": 28.1,
+      "districts": 11
+    },
+    {
+      "slug": "nanchong",
+      "adcode": 511300,
+      "status": "replaced",
+      "file": "js/maps/china/sichuan/nanchong.geo.js",
+      "kb": 31.6,
+      "districts": 9
+    },
+    {
+      "slug": "meishan",
+      "adcode": 511400,
+      "status": "replaced",
+      "file": "js/maps/china/sichuan/meishan.geo.js",
+      "kb": 17.2,
+      "districts": 6
+    },
+    {
+      "slug": "yibin",
+      "adcode": 511500,
+      "status": "replaced",
+      "file": "js/maps/china/sichuan/yibin.geo.js",
+      "kb": 30.1,
+      "districts": 10
+    },
+    {
+      "slug": "guangan",
+      "adcode": 511600,
+      "status": "replaced",
+      "file": "js/maps/china/sichuan/guangan.geo.js",
+      "kb": 14.1,
+      "districts": 6
+    },
+    {
+      "slug": "dazhou",
+      "adcode": 511700,
+      "status": "replaced",
+      "file": "js/maps/china/sichuan/dazhou.geo.js",
+      "kb": 24.5,
+      "districts": 7
+    },
+    {
+      "slug": "yaan",
+      "adcode": 511800,
+      "status": "replaced",
+      "file": "js/maps/china/sichuan/yaan.geo.js",
+      "kb": 21.5,
+      "districts": 8
+    },
+    {
+      "slug": "bazhong",
+      "adcode": 511900,
+      "status": "replaced",
+      "file": "js/maps/china/sichuan/bazhong.geo.js",
+      "kb": 20.8,
+      "districts": 5
+    },
+    {
+      "slug": "ziyang",
+      "adcode": 512000,
+      "status": "replaced",
+      "file": "js/maps/china/sichuan/ziyang.geo.js",
+      "kb": 11.6,
+      "districts": 3
+    },
+    {
+      "slug": "aba",
+      "adcode": 513200,
+      "status": "replaced",
+      "file": "js/maps/china/sichuan/aba.geo.js",
+      "kb": 67.6,
+      "districts": 13
+    },
+    {
+      "slug": "ganzi",
+      "adcode": 513300,
+      "status": "replaced",
+      "file": "js/maps/china/sichuan/ganzi.geo.js",
+      "kb": 97,
+      "districts": 18
+    },
+    {
+      "slug": "liangshan",
+      "adcode": 513400,
+      "status": "replaced",
+      "file": "js/maps/china/sichuan/liangshan.geo.js",
+      "kb": 56.7,
+      "districts": 17
     }
   ],
   "failures": []

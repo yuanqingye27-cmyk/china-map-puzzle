@@ -474,6 +474,7 @@ async function addMap(opts) {
   /* 记忆本次已下载的 features，供下级借显示名 */
   const featuresBySlug = {};
   const results = [];
+  let lastFetchedSource = null;
 
   for (const item of plan) {
     const dirRel = item.dir;
@@ -564,6 +565,8 @@ async function addMap(opts) {
       log('  ✔ ' + relOf(configFile));
     }
 
+    lastFetchedSource = fetched.source;
+
     results.push({
       slug: item.slug,
       adcode: item.adcode,
@@ -598,7 +601,7 @@ async function addMap(opts) {
     status: 'created',
     slug,
     adcode,
-    source: {
+    source: lastFetchedSource || {
       provider: source.id,
       label: source.label,
       approval: source.approval,

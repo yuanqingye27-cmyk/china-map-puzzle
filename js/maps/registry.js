@@ -360,7 +360,7 @@
       },
       "liangshan": {
         "id": "liangshan",
-        "name": "凉山彝族自治州",
+        "name": "liangshan",
         "parent": "sichuan",
         "adcode": 513400,
         "children": [],

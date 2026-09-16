@@ -1,8 +1,8 @@
 /* =====================================================================
- * 地图包 · 凉山彝族自治州（配置）
+ * 地图包 · liangshan（配置）
  * ---------------------------------------------------------------------
  * 路径：js/maps/china/sichuan/liangshan.js
- * 生成：node tools/add-map.js --adcode=513400 --name=liangshan --parent=sichuan
+ * 生成：node tools/add-map.js --adcode=513400 --name=liangshan --parent=sichuan --source=file
  *
  * 【层级】parent = 'sichuan'　adcode = 513400
  *   children 不在这里写 —— 它由 registry 根据子地图的 parent 反向推导，
@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'liangshan',
-    name: '凉山彝族自治州',
+    name: 'liangshan',
     parent: 'sichuan',
     adcode: 513400,
 
@@ -61,7 +61,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: '凉山彝族自治州',
+      cityName: 'liangshan',
       districtCount: 17,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/sichuan/liangshan.geo.js 存在且没有被浏览器拦截。',
