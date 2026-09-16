@@ -300,6 +300,10 @@ try {
         <span class="map-picker-text">切换地图</span>
         <select class="map-select" id="mapSelect" aria-label="选择地图"></select>
       </label>
+      <!-- 数据来源与审图号声明（合规要求，必须始终可见）。
+           文案由 js/game.js 按【当前地图数据自己的来源】渲染 —— 见 MAP_GEO_META。
+           为什么不写死：数据是 DataV 却标天地图的审图号，是伪造合规声明，比不写更糟。 -->
+      <p class="map-source" id="mapSource" role="note"></p>
     </nav>
   </header>
 

@@ -148,20 +148,56 @@
     sel.onchange = () => goToMap(sel.value);
   }
 
-  /** 组装整条导航；只有一张地图、又没有上下级时就把导航条收起来 */
+  /**
+   * 渲染"数据来源 / 审图号"声明。
+   *
+   * 文案不是写死的，而是读 MAP_GEO_META[当前地图] —— 那份元信息由下载脚本
+   * 跟边界数据写在同一个文件里（见 tools/lib/inline-geo.js）。
+   * 这样"数据换了源、声明却没改"这类事故从结构上就不可能发生：
+   * 声明永远等于数据自己的来历。合规这件事，口径必须和数据同生共死。
+   */
+  function renderSourceNotice(currentId) {
+    const el = document.getElementById('mapSource');
+    if (!el) return;
+    const meta = (global.MAP_GEO_META && global.MAP_GEO_META[currentId]) || null;
+
+    if (!meta) {
+      // 旧数据（早于元信息机制生成的 .geo.js）：如实说明，别猜
+      el.textContent = '地图数据来源：未标注（本地数据缺少来源元信息）';
+      el.className = 'map-source is-unapproved';
+      return;
+    }
+
+    if (meta.approval) {
+      el.textContent = '地图数据来源：' + (meta.providerLabel || meta.provider) +
+        '，审图号：' + meta.approval;
+      el.className = 'map-source is-approved';
+    } else {
+      el.textContent = '地图数据来源：' + (meta.providerLabel || meta.provider) +
+        '（' + (meta.note || '未取得审图号') + '）';
+      el.className = 'map-source is-unapproved';
+    }
+  }
+
+  /** 组装整条导航；没有可导航的内容、也没有声明要显示时才收起来 */
   function renderNav(currentId) {
     const bar = document.getElementById('mapbar');
     if (!bar || !global.MAP_REGISTRY || !global.MapLoader) return;
 
+    const hasNotice = !!document.getElementById('mapSource');
     const total = global.MapLoader.list().length;
     const trail = global.MapLoader.trail(currentId);
-    if (total < 2 && trail.length < 2 && global.MapLoader.childrenOf(currentId).length === 0) {
+    const noNav = total < 2 && trail.length < 2 && global.MapLoader.childrenOf(currentId).length === 0;
+
+    // 合规声明必须始终可见，所以"没有导航内容"不再等于"整条收起来"
+    if (noNav && !hasNotice) {
       bar.hidden = true;
       return;
     }
     bar.hidden = false;
     renderBreadcrumb(currentId);
     renderSelect(currentId);
+    renderSourceNotice(currentId);
   }
 
   function boot() {
