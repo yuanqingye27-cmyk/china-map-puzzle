@@ -113,7 +113,11 @@ tools/test-maps.js            地图包自洽离线自检（118 项）
 tools/lib/slugs.js            adcode ↔ 拼音 slug（省表 / 地级表 / 兜底命名）
 batch-report.json             最近一次批量接入的报告（成功/失败/待人工补清单）
 tools/build-registry.js       扫描 js/maps/ 生成登记册（children 由 parent 反推）
-tools/lib/inline-geo.js       公共库：GeoJSON 规范化 / 内联模块 / DataV 下载
+tools/lib/inline-geo.js       公共库：GeoJSON 规范化 / 内联模块（+ 历史 DataV 下载）
+tools/lib/tianditu-portal.js  公共库：天地图官方行政区划服务（现用数据源）+ 二进制解码
+tools/tianditu-download.js    抓官方数据到 data/tianditu-official/
+tools/test-maps.js            地图包自洽离线自检
+tools/soften-placeholders.js  占位文案 → 共建口径
 tools/lib/map-tree.js         公共库：目录规则 / 包元信息扫描 / registry 生成
 tools/build-data.js           只重刷成都边界的薄封装（新地图请用 add-map）
 
@@ -134,7 +138,7 @@ docs/                         README 配图（含界面截图与开场/结算画
 项目分成三层：**通用引擎**（`js/engine.js`，不认识任何具体地图）、**地图包**（`js/maps/` 下的一堆配置）、
 **地图工厂**（`tools/add-map.js` 等，负责把地图包生成出来并串成一棵树）。
 
-### 一条命令接入（中国区划，数据源是 DataV）
+### 一条命令接入（中国区划，数据源是**天地图官方**）
 
 ```bash
 node tools/add-map.js --adcode=510300 --name=zigong --parent=sichuan
@@ -180,7 +184,7 @@ js/maps/china/sichuan/zigong.js     自贡市
 也可以直接用 URL：`index.html?map=zigong`。每张地图有独立的存档 key，进度互不干扰。
 
 > 完整的字段规范（哪些字段是引擎强制、哪些是地图工厂强制）、世界/大洲层的接入方案、
-> 以及"怎么用一份假数据给引擎单独写测试"，见 [开发 SOP 与经验复盘](成都拼图项目开发SOP与经验复盘.md)
+> 以及"怎么用一份假数据给引擎单独写测试"，见 [开发 SOP 与经验复盘](地图拼图项目_开发SOP与交接文档_v1.0.0.md)
 > 的 3.5 / 5.9 / 5.10 节。
 
 ## 几个实现要点
@@ -405,11 +409,12 @@ node tools/replace-geo-source.js --source=file --dir=data/tianditu-official
 > ![南海诸岛及九段线](docs/ui-china-nanhai.png)
 >
 > 引擎每关会把视图推近到本关范围，所以九段线只在视野覆盖南海时可见。
-> 详见 [SOP 5.12 地图合规与数据来源](成都拼图项目开发SOP与经验复盘.md)。
+> 详见 [SOP 5.12 地图合规与数据来源](地图拼图项目_开发SOP与交接文档_v1.0.0.md)。
 
 ## 数据来源与口径
 
-- **行政区划边界**：阿里云 [DataV.GeoAtlas](https://geo.datav.aliyun.com/areas_v3/bound/510100_full.json)，成都市（adcode 510100）下辖 20 个县级行政区
+- **行政区划边界**：国家地理信息公共服务平台（天地图）· 服务中心行政区划，审图号 **GS(2024)0650号**
+  （抓取副本与来源清单见 `data/tianditu-official/manifest.json`；开发期曾用阿里云 DataV，已全量替换）
 - **面积/地标/文案**：综合百度百科区县词条、四川省情网地方志页面等公开资料核实
 
 几处面积口径需要说明：

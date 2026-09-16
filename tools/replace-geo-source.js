@@ -13,7 +13,10 @@
  *   node tools/replace-geo-source.js --source=tianditu --tk=<你的Key>
  *
  *   # 只换几张先试试水
- *   node tools/replace-geo-source.js --source=tianditu --tk=<Key> --only=chengdu,zigong
+ *   node tools/replace-geo-source.js --source=file --dir=data/tianditu-official --only=chengdu,zigong
+ *
+ *   # 只换某个省下面的（按 adcode 前缀，例：四川的 21 个市州）
+ *   node tools/replace-geo-source.js --source=file --dir=data/tianditu-official --parent=510000
  *
  *   # 本地官方数据包（带审图号的数据集）
  *   node tools/replace-geo-source.js --source=file --dir=/path/to/official-geojson
@@ -66,9 +69,22 @@ async function main() {
     : (sourceId === 'tianditu' ? 800 : 120);
 
   const only = args.only ? String(args.only).split(',').map((s) => s.trim()).filter(Boolean) : null;
+  // --parent=<adcode>：只换"挂在它下面"的地图（按 adcode 前缀判定，不依赖注册表父子链）
+  const parent = args.parent ? Number(args.parent) : null;
 
   const scan = tree.scanMaps();
   let targets = Object.values(scan.maps);
+  if (parent) {
+    if (!/^\d{6}$/.test(String(parent))) throw new Error('--parent 必须是 6 位 adcode，例如 --parent=510000');
+    const prefix = String(parent).slice(0, 2);
+    const wantProvince = parent % 10000 === 0;
+    targets = targets.filter((m) => {
+      if (!m.adcode || m.adcode === parent) return false;         // 不含父级自身
+      if (wantProvince) return String(m.adcode).startsWith(prefix) && m.adcode % 10000 !== 0;
+      return Math.floor(m.adcode / 100) === Math.floor(parent / 100); // 市级的下级
+    });
+    log('  ℹ --parent=' + parent + ' 生效，只处理它下面的 ' + targets.length + ' 张');
+  }
   if (only) {
     targets = targets.filter((m) => only.includes(m.id));
     const missing = only.filter((id) => !scan.maps[id]);
@@ -92,6 +108,7 @@ async function main() {
 
   log('\n══════════ 开始换源 ══════════');
   const records = [];
+  let lastSource = null;
   let ok = 0;
   let failed = 0;
 
@@ -114,6 +131,7 @@ async function main() {
         log: quiet ? () => {} : (line) => console.log('    ' + line),
       });
       const r = (res.maps || []).find((x) => x.slug === m.id) || (res.maps || [])[0];
+      if (res.source) lastSource = res.source;
       ok++;
       records.push({
         slug: m.id,
@@ -163,7 +181,8 @@ async function main() {
 
   log('\n══════════ 汇总 ══════════');
   log('  换源完成：' + ok + ' 张　失败：' + failed + ' 张　（共 ' + targets.length + ' 张）');
-  log('  数据源：' + provider.label + (provider.approval ? '（审图号 ' + provider.approval + '）' : '（无审图号）'));
+  const usedLabel = (records.find((r) => r.status === 'replaced') && lastSource && lastSource.label) || provider.label;
+  log('  数据源：' + usedLabel + (lastSource && lastSource.approval ? '（审图号 ' + lastSource.approval + '）' : ''));
   log('  ✔ 报告已写入 ' + path.relative(process.cwd(), reportPath));
   if (failed) {
     log('  ✘ 失败的（已跳过、未额外重试）：' + report.failures.map((f) => f.slug).join('、'));

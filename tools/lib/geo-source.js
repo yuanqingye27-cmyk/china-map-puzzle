@@ -55,13 +55,25 @@ const PROVIDERS = {
     },
   },
 
-  /* ---- 天地图（国家地理信息公共服务平台）：目标数据源 ---- */
+  /* ---- 【已休眠 · 不要用】天地图 API Key 路线 ----
+   * 实测结论：`/v2/administrative` 只返回行政树与中心点，**不提供边界几何**，
+   * 所以这条路线无法生成地图包。保留条目只是为了"有人写了 --source=tianditu 时
+   * 得到一句人话提示"，而不是一个看不懂的报错。 */
   tianditu: {
     id: 'tianditu',
     label: '国家地理信息公共服务平台（天地图）',
     approval: 'GS(2024)0650号',
     note: '需开发者 Key；边界为接口返回的 WKT，经 tools/lib/wkt.js 转换',
-    async fetchGeo(adcode, opts) {
+    async fetchGeo(adcode) {
+      void adcode;
+      throw new Error(
+        '数据源 "tianditu"（API Key 路线）**已确认不提供行政区划边界**，无法用于生成地图包。\n' +
+        '  请改用：--source=tianditu-portal（官方通道，无需 Key）\n' +
+        '  或：--source=file --dir=data/tianditu-official（离线副本）\n' +
+        '  详见 SOP 5.12《地图合规与数据来源》'
+      );
+    },
+    async _unusedFetchGeo(adcode, opts) {
       const r = await tianditu.fetchTianDiTuGeo(adcode, {
         tk: opts && opts.tk,
         log: opts && opts.log,
