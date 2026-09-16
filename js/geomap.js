@@ -72,7 +72,7 @@
   /**
    * 构建整张成都地图。
    *
-   * @param {object} geo      GeoJSON FeatureCollection（window.CHENGDU_GEO）
+   * @param {object} geo      GeoJSON FeatureCollection（Polygon / MultiPolygon 都支持）
    * @param {object} [options]
    * @param {number} [options.width=1000] 画布逻辑宽度（高度按地理比例自动推算）
    * @param {number} [options.padding=14] 画布四周留白
@@ -89,7 +89,14 @@
     let maxY = -Infinity;
 
     const shapes = geo.features.map((feature) => {
-      const polygons = feature.geometry.coordinates.map((polygon) =>
+      // GeoJSON 的 Polygon 比 MultiPolygon 少一层嵌套：
+      //   MultiPolygon: coordinates = [多边形][环][点]  （DataV 导出的成都数据是这种）
+      //   Polygon:      coordinates = [环][点]
+      // 少这一层，后面按 [环][点] 取点时就会抛 "not iterable"，所以统一补齐。
+      // 做多城市时各家的 GeoJSON 写法不一样，这一步让引擎两种都吃得下。
+      const geom = feature.geometry;
+      const rawPolygons = geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates;
+      const polygons = rawPolygons.map((polygon) =>
         polygon.map((ring) =>
           ring.map(([lon, lat]) => {
             const p = project(lon, lat);

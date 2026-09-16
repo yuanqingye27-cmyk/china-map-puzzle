@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>引擎功能测试 · 宿主页（虚构 tiny-city）</title>
+<!-- 用真实页面的样式表，好让布局几何（地图尺寸 / 托盘 / 侧栏）和 index.html 一致 -->
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<!-- 引擎会往标签页/徽标里塞这几个图标，所以只带必要的一小撮 symbol，
+     不需要 index.html 里那一整套成都图案 -->
+<svg class="svg-sprite" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-check" viewBox="0 0 24 24">
+      <path d="M5.2 12.4 L 10 17.2 L 18.8 6.8" fill="none" stroke="currentColor"
+            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="4.8" y="10.4" width="14.4" height="9.8" rx="2.4"/>
+        <path d="M8.2 10.4 V 7.6 A 3.8 3.8 0 0 1 15.8 7.6 V 10.4"/>
+        <path d="M12 14 v2.4"/>
+      </g>
+    </symbol>
+    <symbol id="i-star" viewBox="0 0 24 24">
+      <path d="M12 2 L14.47 8.6 L21.51 8.91 L15.99 13.3 L17.88 20.09
+               L12 16.2 L6.12 20.09 L8.01 13.3 L2.49 8.91 L9.53 8.6 Z"/>
+    </symbol>
+    <symbol id="i-bulb" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 17.6 C 6.7 16.2, 5.2 13.8, 5.2 11.2 C 5.2 7.4, 8.2 4.4, 12 4.4 C 15.8 4.4, 18.8 7.4, 18.8 11.2 C 18.8 13.8, 17.3 16.2, 15 17.6 L 15 19.4 L 9 19.4 Z"/>
+        <path d="M9.8 21.6 h4.4"/>
+        <path d="M12 8.4 V 13.6"/>
+        <path d="M9.9 11.5 L 12 13.6 L 14.1 11.5"/>
+      </g>
+    </symbol>
+    <symbol id="i-restart" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20.2 12 A 8.2 8.2 0 1 1 17.3 6.1"/>
+        <path d="M20.6 2.8 V 6.9 H 16.5"/>
+      </g>
+    </symbol>
+    <symbol id="i-leaf" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 4 C 10 4, 4 9.6, 4 15.4 C 4 17.6, 4.8 19.2, 5.8 20 C 6.6 16.6, 9 13.6, 12.4 11.6"
+              stroke-width="1.8"/>
+        <path d="M20 4 C 20.6 12.6, 15.4 18.4, 9.4 18.4 C 8 18.4, 6.8 18, 5.8 17.4"
+              stroke-width="1.8" fill="currentColor" fill-opacity="0.16"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- 结构刻意和 index.html 保持同构：引擎按 id 缓存 DOM，
+     而 CSS 的布局（.app / .stage / .board-column / .board）依赖这层层级 -->
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-text">
+        <h1>引擎测试宿主</h1>
+        <p>虚构数据 tiny-city，只用来验证引擎逻辑</p>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <nav class="level-tabs" id="levelTabs" aria-label="关卡选择"></nav>
+
+      <div class="theme-switch" id="themeSwitch" role="group" aria-label="配色主题">
+        <button type="button" class="theme-dot" data-theme="jade"
+                title="青绿竹韵" aria-label="青绿竹韵"></button>
+        <button type="button" class="theme-dot" data-theme="ginkgo"
+                title="银杏暖秋" aria-label="银杏暖秋"></button>
+      </div>
+    </div>
+  </header>
+
+  <main class="stage">
+
+    <section class="board-column">
+      <div class="board" id="board">
+        <svg class="map" id="map" preserveAspectRatio="xMidYMid meet" role="img"
+             aria-label="引擎测试拼图板">
+          <g class="layer layer-base" id="layerBase"></g>
+          <g class="layer layer-slots" id="layerSlots"></g>
+          <g class="layer layer-placed" id="layerPlaced"></g>
+        </svg>
+        <div class="board-toast" id="boardToast" aria-live="polite"></div>
+        <div class="board-intro" id="boardIntro"></div>
+      </div>
+
+      <div class="tray-panel">
+        <div class="tray-head">
+          <span class="tray-title">
+            <svg class="tray-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-leaf"/></svg>碎片托盘
+          </span>
+          <span class="tray-hint" id="trayHint">拖动碎片到地图上的虚线位置</span>
+          <span class="tray-count" id="trayCount"></span>
+        </div>
+        <div class="tray" id="tray" role="group" aria-label="待拼装的碎片"></div>
+      </div>
+    </section>
+
+    <aside class="sidebar">
+      <div class="card progress-card">
+        <div class="progress-head">
+          <span class="progress-label">本关进度</span>
+          <span class="progress-value"><b id="statDone">0</b><i>/</i><span id="statTotal">0</span></span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="stat-row">
+          <div class="stat"><span class="stat-k">用时</span><span class="stat-v" id="statTime">00:00</span></div>
+          <div class="stat"><span class="stat-k">尝试</span><span class="stat-v" id="statTries">0</span></div>
+          <div class="stat"><span class="stat-k">提示</span><span class="stat-v" id="statHints">0</span></div>
+        </div>
+      </div>
+
+      <div class="card info-card" id="infoCard" aria-live="polite"></div>
+
+      <div class="actions">
+        <button class="btn btn-ghost" id="btnHint" type="button">
+          <svg class="btn-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-bulb"/></svg>提示
+        </button>
+        <button class="btn btn-ghost" id="btnRestart" type="button">
+          <svg class="btn-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-restart"/></svg>重开本关
+        </button>
+      </div>
+    </aside>
+
+  </main>
+</div>
+
+<div class="modal" id="modal" hidden>
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-icon" id="modalIcon" aria-hidden="true"></div>
+    <p class="modal-kicker" id="modalKicker"></p>
+    <h2 id="modalTitle"></h2>
+    <div class="modal-stars" id="modalStars" aria-hidden="true"></div>
+    <p class="modal-text" id="modalText"></p>
+    <div class="modal-stats" id="modalStats"></div>
+    <div class="modal-chips" id="modalChips"></div>
+    <div class="modal-actions" id="modalActions"></div>
+  </div>
+</div>
+
+<script src="../js/geomap.js"></script>
+<script src="fixtures/tiny-city.js"></script>
+<script src="../js/engine.js"></script>
+<script>
+/* 宿主页的职责就是这三行：把配置交给引擎、启动、把实例暴露给测试。
+   引擎本身不自动启动，所以这里能完全控制它什么时候开始跑。 */
+(function () {
+  'use strict';
+
+  function boot() {
+    window.__ENGINE__ = window.MapPuzzleEngine.create(window.TINY_CITY_CONFIG);
+    window.__ENGINE__.start();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+</body>
+</html>

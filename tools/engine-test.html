@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>引擎功能测试 · 虚构 tiny-city</title>
+<style>
+  body { margin: 0; font-family: ui-monospace, Menlo, monospace; background: #111; color: #ddd; }
+  iframe { width: 1600px; height: 1000px; border: 0; display: block; }
+  #result { padding: 16px; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<pre id="result">RUNNING…</pre>
+<!-- 被测对象是"引擎 + 虚构数据"，不是成都页面：宿主页只提供同构的 DOM -->
+<iframe id="frame" src="engine-host.html"></iframe>
+
+<iframe name="rsink" style="display:none" title="report sink"></iframe>
+<form id="rform" method="POST" action="" target="rsink" style="display:none"></form>
+
+<script>
+/* =====================================================================
+ * 引擎功能测试套件
+ * ---------------------------------------------------------------------
+ * 和 tools/selftest.html（城市回归套件）的分工：
+ *   selftest.html    : 成都这个"城市 + 页面"整体是否正常（含 UI / 动画 / 真实数据）
+ *   engine-test.html : 引擎的通用逻辑是否正常 —— 只喂虚构 tiny-city 数据，
+ *                      断言里不出现任何真实城市的区县名或 adcode
+ *
+ * 这么分的好处：引擎改了以后，这一套用假数据就能跑，不依赖成都地图的细节；
+ * 而 UI 回归由另一套守着，两边互不干扰。
+ * ===================================================================== */
+(function () {
+  'use strict';
+
+  const PORT = new URLSearchParams(location.search).get('port');
+  const out = [];
+  let passed = 0;
+  let failed = 0;
+  const failures = [];
+
+  function check(name, cond, detail) {
+    if (cond) {
+      passed++;
+      out.push('  ✔ ' + name);
+    } else {
+      failed++;
+      failures.push(name);
+      out.push('  ✘ ' + name + (detail ? '  → ' + detail : ''));
+    }
+  }
+
+  function section(title) { out.push('\n【' + title + '】'); }
+
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  let reported = false;
+  function report(payload) {
+    if (reported) return;
+    reported = true;
+
+    out.push('\n合计：' + payload.passed + ' 通过 / ' + payload.failed + ' 失败');
+    if (payload.failed) out.push('失败项：' + (payload.failures || []).join('、'));
+    document.getElementById('result').textContent = out.join('\n');
+    document.title = 'TESTRESULT ' + payload.passed + 'P/' + payload.failed + 'F';
+
+    try {
+      const form = document.getElementById('rform');
+      form.action = 'http://127.0.0.1:' + PORT + '/report';
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'd';
+      input.value = JSON.stringify(payload);
+      form.appendChild(input);
+      form.submit();
+    } catch (e) {
+      out.push('上报失败：' + e.message);
+    }
+  }
+
+  /* ---------- iframe 内的操作辅助（与城市套件同款，但只认 fixture 数据） ---------- */
+  let W, D, T;
+
+  /** fixture 配置：关卡、配色、存储 key 全从它来，测试里不写死任何期望值 */
+  const cfg = () => W.TINY_CITY_CONFIG;
+  const nameOf = (adcode) => {
+    const f = T.geo.features.find((x) => x.properties.adcode === adcode);
+    return f ? f.properties.name : '?';
+  };
+  const pieceSel = (adcode) => '.piece[data-adcode="' + adcode + '"]';
+
+  function centerOf(sel) {
+    const r = D.querySelector(sel).getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  }
+
+  /** 在一个凹槽内部找一个确实落在多边形里的点（凹形状的 bbox 中心可能在形状外） */
+  function insidePointOf(adcode) {
+    const pathEl = D.querySelector('.slot[data-adcode="' + adcode + '"] path');
+    if (!pathEl) return null;
+    const bb = pathEl.getBBox();
+    const ctm = pathEl.getScreenCTM();
+    for (let iy = 1; iy <= 9; iy++) {
+      for (let ix = 1; ix <= 9; ix++) {
+        const p = new W.DOMPoint(bb.x + bb.width * ix / 10, bb.y + bb.height * iy / 10);
+        if (pathEl.isPointInFill(p)) {
+          const s = p.matrixTransform(ctm);
+          return { x: s.x, y: s.y };
+        }
+      }
+    }
+    return null;
+  }
+
+  function fire(target, type, x, y, extra) {
+    const opts = Object.assign(
+      {
+        bubbles: true, cancelable: true, composed: true,
+        clientX: x, clientY: y, pointerId: 1, pointerType: 'mouse',
+        isPrimary: true, button: 0, buttons: type === 'pointerup' ? 0 : 1,
+      },
+      extra || {}
+    );
+    target.dispatchEvent(new W.PointerEvent(type, opts));
+  }
+
+  async function drag(from, to, steps) {
+    steps = steps || 6;
+    const piece = D.querySelector(pieceSel(from.adcode));
+    fire(piece, 'pointerdown', from.x, from.y);
+    for (let i = 1; i <= steps; i++) {
+      const t = i / steps;
+      fire(D, 'pointermove', from.x + (to.x - from.x) * t, from.y + (to.y - from.y) * t);
+      await sleep(24);
+    }
+    fire(D, 'pointerup', to.x, to.y);
+  }
+
+  async function click(x, y) {
+    fire(D.elementFromPoint(x, y) || D.body, 'pointerdown', x, y);
+    fire(D, 'pointerup', x, y);
+    const target = D.elementFromPoint(x, y) || D.body;
+    target.dispatchEvent(new W.MouseEvent('click', { bubbles: true, clientX: x, clientY: y }));
+  }
+
+  function key(el, k) {
+    el.dispatchEvent(new W.KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true }));
+  }
+
+  function stats() {
+    const count = (sel) => D.querySelectorAll(sel).length;
+    return {
+      base: count('.layer-base path'),
+      slots: count('.slot'),
+      placed: count('.placed path'),
+      pieces: [...D.querySelectorAll('.piece')].filter((p) => !p.classList.contains('is-used')).length,
+      tabs: count('.level-tab'),
+      unlockedTabs: [...D.querySelectorAll('.level-tab')].filter((b) => !b.disabled).length,
+      done: D.getElementById('statDone').textContent,
+      total: D.getElementById('statTotal').textContent,
+      tries: D.getElementById('statTries').textContent,
+      hints: D.getElementById('statHints').textContent,
+      time: D.getElementById('statTime').textContent,
+      toast: D.getElementById('boardToast').textContent,
+      infoName: (D.querySelector('.info-name') || {}).textContent || '',
+      modalOpen: !D.getElementById('modal').hidden,
+      modalKicker: D.getElementById('modalKicker').textContent,
+      modalTitle: D.getElementById('modalTitle').textContent,
+      modalText: D.getElementById('modalText').textContent,
+      trayEmpty: !!D.querySelector('.tray-empty'),
+    };
+  }
+
+  const slotAdcodes = () => [...D.querySelectorAll('.slot')].map((g) => g.dataset.adcode);
+
+  /** 把 adcode 拼回"配置里那个关卡" */
+  const levelOf = (adcode) => T.levels.find((l) => l.adcodes.indexOf(adcode) >= 0);
+
+  /** 按 fixture 的 palette 反推"引擎应该给出的颜色" */
+  function expectedColor(level, adcode) {
+    const P = T.palette;
+    const idx = level.adcodes.indexOf(adcode);
+    const base = typeof level.hue === 'number' ? level.hue : P.hueByLevel[level.id];
+    const hue = base + ((idx * 11) % P.hueSpread) - P.hueSpread / 2;
+    const light = P.lightBase + ((idx * P.lightStep) % P.lightSpan);
+    return 'hsl(' + hue + ' ' + P.saturation + '% ' + light + '%)';
+  }
+
+  const colorOfPiece = (adcode) =>
+    D.querySelector(pieceSel(adcode)).style.getPropertyValue('--c').trim();
+
+  /* ---------- 主流程 ---------- */
+  async function run() {
+    const frame = document.getElementById('frame');
+    await new Promise((r) => frame.addEventListener('load', r, { once: true }));
+
+    W = frame.contentWindow;
+    D = frame.contentDocument;
+
+    const pageErrors = [];
+    W.addEventListener('error', (e) => pageErrors.push(e.message));
+    W.addEventListener('unhandledrejection', (e) => pageErrors.push('unhandled: ' + e.reason));
+
+    await sleep(500);
+
+    T = cfg();
+    const lv1 = T.levels[0];
+    const lv2 = T.levels[1];
+    const A1 = lv1.adcodes[0];   // 甲区（南）
+    const A2 = lv1.adcodes[1];   // 乙区（南）
+    const B1 = lv2.adcodes[0];   // 丙县（北，L 形）
+
+    /* ================================================================ */
+    section('0 · 引擎装配：配置进、界面出');
+
+    check('引擎工厂已导出 create()', typeof W.MapPuzzleEngine.create === 'function');
+    check('宿主拿到了实例接口（start / getState）',
+      !!(W.__ENGINE__ && typeof W.__ENGINE__.start === 'function' &&
+        typeof W.__ENGINE__.getState === 'function'));
+
+    let s = stats();
+    check('底图画出了配置里的全部区县', s.base === T.geo.features.length,
+      '实际 ' + s.base + ' / 期望 ' + T.geo.features.length);
+    check('关卡标签数 = 配置里的关卡数', s.tabs === T.levels.length,
+      '实际 ' + s.tabs + ' / 期望 ' + T.levels.length);
+    check('不带 ?level 参数时只解锁第一关', s.unlockedTabs === 1, '可点关卡数 ' + s.unlockedTabs);
+    check('第一关凹槽数 = 配置里的碎片数', s.slots === lv1.adcodes.length,
+      '实际 ' + s.slots);
+    check('第一关托盘碎片数 = 配置里的碎片数', s.pieces === lv1.adcodes.length,
+      '实际 ' + s.pieces);
+    check('进度显示 0/N', s.done === '0' && s.total === String(lv1.adcodes.length),
+      s.done + '/' + s.total);
+
+    let st = W.__ENGINE__.getState();
+    check('快照 levelId = 配置里的第一关 id', st.levelId === lv1.id, String(st.levelId));
+    check('快照计数与界面一致',
+      st.placed.length === 0 && st.slotsLeft === lv1.adcodes.length &&
+      st.piecesLeft === lv1.adcodes.length && st.tries === 0 && st.hints === 0 &&
+      st.solved === false && st.unlocked === 1,
+      JSON.stringify(st));
+
+    // 方位：从 fixture 里挑出最北 / 最南 / 最东的区县，比较它们渲染出来的位置。
+    // fixture 里 Polygon 和 MultiPolygon 混用，所以取点前先把两种嵌套都摊平。
+    const pointsOf = (f) => {
+      const polys = f.geometry.type === 'Polygon'
+        ? [f.geometry.coordinates]
+        : f.geometry.coordinates;
+      return polys.flatMap((poly) => poly.flatMap((ring) => ring));
+    };
+    const latOf = (f) => pointsOf(f).reduce((m, p) => Math.max(m, p[1]), -Infinity);
+    const lonOf = (f) => pointsOf(f).reduce((m, p) => Math.max(m, p[0]), -Infinity);
+    const north = T.geo.features.reduce((a, b) => (latOf(b) > latOf(a) ? b : a));
+    const south = T.geo.features.reduce((a, b) => (latOf(b) < latOf(a) ? b : a));
+    const east = T.geo.features.reduce((a, b) => (lonOf(b) > lonOf(a) ? b : a));
+    const basePaths = [...D.querySelectorAll('.layer-base path')];
+    const idxOf = (adcode) => T.geo.features.findIndex((f) => f.properties.adcode === adcode);
+
+    // 各来源的 GeoJSON 写法不同，引擎必须两种都吃得下（这里 fixture 混用了两种）
+    const polyForm = T.geo.features.find((f) => f.geometry.type === 'Polygon');
+    if (polyForm) {
+      const pb = basePaths[idxOf(polyForm.properties.adcode)].getBBox();
+      check('Polygon 写法（少一层嵌套）的区县也能正常渲染',
+        pb.width > 0 && pb.height > 0,
+        polyForm.properties.name + ' bbox=' + pb.width.toFixed(1) + '×' + pb.height.toFixed(1));
+    }
+
+    const nb = basePaths[idxOf(north.properties.adcode)].getBBox();
+    const sb = basePaths[idxOf(south.properties.adcode)].getBBox();
+    const eb = basePaths[idxOf(east.properties.adcode)].getBBox();
+    check('渲染层方位正确：纬度高的画在上方', nb.y < sb.y,
+      north.properties.name + ' y=' + nb.y.toFixed(1) + ' vs ' + south.properties.name + ' y=' + sb.y.toFixed(1));
+    check('渲染层方位正确：经度大的画在右侧', eb.x > sb.x,
+      east.properties.name + ' x=' + eb.x.toFixed(1) + ' vs ' + south.properties.name + ' x=' + sb.x.toFixed(1));
+
+    /* ================================================================ */
+    section('1 · 配色 / 主题 / 存储 key 都来自配置');
+
+    check('默认主题取配置里的 fallback',
+      D.documentElement.getAttribute('data-theme') === T.themes.fallback,
+      String(D.documentElement.getAttribute('data-theme')));
+    check('主题写进配置里指定的 storage key',
+      W.localStorage.getItem(T.storage.theme) === T.themes.fallback,
+      String(W.localStorage.getItem(T.storage.theme)));
+    const dotOf = (t) => D.querySelector('.theme-dot[data-theme="' + t + '"]');
+    check('默认主题对应的色点处于选中态',
+      dotOf(T.themes.fallback).getAttribute('aria-pressed') === 'true');
+
+    const colorOk = lv1.adcodes.every((a) => colorOfPiece(a) === expectedColor(lv1, a));
+    check('碎片颜色严格按配置的色相/饱和度/明度算', colorOk,
+      lv1.adcodes.map((a) => a + '=' + colorOfPiece(a)).join(' '));
+
+    check('没有污染别的城市的存储 key',
+      W.localStorage.getItem('chengdu-map-puzzle') === null &&
+      W.localStorage.getItem('chengdu-map-theme') === null);
+
+    dotOf('jade').click();
+    await sleep(150);
+    check('切主题：data-theme 生效', D.documentElement.getAttribute('data-theme') === 'jade');
+    check('切主题：写的是配置里的 key', W.localStorage.getItem(T.storage.theme) === 'jade',
+      String(W.localStorage.getItem(T.storage.theme)));
+    dotOf(T.themes.fallback).click();
+    await sleep(150);
+
+    /* ================================================================ */
+    section('2 · 拖到错误位置应被拒绝');
+
+    const from1 = Object.assign(centerOf(pieceSel(A1)), { adcode: A1 });
+    await drag(from1, insidePointOf(A2));
+    await sleep(220);
+    check('放错时目标凹槽闪红（is-wrong）', !!D.querySelector('.slot.is-wrong'));
+    await sleep(800);
+    s = stats();
+    check('放错后没有任何区块被拼上', s.placed === 0, '实际 ' + s.placed);
+    check('放错后凹槽没有被消耗', s.slots === lv1.adcodes.length, '实际 ' + s.slots);
+    check('放错后碎片仍在托盘里', s.pieces === lv1.adcodes.length, '实际 ' + s.pieces);
+    check('放错提示里出现的是"目标区县"的名字',
+      s.toast.indexOf('这里是') >= 0 && s.toast.indexOf(nameOf(A2)) >= 0,
+      JSON.stringify(s.toast));
+
+    const from2 = Object.assign(centerOf(pieceSel(A2)), { adcode: A2 });
+    await drag(from2, insidePointOf(A1));
+    await sleep(1000);
+    s = stats();
+    check('反向放错同样被拒绝', s.placed === 0 && s.slots === lv1.adcodes.length);
+    check('两次失败都被计进"尝试"', W.__ENGINE__.getState().tries === 2,
+      String(W.__ENGINE__.getState().tries));
+    check('尝试次数同步显示在界面上', s.tries === '2', s.tries);
+
+    /* ================================================================ */
+    section('3 · 拖到正确位置应吸附成功');
+
+    const okTo1 = insidePointOf(A1);
+    check('能在地图上定位到该区县内部点', !!okTo1);
+    await drag(Object.assign(centerOf(pieceSel(A1)), { adcode: A1 }), okTo1);
+    await sleep(950);
+    s = stats();
+    check('地图上出现 1 个已拼区块', s.placed === 1, '实际 ' + s.placed);
+    check('对应凹槽被移除', s.slots === lv1.adcodes.length - 1, '实际 ' + s.slots);
+    check('托盘少了一块碎片', s.pieces === lv1.adcodes.length - 1, '实际 ' + s.pieces);
+    check('进度更新为 1', s.done === '1', s.done);
+    check('信息卡换成了该区县的资料', s.infoName === nameOf(A1),
+      s.infoName + ' / 期望 ' + nameOf(A1));
+    check('弹出"拼对了"提示', s.toast.indexOf('拼对了') >= 0, s.toast);
+    st = W.__ENGINE__.getState();
+    check('快照记下了已拼的 adcode', st.placed.indexOf(A1) >= 0, JSON.stringify(st.placed));
+
+    /* ================================================================ */
+    section('4 · 点击模式 + 本关通关解锁下一关');
+
+    const ptr = centerOf(pieceSel(A2));
+    await click(ptr.x, ptr.y);
+    await sleep(180);
+    check('点一下碎片进入选中态', !!D.querySelector('.piece.is-selected'));
+    check('选中后空位才进入 Tab 序列',
+      [...D.querySelectorAll('.slot path')].every((p) => p.getAttribute('tabindex') === '0'));
+
+    await click(insidePointOf(A2).x, insidePointOf(A2).y);
+    await sleep(1100);
+    s = stats();
+    check('点击模式也能拼上（本关拼满）', s.placed === lv1.adcodes.length, '实际 ' + s.placed);
+    check('托盘显示已清空', s.trayEmpty === true);
+    check('通关弹窗出现', s.modalOpen === true);
+    check('弹窗标题用的是配置里的关卡简称',
+      s.modalTitle.indexOf(lv1.short) >= 0, s.modalTitle);
+    check('第二关被解锁', s.unlockedTabs === 2, '可点关卡数 ' + s.unlockedTabs);
+    st = W.__ENGINE__.getState();
+    check('快照标记本关已完成', st.solved === true && st.finishedLevels.indexOf(lv1.id) >= 0,
+      JSON.stringify({ solved: st.solved, finished: st.finishedLevels }));
+
+    /* ================================================================ */
+    section('5 · 键盘放置 + 最后一关（凹多边形）');
+
+    D.querySelectorAll('.level-tab')[1].click();
+    await sleep(700);
+    s = stats();
+    check('切到第二关：凹槽数 = 配置', s.slots === lv2.adcodes.length, '实际 ' + s.slots);
+    check('切到第二关：进度重置为 0/1', s.done === '0' && s.total === String(lv2.adcodes.length),
+      s.done + '/' + s.total);
+
+    const lPath = D.querySelector('.slot[data-adcode="' + B1 + '"] path');
+    const lb = lPath.getBBox();
+    const notch = new W.DOMPoint(lb.x + lb.width * 0.75, lb.y + lb.height * 0.25);
+    const bodyPt = new W.DOMPoint(lb.x + lb.width * 0.75, lb.y + lb.height * 0.75);
+    check('凹形状按真实轮廓渲染：缺口处不算在形状内', !lPath.isPointInFill(notch));
+    check('凹形状按真实轮廓渲染：实体处算在形状内', lPath.isPointInFill(bodyPt));
+    check('关卡自带的 hue 优先于 palette.hueByLevel',
+      colorOfPiece(B1) === expectedColor(lv2, B1),
+      colorOfPiece(B1) + ' / 期望 ' + expectedColor(lv2, B1));
+
+    const kPiece = D.querySelector(pieceSel(B1));
+    key(kPiece, 'Enter');
+    await sleep(180);
+    check('键盘回车能选中碎片', !!D.querySelector('.piece.is-selected'));
+    key(D.querySelector('.slot[data-adcode="' + B1 + '"] path'), 'Enter');
+    await sleep(1000);
+    s = stats();
+    check('键盘回车能把碎片放进正确空位（全程不用鼠标）', s.placed === 1, '实际 ' + s.placed);
+    check('最后一关走的是"全部完成"文案', s.modalKicker === '全部完成', s.modalKicker);
+    check('通关文案里的城名来自配置',
+      s.modalText.indexOf(T.texts.cityName) >= 0, s.modalText);
+    check('通关文案里的区县总数来自配置',
+      s.modalText.indexOf(String(T.texts.districtCount)) >= 0, s.modalText);
+
+    /* ================================================================ */
+    section('6 · 重开本关');
+
+    D.getElementById('btnRestart').click();
+    await sleep(400);
+    s = stats();
+    check('重开后回到配置里的凹槽数', s.slots === lv2.adcodes.length, '实际 ' + s.slots);
+    check('重开后进度归零', s.done === '0', s.done);
+    check('重开后弹窗关掉', s.modalOpen === false);
+
+    /* ================================================================ */
+    section('7 · 提示');
+
+    D.getElementById('btnHint').click();
+    await sleep(200);
+    check('提示计数 +1', D.getElementById('statHints').textContent === '1',
+      D.getElementById('statHints').textContent);
+    check('有元素被高亮为提示', !!D.querySelector('.is-hinted'));
+    check('快照里的提示次数同步', W.__ENGINE__.getState().hints === 1);
+
+    /* ================================================================ */
+    section('8 · 拖到空白处应原样回弹（不误判为放错）');
+
+    const before = stats();
+    const side = D.querySelector('.sidebar').getBoundingClientRect();
+    await drag(
+      Object.assign(centerOf(pieceSel(B1)), { adcode: B1 }),
+      { x: side.left + side.width / 2, y: side.top + side.height / 2 }
+    );
+    await sleep(500);
+    s = stats();
+    check('落在空白处不算拼上', s.placed === before.placed, '实际 ' + s.placed);
+    check('凹槽没有被消耗', s.slots === before.slots, '实际 ' + s.slots);
+    check('碎片回到托盘（没有消失）', s.pieces === before.pieces, '实际 ' + s.pieces);
+    check('没有误弹"这里是某某"的放错提示',
+      s.toast.indexOf('这里是') < 0, s.toast);
+    check('拖拽幽灵已被清理', !D.querySelector('.drag-ghost'));
+    check('这次尝试也被计入', W.__ENGINE__.getState().tries === Number(s.tries), s.tries);
+
+    /* ================================================================ */
+    section('9 · 进度持久化（存档 key 由配置决定）');
+
+    // 回到第一关（已完成也可以重玩），只拼一块就停手，看能不能恢复"没拼完"的进度
+    D.querySelectorAll('.level-tab')[0].click();
+    await sleep(700);
+    await sleep(700);   // 让计时器至少跳一次，保证存档里的 elapsed > 0
+
+    await drag(Object.assign(centerOf(pieceSel(A1)), { adcode: A1 }), insidePointOf(A1));
+    await sleep(950);
+
+    let save = null;
+    try { save = JSON.parse(W.localStorage.getItem(T.storage.save)); } catch (e) { /* 忽略 */ }
+    check('拼对后写入了配置里指定的存档 key', !!save, String(save).slice(0, 90));
+    check('存档记下了已拼的区县',
+      !!save && (save.placed || []).indexOf(A1) >= 0,
+      save ? JSON.stringify(save.placed) : '无存档');
+    check('存档记下了当前关卡', !!save && save.levelIndex === 0, save && String(save.levelIndex));
+    check('存档记下了已用时间', !!save && save.elapsed > 0, save && String(save.elapsed));
+    check('存档带版本号（来自配置）', !!save && save.v === T.storage.saveVersion,
+      save && String(save.v));
+
+    // 真的刷新一次，看进度能不能续上
+    frame.contentWindow.location.reload();
+    await new Promise((r) => frame.addEventListener('load', r, { once: true }));
+    await sleep(950);
+    W = frame.contentWindow;
+    D = frame.contentDocument;
+    T = cfg();
+
+    check('刷新后回到存档里那一关',
+      D.querySelectorAll('.level-tab')[0].classList.contains('is-active'),
+      D.querySelector('.level-tab.is-active').textContent);
+    check('刷新后已拼的区县还在图上',
+      !!D.querySelector('.placed[data-adcode="' + A1 + '"]'));
+    check('刷新后托盘里少了那一块',
+      [...D.querySelectorAll('.piece')].filter((p) => !p.classList.contains('is-used')).length ===
+        lv1.adcodes.length - 1,
+      '实际 ' + [...D.querySelectorAll('.piece')].filter((p) => !p.classList.contains('is-used')).length);
+    check('刷新后计时接着上次走（不是 00:00）',
+      D.getElementById('statTime').textContent !== '00:00',
+      D.getElementById('statTime').textContent);
+    check('刷新后解锁进度也恢复了',
+      [...D.querySelectorAll('.level-tab')].filter((b) => !b.disabled).length === 2);
+
+    /* ================================================================ */
+    section('10 · 运行期报错');
+    check('引擎在假数据下没有抛未捕获异常', pageErrors.length === 0, pageErrors.join(' | '));
+
+    report({ passed: passed, failed: failed, failures: failures, log: out.join('\n') });
+  }
+
+  run().catch((err) => {
+    failed++;
+    failures.push('测试脚本自身异常');
+    out.push('\n!! 测试执行出错：' + (err && err.stack ? err.stack : err));
+    report({ passed: passed, failed: failed, failures: failures, log: out.join('\n') });
+  });
+})();
+</script>
+</body>
+</html>

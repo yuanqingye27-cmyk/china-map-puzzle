@@ -1,7 +1,8 @@
-# 成都拼图项目开发 SOP 与经验复盘
+# 地图拼图项目开发 SOP 与经验复盘
 
-> 项目：成都地图拼图（用交互式拼图讲解成都 20 个区县）
+> 项目：地图拼图（用交互式拼图讲解城市的县级行政区；当前内置成都 20 个区县）
 > 形态：零依赖纯前端单页，双击 `index.html` 即可运行
+> 架构：**通用引擎 `MapPuzzleEngine` + 城市配置** —— 加一个新城市只需写一份 config，不动引擎
 > 本文用途：记录架构决策、踩坑过程、解决方法，以及下次做同类项目可复用的流程
 
 ---
@@ -23,13 +24,13 @@
 
 | 项 | 值 |
 | --- | --- |
-| 目标 | 用拼图游戏讲解成都市 20 个县级行政区 |
+| 目标 | 用拼图游戏讲解城市的县级行政区；已抽成可复用引擎，支持多城市 |
 | 技术栈 | 原生 HTML / CSS / JavaScript，**无任何依赖、无任何外链** |
-| 数据 | 阿里云 DataV.GeoAtlas 的成都 GeoJSON（20 个区县、6279 个顶点） |
+| 数据 | 阿里云 DataV.GeoAtlas 的成都 GeoJSON（20 个区县、6279 个顶点，`MultiPolygon`） |
 | 运行方式 | 双击 `index.html`（`file://`），无需构建、无需服务器 |
-| 代码规模 | `index.html` 381 行、`style.css` 1560 行、`game.js` 1330 行、其余约 500 行 |
-| 总体积 | 988 KB（含 5 张 README 配图） |
-| 测试 | 89 项端到端断言 + 1 项 CSS 静态检查，全部通过 |
+| 代码规模 | `engine.js` 1554 行（通用逻辑）、`cities/chengdu.js` 96 行（城市配置）、`game.js` 34 行（启动器）、`style.css` 1566 行、`index.html` 411 行 |
+| 总体积 | 1.1 MB（其中 648 KB 是 README 的 5 张配图） |
+| 测试 | **166 项端到端断言**（89 城市回归 + 77 引擎功能）+ 1 项 CSS 静态检查，全部通过 |
 
 **为什么坚持零依赖**：这是一份"送给别人也能直接打开"的小作品。任何 `npm install`、CDN、构建步骤都会成为分享时的摩擦点。事后看这个决定是正确的 —— 它倒逼出了几个有意思的实现（手写墨卡托、内联数据、自己搭测试），也避开了所有网络相关的坑。
 
@@ -83,6 +84,17 @@
 - 进度持久化、音效、无障碍、移动端性能降级
 - 发现并修复最隐蔽的一个 bug：横向溢出（[坑 #12](#坑-12min-width-auto-撑破容器移动端横向溢出的真凶)）
 
+### 阶段 7 · 引擎化重构（支持多城市）
+
+四步走，每步都跑测试、每步都停下来验收：
+
+1. **抽出城市配置**（`js/cities/chengdu.js`）：把主色调 `LEVEL_HUE`、存储 key、画布/碎片尺寸、文案收进一个 `CONFIG` 对象 —— 纯新增，零行为变化
+2. **引擎参数化**：`game.js` 里的硬编码常量改为从 `CONFIG` 读，缺项一律有默认值兜底
+3. **拆出 `js/engine.js`**：主体改名为 `MapPuzzleEngine.create(CONFIG)`（`git mv` 保历史、正文逐行不动，只改首尾包装），`game.js` 缩成 34 行启动器
+4. **双测试体系**：新增假数据 fixture（3 个虚构区县）+ 瘦宿主页 + 引擎功能套件，驱动改成一次跑两套
+
+**这一步的意外收获**：假数据一上来就把引擎的**输入契约太窄**逼了出来 —— 几何层只认 `MultiPolygon`，喂标准 `Polygon` 直接抛错（见[坑 #22](#坑-22几何层只认-multipolygonpolygon-直接抛错)）。
+
 ---
 
 ## 三、最终架构方案
@@ -93,7 +105,7 @@
 index.html
 ├── <svg class="svg-sprite">      图案库：12 个 <symbol> 定义一次
 ├── 页面结构（顶栏 / 地图板 / 托盘 / 侧栏 / 弹窗 / 开场层）
-└── <script> 顺序加载 4 个文件
+└── <script> 顺序加载 6 个文件
 
 css/style.css
 ├── :root 设计令牌（通道变量）
@@ -101,10 +113,19 @@ css/style.css
 ├── 组件样式
 └── 5 个媒体查询断点
 
-js/map-data.js     数据（构建产物，内联）
-js/geomap.js       投影与几何：经纬度 → path / bbox / 质心
-js/districts.js    文案与关卡设定
-js/game.js         全部游戏逻辑
+【数据层】与引擎无关的原始数据，换城市就换这几个文件
+js/map-data.js         成都 GeoJSON（构建产物，内联）
+js/districts.js        20 个区县的资料卡 + 关卡设定
+
+【配置层】一座城市 = 一份配置：把数据 + 配色 + 存储 key + 文案组装起来
+js/cities/chengdu.js   window.MAP_PUZZLE_CONFIG
+
+【引擎层】不含任何城市数据，只认传进来的 CONFIG
+js/geomap.js           投影与几何：经纬度 → path / bbox / 质心（Polygon / MultiPolygon 都吃）
+js/engine.js           MapPuzzleEngine：凹槽 / 碎片 / 拖拽 / 落点判定 / 存档 / 通关
+
+【启动层】
+js/game.js             34 行：把配置交给引擎并 start()
 ```
 
 ### 3.2 六个关键设计决策
@@ -164,18 +185,75 @@ color: rgb(var(--c-jade) / 0.14);  /* 使用：透明度在调用处决定 */
 因为**没有 npm、不装 puppeteer**，测试是这样搭起来的：
 
 ```
-tools/e2e-test.js       Node 侧：起 HTTP 服务、启动 headless Chrome、收结果
-      ↓ 打开
-tools/selftest.html     浏览器侧：装 index.html 进 iframe、模拟操作、断言
+tools/e2e-test.js        Node 侧：起 HTTP 服务 → 按套件启动 headless Chrome → 收结果 → 汇总
+      ↓ 依次打开两个载体页（每套独立 Chrome、独立 user-data-dir）
+tools/selftest.html      【城市回归】装 index.html 进 iframe，用成都真实数据 + 真实 DOM 断言
+tools/engine-test.html   【引擎功能】装 engine-host.html 进 iframe，只喂虚构 tiny-city 数据
       ↓ iframe 内
-      index.html        被测的真实页面
+index.html / engine-host.html      被测页面
       ↓ 结果用隐表单 POST 回传（绕开 CORS 和 PNA）
-tools/e2e-test.js      收到结果 → 打印 / 设置退出码
+tools/e2e-test.js        收到结果 → 打印 / 设置退出码
 ```
+
+两套测试的分工（重构后新增的一层保险）：
+
+| 套件 | 被测页 | 数据 | 管什么 |
+| --- | --- | --- | --- |
+| 城市回归 · 89 项 | `index.html` | 成都真实 GeoJSON | UI / 动画 / 布局 / 真实数据正确性（含 adcode 没写反） |
+| 引擎功能 · 77 项 | `engine-host.html` | 虚构 tiny-city（3 个假区县） | 放置判定、错误拒绝、解锁、持久化、配置驱动 —— **与具体城市无关** |
+
+**为什么要分成两套**：引擎改动后，用假数据那一套就能验证通用逻辑，不必依赖成都地图的细节；而 UI 回归由城市那一套守着，两边互不干扰。实测收益见[坑 #22](#坑-22几何层只认-multipolygonpolygon-直接抛错)：假数据第一次运行就逮住了真实数据掩盖了一个项目周期的兼容问题。
 
 **为什么不用 CDP**：headless Chrome 153 在 `Runtime.enable` 时直接 SIGTRAP 崩溃，试了 `--headless=old`、`--no-sandbox` 各种组合都不行，果断放弃（详见[坑 #2](#坑-2headless-chrome-在-runtimeenable-时崩溃)）。
 
-**这个体系的价值在后续每一轮改动里都体现了** —— 它逮住了 4 个我自己没意识到的 bug。
+**这个体系的价值在后续每一轮改动里都体现了** —— 它逮住了 4 个我自己没意识到的 bug（含两个静默错误）。
+
+### 3.4 数据 / 配置 / 引擎 三层解耦
+
+重构的核心一句话：**引擎不认识任何一个具体城市。**
+
+```
+js/cities/<city>.js  ──┐
+  geo        地图数据   │  window.MAP_PUZZLE_CONFIG
+  districts  区县资料   │  （一个纯数据对象，没有任何行为）
+  levels     关卡设定   │
+  palette    配色       │
+  storage    存储 key   │
+  texts      文案     ──┘
+                        ↓
+              MapPuzzleEngine.create(CONFIG).start()
+                        ↓
+  引擎负责：底图 / 凹槽 / 碎片 / 拖拽 / 落点判定 / 提示 / 存档 / 通关
+```
+
+`CONFIG` 字段表 —— **只有 `geo` 和 `levels` 是必需的**，其余省略时走引擎内置默认值：
+
+| 字段 | 必需 | 说明 |
+| --- | --- | --- |
+| `geo` | ✔ | GeoJSON FeatureCollection；每个 feature 需带 `properties.adcode` / `properties.name`。`Polygon` 与 `MultiPolygon` **两种写法都支持** |
+| `levels` | ✔ | `[{ id, name, short, blurb, adcodes, hue? }]`；`hue` 可选，作为该关主色相 |
+| `districts` | | `adcode → { area, landmark, tagline, funFact }`，拼对后信息卡的内容 |
+| `palette` | | `hueByLevel` / `fallbackHue` / `saturation` / `lightBase` / `lightStep` / `lightSpan` / `hueSpread` —— **城市主色调就在这里** |
+| `map` | | `{ width, padding }` 画布逻辑尺寸 |
+| `piece` | | `{ max, minSide, pieces: [[视口宽度上限, 最大边], …] }` 碎片尺寸档位 |
+| `storage` | | `{ save, theme, sound, intro, saveVersion }` ① |
+| `themes` | | `{ list, fallback }`，`list` 里是 CSS 里存在的 `data-theme` 值 |
+| `texts` | | `{ cityName, districtCount, missingDataHint }` |
+
+① 多城市**必须**各用一套 `storage` key，否则两个城市会互相覆盖存档。
+
+引擎的对外接口只有两个（刻意收得很窄，免得宿主页面改坏内部状态）：
+
+```js
+const engine = MapPuzzleEngine.create(CONFIG);
+engine.start();      // 数据与 DOM 就绪后启动（引擎不自动启动，何时启动由宿主页决定）
+engine.getState();   // 运行状态快照：levelIndex / placed / tries / hints / elapsed /
+                     // solved / unlocked / finishedLevels / slotsLeft / piecesLeft …
+```
+
+**为什么用工厂函数而不是 class**：内部 `state` / `drag` / `el` / `shapes` 全是 `create()` 的闭包变量，天然做到"每个实例一套状态"，同时省掉了把上百处引用改成 `this.xxx` 的机械改动 —— **改动面越小，越不容易在重构里引入新 bug**。
+
+**为什么引擎不自动启动**：`start()` 由宿主页显式调用，于是"同一页创建多个实例""测试宿主页用假数据启动"都变得自然，而不需要给引擎加一堆开关。
 
 ---
 
@@ -237,6 +315,42 @@ k = Math.min(PIECE_MIN_SIDE / short, (max * 1.15) / long);
 ```
 
 **教训**：等比缩放时，"保证短边不小于 X"和"保证长边不超过 Y"是两个会打架的约束，必须同时满足。
+
+#### 坑 #22：几何层只认 MultiPolygon，Polygon 直接抛错
+
+**现象**：引擎功能测试第一次跑，城市回归 89 项全绿，但假数据宿主页的**底图、凹槽、碎片全是 0**，进度停在 `0/0`；页面正文完好，**控制台也没有任何提示**（数据缺失的兜底提示没触发，说明 `init()` 是中途抛异常，而不是走了兜底分支）。
+
+**排查**（比读代码猜快得多的一步）：把 `start()` 再调一次并用 `try/catch` 抓住异常现场 ——
+
+```js
+try { W.__ENGINE__.start(); } catch (e) { info.err = e.message; }
+// → number 100 is not iterable (cannot read property Symbol(Symbol.iterator))
+//    at js/geomap.js:94
+```
+
+**根因**：`buildGeoMap` 直接按 `coordinates.map(多边形).map(环).map(点)` 三层取点，等于**隐含要求 `MultiPolygon`**。真实成都数据恰好就是 `MultiPolygon`（`tools/build-data.js` 也统一转成它），所以这个问题被藏了整整一个项目周期。而标准 GeoJSON 的 `Polygon` 只有两层，喂进来时"环"被当成"点"去解构，当场炸掉：
+
+```
+MultiPolygon: coordinates = [多边形][环][点]   ← DataV 导出的成都数据
+Polygon:      coordinates = [环][点]           ← 手写数据 / 别家数据源常见
+```
+
+**修法**（只改引擎，不动测试断言）：进点之前把两种写法统一补齐成同一形状。
+
+```js
+const geom = feature.geometry;
+const rawPolygons = geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates;
+```
+
+fixture 顺势改成**两种写法混用**（甲区 `Polygon`、乙区/丙县 `MultiPolygon`），并加了一条断言把这条兼容性钉死。
+
+**验证方式**：用 `git show HEAD:js/geomap.js` 的旧实现和新实现分别构建成都全图，深比对结果 —— **76819 字节输出完全一致**（投影 / 路径 / bbox / 质心一个数字没变），确认修复对老数据零影响。
+
+**教训**：
+1. **"我用得对"不等于"它能通用"** —— 真实数据恰好落在某一个分支上，另一个分支的 bug 就可能潜伏很久；做通用化时，要主动去问"还有哪种写法/哪种输入"
+2. **换一份极端数据当探针，是性价比最高的通用性测试**：喂 3 个假区县，比再通读一遍 1500 行代码更快命中问题
+3. **把输入契约写进文档**：引擎到底吃哪种 GeoJSON 写法，不能在实现里"隐式约定"（现已写进 3.4 的字段表）
+4. 排查顺序仍然是"抓现场数据 > 读代码猜"：`try/catch` 拿到异常行号，比通读 `buildGeoMap` 快得多
 
 ### 4.2 布局与响应式
 
@@ -569,10 +683,10 @@ btn.addEventListener('keydown', (ev) => {
 ### 5.2 改动流程
 
 ```
-改代码 → node --check 语法 → node tools/e2e-test.js → 截图目视 → 汇报
+改代码 → node --check 语法 → node tools/e2e-test.js（两套都要绿）→ 截图目视 → 汇报
 ```
 
-**关键：改完必须跑测试。** 这个项目的 89 项断言逮住过 4 个我自己没意识到的 bug。
+**关键：改完必须跑测试。** 这个项目的 166 项断言逮住过多个我自己没意识到的 bug —— 包括两个静默错误，以及引擎化重构时的 GeoJSON 兼容问题。
 
 ### 5.3 遇到"看不到效果"时的排查顺序
 
@@ -588,7 +702,7 @@ btn.addEventListener('keydown', (ev) => {
 ### 5.4 如何加一个新关卡
 
 1. `js/districts.js` 的 `LEVELS` 里加一项（`id` / `name` / `short` / `blurb` / `adcodes`）
-2. `colorOf()` 里的 `LEVEL_HUE` 加一个色相
+2. 配色二选一：在 `js/cities/chengdu.js` 的 `palette.hueByLevel` 里加一个色相，**或者**直接给这个关卡写 `hue: 200`（关卡自带的 `hue` 优先级更高）
 3. 确认 `adcode` 在 `map-data.js` 里存在（跑测试会校验）
 4. 若关卡数量变化，检查 `unlocked` 相关逻辑与测试断言
 
@@ -596,7 +710,7 @@ btn.addEventListener('keydown', (ev) => {
 
 1. `css/style.css` 的 `:root[data-theme='xxx']` 里覆盖颜色令牌（**只需覆盖颜色类，圆角/缓动沿用默认**）
 2. `index.html` 的主题切换区加一个色点按钮
-3. `js/game.js` 的 `THEMES` 数组加 id
+3. `js/cities/<city>.js` 的 `themes.list` 里加 id（还可以用 `themes.fallback` 指定默认主题）
 4. 注意：暖色/红色在深底上**视觉亮度天然低于青色**，描边色需要比青绿主题提亮一档
 
 ### 5.6 如何加一个新图案
@@ -619,9 +733,38 @@ node tools/build-data.js /tmp/cd_full.json
 node tools/e2e-test.js
 ```
 
-- 输出 `89 通过 / 0 失败` 即为正常
+- 一次跑两套，末尾打汇总。正常输出是 **`合计：166 通过 / 0 失败`**（城市回归 89 + 引擎功能 77）
+- 只想过其中一套：把另一套从 `tools/e2e-test.js` 顶部的 `SUITES` 数组里注掉即可
 - 脚本里带的 `--no-sandbox` 是**这台机器必需的**（见坑 #2），换机器可以去掉
 - 测试失败时会打印布局诊断（各层宽度、`elementFromPoint` 命中结果），便于快速定位
+- 每套测试各起一个独立 Chrome（独立 `user-data-dir`），因此两边的 `localStorage` 互不可见 —— 引擎套件里"没有污染 `chengdu-*` 存档 key"那条断言就是这么成立的
+
+### 5.9 如何加一个新城市（只写一份 config）
+
+引擎不认识任何具体城市，所以**一行 `engine.js` 都不用改**：
+
+1. **准备数据**：把该城市的 GeoJSON 处理成 `window.XXX_GEO = {...}`（可参考 `tools/build-data.js`；`Polygon` 和 `MultiPolygon` 引擎都吃）
+2. **新建配置**：`js/cities/<city>.js`，照着 `js/cities/chengdu.js` 填 `id / name / geo / districts / levels / palette / storage / themes / texts`
+3. **换两样东西**：`storage` 的 key（避免和别的城市互相覆盖存档）和 `palette`（这就是这个城市的主色调）
+4. **接进页面**：按顺序加载 `数据 → 城市配置 → geomap.js → engine.js → game.js`，在 `game.js` 里把 `MAP_PUZZLE_CONFIG` 指向你要启动的那份配置
+5. **跑测试**：`node tools/e2e-test.js`，确认城市回归那 89 项没被带坏
+6. （可选）仿照 `tools/fixtures/tiny-city.js`，给这个城市也补一套 fixture 测试
+
+**目前还没有的**：`?city=xxx` 这类多城市入口。本轮只做了引擎解耦，入口留到下一轮（见[已知限制](#七已知限制)）。
+
+### 5.10 如何写一套 fixture 测试（新玩法）
+
+假数据是**通用性的探针**：它跑得通，才说明引擎不是"只对成都有效"。
+
+1. **写数据**：`tools/fixtures/<name>.js`，规模压到极小（这里就 3 个假区县 + 2 关），**并且刻意偏离真实配置** —— 不同色相/饱和度、不同默认主题、不同存储 key、不同城名。只有这样才能证明这些值真的"由外部传入"
+2. **写宿主页**：`tools/engine-host.html`，**DOM 结构与 `index.html` 同构**（引擎按 id 缓存 DOM，CSS 布局依赖 `.app / .stage / .board-column / .board` 这套层级），然后三行启动：
+   ```js
+   window.__ENGINE__ = MapPuzzleEngine.create(window.TINY_CITY_CONFIG);
+   window.__ENGINE__.start();
+   ```
+3. **写套件**：`tools/engine-test.html` —— 报告机制与 `check / section / drag / insidePointOf` 这套辅助函数和 `selftest.html` 同款，但**期望值全部由 fixture 反推**，断言里不出现任何真实城市的名词
+4. **接进驱动**：在 `tools/e2e-test.js` 的 `SUITES` 数组里加一项 `{ name, page }`
+5. **顺手把边界条件塞进 fixture**：凹多边形、两种 GeoJSON 写法、单块关卡…… 这些极端情况放在假数据里最合适（[坑 #22](#坑-22几何层只认-multipolygonpolygon-直接抛错)就是这么被逮住的）
 
 ---
 
@@ -629,23 +772,30 @@ node tools/e2e-test.js
 
 ```
 deepseekharness/
-├── index.html                      381 行 · 页面结构 + 手绘图案库（12 个 <symbol>）
+├── index.html                      411 行 · 页面结构 + 手绘图案库（12 个 <symbol>）
 ├── README.md                      · 项目说明文档
 ├── 成都拼图项目开发SOP与经验复盘.md   · 本文
 │
 ├── css/
-│   └── style.css                  1560 行 · 设计令牌 / 三套主题 / 全部动画
+│   └── style.css                  1566 行 · 设计令牌 / 三套主题 / 全部动画
 │
 ├── js/
 │   ├── map-data.js                 · 成都 GeoJSON（构建产物，勿手改）
-│   ├── geomap.js                   174 行 · 墨卡托投影 + path/bbox/质心
-│   ├── districts.js                183 行 · 20 个区县资料 + 关卡设定
-│   └── game.js                    1330 行 · 游戏主逻辑
+│   ├── districts.js               183 行 · 20 个区县资料 + 关卡设定
+│   ├── geomap.js                  181 行 · 墨卡托投影 + path/bbox/质心（两种 GeoJSON 写法都吃）
+│   ├── engine.js                 1554 行 · 通用引擎 MapPuzzleEngine（不含任何城市数据）
+│   ├── game.js                     34 行 · 启动器：读配置 → 交给引擎 start()
+│   └── cities/
+│       └── chengdu.js              96 行 · 成都配置（数据 + 配色 + 存储 key + 文案）
 │
 ├── tools/
 │   ├── build-data.js               构建：GeoJSON → 内联 js
-│   ├── e2e-test.js                 测试驱动（浏览器测试 + CSS 静态检查）
-│   ├── selftest.html               浏览器内测试载体（89 项断言）
+│   ├── e2e-test.js                230 行 · 测试驱动（跑两套 + CSS 静态检查 + 汇总）
+│   ├── selftest.html              城市回归套件（89 项 · 成都真实数据 + UI/动画）
+│   ├── engine-test.html           引擎功能套件（77 项 · 只用虚构数据）
+│   ├── engine-host.html           引擎测试宿主页（与 index.html 同构的瘦页面）
+│   ├── fixtures/
+│   │   └── tiny-city.js           虚构测试城市（3 个假区县 + 2 关 + 自配色）
 │   ├── icon-preview.html           手绘图案预览（需 http 打开）
 │   └── districts-source.json       核实过的区县资料（数据存档）
 │
@@ -660,10 +810,12 @@ deepseekharness/
 **加载顺序**（`index.html` 末尾，不可调换）：
 
 ```html
-<script src="js/map-data.js"></script>   <!-- 先有数据 -->
-<script src="js/geomap.js"></script>     <!-- 再有投影工具 -->
-<script src="js/districts.js"></script>  <!-- 再有文案 -->
-<script src="js/game.js"></script>       <!-- 最后启动 -->
+<script src="js/map-data.js"></script>       <!-- 先有数据 -->
+<script src="js/districts.js"></script>      <!-- 再有区县资料与关卡 -->
+<script src="js/cities/chengdu.js"></script> <!-- 组装成城市配置 -->
+<script src="js/geomap.js"></script>         <!-- 投影与几何 -->
+<script src="js/engine.js"></script>         <!-- 通用引擎 -->
+<script src="js/game.js"></script>           <!-- 最后启动 -->
 ```
 
 **运行方式**：
@@ -672,7 +824,8 @@ deepseekharness/
 | --- | --- |
 | `index.html` | **双击即可**（零依赖、无外链） |
 | `tools/icon-preview.html` | 需 http（`python3 -m http.server`），`file://` 下会被同源策略拦 |
-| `tools/selftest.html` | 由 `node tools/e2e-test.js` 自动驱动 |
+| `tools/selftest.html`、`tools/engine-test.html` | 由 `node tools/e2e-test.js` 自动驱动 |
+| `tools/engine-host.html` | 被 `engine-test.html` 装进 iframe；也可以直接打开，看假数据的渲染效果 |
 
 ---
 
@@ -683,6 +836,9 @@ deepseekharness/
 3. **预览页依赖 http**：`file://` 下无法读取图案库，页面里已给出明确提示。
 4. **测试依赖系统 Chrome**：硬编码了 macOS 的 Chrome 路径，换平台需调整 `tools/e2e-test.js` 里的 `CHROME` 常量。
 5. **`--no-sandbox`**：当前机器的 Chrome sandbox 不可用，测试脚本必须带此参数。
+6. **没有多城市入口**：引擎已完全解耦，但页面仍固定加载 `js/cities/chengdu.js`；`?city=xxx` 之类的入口留到下一轮。
+7. **fixture 没覆盖 `palette.fallbackHue`**：只有"关卡既不自带 `hue`、`hueByLevel` 里也查不到"时才会走这条分支，要覆盖它得再加一关（`tools/fixtures/tiny-city.js` 顶部已注明）。
+8. **引擎套件依赖宿主页**：引擎按 id 缓存 DOM，所以必须有 `tools/engine-host.html`。宿主页的 DOM 结构或 id 一旦改动，这个文件要跟着改。
 
 ---
 
@@ -720,6 +876,12 @@ deepseekharness/
 
 坑 #13 里，用户明确要的"逐关解锁"从一开始就没工作过，直到我很偶然地去查徽标 DOM 才发现。**对每个功能做一次"真的生效了吗"的验证，比相信自己的实现更重要。**
 
+### 9. 拿假数据当探针，能逼出真实数据掩盖的问题
+
+坑 #22 里，几何层"只认 MultiPolygon"这个隐含契约，在真实成都数据上跑了整整一个项目周期都没暴露 —— 因为真实数据恰好就是 MultiPolygon。**换 3 个假区县喂进去，第一次运行就炸了。**
+
+这和"测试要用构造数据"是同一个道理：真实数据是"一种恰好走通的情况"，不是"全部情况"。做通用化重构时，**先写一份最小假数据，往往比先通读一遍代码更快命中问题**；而且假数据是能长期留下的资产 —— 以后任何人改引擎，它都会替你再验一遍。
+
 ---
 
-*文档完 · 2026-09*
+*文档完 · 2026-09（最后更新：引擎化重构 + 双测试体系）*

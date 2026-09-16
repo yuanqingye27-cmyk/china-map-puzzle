@@ -1,9 +1,14 @@
 /**
- * 端到端测试驱动。
+ * 端到端测试驱动（一次跑两套）。
  *
- * 思路：起一个本地 HTTP 服务，然后把 tools/selftest.html 丢进 headless Chrome。
- * selftest.html 会把真实的 index.html 装进 iframe、在里面模拟真人拖拽，
- * 跑完把结果用 <img src="http://127.0.0.1:PORT/report?..."> 回传（图片请求不受 CORS 限制）。
+ * 思路：起一个本地 HTTP 服务，然后把测试载体页丢进 headless Chrome。
+ * 载体页把被测页面装进 iframe、在里面模拟真人操作，跑完用隐表单 POST
+ * 把结果回传（不吃 CORS 限制，也不吃 URL 长度限制）。
+ *
+ * 两套测试各管一段：
+ *   selftest.html     城市回归 · 成都真实数据 + UI/动画（被测页 = index.html）
+ *   engine-test.html  引擎功能 · 虚构 tiny-city 数据（被测页 = engine-host.html）
+ * 每套单独起一个 Chrome（独立 user-data-dir），因此两边的 localStorage 互不可见。
  *
  * 为什么不直接上 CDP？headless Chrome 153 在 Runtime.enable 时会 SIGTRAP 崩溃，
  * 走不通；而这个方案不依赖任何调试协议，也不需要装 puppeteer。
@@ -21,10 +26,14 @@ const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const HTTP_PORT = 9451;
 const TIMEOUT_MS = 90000;
 
-const SELFTEST_URL =
-  'file://' + path.resolve(__dirname, 'selftest.html') + '?port=' + HTTP_PORT;
+/** 要跑的两套测试（顺序执行，每套各起一个 Chrome） */
+const SUITES = [
+  { name: '城市回归 · 成都（真实数据 + UI/动画）', page: 'selftest.html' },
+  { name: '引擎功能 · 虚构 tiny-city（通用逻辑）', page: 'engine-test.html' },
+];
 
-let finished = false;
+/** 当前正在跑的套件；页面回传结果时用它把 Promise 收尾 */
+let active = null;
 
 /**
  * 静态检查：手机端性能降级规则确实写进 CSS 了。
@@ -68,6 +77,67 @@ function checkMobilePerfCss() {
   return { ok: missing.length === 0, missing, count: blocks.length };
 }
 
+/**
+ * 跑一套浏览器测试：新起一个 headless Chrome 打开载体页，等它把结果 POST 回来。
+ *
+ * 每套用独立的 user-data-dir，一是避免两套互相读到对方的 localStorage，
+ * 二是让"引擎套件不该污染城市存档"这类断言真的成立。
+ *
+ * @returns {Promise<{passed?:number, failed?:number, failures?:string[], crashed?:boolean}>}
+ */
+function runSuite(suite) {
+  return new Promise((resolve) => {
+    const url = 'file://' + path.resolve(__dirname, suite.page) + '?port=' + HTTP_PORT;
+    const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'map-puzzle-e2e-'));
+
+    const chrome = spawn(
+      CHROME,
+      [
+        '--headless',
+        // 这台机器上 Chrome 的 sandbox 起不来（会 SIGTRAP 崩溃），
+        // 必须关掉才能跑 headless。测的是本地静态页面，无安全影响。
+        '--no-sandbox',
+        '--disable-gpu',
+        '--no-first-run',
+        '--no-default-browser-check',
+        '--disable-extensions',
+        // 让载体页能操作 iframe 里的被测页面
+        '--allow-file-access-from-files',
+        '--user-data-dir=' + userDataDir,
+        '--window-size=1700,1200',
+        url,
+      ],
+      { stdio: 'ignore' }
+    );
+
+    const started = Date.now();
+    let done = false;
+
+    // 结束一套测试：关浏览器、清临时目录、交回结果（重复调用无副作用）
+    const settle = (result) => {
+      if (done) return;
+      done = true;
+      clearInterval(poll);
+      active = null;
+      try { chrome.kill('SIGKILL'); } catch (e) { /* 可能已经退了 */ }
+      try { fs.rmSync(userDataDir, { recursive: true, force: true }); } catch (e) { /* 忽略 */ }
+      resolve(result);
+    };
+
+    active = { settle };
+
+    const poll = setInterval(() => {
+      if (Date.now() - started > TIMEOUT_MS) {
+        console.error('  ✘ 超时，没有收到页面回传的结果。');
+        settle({ crashed: true });
+      } else if (chrome.exitCode !== null) {
+        console.error(`  ✘ Chrome 提前退出，code=${chrome.exitCode}`);
+        settle({ crashed: true });
+      }
+    }, 250);
+  });
+}
+
 async function main() {
   console.log('══════════════ 静态检查 ══════════════');
   const perf = checkMobilePerfCss();
@@ -102,23 +172,27 @@ async function main() {
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     res.end('<meta charset="utf-8"><p>ok</p>');
 
+    if (!active) return; // 已经没有套件在等结果了，忽略迟到的上报
+
     let data;
     try {
       data = JSON.parse(raw);
     } catch (e) {
       console.error('回传数据解析失败:', e.message, String(raw).slice(0, 200));
-      finished = true;
-      process.exitCode = 1;
+      active.settle({ crashed: true });
       return;
     }
 
-    console.log('\n══════════════ 浏览器端测试结果 ══════════════');
     console.log(data.log);
     console.log('──────────────────────────────────────────────');
-    console.log(`合计：${data.passed} 通过 / ${data.failed} 失败`);
-    if (data.failed) console.log('失败项：' + (data.failures || []).join('、'));
-    process.exitCode = data.failed ? 1 : 0;
-    finished = true;
+    console.log(`  → ${data.passed} 通过 / ${data.failed} 失败`);
+    if (data.failed) console.log('  失败项：' + (data.failures || []).join('、'));
+
+    active.settle({
+      passed: data.passed,
+      failed: data.failed,
+      failures: data.failures || [],
+    });
   }
 
   await new Promise((resolve, reject) => {
@@ -126,43 +200,28 @@ async function main() {
     server.listen(HTTP_PORT, '127.0.0.1', resolve);
   });
 
-  const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'chengdu-e2e-'));
-  const chrome = spawn(
-    CHROME,
-    [
-      '--headless',
-      // 这台机器上 Chrome 的 sandbox 起不来（会 SIGTRAP 崩溃），
-      // 必须关掉才能跑 headless。测的是本地静态页面，无安全影响。
-      '--no-sandbox',
-      '--disable-gpu',
-      '--no-first-run',
-      '--no-default-browser-check',
-      '--disable-extensions',
-      '--allow-file-access-from-files', // 让 selftest.html 能操作 iframe 里的 index.html
-      '--user-data-dir=' + userDataDir,
-      '--window-size=1700,1200',
-      SELFTEST_URL,
-    ],
-    { stdio: 'ignore' }
-  );
-
-  const started = Date.now();
-  while (!finished && Date.now() - started < TIMEOUT_MS) {
-    await new Promise((r) => setTimeout(r, 250));
-    if (chrome.exitCode !== null && !finished) {
-      console.error(`Chrome 提前退出，code=${chrome.exitCode}`);
-      break;
-    }
+  const results = [];
+  for (const suite of SUITES) {
+    console.log('\n══════════════ 浏览器端测试：' + suite.name + ' ══════════════');
+    results.push({ suite, result: await runSuite(suite) });
   }
 
-  if (!finished) {
-    console.error('\n测试超时，没有收到页面回传的结果。');
-    process.exitCode = 1;
-  }
-
-  try { chrome.kill('SIGKILL'); } catch (e) {}
   server.close();
-  try { fs.rmSync(userDataDir, { recursive: true, force: true }); } catch (e) {}
+
+  // ---- 汇总 ----
+  const totalPassed = results.reduce((n, r) => n + (r.result.passed || 0), 0);
+  const totalFailed = results.reduce((n, r) => n + (r.result.failed || 0), 0);
+  const broken = results.filter((r) => r.result.crashed).map((r) => r.suite.name);
+
+  console.log('\n══════════════ 汇总 ══════════════');
+  results.forEach(({ suite, result }) => {
+    const mark = result.crashed ? '✘ 未收到结果' : (result.failed ? '✘' : '✔');
+    console.log(`  ${mark} ${suite.name}：${result.passed || 0} 通过 / ${result.failed || 0} 失败`);
+  });
+  console.log(`  合计：${totalPassed} 通过 / ${totalFailed} 失败`);
+  if (broken.length) console.log('  未收到结果的套件：' + broken.join('、'));
+
+  process.exitCode = totalFailed || broken.length ? 1 : 0;
 }
 
 main().catch((err) => {
