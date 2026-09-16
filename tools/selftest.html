@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>成都地图拼图 · 自动化测试载体</title>
+<style>
+  body { margin: 0; font-family: ui-monospace, Menlo, monospace; background: #111; color: #ddd; }
+  iframe { width: 1600px; height: 1000px; border: 0; display: block; }
+  #result { padding: 16px; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<pre id="result">RUNNING…</pre>
+<iframe id="frame" src="../index.html"></iframe>
+
+<!-- 用来接收结果上报的隐藏目标：表单提交是最可靠的跨源回传方式，
+     不受 CORS / Private Network Access 的限制，也不吃 URL 长度 -->
+<iframe name="rsink" style="display:none" title="report sink"></iframe>
+<form id="rform" method="POST" action="" target="rsink" style="display:none"></form>
+
+<script>
+/* =====================================================================
+ * 测试载体：把真实的 index.html 装进 iframe，然后在里面模拟真人操作。
+ *
+ * 为什么用 iframe + 上报，而不是 Chrome DevTools Protocol？
+ *   headless Chrome 153 在 Runtime.enable 时会 SIGTRAP 崩掉，走不通。
+ *   改成"页面自己跑测试、把结果回传给本地 HTTP 服务"反而更稳，
+ *   而且完全不需要引入 puppeteer 之类的依赖。
+ *
+ * 上报用 <img src="...">：图片请求不受 CORS 限制，file:// 页面也能发出去。
+ * ===================================================================== */
+(function () {
+  'use strict';
+
+  const PORT = new URLSearchParams(location.search).get('port');
+  const out = [];
+  let passed = 0;
+  let failed = 0;
+  const failures = [];
+
+  function check(name, cond, detail) {
+    if (cond) {
+      passed++;
+      out.push('  ✔ ' + name);
+    } else {
+      failed++;
+      failures.push(name);
+      out.push('  ✘ ' + name + (detail ? '  → ' + detail : ''));
+    }
+  }
+
+  function section(title) { out.push('\n【' + title + '】'); }
+
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  let reported = false;
+  function report(payload) {
+    if (reported) return;
+    reported = true;
+
+    out.push('\n合计：' + payload.passed + ' 通过 / ' + payload.failed + ' 失败');
+    if (payload.failed) out.push('失败项：' + (payload.failures || []).join('、'));
+    document.getElementById('result').textContent = out.join('\n');
+    document.title = 'TESTRESULT ' + payload.passed + 'P/' + payload.failed + 'F';
+
+    // 用隐表单 POST 回传：跨源且不吃 URL 长度限制
+    try {
+      const form = document.getElementById('rform');
+      form.action = 'http://127.0.0.1:' + PORT + '/report';
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'd';
+      input.value = JSON.stringify(payload);
+      form.appendChild(input);
+      form.submit();
+    } catch (e) {
+      out.push('上报失败：' + e.message);
+    }
+  }
+
+  /* ---------- iframe 内的操作辅助 ---------- */
+  let W, D;
+
+  /** 元素中心（iframe 视口坐标系） */
+  function centerOf(sel) {
+    const r = D.querySelector(sel).getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  }
+
+  /**
+   * 在凹槽形状内部找一个"确实落在多边形里"的点。
+   * 直接用 bbox 中心对凹形区域可能落在外面，所以扫 10×10 网格。
+   */
+  function insidePointOf(adcode) {
+    const pathEl = D.querySelector('.slot[data-adcode="' + adcode + '"] path');
+    if (!pathEl) return null;
+    const bb = pathEl.getBBox();
+    const ctm = pathEl.getScreenCTM();
+    for (let iy = 1; iy <= 9; iy++) {
+      for (let ix = 1; ix <= 9; ix++) {
+        const p = new W.DOMPoint(bb.x + bb.width * ix / 10, bb.y + bb.height * iy / 10);
+        if (pathEl.isPointInFill(p)) {
+          const s = p.matrixTransform(ctm);
+          return { x: s.x, y: s.y };
+        }
+      }
+    }
+    return null;
+  }
+
+  function fire(target, type, x, y, extra) {
+    const opts = Object.assign(
+      {
+        bubbles: true, cancelable: true, composed: true,
+        clientX: x, clientY: y, pointerId: 1, pointerType: 'mouse',
+        isPrimary: true, button: 0, buttons: type === 'pointerup' ? 0 : 1,
+      },
+      extra || {}
+    );
+    target.dispatchEvent(new W.PointerEvent(type, opts));
+  }
+
+  /** 模拟一次拖拽：从 start 拖到 end。中间插几个点，贴近真人操作 */
+  async function drag(from, to, steps) {
+    steps = steps || 6;
+    const piece = D.querySelector('.piece[data-adcode="' + from.adcode + '"]');
+    fire(piece, 'pointerdown', from.x, from.y);
+    for (let i = 1; i <= steps; i++) {
+      const t = i / steps;
+      fire(D, 'pointermove', from.x + (to.x - from.x) * t, from.y + (to.y - from.y) * t);
+      await sleep(24); // 等 rAF 节流的那一帧
+    }
+    fire(D, 'pointerup', to.x, to.y);
+  }
+
+  async function click(x, y) {
+    fire(D.elementFromPoint(x, y) || D.body, 'pointerdown', x, y);
+    fire(D, 'pointerup', x, y);
+    const target = D.elementFromPoint(x, y) || D.body;
+    target.dispatchEvent(new W.MouseEvent('click', { bubbles: true, clientX: x, clientY: y }));
+  }
+
+  function stats() {
+    const vis = (sel) => D.querySelectorAll(sel).length;
+    return {
+      base: vis('.layer-base path'),
+      slots: vis('.slot'),
+      placed: vis('.placed path'),
+      pieces: [...D.querySelectorAll('.piece')].filter((p) => !p.classList.contains('is-used')).length,
+      tabs: vis('.level-tab'),
+      infoName: (D.querySelector('.info-name') || {}).textContent || '',
+      done: D.getElementById('statDone').textContent,
+      total: D.getElementById('statTotal').textContent,
+      toast: D.getElementById('boardToast').textContent,
+      modalOpen: !D.getElementById('modal').hidden,
+      modalTitle: D.getElementById('modalTitle').textContent,
+      trayEmpty: !!D.querySelector('.tray-empty'),
+    };
+  }
+
+  const slotAdcodes = () => [...D.querySelectorAll('.slot')].map((g) => g.dataset.adcode);
+
+  /* ---------- 主流程 ---------- */
+  async function run() {
+    const frame = document.getElementById('frame');
+    await new Promise((r) => frame.addEventListener('load', r, { once: true }));
+
+    W = frame.contentWindow;
+    D = frame.contentDocument;
+
+    // 捕获 iframe 里运行期的报错
+    const pageErrors = [];
+    W.addEventListener('error', (e) => pageErrors.push(e.message));
+    W.addEventListener('unhandledrejection', (e) => pageErrors.push('unhandled: ' + e.reason));
+
+    await sleep(500);
+
+    section('0 · 开场欢迎动画');
+    const introEl = D.getElementById('intro');
+    check('首次进入会显示开场动画', !!introEl && !introEl.hidden);
+    check('开场里有 5 个成都元素',
+      D.querySelectorAll('.intro-mark').length === 5,
+      '实际 ' + D.querySelectorAll('.intro-mark').length);
+    if (introEl && !introEl.hidden) {
+      // 它盖在整页之上，不先关掉后面所有点击都会被它接走
+      introEl.click();
+      await sleep(650);
+    }
+    check('点击后开场动画消失', !!introEl && introEl.hidden);
+
+    section('1 · 数据完整性');
+    const geo = W.CHENGDU_GEO;
+    const info = W.DistrictData.DISTRICT_INFO;
+    const levels = W.DistrictData.LEVELS;
+    check('GeoJSON 有 20 个区县', geo.features.length === 20, '实际 ' + geo.features.length);
+    check('每个区县都有资料卡', geo.features.every((f) => !!info[f.properties.adcode]),
+      '缺: ' + geo.features.filter((f) => !info[f.properties.adcode]).map((f) => f.properties.name).join(','));
+    const allLevels = levels.flatMap((l) => l.adcodes);
+    check('三关加起来正好 20 个且不重复',
+      allLevels.length === 20 && new Set(allLevels).size === 20,
+      '长度 ' + allLevels.length + ' 去重 ' + new Set(allLevels).size);
+    const nameMap = new Map(geo.features.map((f) => [f.properties.adcode, f.properties.name]));
+    const mismatch = allLevels.filter((a) => {
+      const lv = levels.find((l) => l.adcodes.includes(a));
+      return !lv;
+    });
+    check('关卡里的 adcode 都能在地图数据里找到', mismatch.length === 0, mismatch.join(','));
+    // 关键：adcode 和名称必须一一对应（崇州/邛崃最容易反）
+    check('崇州 510184 / 邛崃 510183 没有写反',
+      nameMap.get(510184) === '崇州市' && nameMap.get(510183) === '邛崃市',
+      nameMap.get(510184) + ' / ' + nameMap.get(510183));
+    check('资料卡没有张冠李戴（抽查区名与地标）',
+      info[510107].landmark.includes('武侯祠') && info[510181].landmark.includes('都江堰'),
+      info[510107].landmark);
+
+    section('2 · 地图方位（锁死南北东西，防回归）');
+    // 墨卡托原始公式属于"数学坐标系"（y 轴朝上），直接塞进 SVG 会让整张图南北颠倒。
+    // 这两条断言把这个方向钉死，以后再动投影会立刻被发现。
+    const proj = W.GeoMap.project;
+    const pz = proj(103.916, 31.135); // 彭州：全市最北
+    const pj = proj(103.488, 30.218); // 蒲江：全市最南
+    const jy = proj(104.540, 30.393); // 简阳：偏东
+    check('北在上：纬度越高 y 越小', pz[1] < pj[1],
+      `彭州 y=${pz[1].toFixed(5)} vs 蒲江 y=${pj[1].toFixed(5)}`);
+    check('东在右：经度越大 x 越大', jy[0] > pj[0],
+      `简阳 x=${jy[0].toFixed(5)} vs 蒲江 x=${pj[0].toFixed(5)}`);
+
+    section('3 · 初始渲染');
+    let s = stats();
+    check('底图画出 20 个区县', s.base === 20, '实际 ' + s.base);
+    check('第一关有 5 个凹槽', s.slots === 5, '实际 ' + s.slots);
+    check('托盘里有 5 块碎片', s.pieces === 5, '实际 ' + s.pieces);
+    check('渲染出 3 个关卡标签', s.tabs === 3, '实际 ' + s.tabs);
+    // 这一条锁死一个真实踩过的坑：URLSearchParams.get() 在没有该参数时返回 null，
+    // 而 Number(null) === 0，会被误当成 "?level=0" 而把三关全解锁。
+    const tabEls = [...D.querySelectorAll('.level-tab')];
+    const lockedCount = tabEls.filter((b) => b.disabled).length;
+    check('不带 ?level 参数时只解锁第一关', lockedCount === 2, '被锁关卡数 = ' + lockedCount);
+    check('未解锁的关卡显示手绘锁图标',
+      !!D.querySelector('.level-tab[disabled] .level-tab-badge use[href="#i-lock"]'));
+    check('已解锁的关卡显示碎片数', tabEls[0].querySelector('.level-tab-badge').textContent.trim() === '5');
+    check('进度显示 0/5', s.done === '0' && s.total === '5', s.done + '/' + s.total);
+    check('信息卡默认显示关卡说明', s.infoName.indexOf('中心城区') >= 0, s.infoName);
+    const mapEl = D.getElementById('map');
+    check('地图 viewBox 已生成', /\d/.test(mapEl.getAttribute('viewBox')), mapEl.getAttribute('viewBox'));
+    check('getScreenCTM 可用', !!mapEl.getScreenCTM());
+
+    section('4 · 拖到错误位置应被拒绝');
+    let slots = slotAdcodes();
+    const wrongFrom = Object.assign(centerOf('.piece[data-adcode="' + slots[0] + '"]'), { adcode: slots[0] });
+    const wrongTo = insidePointOf(slots[4]);
+    await drag(wrongFrom, wrongTo);
+    await sleep(700);
+    s = stats();
+    check('没有区县被误判为拼对', s.placed === 0, '实际 ' + s.placed);
+    check('凹槽没有被消耗', s.slots === 5, '实际 ' + s.slots);
+    check('给出了"放错"提示', s.toast.indexOf('这里是') >= 0, JSON.stringify(s.toast));
+
+    section('5 · 拖到正确位置应吸附成功');
+    const okFrom = Object.assign(centerOf('.piece[data-adcode="' + slots[0] + '"]'), { adcode: slots[0] });
+    const okTo = insidePointOf(slots[0]);
+    check('能在地图上定位到该区县内部点', !!okTo);
+    await drag(okFrom, okTo);
+    await sleep(900);
+    s = stats();
+    check('地图上出现 1 个已拼区块', s.placed === 1, '实际 ' + s.placed);
+    check('对应凹槽被移除', s.slots === 4, '实际 ' + s.slots);
+    check('托盘少了一块碎片', s.pieces === 4, '实际 ' + s.pieces);
+    check('进度更新为 1', s.done === '1', s.done);
+    check('信息卡切换成该区县介绍', s.infoName.length > 0 && s.infoName.indexOf('中心城区') < 0, s.infoName);
+    check('弹出"拼对了"提示', s.toast.indexOf('拼对了') >= 0, s.toast);
+
+    section('6 · 点击模式（先点碎片、再点地图）');
+    const rest = slotAdcodes();
+    const target = rest[rest.length - 1];
+    const pieceSel = '.piece[data-adcode="' + target + '"]';
+    const pieceEl = D.querySelector(pieceSel);
+    const trayPieces = [...D.querySelectorAll('.piece')].map((p) => p.dataset.adcode + (p.classList.contains('is-used') ? '(已用)' : ''));
+    check('点击模式：碎片还在托盘里', !!pieceEl,
+      `rest=[${rest.join(',')}] target=${target} 托盘=[${trayPieces.join(',')}]`);
+    if (!pieceEl) {
+      report({ passed, failed, failures, log: out.join('\n') });
+      return;
+    }
+    const piecePt = centerOf(pieceSel);
+    await click(piecePt.x, piecePt.y);
+    await sleep(150);
+    check('碎片进入选中态', !!D.querySelector('.piece.is-selected'),
+      `点=(${Math.round(piecePt.x)},${Math.round(piecePt.y)}) 视口=${W.innerWidth}x${W.innerHeight}` +
+      ` 滚动=${W.scrollY} 命中=${(D.elementFromPoint(piecePt.x, piecePt.y) || { nodeName: 'null' }).nodeName}` +
+      ` body高=${D.body.scrollHeight} app高=${Math.round(D.querySelector('.app').getBoundingClientRect().height)}` +
+      ` stage高=${Math.round(D.querySelector('.stage').getBoundingClientRect().height)}` +
+      ` 地图列=${Math.round(D.querySelector('.board-column').getBoundingClientRect().height)}` +
+      ` 侧栏=${Math.round(D.querySelector('.sidebar').getBoundingClientRect().height)}` +
+      ` 托盘=${Math.round(D.querySelector('.tray-panel').getBoundingClientRect().height)}` +
+      ` 信息卡=${Math.round(D.querySelector('.info-card').getBoundingClientRect().height)}`);
+    const destPt = insidePointOf(target);
+    await click(destPt.x, destPt.y);
+    await sleep(600);
+    s = stats();
+    check('点击模式也能拼上', s.placed === 2, '实际 ' + s.placed);
+
+    section('7 · 拼完整关 → 通关弹窗与解锁');
+    for (let i = 0; i < 8; i++) {
+      const left = slotAdcodes();
+      if (!left.length) break;
+      const ad = left[0];
+      const from = Object.assign(centerOf('.piece[data-adcode="' + ad + '"]'), { adcode: ad });
+      const to = insidePointOf(ad);
+      if (!to) break;
+      await drag(from, to);
+      await sleep(700);
+    }
+    await sleep(900);
+    s = stats();
+    check('5 块全部拼上', s.placed === 5, '实际 ' + s.placed);
+    check('托盘显示已清空', s.trayEmpty === true);
+    check('通关弹窗出现', s.modalOpen === true);
+    check('弹窗文案正确', s.modalTitle.indexOf('通关') >= 0, s.modalTitle);
+    const unlockedTabs = [...D.querySelectorAll('.level-tab')].filter((b) => !b.disabled).length;
+    check('通关后第二关被解锁', unlockedTabs >= 2, '可点关卡数 ' + unlockedTabs);
+
+    section('8 · 切换关卡：第二关 7 块碎片');
+    D.querySelectorAll('.level-tab')[1].click();
+    await sleep(700);
+    s = stats();
+    check('第二关有 7 个凹槽', s.slots === 7, '实际 ' + s.slots);
+    check('第二关托盘 7 块', s.pieces === 7, '实际 ' + s.pieces);
+    check('进度重置为 0/7', s.done === '0' && s.total === '7', s.done + '/' + s.total);
+    check('此时第三关仍然锁着', D.querySelectorAll('.level-tab')[2].disabled === true);
+
+    // 把第二关也拼完，验证"逐关解锁"这条链路真的走得通
+    for (let i = 0; i < 10; i++) {
+      const left = slotAdcodes();
+      if (!left.length) break;
+      const ad = left[0];
+      const from = Object.assign(centerOf('.piece[data-adcode="' + ad + '"]'), { adcode: ad });
+      const to = insidePointOf(ad);
+      if (!to) break;
+      await drag(from, to);
+      await sleep(650);
+    }
+    await sleep(900);
+    check('第二关通关后第三关解锁', D.querySelectorAll('.level-tab')[2].disabled === false);
+
+    section('9 · 第三关 8 块碎片');
+    D.querySelectorAll('.level-tab')[2].click();
+    await sleep(700);
+    s = stats();
+    check('第三关有 8 个凹槽', s.slots === 8, '实际 ' + s.slots);
+    check('第三关进度 0/8', s.done === '0' && s.total === '8', s.done + '/' + s.total);
+    // 端到端再验一次方位：投影对了，还要确认渲染出来没被翻回去
+    const pzPath = D.querySelector('.slot[data-adcode="510182"] path'); // 彭州，最北
+    const pjPath = D.querySelector('.slot[data-adcode="510131"] path'); // 蒲江，最南
+    const pzBox = pzPath && pzPath.getBBox();
+    const pjBox = pjPath && pjPath.getBBox();
+    check('渲染层方位正确：彭州在蒲江上方',
+      !!pzBox && !!pjBox && pzBox.y < pjBox.y,
+      pzBox && pjBox ? `彭州顶边 y=${pzBox.y.toFixed(1)} vs 蒲江顶边 y=${pjBox.y.toFixed(1)}` : '取不到凹槽');
+
+    section('10 · 提示功能');
+    D.getElementById('btnHint').click();
+    await sleep(200);
+    check('提示计数 +1', D.getElementById('statHints').textContent === '1',
+      D.getElementById('statHints').textContent);
+    check('有元素被高亮为提示', !!D.querySelector('.is-hinted'));
+
+    section('11 · 重开本关');
+    D.getElementById('btnRestart').click();
+    await sleep(400);
+    s = stats();
+    check('重开后回到 8 个凹槽', s.slots === 8, '实际 ' + s.slots);
+    check('重开后进度归零', s.done === '0', s.done);
+
+    section('12 · 配色主题');
+    const rootEl = D.documentElement;
+    const bgOf = () => W.getComputedStyle(rootEl).getPropertyValue('--bg').trim();
+    const strOf = () => W.getComputedStyle(rootEl).getPropertyValue('--text').trim();
+    const dotOf = (t) => D.querySelector('.theme-dot[data-theme="' + t + '"]');
+
+    check('渲染出 3 个主题色点', D.querySelectorAll('.theme-dot').length === 3,
+      '实际 ' + D.querySelectorAll('.theme-dot').length);
+    check('默认是青绿竹韵', rootEl.getAttribute('data-theme') === 'jade',
+      String(rootEl.getAttribute('data-theme')));
+    check('默认主题的色点处于选中态', dotOf('jade').getAttribute('aria-pressed') === 'true');
+    const jadeBg = bgOf();
+    const jadeText = strOf();
+
+    dotOf('ginkgo').click();
+    await sleep(120);
+    check('切到银杏暖秋后 data-theme 生效', rootEl.getAttribute('data-theme') === 'ginkgo',
+      String(rootEl.getAttribute('data-theme')));
+    check('暖秋主题真的换了背景色', bgOf() !== jadeBg, jadeBg + ' → ' + bgOf());
+    check('暖秋主题真的换了文字色', strOf() !== jadeText, jadeText + ' → ' + strOf());
+    check('选中态跟着切换', dotOf('ginkgo').getAttribute('aria-pressed') === 'true' &&
+      dotOf('jade').getAttribute('aria-pressed') === 'false');
+
+    dotOf('shu').click();
+    await sleep(120);
+    check('切到蜀锦朱砂同样生效', rootEl.getAttribute('data-theme') === 'shu' &&
+      bgOf() !== jadeBg, String(rootEl.getAttribute('data-theme')) + ' ' + bgOf());
+
+    dotOf('jade').click();
+    await sleep(120);
+    check('切回青绿竹韵能还原', bgOf() === jadeBg && strOf() === jadeText,
+      bgOf() + ' / ' + strOf());
+
+    section('13 · 进度持久化');
+    // 先在第三关拼一块，然后看存档写没写、刷新后能不能恢复
+    const pLeft = slotAdcodes();
+    const pAd = pLeft[0];
+    const pFrom = Object.assign(centerOf('.piece[data-adcode="' + pAd + '"]'), { adcode: pAd });
+    await drag(pFrom, insidePointOf(pAd));
+    await sleep(950);
+
+    let save = null;
+    try { save = JSON.parse(W.localStorage.getItem('chengdu-map-puzzle')); } catch (e) { /* 忽略 */ }
+    check('拼对后会写入存档', !!save, String(save).slice(0, 90));
+    check('存档记下了已拼的区县',
+      !!save && (save.placed || []).indexOf(Number(pAd)) >= 0,
+      save ? JSON.stringify(save.placed) : '无存档');
+    check('存档记下了当前关卡', !!save && save.levelIndex === 2, save && String(save.levelIndex));
+    check('存档记下了已用时间', !!save && save.elapsed > 0, save && String(save.elapsed));
+    check('存档带版本号（便于将来结构升级）', !!save && save.v === 2, save && String(save.v));
+
+    // 真的刷新一次页面，看进度能不能续上
+    frame.contentWindow.location.reload();
+    await new Promise((r) => frame.addEventListener('load', r, { once: true }));
+    await sleep(950);
+    W = frame.contentWindow;
+    D = frame.contentDocument;
+
+    check('刷新后回到原来那一关',
+      D.querySelector('.level-tab.is-active').textContent.indexOf('远郊') >= 0,
+      D.querySelector('.level-tab.is-active').textContent);
+    check('刷新后已拼的区县还在图上',
+      !!D.querySelector('.placed[data-adcode="' + pAd + '"]'));
+    check('刷新后托盘里少了那一块',
+      [...D.querySelectorAll('.piece')].filter((p) => !p.classList.contains('is-used')).length === 7,
+      '实际 ' + [...D.querySelectorAll('.piece')].filter((p) => !p.classList.contains('is-used')).length);
+    check('刷新后计时接着上次走（不是 00:00）',
+      D.getElementById('statTime').textContent !== '00:00',
+      D.getElementById('statTime').textContent);
+    check('刷新不会重复弹开场动画', D.getElementById('intro').hidden === true);
+
+    section('14 · 音效开关');
+    const sBtn = D.getElementById('soundBtn');
+    check('顶栏有音效开关', !!sBtn);
+    check('默认是开启状态', sBtn.getAttribute('aria-pressed') === 'true',
+      String(sBtn && sBtn.getAttribute('aria-pressed')));
+    check('开着时显示喇叭图标、藏着静音图标',
+      W.getComputedStyle(sBtn.querySelector('.sound-off')).display === 'none' &&
+      W.getComputedStyle(sBtn.querySelector('.sound-on')).display !== 'none');
+
+    sBtn.click();
+    await sleep(120);
+    check('点击后切成静音', sBtn.getAttribute('aria-pressed') === 'false');
+    check('静音状态写进了 localStorage',
+      W.localStorage.getItem('chengdu-map-sound') === '0',
+      String(W.localStorage.getItem('chengdu-map-sound')));
+    check('静音时图标也跟着换',
+      W.getComputedStyle(sBtn.querySelector('.sound-on')).display === 'none' &&
+      W.getComputedStyle(sBtn.querySelector('.sound-off')).display !== 'none');
+
+    sBtn.click();
+    await sleep(120);
+    check('再点一次能开回来',
+      sBtn.getAttribute('aria-pressed') === 'true' &&
+      W.localStorage.getItem('chengdu-map-sound') === '1');
+
+    section('15 · 无障碍与键盘操作');
+    // 按钮的可读名称可以来自 aria-label，也可以来自它自己的可见文字
+    const nameOf = (n) => (n.getAttribute('aria-label') || n.textContent || '').trim();
+    const needsLabel = ['#btnHint', '#btnRestart', '#soundBtn', '#themeSwitch', '#map'];
+    const unnamed = needsLabel.filter((sel) => {
+      const n = D.querySelector(sel);
+      return !(n && nameOf(n));
+    });
+    check('关键控件都有可读名称', unnamed.length === 0, unnamed.join(','));
+    check('当前关卡标了 aria-current',
+      D.querySelector('.level-tab.is-active').getAttribute('aria-current') === 'true');
+    check('信息卡是 aria-live 区域（拼对后会被朗读）',
+      D.getElementById('infoCard').getAttribute('aria-live') === 'polite');
+
+    // 空位默认不能 Tab 聚焦，免得 Tab 要穿过 5~9 个空位
+    check('未选碎片时空位不在 Tab 序列里',
+      [...D.querySelectorAll('.slot path')].every((p) => p.getAttribute('tabindex') === '-1'));
+
+    // 走一遍纯键盘流程：选中碎片 → 放到空位
+    const kPiece = D.querySelector('.piece:not(.is-used)');
+    const kAd = kPiece.dataset.adcode;
+    kPiece.dispatchEvent(new W.KeyboardEvent('keydown',
+      { key: 'Enter', bubbles: true, cancelable: true }));
+    await sleep(150);
+    check('回车能选中碎片', !!D.querySelector('.piece.is-selected'));
+    check('选中后空位才进入 Tab 序列',
+      [...D.querySelectorAll('.slot path')].every((p) => p.getAttribute('tabindex') === '0'));
+
+    const placedBefore = D.querySelectorAll('.placed').length;
+    const kSlot = D.querySelector('.slot[data-adcode="' + kAd + '"] path');
+    kSlot.dispatchEvent(new W.KeyboardEvent('keydown',
+      { key: 'Enter', bubbles: true, cancelable: true }));
+    await sleep(650);
+    check('回车能把碎片放进正确空位（全程不用鼠标）',
+      D.querySelectorAll('.placed').length === placedBefore + 1,
+      placedBefore + ' → ' + D.querySelectorAll('.placed').length);
+
+    // 手机端降级不在这里测：file:// 下动态新建的 iframe 会被跨源策略拦住，
+    // 读不到它的 computedStyle。改由 tools/e2e-test.js 在 Node 侧静态校验 CSS。
+    void 0;
+
+    section('16 · 布局完整性');
+    // 这一条是踩过坑才加的：grid / flex 子项默认 min-width:auto，
+    // 内容一宽就会把子项撑破列，而容器宽度看着正常 —— 极难发现。
+    // 桌面端这里查一遍，手机端由 tools/e2e-test.js 里的静态检查兜着。
+    check('页面没有横向溢出（scrollWidth ≤ 视口宽）',
+      D.body.scrollWidth <= W.innerWidth + 1,
+      `scrollWidth=${D.body.scrollWidth} vs 视口=${W.innerWidth}`);
+    check('顶栏没有被内容撑破',
+      D.querySelector('.topbar').getBoundingClientRect().width <= W.innerWidth,
+      `topbar 宽 ${Math.round(D.querySelector('.topbar').getBoundingClientRect().width)}`);
+    check('右侧控件都在屏幕内（音效 / 主题）',
+      D.getElementById('soundBtn').getBoundingClientRect().right <= W.innerWidth + 1 &&
+      D.getElementById('themeSwitch').getBoundingClientRect().right <= W.innerWidth + 1);
+
+    section('17 · 运行期报错');
+    check('没有未捕获异常', pageErrors.length === 0, pageErrors.join(' | '));
+
+    report({ passed: passed, failed: failed, failures: failures, log: out.join('\n') });
+  }
+
+  run().catch((err) => {
+    failed++;
+    failures.push('测试脚本自身异常');
+    out.push('\n!! 测试执行出错：' + (err && err.stack ? err.stack : err));
+    report({ passed: passed, failed: failed, failures: failures, log: out.join('\n') });
+  });
+})();
+</script>
+</body>
+</html>

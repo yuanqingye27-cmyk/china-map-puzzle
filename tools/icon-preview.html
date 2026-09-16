@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>手绘图案预览 · 成都地图拼图</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  /* 这里手动复刻 index.html 的令牌，只为独立预览用 */
+  :root {
+    --c-line: 124 196 172;
+    --c-jade: 63 201 156;
+    --c-gold: 224 169 74;
+    --deco: #7fd0b0;
+    --panda-ink: #101c18;
+    --panda-paper: #f7fbf9;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 34px 38px 48px;
+    min-height: 100vh;
+    background: radial-gradient(90% 62% at 50% 0%, #0c241e, #05100d 72%);
+    color: #e7f2ec;
+    font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  }
+  h1 { margin: 0 0 7px; font-size: 18px; font-weight: 700; letter-spacing: 0.3px; }
+  p.sub { margin: 0 0 28px; font-size: 12.5px; line-height: 1.7; color: #7fa094; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(186px, 1fr)); gap: 18px; }
+  figure { margin: 0; }
+  .box {
+    height: 172px;
+    display: grid;
+    place-items: center;
+    border-radius: 16px;
+    border: 1px solid rgb(var(--c-line) / 0.16);
+    background: rgb(9 26 22 / 0.72);
+    color: var(--jade);
+  }
+  .box svg { width: 128px; height: 128px; }
+  .box.ink { color: #0d1f1a; background: #d2e9de; border-color: #b6d5c8; }
+  /* ⚠️ --c-gold 是"通道值"（写作 224 169 74），必须包在 rgb() 里才是合法颜色。
+     直接写 color: var(--c-gold) 是无效声明，浏览器会静默忽略并回退成继承色 ——
+     这正是之前"银杏金那一列不金"的原因。 */
+  .box.gold {
+    color: rgb(var(--c-gold));
+    background: rgb(33 26 12 / 0.92);
+    border-color: rgb(var(--c-gold) / 0.3);
+  }
+  .box.panda-light { background: #2f8f70; border-color: #3fa37f; }
+  figcaption {
+    margin-top: 9px;
+    font-size: 12px;
+    text-align: center;
+    color: #8fb0a4;
+    font-variant-numeric: tabular-nums;
+  }
+  .hint { margin-top: 34px; font-size: 12.5px; color: #6f8f84; line-height: 1.9; }
+  code { color: rgb(var(--c-gold)); }
+</style>
+</head>
+<body>
+
+<h1>手绘图案预览</h1>
+<p class="sub">
+  全部由纯 SVG 路径绘制，无任何外链图片。<br>
+  图案只在 <code>index.html</code> 的 <code>&lt;svg class="svg-sprite"&gt;</code> 里定义一次，
+  颜色走 <code>currentColor</code> 与 CSS 变量，所以同一个 symbol 能呈现多种样子。
+</p>
+
+<div class="grid" id="out"></div>
+
+<div class="hint">
+  检查要点：线条是否闭合、端点是否圆润、缩小到 15px（按钮图标）时还能不能认出来。
+</div>
+
+<!-- 用隐藏 iframe 把 index.html 的图案库原样取过来，保证预览的就是线上那一份 -->
+<iframe id="src" src="../index.html" title="sprite source"
+        style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;border:0"></iframe>
+
+<script>
+(function () {
+  'use strict';
+
+  var frame = document.getElementById('src');
+
+  frame.addEventListener('load', function () {
+    var symbols;
+    try {
+      var doc = frame.contentDocument;
+      symbols = Array.prototype.slice.call(doc.querySelectorAll('.svg-sprite symbol'));
+      if (!symbols.length) throw new Error('读不到图案库');
+    } catch (e) {
+      // 直接双击打开（file://）时，浏览器会拦住这里读取 index.html。
+      // 与其白屏，不如把原因和解决办法说清楚。
+      document.getElementById('out').innerHTML =
+        '<div style="grid-column:1/-1;padding:22px 24px;border-radius:16px;' +
+        'border:1px solid rgb(var(--c-line) / 0.2);background:rgb(9 26 22 / 0.72);' +
+        'font-size:13.5px;line-height:1.9;color:#bcd2c8">' +
+        '<b style="color:#e8b458">这个页面需要走 http 打开。</b><br>' +
+        '用 file:// 直接双击时，浏览器会因为同源策略拦住它去读取 <code>index.html</code> 里的图案库。<br><br>' +
+        '在项目根目录执行 <code>python3 -m http.server 8000</code>，' +
+        '然后访问 <code>http://localhost:8000/tools/icon-preview.html</code> 即可。<br>' +
+        '<span style="color:#7fa094">（游戏本体 <code>index.html</code> 双击就能玩，不受这个限制影响。）</span>' +
+        '</div>';
+      return;
+    }
+
+    // 把 symbol 定义搬过来（SVG 元素的 innerHTML 走 XML 解析，不会被当成未知 HTML 标签）
+    var sprite = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    sprite.setAttribute('style', 'position:absolute;width:0;height:0;overflow:hidden');
+    sprite.innerHTML = symbols.map(function (s) { return s.outerHTML; }).join('');
+    document.body.appendChild(sprite);
+
+    // 熊猫单独给一个中明度竹青底，检验"白脸+黑耳"的对比是否立得住
+    var extra = { 'i-panda': 'panda-light' };
+
+    document.getElementById('out').innerHTML = symbols.map(function (s) {
+      var id = s.id;
+      var vb = s.getAttribute('viewBox');
+      var name = id.replace(/^i-/, '');
+      var skin = extra[id] || '';
+      var rows = [
+        { cls: skin, tag: '竹青底' },
+        { cls: 'ink', tag: '浅底' },
+        { cls: 'gold', tag: '银杏金' }
+      ];
+      return rows.map(function (r) {
+        return '<figure>' +
+          '<div class="box ' + r.cls + '">' +
+            '<svg viewBox="' + vb + '"><use href="#' + id + '"/></svg>' +
+          '</div>' +
+          '<figcaption>' + name + ' · ' + r.tag + '</figcaption>' +
+        '</figure>';
+      }).join('');
+    }).join('');
+  });
+})();
+</script>
+</body>
+</html>
