@@ -25,7 +25,10 @@ const path = require('path');
 
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const HTTP_PORT = 9451;
-const TIMEOUT_MS = 90000;
+/* 单套超时。默认 90 秒；冒烟套件会逐张打开登记册里的每张地图（现在 23 张），
+ * 所以给它更长的时间 —— 否则地图一多就会"因为慢而假失败"。
+ * 超时是给"卡死"兜底的，不该变成"地图多了就红"的紧箍咒。 */
+const DEFAULT_TIMEOUT_MS = 90000;
 
 /**
  * 要跑的测试套件（顺序执行，每套各起一个 Chrome）。
@@ -37,7 +40,7 @@ const TIMEOUT_MS = 90000;
 const SUITES = [
   { name: '城市回归 · 成都（真实数据 + UI/动画）', page: 'selftest.html' },
   { name: '引擎功能 · 虚构 tiny-city（通用逻辑）', page: 'engine-test.html' },
-  { name: '多地图冒烟 · 登记册里的每一张地图', page: 'map-smoke.html' },
+  { name: '多地图冒烟 · 登记册里的每一张地图', page: 'map-smoke.html', timeoutMs: 600000 },
 ];
 
 /** 当前正在跑的套件；页面回传结果时用它把 Promise 收尾 */
@@ -94,6 +97,7 @@ function checkMobilePerfCss() {
  * @returns {Promise<{passed?:number, failed?:number, failures?:string[], crashed?:boolean}>}
  */
 function runSuite(suite) {
+  const timeoutMs = suite.timeoutMs || DEFAULT_TIMEOUT_MS;
   return new Promise((resolve) => {
     const url = 'file://' + path.resolve(__dirname, suite.page) + '?port=' + HTTP_PORT;
     const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'map-puzzle-e2e-'));
@@ -135,8 +139,8 @@ function runSuite(suite) {
     active = { settle };
 
     const poll = setInterval(() => {
-      if (Date.now() - started > TIMEOUT_MS) {
-        console.error('  ✘ 超时，没有收到页面回传的结果。');
+      if (Date.now() - started > timeoutMs) {
+        console.error('  ✘ 超时（' + Math.round(timeoutMs / 1000) + 's），没有收到页面回传的结果。');
         settle({ crashed: true });
       } else if (chrome.exitCode !== null) {
         console.error(`  ✘ Chrome 提前退出，code=${chrome.exitCode}`);
@@ -211,7 +215,10 @@ async function main() {
   const results = [];
   for (const suite of SUITES) {
     console.log('\n══════════════ 浏览器端测试：' + suite.name + ' ══════════════');
-    results.push({ suite, result: await runSuite(suite) });
+    const t0 = Date.now();
+    const result = await runSuite(suite);
+    result.elapsedMs = Date.now() - t0;
+    results.push({ suite, result });
   }
 
   server.close();
@@ -224,7 +231,8 @@ async function main() {
   console.log('\n══════════════ 汇总 ══════════════');
   results.forEach(({ suite, result }) => {
     const mark = result.crashed ? '✘ 未收到结果' : (result.failed ? '✘' : '✔');
-    console.log(`  ${mark} ${suite.name}：${result.passed || 0} 通过 / ${result.failed || 0} 失败`);
+    const secs = result.elapsedMs ? `（${(result.elapsedMs / 1000).toFixed(1)}s）` : '';
+    console.log(`  ${mark} ${suite.name}${secs}：${result.passed || 0} 通过 / ${result.failed || 0} 失败`);
   });
   console.log(`  合计：${totalPassed} 通过 / ${totalFailed} 失败`);
   if (broken.length) console.log('  未收到结果的套件：' + broken.join('、'));
