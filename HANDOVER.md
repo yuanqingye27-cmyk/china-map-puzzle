@@ -1,0 +1,127 @@
+# 交接指南 · 从这里开始（v1.0.0）
+
+> **给"新开一个对话"用的**。你（或 AI）只要读**这一个文件** + 跑 3 条命令，
+> 就能在 2 分钟内接上进度，不需要读源码、不需要读 1900 行的 SOP。
+>
+> 详细背景在 `地图拼图项目_开发SOP与交接文档_v1.0.0.md`（**按需再查，不要通读**）。
+
+---
+
+## 0. 一句话状态
+
+**23 张天地图官方数据地图（中国 → 四川 → 21 个市州）已交付并锁定 v1.0.0，884 项测试全绿；
+剩下的是"人工补资料卡"和"把其余省接进来"两件事，都可以一条命令/一份文件地推进。**
+
+---
+
+## 1. 新对话第一句话：把下面这段整段粘贴过去
+
+```
+我在继续一个已到 v1.0.0 的项目（地图拼图，仓库在 <绝对路径>）。
+请先只做三件事，**不要读任何源码**：
+
+1. 读根目录的 HANDOVER.md（约 70 行，给我的新对话用的接手指南）
+2. 跑 node tools/status.js
+3. 跑 node tools/e2e-test.js 2>&1 | tail -6      # 基线应为 884 通过 / 0 失败
+
+然后把"你理解的任务 + 打算怎么做"讲给我听，等我确认再动手。
+
+硬性约束（违反即返工）：
+- 严禁修改 js/engine.js
+- 严禁编造资料内容：资料卡缺内容就保持"📖 资料收录中，欢迎参与共建"占位
+- 严禁为了让测试通过而修改测试断言
+- 数据源只用天地图官方：--source=tianditu-portal（在线）或 file --dir=data/tianditu-official（离线）
+  （--source=tianditu 是已废弃的 API-Key 路线，会直接报错）
+- 输出纪律：任何脚本/测试一律 `| tail -N`；js/maps/**/*.geo.js 是单行 100KB+，
+  禁止 cat/head/tail，需要看内容就用 node 脚本摘要
+
+今天我想做：<填 P0 补资料卡 / P1 接入某个省>
+```
+
+> 把 `<绝对路径>` 和 `<填 …>` 替换掉即可。这段话就是"上下文引导"，
+> 它让新对话跳过所有摸索成本（今晚摸过的坑，都在 HANDOVER 和 SOP 里了）。
+
+---
+
+## 2. 3 条命令自举（输出都压到 20 行内）
+
+```bash
+node tools/status.js                          # 现状：地图数/资料缺口/数据源/下一步
+node tools/e2e-test.js 2>&1 | tail -6         # 基线：884 通过 / 0 失败
+node tools/test-maps.js 2>&1 | tail -4        # 地图包自洽（adcode/关卡/资料/来源）
+```
+
+---
+
+## 3. 两条主线（明天大概率做其中一条）
+
+### P0 · 补资料卡（人工活，最影响体验）
+- **缺口**：**218 条**（中国 34 + 四川 21 + 自贡 6 + 另外 19 个市的 157 个区县）；
+  只有**成都 20 个区县**是人工核实过的。
+- **做法**：
+  ```bash
+  node tools/soften-placeholders.js --check     # 看还有哪些文件是占位
+  # 编辑 js/maps/china/sichuan/<市>.data.js：填 area(数字,km²)/landmark/tagline/funFact
+  node tools/test-maps.js 2>&1 | tail -4        # 填完自检（会校验"每块都有资料卡"）
+  ```
+- **铁律**：**不要动 key（adcode）** —— 它必须与 `<市>.geo.js` 里的 feature 严格对应，
+  写反了会"拼对位置、弹出别人的介绍"（SOP 坑 #1）。也**不要编造冷知识**。
+
+### P1 · 接入更多省（脚本活，一条命令一个省）
+- **已接入**：省级 1（四川）、地级 21。**待接入**：**315 个地级**（官方树共 492 个）。
+- **做法**：
+  ```bash
+  # ① 在 tools/lib/slugs.js 的 CITY_SLUGS 里补这个省的地级市拼音（十几行，不碰逻辑）
+  # ② 一条命令接入（父级没接入会自动补；默认数据源已是天地图官方）
+  node tools/batch-add-maps.js --parent=440000        # 例：广东
+  node tools/soften-placeholders.js                   # 新地图的占位 → 共建文案
+  node tools/e2e-test.js 2>&1 | tail -6               # 全绿再提交
+  ```
+- **放量前注意三个规模问题**（详见 SOP 5.12）：注册表首屏体积（422 B/张）、
+  冒烟测试耗时（1.33 s/张 → 356 张约 8 分钟/次）、仓库体积（约 95 KB/张）。
+
+---
+
+## 4. 只读这几个文件（其余别读，省 token）
+
+| 想干什么 | 读哪个 |
+| --- | --- |
+| 接手/找方向 | **本文件** + `node tools/status.js` |
+| 加地图的完整流程 | SOP 的 **5.11 批量地图操作手册** |
+| 数据来源/合规/九段线 | SOP 的 **5.12 地图合规与数据来源** |
+| 地图包字段与目录规则 | SOP 的 **3.5 世界地图层级规范** |
+| 踩过的坑（28 条） | SOP 第四章，**按关键词现查**，不要通读 |
+| 本轮复盘/遗留清单 | SOP **附录 A** |
+
+**不要读**：`js/maps/**/*.geo.js`（单行 100KB+）、`docs/*.png`（二进制）、
+`data/tianditu-official/*.json`（大 JSON，要看就写 node 脚本摘要）。
+
+---
+
+## 5. 今晚验证过的"正确姿势"（照做能省一半 token）
+
+1. **外部契约先探针再写码**：文档会滞后（天地图旧路径已 404），接口行为以实测为准。
+2. **能离线验证的先测透**：纯计算（WKT/二进制解码）写成单测，不依赖网络。
+3. **小样本试水再放量**：先 2 张，跑全量测试 + 肉眼比对，再铺开。
+4. **数据不变量前移成断言**：踩过的坑立刻变成 `test-maps.js` 的一项，而不是"下次注意"。
+5. **每阶段一个 commit**：回滚粒度 = 阶段粒度；做完就汇报。
+6. **改代码的脚本每步都要断言**：python 批量替换**静默失败**过两次，"改完"≠"改对"。
+7. **等结果、不等时间**：测试里凡是要等副作用出现，就轮询它出现（动画时长是内部细节）。
+
+---
+
+## 6. 常用命令速查
+
+```bash
+node tools/status.js                                   # 现状
+node tools/e2e-test.js 2>&1 | tail -6                  # 全部测试（884）
+node tools/test-maps.js 2>&1 | tail -4                 # 地图包自洽
+node tools/soften-placeholders.js [--check]            # 占位文案 → 共建口径
+node tools/batch-add-maps.js --parent=<省 adcode>      # 批量接入一个省
+node tools/tianditu-download.js [--only=<adcode>]      # 抓官方数据到 data/tianditu-official/
+node tools/replace-geo-source.js --source=file --dir=data/tianditu-official [--only=<id>|--parent=<adcode>]
+node tools/shot.js --map=<id> [--drag=1] [--level=N] [--fit=all] --out=/tmp/x.png   # 截图
+open index.html                                        # 双击即玩（零依赖）
+```
+
+⚠️ 需要 Key 的旧脚本（`tianditu-check.js` / `--source=tianditu`）**已休眠**，别再走那条路。
