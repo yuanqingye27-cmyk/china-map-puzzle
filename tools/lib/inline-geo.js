@@ -113,12 +113,31 @@ function renderGeoModule(geo, opts) {
   const id = opts.id;
   const label = opts.label || id;
   const sourceUrl = opts.sourceUrl || DATAV_BASE + '/' + opts.adcode + '_full.json';
+  const src = opts.source || {}; // { provider, label, approval, note }，见 tools/lib/geo-source.js
+
+  /* 来源元信息跟数据写在同一个文件里 —— 这样"这份边界是哪来的、有没有审图号"
+   * 永远和数据本身同生共死，不会因为换了数据源却忘了改声明而对不上。
+   * 页面上的合规声明就读 MAP_GEO_META。 */
+  const meta = {
+    provider: src.provider || 'datav',
+    providerLabel: src.label || '阿里云 DataV.GeoAtlas',
+    approval: src.approval || null,
+    note: src.note || '',
+    adcode: opts.adcode,
+    mapName: label,
+    sourceUrl,
+    fetchedAt: opts.fetchedAt || new Date().toISOString().slice(0, 10),
+  };
 
   return (
     '/* 自动生成，请勿手改。重新生成：' + (opts.generator || 'node tools/add-map.js') + ' */\n' +
-    '/* 数据来源：阿里云 DataV.GeoAtlas ' + label + '（adcode ' + opts.adcode + '）行政区划边界 */\n' +
+    '/* 数据来源：' + meta.providerLabel + ' ' + label + '（adcode ' + opts.adcode + '）行政区划边界 */' +
+    (meta.approval ? '\n/* 审图号：' + meta.approval + ' */' : '\n/* 注意：本数据源未提供审图号 */') + '\n' +
     '(window.MAP_GEO = window.MAP_GEO || {}).' + id + ' = ' +
     JSON.stringify(geo) +
+    ';\n' +
+    '(window.MAP_GEO_META = window.MAP_GEO_META || {}).' + id + ' = ' +
+    JSON.stringify(meta) +
     ';\n'
   );
 }

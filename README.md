@@ -104,6 +104,11 @@ js/maps/                      地图工厂：目录层级 = 地图层级（当�
 
 tools/add-map.js              单张接入（CLI + 可被调用的 addMap() 库函数）
 tools/batch-add-maps.js       批量接入一个省/市（21 个市州就是这么来的）
+tools/replace-geo-source.js   批量换源（把已有地图整体换成天地图/本地数据包）
+tools/lib/wkt.js              天地图返回的是 WKT，这一层转成 GeoJSON
+tools/lib/tianditu-geo.js     天地图行政区划接口客户端（需 Key）
+tools/lib/geo-source.js       数据源抽象：datav | tianditu | file
+tools/test-wkt.js             WKT 转换的离线单测（13 项）
 tools/lib/slugs.js            adcode ↔ 拼音 slug（省表 / 地级表 / 兜底命名）
 batch-report.json             最近一次批量接入的报告（成功/失败/待人工补清单）
 tools/build-registry.js       扫描 js/maps/ 生成登记册（children 由 parent 反推）
@@ -348,7 +353,7 @@ body.scrollWidth   468   ← 整页横向溢出，右侧按钮被推出屏幕
 
 ## 测试
 
-项目带**三套端到端测试，共 751 项断言**，全部在真实浏览器里模拟真人操作：
+项目带**三套端到端测试 + 两项离线检查，共 764 项断言**，全部在真实浏览器里模拟真人操作：
 
 ```bash
 node tools/e2e-test.js
@@ -371,6 +376,20 @@ node tools/e2e-test.js
 > 它第一次运行就抓出了两个真问题（详见开发 SOP 的坑 #24 / #25）。
 
 > **注意**：脚本里带了 `--no-sandbox`。这台机器上 Chrome 的 sandbox 起不来（headless 模式下会 SIGTRAP 崩溃），必须关掉才能跑。测的是本地静态页面，无安全影响。换机器如果 sandbox 正常，可以去掉这个参数。
+
+## 地图数据来源与合规
+
+> **当前状态（诚实版）**：全部 23 张地图的边界数据来自**阿里云 DataV.GeoAtlas**，
+> 它是开发期数据源、**没有审图号、不可用于公开商用**。页面上会如实标注这一点。
+
+**目标数据源**：国家地理信息公共服务平台（**天地图**），审图号 **GS(2024)0650号**。
+代码层已全部就绪（`--source=tianditu` 切换 + `tools/lib/wkt.js` 转换 + 批量换源脚本），
+**只差一个开发者 Key**（申请步骤见 SOP 的 5.12 节）。
+
+页面上的来源声明不是写死的，而是读每张地图自带的 `MAP_GEO_META`：
+换成天地图数据后，那行字会自动变成
+「地图数据来源：国家地理信息公共服务平台（天地图），审图号：GS(2024)0650号」。
+**后续新增地图必须使用同一数据源**，详见 [SOP 5.12 地图合规与数据来源](成都拼图项目开发SOP与经验复盘.md)。
 
 ## 数据来源与口径
 
