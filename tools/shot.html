@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>截图载体</title>
+<style>
+  /* 只为了让被测页面铺满整个窗口 —— 截图里不该出现载体自身的任何东西 */
+  html, body { margin: 0; padding: 0; background: #05100d; overflow: hidden; }
+  iframe { display: block; width: 100vw; height: 100vh; border: 0; }
+  body { padding: 0; }
+  /* 调试浮层：headless 里没有控制台，就用"把日志画进截图"的办法看现场 */
+  #dbg { display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 9;
+         font: 12px/1.5 ui-monospace, Menlo, monospace; color: #6f8;
+         background: rgb(0 0 0 / 0.82); padding: 6px 10px; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<iframe id="frame"></iframe>
+<!-- 把载体的 load 事件钉住（服务端一直不放，直到我们说 release）-->
+<img src="/__hold__" alt="" style="display:none">
+<div id="dbg"></div>
+<script>
+/* =====================================================================
+ * 截图载体（配合 tools/shot.js 使用）
+ * ---------------------------------------------------------------------
+ * 直接对 index.html 截图是拍不到地图的：Chrome 在 load 事件后立刻拍，
+ * 而地图是"按需注入脚本"加载的，那时还没开始注入，只能拍到开场动画。
+ *
+ * 解法（很老但很稳的一招）：**把 load 事件拖住**。
+ *   1. 先把地图跑到"就绪"，顺手关掉开场动画（可选再拼一块）
+ *   2. 然后才挂上一张指向 /__hold__ 的图片，服务端故意拖一会儿才响应
+ *   3. 于是载体的 load 事件迟迟不触发，Chrome 只能等 —— 等到时页面已经是我们想要的样子
+ * ===================================================================== */
+(function () {
+  'use strict';
+
+  const q = new URLSearchParams(location.search);
+  const mapId = q.get('map') || 'chengdu';
+  const wantDrag = q.get('drag') === '1';
+  // 指定"手机宽度"：把应用装进这个尺寸的 iframe 里再拍。
+  // （不能只把窗口调窄：Chrome 有最小窗口宽 500，窄于此会把页面裁掉而不是让布局变窄）
+  const vw = Number(q.get('vw')) || 0;
+  const vh = Number(q.get('vh')) || 0;
+  const frame = document.getElementById('frame');
+  if (vw && vh) {
+    frame.style.width = vw + 'px';
+    frame.style.height = vh + 'px';
+    document.body.style.padding = '0';
+  }
+  frame.src = '../index.html?map=' + encodeURIComponent(mapId);
+
+  const debugOn = q.get('debug') === '1';
+  /* 日志直接写进【被测页面】的 DOM：headless 里没有控制台，
+     而写在自己页面里有可能被 iframe 盖住 —— 写进去就一定在截图里。 */
+  const dbg = (m) => {
+    if (!debugOn) return; // 平时一声不吭；排查截图问题时加 --debug=1
+    // 回传终端：headless 里没有控制台，这是唯一能看到现场的办法
+    try { new Image().src = '/__log__?d=' + encodeURIComponent(m); } catch (e) { /* 忽略 */ }
+    const doc = frame.contentDocument;
+    if (!doc || !doc.body) return;
+    let el = doc.getElementById('shotDbg');
+    if (!el) {
+      el = doc.createElement('div');
+      el.id = 'shotDbg';
+      el.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:99999;' +
+        'font:12px/1.6 ui-monospace,Menlo,monospace;color:#7f8;' +
+        'background:rgba(0,0,0,.86);padding:6px 10px;white-space:pre-wrap';
+      doc.body.appendChild(el);
+    }
+    el.textContent += (el.textContent ? '  |  ' : '') + m;
+  };
+
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  async function waitFor(fn, ms) {
+    const deadline = Date.now() + ms;
+    for (;;) {
+      let v = null;
+      try { v = fn(); } catch (e) { v = null; }
+      if (v) return v;
+      if (Date.now() > deadline) return null;
+      await sleep(50);
+    }
+  }
+
+  const fire = (W, target, type, x, y) => {
+    target.dispatchEvent(new W.PointerEvent(type, {
+      bubbles: true, cancelable: true, composed: true,
+      clientX: x, clientY: y, pointerId: 1, pointerType: 'mouse',
+      isPrimary: true, button: 0, buttons: type === 'pointerup' ? 0 : 1,
+    }));
+  };
+
+  /** 拼一块进去，好让信息卡也入镜（和测试套件同款操作） */
+  async function placeOne(W, D) {
+    const piece = D.querySelector('.piece:not(.is-used)');
+    if (!piece) return;
+    const adcode = Number(piece.dataset.adcode);
+    const pathEl = D.querySelector('.slot[data-adcode="' + adcode + '"] path');
+    if (!pathEl) return;
+    const bb = pathEl.getBBox();
+    const ctm = pathEl.getScreenCTM();
+    let to = null;
+    for (let iy = 1; iy <= 9 && !to; iy++) {
+      for (let ix = 1; ix <= 9 && !to; ix++) {
+        const cand = new W.DOMPoint(bb.x + bb.width * ix / 10, bb.y + bb.height * iy / 10);
+        if (pathEl.isPointInFill(cand)) to = cand.matrixTransform(ctm);
+      }
+    }
+    if (!to) return;
+
+    const r = piece.getBoundingClientRect();
+    const from = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+    const tries = (W.__ENGINE__ && W.__ENGINE__.getState().tries) || 0;
+    dbg('piece=' + adcode + ' from=(' + Math.round(from.x) + ',' + Math.round(from.y) + ') to=(' +
+        Math.round(to.x) + ',' + Math.round(to.y) + ') tries=' + tries +
+        ' CTM=' + JSON.stringify(ctm.a) + ',' + Math.round(ctm.e) + ',' + Math.round(ctm.f));
+    fire(W, piece, 'pointerdown', from.x, from.y);
+    for (let i = 1; i <= 6; i++) {
+      const t = i / 6;
+      fire(W, D, 'pointermove', from.x + (to.x - from.x) * t, from.y + (to.y - from.y) * t);
+      await sleep(24);
+    }
+    fire(W, D, 'pointerup', to.x, to.y);
+    // 落位是在吸附动画（300ms）结束后才提交的，所以等结果而不是等时间
+    const settled = await waitFor(() => {
+      const st = W.__ENGINE__ ? W.__ENGINE__.getState() : null;
+      return st && st.tries > tries && !D.querySelector('.drag-ghost');
+    }, 5000);
+    dbg('结算=' + !!settled + ' placed=' + D.querySelectorAll('.placed').length +
+        ' toast=' + JSON.stringify((D.getElementById('boardToast') || {}).textContent) +
+        ' state=' + JSON.stringify(W.__ENGINE__ ? W.__ENGINE__.getState() : null));
+    await sleep(200);
+  }
+
+  (async () => {
+    dbg('载体启动 map=' + mapId + ' debug=' + debugOn + ' drag=' + wantDrag);
+    await new Promise((r) => frame.addEventListener('load', r, { once: true }));
+    const W = frame.contentWindow;
+    const D = frame.contentDocument;
+
+    await waitFor(() => frame.contentDocument.documentElement.getAttribute('data-map-ready'), 25000);
+
+    // 开场欢迎动画会盖住整页，先关掉
+    const intro = D.getElementById('intro');
+    if (intro && !intro.hidden) { intro.click(); await sleep(900); }
+
+    // 等视图推近动画停下，否则截到的可能是"推近到一半"的画面
+    let prev = null;
+    for (let i = 0; i < 60; i++) {
+      const el = D.getElementById('map');
+      const m = el && el.getScreenCTM ? el.getScreenCTM() : null;
+      const key = m ? [m.a, m.d, m.e, m.f].join(',') : 'null';
+      if (prev === key) break;
+      prev = key;
+      await sleep(100);
+    }
+
+    dbg('ready=' + mapId + ' engine=' + (W.__ENGINE__ ? 'ok' : 'none') +
+        ' pieces=' + D.querySelectorAll('.piece').length + ' slots=' + D.querySelectorAll('.slot').length);
+    if (wantDrag) await placeOne(W, D);
+    await sleep(400);
+
+    // 窄屏体检：把关键元素的几何量出来回传终端（截图看不出"被裁掉多少"）
+    const r = (sel) => {
+      const el = D.querySelector(sel);
+      if (!el) return sel + '=无';
+      const b = el.getBoundingClientRect();
+      return sel + '=[' + Math.round(b.left) + ',' + Math.round(b.top) + ' ' +
+        Math.round(b.width) + '×' + Math.round(b.height) + ']';
+    };
+    dbg('几何 视口=' + W.innerWidth + '×' + W.innerHeight +
+        ' bodyScrollW=' + D.body.scrollWidth +
+        ' docScrollW=' + D.documentElement.scrollWidth + ' | ' +
+        r('.topbar') + ' ' + r('.brand') + ' ' + r('.topbar-right') + ' ' +
+        r('.mapbar') + ' ' + r('#breadcrumb') + ' ' + r('#mapSelect') + ' ' +
+        r('#soundBtn') + ' ' + r('#themeSwitch') +
+        ' | mapbarHidden=' + (D.getElementById('mapbar') || {}).hidden);
+
+    dbg('就绪，放行 load 事件，等 Chrome 来拍');
+    // 放行：被钉住的 hold 响应这才返回 → 载体的 load 事件触发 → Chrome 截图
+    new Image().src = '/__release__';
+    document.title = 'SHOT-READY ' + mapId;
+  })().catch((err) => {
+    document.title = 'SHOT-FAILED ' + err.message;
+    try { dbg('异常：' + (err && err.stack ? err.stack : err)); } catch (e) { /* 尽力而为 */ }
+    new Image().src = '/__release__';
+  });
+})();
+</script>
+</body>
+</html>

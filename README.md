@@ -2,11 +2,22 @@
 
 一个用交互式动画讲解成都行政区划的网页小游戏：把打乱的区县碎片拖回地图上的正确位置，拼对后会弹出该区县的面积、地标和冷知识。
 
-> **本项目已重构为通用地图拼图引擎**：地图数据、区县资料、关卡、配色、存档 key 全部由一份城市配置驱动，接入一个新城市只需照着 `js/cities/chengdu.js` 写一份 config，**不必改动引擎逻辑**。详见[想接入别的城市？](#想接入别的城市)
+> **本项目已升级为"通用引擎 + 地图工厂"**：引擎不认识任何具体地图；地图包按层级放在 `js/maps/` 下，
+> 靠一份自动生成的登记册（`registry.js`）串成一棵树。接入一张新地图是一条命令的事：
+> ```bash
+> node tools/add-map.js --adcode=510300 --name=zigong --parent=sichuan
+> ```
+> 父级没接入会自动补全，**不必改动引擎一行**。详见[想接入新地图？](#想接入新地图)
 
 - **零依赖**：纯 HTML / CSS / JavaScript，不需要 npm、不需要构建、不需要起服务器
 - **零外链资源**：没有一张图片文件、没有一个 CDN 请求 —— 熊猫、竹子、银杏、盖碗茶、川剧脸谱全部是手写的 SVG 路径
 - **双击即玩**：直接打开 `index.html` 就能跑（数据已内联，见下文说明）
+
+地图导航（面包屑 + 按层级缩进的地图选择器，切换地图 = 换一张图玩，进度各自独立）：
+
+![地图导航](docs/ui-chengdu.png)
+
+![窄屏下的导航](docs/ui-mobile.png)
 
 ![第一关：中心城区](docs/level1.jpg)
 
@@ -74,46 +85,80 @@ URL 加 `?level=2` 可以直接跳到第三关（同时解锁全部关卡），�
 
 ```
 index.html                    页面结构 + 手绘 SVG 图案库（<symbol> 定义）
-css/style.css                 全部样式与动画 + 设计令牌（配色集中在这里）
+css/style.css                 全部样式与动画 + 设计令牌 + 地图导航样式
 
+js/engine.js                  通用拼图引擎（拖拽、判定、进度、信息卡、存档）—— 不含任何地图数据
 js/geomap.js                  墨卡托投影 + path/bbox/质心计算（Polygon / MultiPolygon 都支持）
-js/engine.js                  通用拼图引擎（拖拽、判定、进度、信息卡、存档）—— 不含任何城市数据
-js/game.js                    启动器：把城市配置交给引擎并启动
+js/game.js                    启动器 + 地图导航 UI（面包屑 / 选择器，宿主层）
 
-js/cities/chengdu.js          成都配置：地图数据 + 区县资料 + 关卡 + 配色 + 存储 key + 文案
-js/map-data.js                成都 GeoJSON（构建产物，勿手改）
-js/districts.js               20 个区县的资料卡文案 + 关卡设定
+js/maps/                      地图工厂：目录层级 = 地图层级
+  registry.js                 总登记册【自动生成】—— 谁是谁的父级、脚本在哪
+  loader.js                   运行时按需注入脚本（首屏只载 75KB，地图数据用到才下载）
+  china.js                    中国（根地图，34 个省级行政区）
+  china/sichuan.js            四川省（21 个市州）
+  china/sichuan/chengdu.js    成都（20 个区县，资料是人工核实的）
+  china/sichuan/zigong.js     自贡市（6 个区县，add-map 一键生成）
+  每个地图包三个文件：<id>.js 配置 / <id>.geo.js 边界（构建产物）/ <id>.data.js 资料（人工维护）
 
-tools/build-data.js           重新生成 js/map-data.js
-tools/icon-preview.html       手绘图案预览（开发用，可单独打开）
+tools/add-map.js              一键接入新地图（下载 → 生成三件套 → 更新登记册）
+tools/build-registry.js       扫描 js/maps/ 生成登记册（children 由 parent 反推）
+tools/lib/inline-geo.js       公共库：GeoJSON 规范化 / 内联模块 / DataV 下载
+tools/lib/map-tree.js         公共库：目录规则 / 包元信息扫描 / registry 生成
+tools/build-data.js           只重刷成都边界的薄封装（新地图请用 add-map）
 
-tools/e2e-test.js             测试驱动：一次跑两套测试 + 移动端 CSS 静态检查
-tools/selftest.html           城市回归套件（成都真实数据 + UI/动画，89 项）
-tools/engine-test.html        引擎功能套件（虚构数据，77 项）
+tools/e2e-test.js             测试驱动（一次跑三套 + CSS 静态检查 + 汇总）
+tools/selftest.html           城市回归套件（89 项 · 成都真实数据 + UI/动画）
+tools/engine-test.html        引擎功能套件（77 项 · 虚构 tiny-city）
+tools/map-smoke.html          多地图冒烟套件（110 项 · 拖拽 + 导航 + 点选切换 + 窄屏）
 tools/engine-host.html        引擎测试用的瘦宿主页（被上面那套装进 iframe）
 tools/fixtures/tiny-city.js   虚构测试城市：3 个假区县 + 2 关
+tools/shot.js                 截图工具（生成 docs/ 里的界面配图）
+tools/icon-preview.html       手绘图案预览（开发用）
 
-docs/                         README 配图（含开场动画与结算画面截图）
+docs/                         README 配图（含界面截图与开场/结算画面）
 ```
 
-## 想接入别的城市？
+## 想接入新地图？
 
-项目分成两层：**通用引擎**（`js/engine.js`，不认识任何一个具体城市）和**城市配置**（`js/cities/*.js`，一座城市一份）。引擎只认一个 `window.MAP_PUZZLE_CONFIG` 对象。
+项目分成三层：**通用引擎**（`js/engine.js`，不认识任何具体地图）、**地图包**（`js/maps/` 下的一堆配置）、
+**地图工厂**（`tools/add-map.js` 等，负责把地图包生成出来并串成一棵树）。
 
-照着 `js/cities/chengdu.js` 复制一份，改掉这几样就够了：
+### 一条命令接入（中国区划，数据源是 DataV）
 
-| 配置项 | 说明 |
-| --- | --- |
-| `geo` | 该城市的 GeoJSON（`Polygon` / `MultiPolygon` 两种写法都支持） |
-| `districts` | 区县资料卡：面积 / 地标 / 一句话介绍 / 冷知识 |
-| `levels` | 关卡怎么分（哪些区县一组、共几关），可给每关指定一个主色相 |
-| `palette` | 配色（色相、饱和度、明度阶梯）—— 这就是"不同城市不同主色调"的入口 |
-| `storage` | 本地存储 key，**记得换新前缀**，否则会和成都的存档互相覆盖 |
-| `texts` | 城名、区县总数等文案 |
+```bash
+node tools/add-map.js --adcode=510300 --name=zigong --parent=sichuan
+```
 
-然后在页面里按顺序加载：`数据 → 城市配置 → geomap.js → engine.js → game.js`。
+它会：算出该放哪个目录（父级没接入会自动补出四川、中国）→ 下载边界 →
+生成三个文件 → 重新生成登记册 → 打印"还需要人工补什么"。
 
-> 更细的步骤、以及"怎么用一份假数据给引擎单独写测试"，见 [开发 SOP 与经验复盘](成都拼图项目开发SOP与经验复盘.md) 的 5.9 / 5.10 节。
+脚本只能生成骨架，**面积 / 地标 / 冷知识 / 关卡分组得人来补**（在 `<id>.data.js` 里），
+这也是为什么一个地图包要拆成三个文件：脚本永远只重写 `<id>.geo.js`，
+你手写的 `<id>.data.js` 它一个字都不碰。刷新边界请用 `--geo-only`，
+**别用 `--force`**（那会连人工文件一起覆盖）。
+
+### 目录规则（一条递归规则，没有例外）
+
+> 地图 `X` 的包文件 = 父地图的子目录 + `X.js`；某地图的子目录 = 它包文件所在目录 + 它自己的 id + `/`
+
+```
+js/maps/china.js                    中国（根）
+js/maps/china/sichuan.js            四川省
+js/maps/china/sichuan/chengdu.js    成都
+js/maps/china/sichuan/zigong.js     自贡市
+```
+
+父子关系只需要在子地图里写 `parent`，**父地图的 `children` 由 `tools/build-registry.js`
+扫描反推**，所以加一张地图是纯追加操作，不用回头改别人的文件。
+
+### 切换到新地图
+
+页面上顶栏有地图选择器（按层级缩进的下拉）和面包屑（`中国 › 四川省 › 自贡市`，点上级即可返回）。
+也可以直接用 URL：`index.html?map=zigong`。每张地图有独立的存档 key，进度互不干扰。
+
+> 完整的字段规范（哪些字段是引擎强制、哪些是地图工厂强制）、世界/大洲层的接入方案、
+> 以及"怎么用一份假数据给引擎单独写测试"，见 [开发 SOP 与经验复盘](成都拼图项目开发SOP与经验复盘.md)
+> 的 3.5 / 5.9 / 5.10 节。
 
 ## 几个实现要点
 
