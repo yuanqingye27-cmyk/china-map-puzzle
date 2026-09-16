@@ -2,3 +2,6 @@
 *.zip
 docs/*.jpg
 node_modules/
+
+# 天地图开发者 Key（本地私密配置，绝不入库）
+tools/tianditu.config.json

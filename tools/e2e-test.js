@@ -36,6 +36,9 @@ const DEFAULT_TIMEOUT_MS = 90000;
  *   selftest.html     城市回归 · 成都真实数据 + 全部 UI/动画细节
  *   engine-test.html  引擎功能 · 只用虚构 tiny-city，证明引擎与具体地图无关
  *   map-smoke.html    多地图冒烟 · 登记册里【每一张】地图都真能玩（生成物验收）
+ * 另外还会跑两项**不需要浏览器**的离线检查：
+ *   ① 手机端性能降级 CSS 是否齐全
+ *   ② WKT → GeoJSON 转换（天地图数据源那层，见 tools/test-wkt.js）
  */
 const SUITES = [
   { name: '城市回归 · 成都（真实数据 + UI/动画）', page: 'selftest.html' },
@@ -45,6 +48,28 @@ const SUITES = [
 
 /** 当前正在跑的套件；页面回传结果时用它把 Promise 收尾 */
 let active = null;
+
+/**
+ * 离线跑 tools/test-wkt.js，把它的结果并进总汇总。
+ * 用子进程而不是 require：那个文件本身是"带输出的测试脚本"，
+ * 独立跑、独立改，不必为了被 require 而变形。
+ */
+function runWktTests() {
+  const { spawnSync } = require('child_process');
+  const r = spawnSync(process.execPath, [path.join(__dirname, 'test-wkt.js')], { encoding: 'utf8' });
+  const out = (r.stdout || '') + (r.stderr || '');
+  const m = /→ (\d+) 通过 \/ (\d+) 失败/.exec(out);
+  if (!m) {
+    return { passed: 0, failed: 1, failures: ['WKT 测试脚本没有输出结果'], raw: out };
+  }
+  const fm = /失败项：(.+)/.exec(out);
+  return {
+    passed: Number(m[1]),
+    failed: Number(m[2]),
+    failures: fm ? fm[1].split('、') : [],
+    raw: out,
+  };
+}
 
 /**
  * 静态检查：手机端性能降级规则确实写进 CSS 了。
@@ -151,7 +176,7 @@ function runSuite(suite) {
 }
 
 async function main() {
-  console.log('══════════════ 静态检查 ══════════════');
+  console.log('══════════════ 离线检查（不需要浏览器） ══════════════');
   const perf = checkMobilePerfCss();
   if (perf.ok) {
     console.log(`  ✔ 手机端性能降级规则齐全（${perf.count} 个 620px 断点块：backdrop-filter / 装饰层 / 拖拽投影 / 碎片收缩）`);
@@ -159,6 +184,14 @@ async function main() {
     console.log('  ✘ 手机端性能降级缺规则: ' + perf.missing.join('、'));
     process.exitCode = 1;
   }
+
+  /* WKT → GeoJSON 转换：天地图返回的是 WKT，这一段是纯计算，可以在 Node 里测透。
+   * 天地图要 Key 才能联网调，"能测的部分先测死"，等 Key 到手就只剩网络这一件事要查。 */
+  const wktResult = runWktTests();
+  console.log('  ' + (wktResult.failed ? '✘' : '✔') +
+    ' WKT → GeoJSON 转换（' + wktResult.passed + ' 通过 / ' + wktResult.failed + ' 失败）' +
+    (wktResult.failed ? '：' + wktResult.failures.join('、') : ''));
+  if (wktResult.failed) process.exitCode = 1;
   console.log('');
 
   const server = http.createServer((req, res) => {
@@ -224,11 +257,12 @@ async function main() {
   server.close();
 
   // ---- 汇总 ----
-  const totalPassed = results.reduce((n, r) => n + (r.result.passed || 0), 0);
-  const totalFailed = results.reduce((n, r) => n + (r.result.failed || 0), 0);
+  const totalPassed = results.reduce((n, r) => n + (r.result.passed || 0), 0) + wktResult.passed;
+  const totalFailed = results.reduce((n, r) => n + (r.result.failed || 0), 0) + wktResult.failed;
   const broken = results.filter((r) => r.result.crashed).map((r) => r.suite.name);
 
   console.log('\n══════════════ 汇总 ══════════════');
+  console.log(`  ${wktResult.failed ? '✘' : '✔'} 离线检查 · WKT → GeoJSON：${wktResult.passed} 通过 / ${wktResult.failed} 失败`);
   results.forEach(({ suite, result }) => {
     const mark = result.crashed ? '✘ 未收到结果' : (result.failed ? '✘' : '✔');
     const secs = result.elapsedMs ? `（${(result.elapsedMs / 1000).toFixed(1)}s）` : '';

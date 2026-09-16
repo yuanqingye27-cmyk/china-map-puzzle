@@ -29,6 +29,9 @@
  *   --parent=<id>    上一级地图包 id（县级必须给；省市可省略，按 adcode 推断）
  *   --force          已存在的 .data.js / .js 也覆盖（默认不覆盖，保护人工数据）
  *   --geo-only       只重新下载并刷新 .geo.js，人工文件一律不动
+ *   --source=<id>    数据源：datav（默认）| tianditu | file，见 tools/lib/geo-source.js
+ *   --tk=<key>       天地图开发者 Key（也可用环境变量 TIANDITU_TK 或配置文件）
+ *   --dir/--file     file 数据源要读的本地官方数据包
  *   --dry-run        只打印计划，不联网、不写盘
  *   --quiet          安静模式
  *
@@ -48,6 +51,7 @@ const path = require('path');
 
 const tree = require('./lib/map-tree');
 const geoLib = require('./lib/inline-geo');
+const geoSource = require('./lib/geo-source');
 
 /* slug 表（省级 / 地级）与 adcode 层级推断都在公共库里，见 tools/lib/slugs.js */
 const slugs = require('./lib/slugs');
@@ -414,7 +418,12 @@ async function addMap(opts) {
   const parentSlug = opts.parentSlug;
 
   const generator = 'node tools/add-map.js --adcode=' + adcode + ' --name=' + slug +
-    (parentSlug === undefined || parentSlug === null ? '' : ' --parent=' + parentSlug);
+    (parentSlug === undefined || parentSlug === null ? '' : ' --parent=' + parentSlug) +
+    (opts.source && opts.source !== geoSource.DEFAULT_SOURCE ? ' --source=' + opts.source : '');
+
+  // 数据源：调用方没指定就用项目默认（目前是 datav，换源见 tools/lib/geo-source.js）
+  const source = geoSource.getProvider(opts.source);
+  log('数据源：' + source.label + (source.approval ? '　审图号 ' + source.approval : '（无审图号）'));
 
   const scan = tree.scanMaps();
   const { plan } = planChain({ adcode, slug, parentSlug }, scan.maps);
@@ -473,10 +482,18 @@ async function addMap(opts) {
 
     log('\n──── ' + item.slug + '（adcode ' + item.adcode + '）────');
 
-    // 1) 下载边界
-    const { raw, url, hasChildren } = await geoLib.fetchDatavGeo(item.adcode, { log });
-    const geo = geoLib.normalizeGeo(raw, url);
+    // 1) 下载边界（数据源由 provider 决定：datav / tianditu / file）
+    const fetched = await source.fetchGeo(item.adcode, {
+      log,
+      tk: opts.tk,
+      dir: opts.dir,
+      file: opts.file,
+    });
+    const geo = fetched.geo;
+    const url = fetched.url;
     const features = geo.features;
+    // child=1 却没拿到下级时给出提示（天地图接口可能只返回自己）
+    const hasChildren = features.length > 1;
     featuresBySlug[item.slug] = features;
 
     // 2) 显示名：向父级借（父级的 features 就是它的下级列表）
@@ -505,6 +522,7 @@ async function addMap(opts) {
       adcode: item.adcode,
       sourceUrl: url,
       generator,
+      source: fetched.source,
     });
     log('  ✔ ' + relOf(geoFile) +
       '（' + features.length + ' 个下级行政区，' + (written.bytes / 1024).toFixed(1) + ' KB）');
@@ -576,7 +594,18 @@ async function addMap(opts) {
     });
   }
 
-  return { status: 'created', slug, adcode, plan: planSummary, maps: results };
+  return {
+    status: 'created',
+    slug,
+    adcode,
+    source: {
+      provider: source.id,
+      label: source.label,
+      approval: source.approval,
+    },
+    plan: planSummary,
+    maps: results,
+  };
 }
 
 /* ============================ CLI ============================ */
@@ -595,6 +624,10 @@ async function main() {
     force: args.flags.has('force'),
     geoOnly: args.flags.has('geo-only'),
     dryRun: args.flags.has('dry-run'),
+    source: args.source,
+    tk: args.tk,
+    dir: args.dir,
+    file: args.file,
     log,
   });
 
@@ -611,6 +644,10 @@ async function main() {
   }
   const all = Object.keys(regen.model.maps).length;
   console.log('  ✔ js/maps/registry.js（共 ' + all + ' 张地图，根 ' + regen.model.roots.length + ' 张）');
+  if (result.source) {
+    console.log('  数据源：' + result.source.label +
+      (result.source.approval ? '（审图号 ' + result.source.approval + '）' : '（无审图号）'));
+  }
   if (regen.model.orphans.length) {
     console.log('  ℹ 父级待接入：' + regen.model.orphans.map((o) => o.id + '→' + o.parent).join(', '));
   }
@@ -644,6 +681,7 @@ if (require.main === module) {
 
 module.exports = {
   addMap,
+  listSources: geoSource.listProviders,
   planChain,
   parseArgs,
   validateArgs,

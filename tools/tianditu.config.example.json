@@ -1,0 +1,12 @@
+{
+  "_说明": "复制成 tianditu.config.json 再填自己的 Key；该文件已在 .gitignore 里，不会被提交。",
+  "_申请": [
+    "① 注册开发者账号 https://uums.tianditu.gov.cn/register（需手机号 + 实名）",
+    "② 登录控制台 https://console.tianditu.gov.cn/ 创建应用",
+    "③ 在应用里勾选「行政区划」相关服务，拿到 Key（tk）",
+    "④ 把 Key 填到下面的 tk 字段"
+  ],
+  "tk": "在这里填你的天地图 Key",
+  "delayMs": 600,
+  "maxPerMinute": 60
+}

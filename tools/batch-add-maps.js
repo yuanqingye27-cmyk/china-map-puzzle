@@ -10,6 +10,7 @@
  *   node tools/batch-add-maps.js --parent=510000 --dry-run  # 先看计划，不联网不写盘
  *   node tools/batch-add-maps.js --parent=510000 --only=511100,511300
  *   node tools/batch-add-maps.js --parent=510000 --report=docs/batch-report.json
+ *   node tools/batch-add-maps.js --parent=510000 --source=tianditu --tk=<Key>
  *
  * 干的事：
  *   1. 确保父级地图已接入（没接入就先把它补出来）
@@ -33,6 +34,7 @@ const tree = require('./lib/map-tree');
 const geoLib = require('./lib/inline-geo');
 const slugs = require('./lib/slugs');
 const { addMap } = require('./add-map');
+const geoSource = require('./lib/geo-source');
 
 /** 单张地图的 slug 兜底命名长度检查：太长会把目录名搞得很丑 */
 const REPORT_DEFAULT = path.join(tree.ROOT, 'batch-report.json');
@@ -80,6 +82,8 @@ async function main() {
   const geoOnly = args.flags.has('geo-only');
   const quiet = args.flags.has('quiet');
   const reportPath = path.resolve(args.report || REPORT_DEFAULT);
+  // 数据源：默认沿用项目默认（datav），换天地图就 --source=tianditu
+  const sourceId = args.source || geoSource.DEFAULT_SOURCE;
   const log = quiet ? () => {} : (m) => console.log(m);
 
   const { parentAdcode, only } = validate(args);
@@ -106,9 +110,12 @@ async function main() {
   let parentName = parentSlug;
   let parentUrl = '';
   try {
-    const fetched = await geoLib.fetchDatavGeo(parentAdcode, { log });
+    const provider = geoSource.getProvider(sourceId);
+    const fetched = await provider.fetchGeo(parentAdcode, {
+      log, tk: args.tk, dir: args.dir, file: args.file,
+    });
     parentUrl = fetched.url;
-    const features = geoLib.normalizeGeo(fetched.raw, fetched.url).features;
+    const features = fetched.geo.features;
     children = features
       .filter((f) => geoLib.isAdminAdcode(f.properties.adcode))
       .map((f) => ({ adcode: Number(f.properties.adcode), name: f.properties.name }))
@@ -186,6 +193,10 @@ async function main() {
         force,
         geoOnly,
         dryRun,
+        source: sourceId,
+        tk: args.tk,
+        dir: args.dir,
+        file: args.file,
         log: quiet ? () => {} : (m) => console.log('    ' + m),
       });
       const m = res.maps[res.maps.length - 1] || null;
@@ -264,8 +275,15 @@ async function main() {
     });
   });
 
+  const srcInfo = geoSource.getProvider(sourceId);
   const report = {
     generatedAt: new Date().toISOString(),
+    dataSource: {
+      provider: srcInfo.id,
+      label: srcInfo.label,
+      approval: srcInfo.approval,
+      note: srcInfo.note,
+    },
     command: 'node tools/batch-add-maps.js --parent=' + parentAdcode +
       (only ? ' --only=' + only.join(',') : '') + (dryRun ? ' --dry-run' : ''),
     parent: {
@@ -307,6 +325,7 @@ async function main() {
   /* ---------- 6. 收尾打印 ---------- */
   const rel = path.relative(process.cwd(), reportPath);
   log('\n══════════ 汇总 ══════════');
+  log('  数据源：' + srcInfo.label + (srcInfo.approval ? '（审图号 ' + srcInfo.approval + '）' : '（无审图号）'));
   log('  子级总数：' + children.length + '　新建：' + created + '　已存在：' + existing + '　失败：' + failed);
   log('  ✔ 报告已写入 ' + rel);
 
