@@ -1,25 +1,44 @@
 /* =====================================================================
- * 城市配置 · 成都
+ * 地图包 · 成都（配置）
  * ---------------------------------------------------------------------
- * 这个文件是"数据"和"引擎"的分界线：
- *   js/engine.js          通用引擎，不认识任何一个具体城市
- *   js/cities/<city>.js   一个城市一份配置（本文件）
+ * 路径：js/maps/china/sichuan/chengdu.js
  *
- * 引擎只认这一个全局对象 window.MAP_PUZZLE_CONFIG。
- * 想做一个新城市，就照着本文件复制一份、换掉数据和配色即可，
- * 不需要改引擎里的任何一行逻辑。
+ * 【层级】中国 → 四川 → 成都
+ *   parent    'sichuan'   上一级地图包 id（"返回上一级"按钮靠它找路）
+ *   adcode    510100      本级行政区划代码
+ *   children  []          下一级地图包 id 列表
+ *                         （成都下辖的是区县，不是独立地图包，所以为空）
  *
- * ⚠️ 加载顺序：本文件依赖 map-data.js 和 districts.js，
- *    必须排在它们后面、engine/game 之前。
+ * 【分工】一个地图包三个文件，按"谁来维护"拆开：
+ *   chengdu.geo.js   构建产物（自动生成，勿手改）
+ *   chengdu.data.js  人工资料与关卡
+ *   chengdu.js       本文件：把上面两份 + 配色/存储/文案组装成引擎配置
+ *
+ * 引擎只认一个纯数据对象（MapPuzzleEngine.create(CONFIG)），
+ * 这里把它登记到 window.MAP_PACKAGES.chengdu，
+ * 启动器和地图选择器都从这里取。
+ *
+ * ⚠️ 加载顺序：registry.js → chengdu.geo.js → chengdu.data.js → 本文件
+ *    → geomap.js → engine.js → game.js
+ *    （三个包文件都做了防御性初始化，实际对顺序不敏感，但别排在 engine/game 之后）
  * ===================================================================== */
 
 (function (global) {
   'use strict';
 
+  // 防御性初始化：即使 registry.js 没先加载，这里也不会炸
+  const GEO_ALL = (global.MAP_GEO = global.MAP_GEO || {});
+  const DATA_ALL = (global.MAP_DATA = global.MAP_DATA || {});
+
+  const DATA = DATA_ALL.chengdu || {};
+
   const CONFIG = {
-    /* ---------------- 身份 ---------------- */
+    /* ---------------- 身份与层级 ---------------- */
     id: 'chengdu',
     name: '成都',
+    parent: 'sichuan',   // 上一级地图包 id，null 表示已是根
+    adcode: 510100,      // 本级行政区划代码
+    children: [],        // 下一级地图包 id（成都下面是区县，没有子地图包）
 
     /* ---------------- 数据（引擎的三份输入） ----------------
      * geo        GeoJSON FeatureCollection，每个 feature 需要
@@ -27,9 +46,9 @@
      * districts  adcode -> 资料卡（面积 / 地标 / 一句话 / 冷知识）
      * levels     关卡设定：id / name / short / blurb / adcodes
      * -------------------------------------------------------- */
-    geo: global.CHENGDU_GEO,
-    districts: global.DistrictData && global.DistrictData.DISTRICT_INFO,
-    levels: global.DistrictData && global.DistrictData.LEVELS,
+    geo: GEO_ALL.chengdu,
+    districts: DATA.districts,
+    levels: DATA.levels,
 
     /* ---------------- 画布 ---------------- */
     map: {
@@ -63,7 +82,7 @@
     },
 
     /* ---------------- 本地存储 ----------------
-     * 每个城市用独立的 key，否则两个城市的存档会互相覆盖
+     * 每个地图包用独立的 key，否则两个地图的存档会互相覆盖
      * ------------------------------------------- */
     storage: {
       save: 'chengdu-map-puzzle',
@@ -80,7 +99,7 @@
     },
 
     /* ---------------- 文案 ----------------
-     * 只放"会因城市而变"的部分；交互提示语这类通用文案写在引擎里，
+     * 只放"会因地图而变"的部分；交互提示语这类通用文案写在引擎里，
      * 引擎用这里的值去拼。
      * -------------------------------------- */
     texts: {
@@ -88,9 +107,12 @@
       districtCount: 20,   // 全部区县数，通关文案里用
       // 数据结构缺失时的应急提示（直接写进 <body>）
       missingDataHint:
-        '地图数据没加载出来，请确认 js/map-data.js、js/districts.js 存在且没有被浏览器拦截。',
+        '地图数据没加载出来，请确认 js/maps/china/sichuan/ 下的 ' +
+        'chengdu.geo.js、chengdu.data.js 存在且没有被浏览器拦截。',
     },
   };
 
-  global.MAP_PUZZLE_CONFIG = CONFIG;
+  /* 登记到共享命名空间：地图选择器、启动器、构建脚本都从这里取 */
+  const PACKAGES = (global.MAP_PACKAGES = global.MAP_PACKAGES || {});
+  PACKAGES.chengdu = CONFIG;
 })(window);

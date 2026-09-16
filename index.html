@@ -399,11 +399,13 @@ try {
 <!-- <div class="drag-ghost"><svg viewBox="..."><path d="..."/></svg></div> -->
 
 <!-- 加载顺序不可调换：
-     map-data / districts 是【数据】→ cities/chengdu 把数据组装成【城市配置】
-     → geomap 提供投影工具 → engine 通用引擎 → game 把配置交给引擎并启动 -->
-<script src="js/map-data.js"></script>
-<script src="js/districts.js"></script>
-<script src="js/cities/chengdu.js"></script>
+     registry 建好命名空间并登记全部地图 → 地图包三件套（geo / data / 配置）
+     → geomap 提供投影工具 → engine 通用引擎 → game 把配置交给引擎并启动
+     注：本轮仍是静态加载成都这一张地图；地图选择器会上改成按 registry 动态注入脚本 -->
+<script src="js/maps/registry.js"></script>
+<script src="js/maps/china/sichuan/chengdu.geo.js"></script>
+<script src="js/maps/china/sichuan/chengdu.data.js"></script>
+<script src="js/maps/china/sichuan/chengdu.js"></script>
 <script src="js/geomap.js"></script>
 <script src="js/engine.js"></script>
 <script src="js/game.js"></script>

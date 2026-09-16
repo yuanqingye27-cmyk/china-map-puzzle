@@ -189,9 +189,9 @@
     check('点击后开场动画消失', !!introEl && introEl.hidden);
 
     section('1 · 数据完整性');
-    const geo = W.CHENGDU_GEO;
-    const info = W.DistrictData.DISTRICT_INFO;
-    const levels = W.DistrictData.LEVELS;
+    const geo = W.MAP_GEO.chengdu;
+    const info = W.MAP_DATA.chengdu.districts;
+    const levels = W.MAP_DATA.chengdu.levels;
     check('GeoJSON 有 20 个区县', geo.features.length === 20, '实际 ' + geo.features.length);
     check('每个区县都有资料卡', geo.features.every((f) => !!info[f.properties.adcode]),
       '缺: ' + geo.features.filter((f) => !info[f.properties.adcode]).map((f) => f.properties.name).join(','));

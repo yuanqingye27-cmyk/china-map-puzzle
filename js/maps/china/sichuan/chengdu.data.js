@@ -1,10 +1,18 @@
 /* =====================================================================
- * 成都地图拼图 · 区县资料与关卡设定
+ * 地图包 · 成都 · 资料与关卡（人工维护，自动化脚本不覆盖本文件）
  * ---------------------------------------------------------------------
+ * 路径：js/maps/china/sichuan/chengdu.data.js
+ *
+ * 一个地图包拆成三个文件，按"谁来维护"分工：
+ *   chengdu.geo.js    构建产物 · 自动生成，勿手改
+ *   chengdu.data.js   本文件   · 人工文案与关卡设定（面积/地标/冷知识）
+ *   chengdu.js        配置     · 把上面两份 + 配色/存储/文案组装成引擎配置
+ * 脚本只重写 .geo.js，人工数据不会被自动化流程冲掉。
+ *
  * 一共 20 个县级行政区（成都 2020 年新津撤县设区后的完整区划）：
  *   12 个区 + 5 个县级市 + 3 个县
  *
- * adcode 必须和 map-data.js 里 GeoJSON 的 adcode 严格对应，
+ * adcode 必须和 chengdu.geo.js 里 GeoJSON 的 adcode 严格对应，
  * 否则拼图拼对了、信息卡却会张冠李戴（崇州 510184 / 邛崃 510183 尤其容易写反）。
  *
  * 面积数据口径说明：
@@ -179,5 +187,10 @@
     },
   ];
 
-  global.DistrictData = { DISTRICT_INFO, LEVELS };
+  /* 按地图包 id 登记进共享命名空间 window.MAP_DATA：
+   *   MAP_DATA.chengdu = { districts, levels }
+   * 这里做防御性初始化（不假设 registry.js 已先加载），
+   * 将来动态注入脚本时，谁先谁后都不影响。 */
+  const MAP_DATA = (global.MAP_DATA = global.MAP_DATA || {});
+  MAP_DATA.chengdu = { districts: DISTRICT_INFO, levels: LEVELS };
 })(window);

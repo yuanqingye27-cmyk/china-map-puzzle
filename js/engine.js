@@ -2,11 +2,11 @@
  * 地图拼图引擎 · 通用逻辑（不含任何城市数据）
  * ---------------------------------------------------------------------
  * 用法：
- *   const engine = MapPuzzleEngine.create(window.MAP_PUZZLE_CONFIG);
- *   engine.start();      // 数据与 DOM 就绪后启动（宿主页面负责准备这两样）
+ *   const engine = MapPuzzleEngine.create(window.MAP_PACKAGES.chengdu);
+ *   engine.start();      // 数据与 DOM 就绪后启动（引擎不自动启动，何时启动由宿主页决定）
  *   engine.getState();   // 取一份运行状态快照（测试断言 / 宿主页面读取）
  *
- * 一座城市 = 一份配置（见 js/cities/*.js）。引擎只认配置里的字段：
+ * 一张地图 = 一份配置（见 js/maps/ 下的包文件 <id>.js）。引擎只认配置里的字段：
  *   geo / levels 必需，districts / palette / storage / themes / texts 可省略。
  *
  * 核心难点是"拖拽落点判定"，这里的做法是：
@@ -25,16 +25,16 @@
   /**
    * 创建一个拼图引擎实例。
    *
-   * @param {object} config 城市配置，结构见 js/cities/chengdu.js
+   * @param {object} config 地图配置，结构见 js/maps/china/sichuan/chengdu.js
    * @returns {{start: Function, getState: Function}} 对外接口
    *
    * 所有内部状态（state / drag / el / shapes …）都是本函数的闭包变量，
    * 所以每个实例天然互不干扰 —— 同一页里放两张地图也不会串状态。
    */
   function createMapPuzzleEngine(config) {
-    /* ============================ 城市配置 ============================
+    /* ============================ 地图配置 ============================
      * 引擎不认识任何一个具体城市：地图数据、区县资料、关卡设定、配色、
-     * 存储 key、文案，全部由调用方通过 config 传入（见 js/cities/*.js）。
+     * 存储 key、文案，全部由调用方通过 config 传入（见 js/maps/ 下的包文件）。
      * 配置少写一项就用下面的默认值兜底 —— 不崩，只是回退到通用表现。
      * ============================================================== */
     const CONFIG = config || {};
