@@ -1,0 +1,79 @@
+{
+  "generatedAt": "2026-09-16T20:11:57.715Z",
+  "provider": "tianditu-portal",
+  "providerLabel": "国家地理信息公共服务平台（天地图）· 服务中心行政区划",
+  "approval": "GS(2024)0650号",
+  "approvalNote": "审图号随天地图对外发布的行政区划数据；本目录为其官方服务的抓取副本，如需对外使用请以天地图官方页面公示为准",
+  "menuUrl": "https://cloudcenter.tianditu.gov.cn/api/portal/region/menu",
+  "mapUrlTemplate": "https://cloudcenter.tianditu.gov.cn/api/portal/region/map?gb=<gb>&level=<level>",
+  "decode": "HTTP gzip 解压 → 每 4 字节大端 int32 → >>2 → 低字节 → UTF-8 → JSON",
+  "summary": {
+    "total": 1,
+    "downloaded": 1,
+    "failed": 0
+  },
+  "maps": [
+    {
+      "slug": "china",
+      "name": "中国",
+      "adcode": 100000,
+      "gb": "156000000",
+      "level": 2,
+      "status": "downloaded",
+      "file": "data/tianditu-official/100000_full.json",
+      "features": 34,
+      "kb": 1633.8,
+      "sourceUrl": "https://cloudcenter.tianditu.gov.cn/api/portal/region/map?gb=156000000&level=2",
+      "skippedFeatures": [
+        {
+          "name": "境界线",
+          "gb": "156900000",
+          "type": "MultiLineString",
+          "reason": "非面几何"
+        },
+        {
+          "name": "境界线",
+          "gb": "156910000",
+          "type": "MultiLineString",
+          "reason": "非面几何"
+        },
+        {
+          "name": "境界线",
+          "gb": "156930000",
+          "type": "MultiLineString",
+          "reason": "非面几何"
+        },
+        {
+          "name": "境界线",
+          "gb": "156940000",
+          "type": "MultiLineString",
+          "reason": "非面几何"
+        },
+        {
+          "name": "境界线",
+          "gb": "156950000",
+          "type": "MultiLineString",
+          "reason": "非面几何"
+        },
+        {
+          "name": "境界线",
+          "gb": "156970000",
+          "type": "MultiLineString",
+          "reason": "非面几何"
+        },
+        {
+          "name": "境界线",
+          "gb": "156980000",
+          "type": "MultiLineString",
+          "reason": "非面几何"
+        },
+        {
+          "name": "境界线",
+          "gb": "156990000",
+          "type": "MultiLineString",
+          "reason": "非面几何"
+        }
+      ]
+    }
+  ]
+}

@@ -96,6 +96,16 @@ const PROVIDERS = {
         throw new Error('file 数据源需要 --dir=<目录> 或 --file=<GeoJSON 文件>');
       }
 
+      /* 如果目录里有 manifest.json（tianditu-download.js 写的），
+       * 就用它里面的来源与审图号 —— 声明跟着数据走，不自作主张。 */
+      let manifest = null;
+      if (dir) {
+        const mf = path.join(dir, 'manifest.json');
+        if (fs.existsSync(mf)) {
+          try { manifest = JSON.parse(fs.readFileSync(mf, 'utf8')); } catch (e) { manifest = null; }
+        }
+      }
+
       let raw = null;
       let url = '';
       if (file) {
@@ -143,9 +153,12 @@ const PROVIDERS = {
         url,
         source: {
           provider: this.id,
-          label: this.label,
-          approval: this.approval,
-          note: this.note,
+          label: manifest ? (manifest.providerLabel || this.label) : this.label,
+          approval: manifest ? (manifest.approval || this.approval) : this.approval,
+          note: manifest
+            ? ('官方数据抓取副本（' + (manifest.generatedAt || '').slice(0, 10) + '）' +
+               (manifest.approvalNote ? '；' + manifest.approvalNote : ''))
+            : this.note,
         },
       };
     },
