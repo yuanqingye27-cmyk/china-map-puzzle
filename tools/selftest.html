@@ -53,6 +53,22 @@
 
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+  /**
+   * 轮询等待一个条件成立。
+   * 地图改成"按需注入脚本"加载后，就绪时刻不再固定，靠 sleep 猜必然翻车，
+   * 所以统一等 game.js 打出的 data-map-ready 标记。
+   */
+  async function waitFor(fn, timeoutMs, label) {
+    const deadline = Date.now() + (timeoutMs || 10000);
+    for (;;) {
+      let v = null;
+      try { v = fn(); } catch (e) { v = null; }
+      if (v) return v;
+      if (Date.now() > deadline) throw new Error('等待超时：' + (label || '条件未满足'));
+      await sleep(50);
+    }
+  }
+
   let reported = false;
   function report(payload) {
     if (reported) return;
@@ -173,7 +189,10 @@
     W.addEventListener('error', (e) => pageErrors.push(e.message));
     W.addEventListener('unhandledrejection', (e) => pageErrors.push('unhandled: ' + e.reason));
 
-    await sleep(500);
+    // 地图是按需注入脚本加载的：等到 game.js 打出就绪标记再开始断言
+    await waitFor(() => D.documentElement.getAttribute('data-map-ready'), 20000,
+      '地图就绪标记 data-map-ready');
+    await sleep(500); // 再等开场动画浮起来
 
     section('0 · 开场欢迎动画');
     const introEl = D.getElementById('intro');

@@ -399,13 +399,13 @@ try {
 <!-- <div class="drag-ghost"><svg viewBox="..."><path d="..."/></svg></div> -->
 
 <!-- 加载顺序不可调换：
-     registry 建好命名空间并登记全部地图 → 地图包三件套（geo / data / 配置）
-     → geomap 提供投影工具 → engine 通用引擎 → game 把配置交给引擎并启动
-     注：本轮仍是静态加载成都这一张地图；地图选择器会上改成按 registry 动态注入脚本 -->
+     registry 是一份很轻的元信息（谁是谁的父级、脚本在哪），一次性全量加载
+     → loader 在"用户选中某张地图"时按 registry 动态注入该地图的脚本
+       （用 <script> 注入而不是 fetch，所以 file:// 双击打开也能用）
+     → geomap 提供投影工具 → engine 通用引擎 → game 启动
+     于是地图数量再多，首屏也不会变重，"双击即玩"的零依赖体验照旧 -->
 <script src="js/maps/registry.js"></script>
-<script src="js/maps/china/sichuan/chengdu.geo.js"></script>
-<script src="js/maps/china/sichuan/chengdu.data.js"></script>
-<script src="js/maps/china/sichuan/chengdu.js"></script>
+<script src="js/maps/loader.js"></script>
 <script src="js/geomap.js"></script>
 <script src="js/engine.js"></script>
 <script src="js/game.js"></script>
