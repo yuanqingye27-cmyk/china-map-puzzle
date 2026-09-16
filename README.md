@@ -7,7 +7,8 @@
 > ```bash
 > node tools/add-map.js --adcode=510300 --name=zigong --parent=sichuan
 > ```
-> 父级没接入会自动补全，**不必改动引擎一行**。详见[想接入新地图？](#想接入新地图)
+> 父级没接入会自动补全，**不必改动引擎一行**；整批接入用 `node tools/batch-add-maps.js --parent=510000`。
+> 目前已接入 **23 张地图**（中国 → 四川 → 21 个市州）。详见[想接入新地图？](#想接入新地图)
 
 - **零依赖**：纯 HTML / CSS / JavaScript，不需要 npm、不需要构建、不需要起服务器
 - **零外链资源**：没有一张图片文件、没有一个 CDN 请求 —— 熊猫、竹子、银杏、盖碗茶、川剧脸谱全部是手写的 SVG 路径
@@ -91,16 +92,20 @@ js/engine.js                  通用拼图引擎（拖拽、判定、进度、�
 js/geomap.js                  墨卡托投影 + path/bbox/质心计算（Polygon / MultiPolygon 都支持）
 js/game.js                    启动器 + 地图导航 UI（面包屑 / 选择器，宿主层）
 
-js/maps/                      地图工厂：目录层级 = 地图层级
+js/maps/                      地图工厂：目录层级 = 地图层级（当前 23 张）
   registry.js                 总登记册【自动生成】—— 谁是谁的父级、脚本在哪
   loader.js                   运行时按需注入脚本（首屏只载 75KB，地图数据用到才下载）
   china.js                    中国（根地图，34 个省级行政区）
   china/sichuan.js            四川省（21 个市州）
   china/sichuan/chengdu.js    成都（20 个区县，资料是人工核实的）
   china/sichuan/zigong.js     自贡市（6 个区县，add-map 一键生成）
+  china/sichuan/<19 个市>.js  四川其余 19 个市州（batch-add-maps 批量生成，资料待人工补）
   每个地图包三个文件：<id>.js 配置 / <id>.geo.js 边界（构建产物）/ <id>.data.js 资料（人工维护）
 
-tools/add-map.js              一键接入新地图（下载 → 生成三件套 → 更新登记册）
+tools/add-map.js              单张接入（CLI + 可被调用的 addMap() 库函数）
+tools/batch-add-maps.js       批量接入一个省/市（21 个市州就是这么来的）
+tools/lib/slugs.js            adcode ↔ 拼音 slug（省表 / 地级表 / 兜底命名）
+batch-report.json             最近一次批量接入的报告（成功/失败/待人工补清单）
 tools/build-registry.js       扫描 js/maps/ 生成登记册（children 由 parent 反推）
 tools/lib/inline-geo.js       公共库：GeoJSON 规范化 / 内联模块 / DataV 下载
 tools/lib/map-tree.js         公共库：目录规则 / 包元信息扫描 / registry 生成
@@ -109,7 +114,7 @@ tools/build-data.js           只重刷成都边界的薄封装（新地图请�
 tools/e2e-test.js             测试驱动（一次跑三套 + CSS 静态检查 + 汇总）
 tools/selftest.html           城市回归套件（89 项 · 成都真实数据 + UI/动画）
 tools/engine-test.html        引擎功能套件（77 项 · 虚构 tiny-city）
-tools/map-smoke.html          多地图冒烟套件（110 项 · 拖拽 + 导航 + 点选切换 + 窄屏）
+tools/map-smoke.html          多地图冒烟套件（585 项 · 23 张地图逐张真拖一块 + 导航 + 窄屏）
 tools/engine-host.html        引擎测试用的瘦宿主页（被上面那套装进 iframe）
 tools/fixtures/tiny-city.js   虚构测试城市：3 个假区县 + 2 关
 tools/shot.js                 截图工具（生成 docs/ 里的界面配图）
@@ -136,6 +141,18 @@ node tools/add-map.js --adcode=510300 --name=zigong --parent=sichuan
 这也是为什么一个地图包要拆成三个文件：脚本永远只重写 `<id>.geo.js`，
 你手写的 `<id>.data.js` 它一个字都不碰。刷新边界请用 `--geo-only`，
 **别用 `--force`**（那会连人工文件一起覆盖）。
+
+### 整批接入一个省
+
+```bash
+node tools/batch-add-maps.js --parent=510000 --dry-run   # 先看计划
+node tools/batch-add-maps.js --parent=510000             # 真跑
+```
+
+一次下载父级的子级清单，逐个生成地图包，最后统一重建登记册，并写一份
+`batch-report.json`（成功/失败/数据缺口/待人工补的占位符清单）。
+某个子级下载失败会**记录并跳过**，不会重试或死循环。
+（红线：不允许 `--parent=100000` 一次性接整个中国 —— 脚本会直接拒绝；一个省一个省来。）
 
 ### 目录规则（一条递归规则，没有例外）
 
@@ -331,7 +348,7 @@ body.scrollWidth   468   ← 整页横向溢出，右侧按钮被推出屏幕
 
 ## 测试
 
-项目带**两套端到端测试，共 166 项断言**，全部在真实浏览器里模拟真人操作：
+项目带**三套端到端测试，共 751 项断言**，全部在真实浏览器里模拟真人操作：
 
 ```bash
 node tools/e2e-test.js
@@ -341,12 +358,17 @@ node tools/e2e-test.js
 | --- | --- | --- | --- |
 | **城市回归** · 89 项 | `index.html` | 成都真实 GeoJSON | 正确/错误放置、点击模式、通关解锁、关卡切换、提示、重开，以及地图方位、解锁门槛、三套主题切换、开场动画、结算画面、进度持久化、音效开关、键盘操作、布局完整性 |
 | **引擎功能** · 77 项 | `tools/engine-host.html` | 虚构 tiny-city（3 个假区县） | 放置与拒绝、逐关解锁、提示、持久化，以及配色 / 主题 / 存储 key 是否**真的由配置驱动** —— 断言里不含任何真实城市的数据 |
+| **多地图冒烟** · 585 项 | `index.html?map=<id>` | **登记册里每一张地图**（当前 23 张） | 每张地图都真的打开、数据自洽、**真的拖一块进去**、导航（面包屑/选择器/点选切换）正确、刷新后进度还在；外加 390×844 窄屏专项 |
 
-两套测试各起一个独立的 headless Chrome（独立 profile），因此互相不干扰，也不会读到对方的存档。
+三套测试各起一个独立的 headless Chrome（独立 profile），因此互相不干扰，也不会读到对方的存档。
 
 它的做法是：起一个本地 HTTP 服务，把测试载体页丢进 headless Chrome，载体页把被测页面装进 iframe，在里面派发 `PointerEvent` 模拟拖拽，跑完用隐表单 POST 把结果回传。
 
 > **为什么要有第二套**：假数据是通用性的探针。引擎改动后，用 3 个虚构区县就能验证通用逻辑，不必依赖成都地图的细节；而且它第一次运行就逮住了一个被真实数据掩盖很久的问题 —— 几何层当时只认 `MultiPolygon`，喂标准 `Polygon` 会直接抛错。
+
+> **为什么要有第三套**：批量生成了 19 张新地图之后，"文件生成了"和"东西能用"是两件事。
+> 这一套会逐张打开每张地图、真的拖一块进去、再刷新确认进度还在 ——
+> 它第一次运行就抓出了两个真问题（详见开发 SOP 的坑 #24 / #25）。
 
 > **注意**：脚本里带了 `--no-sandbox`。这台机器上 Chrome 的 sandbox 起不来（headless 模式下会 SIGTRAP 崩溃），必须关掉才能跑。测的是本地静态页面，无安全影响。换机器如果 sandbox 正常，可以去掉这个参数。
 

@@ -26,11 +26,11 @@
 | --- | --- |
 | 目标 | 用拼图游戏讲解行政区划；已抽成"通用引擎 + 地图工厂"，可自动接入无限多张地图，页面上可直接切换 |
 | 技术栈 | 原生 HTML / CSS / JavaScript，**无任何依赖、无任何外链** |
-| 数据 | 阿里云 DataV.GeoAtlas：中国（34 省级）/ 四川（21 市州）/ 成都（20 区县）/ 自贡（6 区县） |
+| 数据 | 阿里云 DataV.GeoAtlas：中国（34 省级）/ 四川（21 市州）/ 21 个市各自的区县；**共 23 张地图** |
 | 运行方式 | 双击 `index.html`（`file://`），无需构建、无需服务器 |
-| 代码规模 | `engine.js` 1554 行（通用逻辑）、`game.js` 208 行（启动器 + 导航 UI）、`loader.js` 141 行（按需加载）、`add-map.js` 561 行（接入脚本）、`style.css` 1695 行、`index.html` 431 行 |
-| 首屏体积 | **75 KB**（registry + loader + geomap + engine + game）；地图数据按需注入（成都 145 KB） |
-| 测试 | **276 项端到端断言**（89 城市回归 + 77 引擎功能 + 110 多地图冒烟/导航/窄屏专项）+ 1 项 CSS 静态检查，全部通过 |
+| 代码规模 | `engine.js` 1554 行（通用逻辑）、`game.js` 208 行（启动器 + 导航 UI）、`loader.js` 141 行（按需加载）、`add-map.js` 620 行（单张接入）、`batch-add-maps.js` 320 行（批量接入）、`style.css` 1695 行、`index.html` 431 行 |
+| 首屏体积 | **75 KB**（registry + loader + geomap + engine + game）；23 张地图的数据按需注入，从不全量下载 |
+| 测试 | **751 项端到端断言**（89 城市回归 + 77 引擎功能 + 585 多地图冒烟/导航/窄屏专项）+ 1 项 CSS 静态检查，全部通过 |
 
 **为什么坚持零依赖**：这是一份"送给别人也能直接打开"的小作品。任何 `npm install`、CDN、构建步骤都会成为分享时的摩擦点。事后看这个决定是正确的 —— 它倒逼出了几个有意思的实现（手写墨卡托、内联数据、自己搭测试），也避开了所有网络相关的坑。
 
@@ -455,6 +455,12 @@ MapLoader.childrenOf('sichuan')// → [chengdu, zigong]
 
 ```bash
 node tools/add-map.js --adcode=510300 --name=zigong --parent=sichuan
+```
+
+**整批接入**（一个省 / 一个市）见 [5.11 批量地图操作手册](#511-批量地图操作手册)：
+
+```bash
+node tools/batch-add-maps.js --parent=510000
 ```
 
 它会：
@@ -1065,7 +1071,8 @@ node tools/build-data.js /tmp/cd_full.json
 node tools/e2e-test.js
 ```
 
-- 一次跑三套，末尾打汇总。正常输出是 **`合计：276 通过 / 0 失败`**（城市回归 89 + 引擎功能 77 + 多地图冒烟 110）
+- 一次跑三套，末尾打汇总。正常输出是 **`合计：751 通过 / 0 失败`**（城市回归 89 + 引擎功能 77 + 多地图冒烟 585）
+- 每套会打印耗时（23 张地图时冒烟套件约 30s）；超时按套配置，见 `SUITES` 里的 `timeoutMs`
 - 只想过其中一套：把别的从 `tools/e2e-test.js` 顶部的 `SUITES` 数组里注掉即可
 - 脚本里带的 `--no-sandbox` 是**这台机器必需的**（见坑 #2），换机器可以去掉
 - 测试失败时会打印布局诊断（各层宽度、`elementFromPoint` 命中结果），便于快速定位
@@ -1128,13 +1135,137 @@ node tools/e2e-test.js            # 166 项必须全绿
 4. **接进驱动**：在 `tools/e2e-test.js` 的 `SUITES` 数组里加一项 `{ name, page }`
 5. **顺手把边界条件塞进 fixture**：凹多边形、两种 GeoJSON 写法、单块关卡…… 这些极端情况放在假数据里最合适（[坑 #22](#坑-22几何层只认-multipolygonpolygon-直接抛错)就是这么被逮住的）
 
+### 5.11 批量地图操作手册
+
+单张地图用 `add-map.js`（见 5.9）；**一次接入一整批**用 `batch-add-maps.js`。
+两者的关系是"调用"而不是"复制"：批量脚本直接 `require` 了 `add-map.js` 抽出来的
+`addMap()` 函数（`add-map.js` 现在同时是 CLI 和一个库），所以单张与批量永远走同一套逻辑。
+
+#### 一、批量接入一个省
+
+```bash
+# 先看计划（不联网、不写盘，纯列清单）
+node tools/batch-add-maps.js --parent=510000 --dry-run
+
+# 正式跑：接入四川省下辖的全部 21 个市州
+node tools/batch-add-maps.js --parent=510000
+
+# 只要其中几个
+node tools/batch-add-maps.js --parent=510000 --only=511100,511300
+```
+
+传的是**父级 adcode**（这里是 510000 = 四川省）。脚本会：
+
+1. 确保父级已接入；没接入就先把它补出来（它自己也会向上补，直到中国）
+2. 下载 `bound/{adcode}_full.json`，取出全部子级（**一次请求就够**，不是每个子级一个请求）
+3. 逐个调用 `addMap()`：算目录 → 下载该子级的 `_full.json` → 生成三件套
+4. 最后**统一重建一次** `registry.js`（批量时只重建一次，不是 21 次）
+5. 写 `batch-report.json`
+
+> **一个市的区县同理**：`node tools/batch-add-maps.js --parent=510100` 会把成都的 20 个区县
+> 各生成一张地图包。但区县已经是最下一级了 —— 它们的 `_full.json` 不存在，会退化成
+> "只有自己一个 feature"，拼图只有 1 块。**所以批量接"市"才是常规用法。**
+
+#### 二、目录名（slug）是怎么来的
+
+地图包的 id / 目录名是英文（`zigong`），而**拼音没法从 adcode 或中文名推出来**，
+除非引一个拼音库（违背零依赖）。所以：
+
+| 层级 | 命名来源 |
+| --- | --- |
+| 省级 | 内置 34 条省表（adcode 前两位 → slug），见 `tools/lib/slugs.js` |
+| 地级 | 内置地级表 `CITY_SLUGS`（**按省逐步补**，目前是四川 21 个） |
+| 查不到 | 兜底成 `map-<adcode>`，并写进报告的 `fallbackSlugs` 提醒人工改名 |
+
+**新增一个省时的动作**：往 `tools/lib/slugs.js` 的 `CITY_SLUGS` 里加那个省的地级市，
+几行而已，不动任何逻辑。忘了加也不会失败 —— 只是目录会叫 `map-440300` 这种名字。
+
+#### 三、报告怎么看（`batch-report.json`）
+
+| 字段 | 含义 |
+| --- | --- |
+| `parent` | 父级 adcode / slug / 中文名 / 数据来源 URL |
+| `summary` | `children` 子级总数、`created` 新建、`existing` 已接入跳过、`failed` 失败 |
+| `maps[]` | 每张地图一行：状态、下级行政区数、关卡数、跳过的非行政区 feature、文件路径 |
+| `failures[]` | 失败的 adcode / 名称 / 完整错误（**这些是跳过的，没重试**） |
+| `needsHuman[]` | **待人工补的清单**：哪个文件、多少个下级行政区、要补哪些字段 |
+| `dataGaps[]` | 数据缺口：没有下级的、含非行政区 feature 的 |
+| `fallbackSlugs[]` | 用了兜底命名、建议改成拼音的 slug |
+| `registry` | 重建后的地图总数、根、孤儿、告警 |
+
+跑完先看 `summary.failed` 和 `needsHuman` 这两个字段，其余是排查时才翻的细节。
+
+#### 四、数据缺失怎么处理
+
+三种情况，处理方式完全不同 —— 别把它们混成一句"数据不全"：
+
+| 情况 | 表现 | 对策 |
+| --- | --- | --- |
+| **下载失败**（网络 / 404） | 该地图 `status: "failed"`，出现在 `failures[]` | 脚本**记下、跳过、不重试、不死循环**；回头**再跑一次同样的命令**即可（已接入的会被识别成 `existing` 跳过，只有失败的那几个会重下） |
+| **该层级没有下级区划** | `dataGaps` 里 `kind: "no-children"` | DataV 上 `<adcode>_full.json` 不存在，退化成"只有自己"。**说明这一级就是叶子**，不该单独做成一张拼图 |
+| **混着非行政区 feature** | `dataGaps` 里 `kind: "non-admin-feature"` | 典型是全国数据里的南海九段线（adcode 是字符串 `100000_JD`）。它**画在底图上，但不进关卡、不进资料卡** —— 这是刻意的，见坑 #24 |
+
+> **红线：不要 `--parent=100000`。** 脚本里硬编码拒绝了整个中国：
+> 34 个省级 × 各自的下一级 = 数百张地图，规模远超"批量"该有的样子。
+> 正确姿势是一个省一个省来。
+
+#### 五、怎么补卡片资料（这是人工活）
+
+脚本生成的 `<id>.data.js` 里全是占位符，长这样：
+
+```js
+"512002": {
+  area: null,                          // TODO 面积（km²，数字）
+  landmark: '【待补充：雁江区地标】',
+  tagline: '【待补充：雁江区一句话介绍】',
+  funFact: '【待补充：雁江区冷知识】',
+},
+```
+
+补资料的标准流程：
+
+1. 打开报告里的 `needsHuman[]`，挑一个 `file`
+2. **按 adcode 逐个填**（`area` 填数字，单位 km²；其余填文字）。
+   **不要动 key（adcode）** —— 它必须和 `<id>.geo.js` 里的 feature 严格对应，
+   写反了就会"拼对位置、弹出别人的介绍"（坑 #1）
+3. 关卡（`levels`）也要重排：脚本只按"每 8 个一组"机械切分，好玩的关卡应按地理/文化逻辑分组，并补上 `blurb`
+4. 跑测试：`node tools/e2e-test.js` —— 冒烟套件会核对"每个下级行政区都有资料卡"、
+   "关卡覆盖与 GeoJSON 完全一致"，**漏填或写错 adcode 会被逮住**
+5. 只想刷新边界数据（不动你写的字）：`node tools/add-map.js --adcode=… --name=… --geo-only`
+   —— **千万别用 `--force`**，那会连人工文件一起覆盖
+
+> 补资料时可以拿 `【待补充` 当进度指示：
+> `grep -c '【待补充' js/maps/china/sichuan/*.data.js` 一眼看出哪个市还没动过。
+
+#### 六、一次批量接入的完整节奏
+
+```bash
+node tools/batch-add-maps.js --parent=510000 --dry-run   # 1. 看计划
+node tools/batch-add-maps.js --parent=510000             # 2. 真跑
+node tools/e2e-test.js                                   # 3. 全绿（地图变多，冒烟套件耗时也变长）
+git add -A && git commit -m 'feat: 接入四川省 21 个市州'  # 4. 提交（地图数据也是代码）
+```
+
+#### 七、实战记录（2026-09 · 四川）
+
+| 项 | 值 |
+| --- | --- |
+| 命令 | `node tools/batch-add-maps.js --parent=510000` |
+| 子级 | 21 个市州 |
+| 结果 | 新建 19、已接入跳过 2（成都、自贡）、**失败 0** |
+| 登记册 | 4 张 → **23 张地图**，根仍是 `china`，无孤儿、无告警 |
+| 待人工补 | 19 张地图、共 **157 个下级行政区** × 4 项字段 |
+| 测试 | 276 项 → **751 项全绿**（冒烟套件逐张打开 23 张地图、每张真拖一块，耗时 30.7s） |
+| 兜底命名 | 0 个（21 个市州都在 `CITY_SLUGS` 表里） |
+
 ---
 
 ## 六、文件目录结构
 
 ```
 deepseekharness/
-├── index.html                      413 行 · 页面结构 + 手绘图案库（12 个 <symbol>）
+├── index.html                      431 行 · 页面结构 + 手绘图案库（12 个 <symbol>）
+├── batch-report.json              · 最近一次批量接入的报告（成功/失败/待人工补清单）
 ├── README.md                      · 项目说明文档
 ├── 成都拼图项目开发SOP与经验复盘.md   · 本文
 │
@@ -1148,28 +1279,28 @@ deepseekharness/
 │   └── maps/                       · 地图工厂（层级目录，规则见 3.5）
 │       ├── registry.js            113 行 · 总登记册【自动生成，勿手改】
 │       ├── loader.js              141 行 · 运行时按需注入脚本 + trail() 面包屑接口
-│       ├── china.js                75 行 · 中国配置（根地图，34 个省级行政区）
-│       ├── china.geo.js           514.0 KB · 全国边界【构建产物，勿手改】
-│       ├── china.data.js          276 行 · 34 个省级资料 + 五关（占位，待人工补）
+│       ├── china.js / .geo.js / .data.js      中国（根地图，34 个省级行政区）
 │       └── china/
-│           ├── sichuan.js          73 行 · 四川省配置（21 个市州）
-│           ├── sichuan.geo.js     144.6 KB · 四川边界【构建产物】
-│           ├── sichuan.data.js    182 行 · 21 个市州资料 + 三关（占位）
+│           ├── sichuan.js / .geo.js / .data.js  四川省（21 个市州）
 │           └── sichuan/
-│               ├── chengdu.js           118 行 · 成都配置（层级/配色/存储/文案）
-│               ├── chengdu.geo.js      130.9 KB · 成都 GeoJSON【构建产物】
-│               ├── chengdu.data.js     196 行 · 20 个区县资料 + 三关设定（人工维护）
-│               ├── zigong.js            71 行 · 自贡市配置（6 个区县）【脚本生成】
-│               ├── zigong.geo.js       120.1 KB · 自贡边界【构建产物】
-│               └── zigong.data.js       76 行 · 6 个区县资料（占位，待人工补）
+│               ├── chengdu.{js,geo.js,data.js}  成都 · 20 个区县【资料是人工核实的】
+│               ├── zigong.{js,geo.js,data.js}   自贡 · 6 个区县
+│               └── … 另外 19 个市州（panzhihua / luzhou / deyang / mianyang /
+│                  guangyuan / suining / neijiang / leshan / nanchong / meishan /
+│                  yibin / guangan / dazhou / yaan / bazhong / ziyang / aba /
+│                  ganzi / liangshan），全部由 batch-add-maps 生成
+│                  · .geo.js 是构建产物 / .data.js 是占位资料（待人工补）
+│                  · 目录规则见 3.5.2：包文件 = 父地图的子目录 + <id>.js
 │
 ├── tools/
-│   ├── add-map.js                 561 行 · 一键接入新地图（下载→生成三件套→更新注册表）
+│   ├── add-map.js                 620 行 · 单张接入（CLI + 可被调用的 addMap() 库函数）
+│   ├── batch-add-maps.js          320 行 · 批量接入一个省/市 + 写 batch-report.json
 │   ├── build-registry.js           71 行 · 扫描 js/maps/ 生成 registry（children 反推）
 │   ├── build-data.js               64 行 · 只重刷成都边界的薄封装（新地图请用 add-map）
 │   ├── lib/
 │   │   ├── inline-geo.js          229 行 · 公共库：GeoJSON 规范化 / 内联模块 / DataV 下载
-│   │   └── map-tree.js            371 行 · 公共库：目录规则 / 包元信息扫描 / registry 生成
+│   │   ├── map-tree.js            371 行 · 公共库：目录规则 / 包元信息扫描 / registry 生成
+│   │   └── slugs.js                90 行 · 公共库：adcode ↔ 拼音 slug（省表 / 地级表 / 兜底）
 │   ├── e2e-test.js                238 行 · 测试驱动（跑三套 + CSS 静态检查 + 汇总）
 │   ├── selftest.html              560 行 · 城市回归套件（89 项 · 成都真实数据 + UI/动画）
 │   ├── engine-test.html           503 行 · 引擎功能套件（77 项 · 只用虚构数据）
@@ -1229,7 +1360,9 @@ deepseekharness/
 6. **一个地图只有一份进度**：进度按地图的 `storage` key 存，切换地图不会互相覆盖，但也没有"跨地图总进度"这种东西。
 7. **导航栏只在多地图时出现**：只有一张地图且没有上下级时，`renderNav()` 会把整条导航收起来（`hidden`），免得只有一个选项的下拉占地方。
 8. **世界/大洲层没有数据源**：DataV 只覆盖中国区划（`world.json` 实测 404），世界层需要换 Natural Earth / world-atlas，是独立任务（见 [3.5.7](#357-层级与现实行政区划以及世界层待接入)）。
-9. **自动生成的资料是占位**：`add-map.js` 生成的下级行政区资料是 `area: null` + "（待补充）"，面积/地标/冷知识必须人工补；关卡也只是"每 8 个一组"的机械切分。
+9. **自动生成的资料是占位**：`add-map.js` / `batch-add-maps.js` 生成的下级行政区资料是
+   `area: null` + `【待补充：<地名><字段>】`，面积/地标/冷知识必须人工补；关卡也只是"每 8 个一组"的机械切分。
+   目前四川 19 个新市州共 157 个区县都是占位状态（成都、自贡之外的卡片资料都还没写）。
 10. **fixture 没覆盖 `palette.fallbackHue`**：只有"关卡既不自带 `hue`、`hueByLevel` 里也查不到"时才会走这条分支，要覆盖它得再加一关（`tools/fixtures/tiny-city.js` 顶部已注明）。
 11. **引擎套件依赖宿主页**：引擎按 id 缓存 DOM，所以必须有 `tools/engine-host.html`。宿主页的 DOM 结构或 id 一旦改动，这个文件要跟着改。
 12. **孤儿地图**：子地图声明的 `parent` 若还没接入，它会挂在 `registry.orphans` 里（能玩、能选，但没有"返回上一级"）。这是过渡态信号，不是错误。
