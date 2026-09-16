@@ -1,0 +1,845 @@
+{
+  "generatedAt": "2026-09-16T19:28:21.891Z",
+  "command": "node tools/batch-add-maps.js --parent=510000",
+  "parent": {
+    "adcode": 510000,
+    "slug": "sichuan",
+    "name": "sichuan",
+    "sourceUrl": "https://geo.datav.aliyun.com/areas_v3/bound/510000_full.json",
+    "slugSource": "table"
+  },
+  "summary": {
+    "children": 21,
+    "created": 19,
+    "existing": 2,
+    "failed": 0
+  },
+  "registry": {
+    "path": "js/maps/registry.js",
+    "totalMaps": 23,
+    "roots": [
+      "china"
+    ],
+    "orphans": [],
+    "warnings": []
+  },
+  "maps": [
+    {
+      "adcode": 510100,
+      "name": "成都市",
+      "slug": "chengdu",
+      "slugSource": "table",
+      "status": "existing"
+    },
+    {
+      "adcode": 510300,
+      "name": "自贡市",
+      "slug": "zigong",
+      "slugSource": "table",
+      "status": "existing"
+    },
+    {
+      "adcode": 510400,
+      "name": "攀枝花市",
+      "slug": "panzhihua",
+      "slugSource": "table",
+      "status": "created",
+      "districtCount": 5,
+      "levelCount": 1,
+      "featureCount": 5,
+      "hasChildren": true,
+      "skippedFeatures": [],
+      "files": {
+        "geo": "js/maps/china/sichuan/panzhihua.geo.js",
+        "data": "js/maps/china/sichuan/panzhihua.data.js",
+        "config": "js/maps/china/sichuan/panzhihua.js",
+        "geoBytes": 40811
+      },
+      "placeholders": {
+        "file": "js/maps/china/sichuan/panzhihua.data.js",
+        "fields": [
+          "area",
+          "landmark",
+          "tagline",
+          "funFact"
+        ],
+        "perDistrict": 5,
+        "levelBlurbs": 1
+      }
+    },
+    {
+      "adcode": 510500,
+      "name": "泸州市",
+      "slug": "luzhou",
+      "slugSource": "table",
+      "status": "created",
+      "districtCount": 7,
+      "levelCount": 1,
+      "featureCount": 7,
+      "hasChildren": true,
+      "skippedFeatures": [],
+      "files": {
+        "geo": "js/maps/china/sichuan/luzhou.geo.js",
+        "data": "js/maps/china/sichuan/luzhou.data.js",
+        "config": "js/maps/china/sichuan/luzhou.js",
+        "geoBytes": 77436
+      },
+      "placeholders": {
+        "file": "js/maps/china/sichuan/luzhou.data.js",
+        "fields": [
+          "area",
+          "landmark",
+          "tagline",
+          "funFact"
+        ],
+        "perDistrict": 7,
+        "levelBlurbs": 1
+      }
+    },
+    {
+      "adcode": 510600,
+      "name": "德阳市",
+      "slug": "deyang",
+      "slugSource": "table",
+      "status": "created",
+      "districtCount": 6,
+      "levelCount": 1,
+      "featureCount": 6,
+      "hasChildren": true,
+      "skippedFeatures": [],
+      "files": {
+        "geo": "js/maps/china/sichuan/deyang.geo.js",
+        "data": "js/maps/china/sichuan/deyang.data.js",
+        "config": "js/maps/china/sichuan/deyang.js",
+        "geoBytes": 52402
+      },
+      "placeholders": {
+        "file": "js/maps/china/sichuan/deyang.data.js",
+        "fields": [
+          "area",
+          "landmark",
+          "tagline",
+          "funFact"
+        ],
+        "perDistrict": 6,
+        "levelBlurbs": 1
+      }
+    },
+    {
+      "adcode": 510700,
+      "name": "绵阳市",
+      "slug": "mianyang",
+      "slugSource": "table",
+      "status": "created",
+      "districtCount": 9,
+      "levelCount": 2,
+      "featureCount": 9,
+      "hasChildren": true,
+      "skippedFeatures": [],
+      "files": {
+        "geo": "js/maps/china/sichuan/mianyang.geo.js",
+        "data": "js/maps/china/sichuan/mianyang.data.js",
+        "config": "js/maps/china/sichuan/mianyang.js",
+        "geoBytes": 66633
+      },
+      "placeholders": {
+        "file": "js/maps/china/sichuan/mianyang.data.js",
+        "fields": [
+          "area",
+          "landmark",
+          "tagline",
+          "funFact"
+        ],
+        "perDistrict": 9,
+        "levelBlurbs": 2
+      }
+    },
+    {
+      "adcode": 510800,
+      "name": "广元市",
+      "slug": "guangyuan",
+      "slugSource": "table",
+      "status": "created",
+      "districtCount": 7,
+      "levelCount": 1,
+      "featureCount": 7,
+      "hasChildren": true,
+      "skippedFeatures": [],
+      "files": {
+        "geo": "js/maps/china/sichuan/guangyuan.geo.js",
+        "data": "js/maps/china/sichuan/guangyuan.data.js",
+        "config": "js/maps/china/sichuan/guangyuan.js",
+        "geoBytes": 99020
+      },
+      "placeholders": {
+        "file": "js/maps/china/sichuan/guangyuan.data.js",
+        "fields": [
+          "area",
+          "landmark",
+          "tagline",
+          "funFact"
+        ],
+        "perDistrict": 7,
+        "levelBlurbs": 1
+      }
+    },
+    {
+      "adcode": 510900,
+      "name": "遂宁市",
+      "slug": "suining",
+      "slugSource": "table",
+      "status": "created",
+      "districtCount": 5,
+      "levelCount": 1,
+      "featureCount": 5,
+      "hasChildren": true,
+      "skippedFeatures": [],
+      "files": {
+        "geo": "js/maps/china/sichuan/suining.geo.js",
+        "data": "js/maps/china/sichuan/suining.data.js",
+        "config": "js/maps/china/sichuan/suining.js",
+        "geoBytes": 51437
+      },
+      "placeholders": {
+        "file": "js/maps/china/sichuan/suining.data.js",
+        "fields": [
+          "area",
+          "landmark",
+          "tagline",
+          "funFact"
+        ],
+        "perDistrict": 5,
+        "levelBlurbs": 1
+      }
+    },
+    {
+      "adcode": 511000,
+      "name": "内江市",
+      "slug": "neijiang",
+      "slugSource": "table",
+      "status": "created",
+      "districtCount": 5,
+      "levelCount": 1,
+      "featureCount": 5,
+      "hasChildren": true,
+      "skippedFeatures": [],
+      "files": {
+        "geo": "js/maps/china/sichuan/neijiang.geo.js",
+        "data": "js/maps/china/sichuan/neijiang.data.js",
+        "config": "js/maps/china/sichuan/neijiang.js",
+        "geoBytes": 51711
+      },
+      "placeholders": {
+        "file": "js/maps/china/sichuan/neijiang.data.js",
+        "fields": [
+          "area",
+          "landmark",
+          "tagline",
+          "funFact"
+        ],
+        "perDistrict": 5,
+        "levelBlurbs": 1
+      }
+    },
+    {
+      "adcode": 511100,
+      "name": "乐山市",
+      "slug": "leshan",
+      "slugSource": "table",
+      "status": "created",
+      "districtCount": 11,
+      "levelCount": 2,
+      "featureCount": 11,
+      "hasChildren": true,
+      "skippedFeatures": [],
+      "files": {
+        "geo": "js/maps/china/sichuan/leshan.geo.js",
+        "data": "js/maps/china/sichuan/leshan.data.js",
+        "config": "js/maps/china/sichuan/leshan.js",
+        "geoBytes": 85494
+      },
+      "placeholders": {
+        "file": "js/maps/china/sichuan/leshan.data.js",
+        "fields": [
+          "area",
+          "landmark",
+          "tagline",
+          "funFact"
+        ],
+        "perDistrict": 11,
+        "levelBlurbs": 2
+      }
+    },
+    {
+      "adcode": 511300,
+      "name": "南充市",
+      "slug": "nanchong",
+      "slugSource": "table",
+      "status": "created",
+      "districtCount": 9,
+      "levelCount": 2,
+      "featureCount": 9,
+      "hasChildren": true,
+      "skippedFeatures": [],
+      "files": {
+        "geo": "js/maps/china/sichuan/nanchong.geo.js",
+        "data": "js/maps/china/sichuan/nanchong.data.js",
+        "config": "js/maps/china/sichuan/nanchong.js",
+        "geoBytes": 111148
+      },
+      "placeholders": {
+        "file": "js/maps/china/sichuan/nanchong.data.js",
+        "fields": [
+          "area",
+          "landmark",
+          "tagline",
+          "funFact"
+        ],
+        "perDistrict": 9,
+        "levelBlurbs": 2
+      }
+    },
+    {
+      "adcode": 511400,
+      "name": "眉山市",
+      "slug": "meishan",
+      "slugSource": "table",
+      "status": "created",
+      "districtCount": 6,
+      "levelCount": 1,
+      "featureCount": 6,
+      "hasChildren": true,
+      "skippedFeatures": [],
+      "files": {
+        "geo": "js/maps/china/sichuan/meishan.geo.js",
+        "data": "js/maps/china/sichuan/meishan.data.js",
+        "config": "js/maps/china/sichuan/meishan.js",
+        "geoBytes": 49172
+      },
+      "placeholders": {
+        "file": "js/maps/china/sichuan/meishan.data.js",
+        "fields": [
+          "area",
+          "landmark",
+          "tagline",
+          "funFact"
+        ],
+        "perDistrict": 6,
+        "levelBlurbs": 1
+      }
+    },
+    {
+      "adcode": 511500,
+      "name": "宜宾市",
+      "slug": "yibin",
+      "slugSource": "table",
+      "status": "created",
+      "districtCount": 10,
+      "levelCount": 2,
+      "featureCount": 10,
+      "hasChildren": true,
+      "skippedFeatures": [],
+      "files": {
+        "geo": "js/maps/china/sichuan/yibin.geo.js",
+        "data": "js/maps/china/sichuan/yibin.data.js",
+        "config": "js/maps/china/sichuan/yibin.js",
+        "geoBytes": 107254
+      },
+      "placeholders": {
+        "file": "js/maps/china/sichuan/yibin.data.js",
+        "fields": [
+          "area",
+          "landmark",
+          "tagline",
+          "funFact"
+        ],
+        "perDistrict": 10,
+        "levelBlurbs": 2
+      }
+    },
+    {
+      "adcode": 511600,
+      "name": "广安市",
+      "slug": "guangan",
+      "slugSource": "table",
+      "status": "created",
+      "districtCount": 6,
+      "levelCount": 1,
+      "featureCount": 6,
+      "hasChildren": true,
+      "skippedFeatures": [],
+      "files": {
+        "geo": "js/maps/china/sichuan/guangan.geo.js",
+        "data": "js/maps/china/sichuan/guangan.data.js",
+        "config": "js/maps/china/sichuan/guangan.js",
+        "geoBytes": 86932
+      },
+      "placeholders": {
+        "file": "js/maps/china/sichuan/guangan.data.js",
+        "fields": [
+          "area",
+          "landmark",
+          "tagline",
+          "funFact"
+        ],
+        "perDistrict": 6,
+        "levelBlurbs": 1
+      }
+    },
+    {
+      "adcode": 511700,
+      "name": "达州市",
+      "slug": "dazhou",
+      "slugSource": "table",
+      "status": "created",
+      "districtCount": 7,
+      "levelCount": 1,
+      "featureCount": 7,
+      "hasChildren": true,
+      "skippedFeatures": [],
+      "files": {
+        "geo": "js/maps/china/sichuan/dazhou.geo.js",
+        "data": "js/maps/china/sichuan/dazhou.data.js",
+        "config": "js/maps/china/sichuan/dazhou.js",
+        "geoBytes": 55478
+      },
+      "placeholders": {
+        "file": "js/maps/china/sichuan/dazhou.data.js",
+        "fields": [
+          "area",
+          "landmark",
+          "tagline",
+          "funFact"
+        ],
+        "perDistrict": 7,
+        "levelBlurbs": 1
+      }
+    },
+    {
+      "adcode": 511800,
+      "name": "雅安市",
+      "slug": "yaan",
+      "slugSource": "table",
+      "status": "created",
+      "districtCount": 8,
+      "levelCount": 1,
+      "featureCount": 8,
+      "hasChildren": true,
+      "skippedFeatures": [],
+      "files": {
+        "geo": "js/maps/china/sichuan/yaan.geo.js",
+        "data": "js/maps/china/sichuan/yaan.data.js",
+        "config": "js/maps/china/sichuan/yaan.js",
+        "geoBytes": 33053
+      },
+      "placeholders": {
+        "file": "js/maps/china/sichuan/yaan.data.js",
+        "fields": [
+          "area",
+          "landmark",
+          "tagline",
+          "funFact"
+        ],
+        "perDistrict": 8,
+        "levelBlurbs": 1
+      }
+    },
+    {
+      "adcode": 511900,
+      "name": "巴中市",
+      "slug": "bazhong",
+      "slugSource": "table",
+      "status": "created",
+      "districtCount": 5,
+      "levelCount": 1,
+      "featureCount": 5,
+      "hasChildren": true,
+      "skippedFeatures": [],
+      "files": {
+        "geo": "js/maps/china/sichuan/bazhong.geo.js",
+        "data": "js/maps/china/sichuan/bazhong.data.js",
+        "config": "js/maps/china/sichuan/bazhong.js",
+        "geoBytes": 76185
+      },
+      "placeholders": {
+        "file": "js/maps/china/sichuan/bazhong.data.js",
+        "fields": [
+          "area",
+          "landmark",
+          "tagline",
+          "funFact"
+        ],
+        "perDistrict": 5,
+        "levelBlurbs": 1
+      }
+    },
+    {
+      "adcode": 512000,
+      "name": "资阳市",
+      "slug": "ziyang",
+      "slugSource": "table",
+      "status": "created",
+      "districtCount": 3,
+      "levelCount": 1,
+      "featureCount": 3,
+      "hasChildren": true,
+      "skippedFeatures": [],
+      "files": {
+        "geo": "js/maps/china/sichuan/ziyang.geo.js",
+        "data": "js/maps/china/sichuan/ziyang.data.js",
+        "config": "js/maps/china/sichuan/ziyang.js",
+        "geoBytes": 41249
+      },
+      "placeholders": {
+        "file": "js/maps/china/sichuan/ziyang.data.js",
+        "fields": [
+          "area",
+          "landmark",
+          "tagline",
+          "funFact"
+        ],
+        "perDistrict": 3,
+        "levelBlurbs": 1
+      }
+    },
+    {
+      "adcode": 513200,
+      "name": "阿坝藏族羌族自治州",
+      "slug": "aba",
+      "slugSource": "table",
+      "status": "created",
+      "districtCount": 13,
+      "levelCount": 2,
+      "featureCount": 13,
+      "hasChildren": true,
+      "skippedFeatures": [],
+      "files": {
+        "geo": "js/maps/china/sichuan/aba.geo.js",
+        "data": "js/maps/china/sichuan/aba.data.js",
+        "config": "js/maps/china/sichuan/aba.js",
+        "geoBytes": 74226
+      },
+      "placeholders": {
+        "file": "js/maps/china/sichuan/aba.data.js",
+        "fields": [
+          "area",
+          "landmark",
+          "tagline",
+          "funFact"
+        ],
+        "perDistrict": 13,
+        "levelBlurbs": 2
+      }
+    },
+    {
+      "adcode": 513300,
+      "name": "甘孜藏族自治州",
+      "slug": "ganzi",
+      "slugSource": "table",
+      "status": "created",
+      "districtCount": 18,
+      "levelCount": 3,
+      "featureCount": 18,
+      "hasChildren": true,
+      "skippedFeatures": [],
+      "files": {
+        "geo": "js/maps/china/sichuan/ganzi.geo.js",
+        "data": "js/maps/china/sichuan/ganzi.data.js",
+        "config": "js/maps/china/sichuan/ganzi.js",
+        "geoBytes": 109723
+      },
+      "placeholders": {
+        "file": "js/maps/china/sichuan/ganzi.data.js",
+        "fields": [
+          "area",
+          "landmark",
+          "tagline",
+          "funFact"
+        ],
+        "perDistrict": 18,
+        "levelBlurbs": 3
+      }
+    },
+    {
+      "adcode": 513400,
+      "name": "凉山彝族自治州",
+      "slug": "liangshan",
+      "slugSource": "table",
+      "status": "created",
+      "districtCount": 17,
+      "levelCount": 3,
+      "featureCount": 17,
+      "hasChildren": true,
+      "skippedFeatures": [],
+      "files": {
+        "geo": "js/maps/china/sichuan/liangshan.geo.js",
+        "data": "js/maps/china/sichuan/liangshan.data.js",
+        "config": "js/maps/china/sichuan/liangshan.js",
+        "geoBytes": 100558
+      },
+      "placeholders": {
+        "file": "js/maps/china/sichuan/liangshan.data.js",
+        "fields": [
+          "area",
+          "landmark",
+          "tagline",
+          "funFact"
+        ],
+        "perDistrict": 17,
+        "levelBlurbs": 3
+      }
+    }
+  ],
+  "failures": [],
+  "needsHuman": [
+    {
+      "slug": "panzhihua",
+      "name": "攀枝花市",
+      "file": "js/maps/china/sichuan/panzhihua.data.js",
+      "districts": 5,
+      "levelBlurbs": 1,
+      "fields": [
+        "area",
+        "landmark",
+        "tagline",
+        "funFact"
+      ]
+    },
+    {
+      "slug": "luzhou",
+      "name": "泸州市",
+      "file": "js/maps/china/sichuan/luzhou.data.js",
+      "districts": 7,
+      "levelBlurbs": 1,
+      "fields": [
+        "area",
+        "landmark",
+        "tagline",
+        "funFact"
+      ]
+    },
+    {
+      "slug": "deyang",
+      "name": "德阳市",
+      "file": "js/maps/china/sichuan/deyang.data.js",
+      "districts": 6,
+      "levelBlurbs": 1,
+      "fields": [
+        "area",
+        "landmark",
+        "tagline",
+        "funFact"
+      ]
+    },
+    {
+      "slug": "mianyang",
+      "name": "绵阳市",
+      "file": "js/maps/china/sichuan/mianyang.data.js",
+      "districts": 9,
+      "levelBlurbs": 2,
+      "fields": [
+        "area",
+        "landmark",
+        "tagline",
+        "funFact"
+      ]
+    },
+    {
+      "slug": "guangyuan",
+      "name": "广元市",
+      "file": "js/maps/china/sichuan/guangyuan.data.js",
+      "districts": 7,
+      "levelBlurbs": 1,
+      "fields": [
+        "area",
+        "landmark",
+        "tagline",
+        "funFact"
+      ]
+    },
+    {
+      "slug": "suining",
+      "name": "遂宁市",
+      "file": "js/maps/china/sichuan/suining.data.js",
+      "districts": 5,
+      "levelBlurbs": 1,
+      "fields": [
+        "area",
+        "landmark",
+        "tagline",
+        "funFact"
+      ]
+    },
+    {
+      "slug": "neijiang",
+      "name": "内江市",
+      "file": "js/maps/china/sichuan/neijiang.data.js",
+      "districts": 5,
+      "levelBlurbs": 1,
+      "fields": [
+        "area",
+        "landmark",
+        "tagline",
+        "funFact"
+      ]
+    },
+    {
+      "slug": "leshan",
+      "name": "乐山市",
+      "file": "js/maps/china/sichuan/leshan.data.js",
+      "districts": 11,
+      "levelBlurbs": 2,
+      "fields": [
+        "area",
+        "landmark",
+        "tagline",
+        "funFact"
+      ]
+    },
+    {
+      "slug": "nanchong",
+      "name": "南充市",
+      "file": "js/maps/china/sichuan/nanchong.data.js",
+      "districts": 9,
+      "levelBlurbs": 2,
+      "fields": [
+        "area",
+        "landmark",
+        "tagline",
+        "funFact"
+      ]
+    },
+    {
+      "slug": "meishan",
+      "name": "眉山市",
+      "file": "js/maps/china/sichuan/meishan.data.js",
+      "districts": 6,
+      "levelBlurbs": 1,
+      "fields": [
+        "area",
+        "landmark",
+        "tagline",
+        "funFact"
+      ]
+    },
+    {
+      "slug": "yibin",
+      "name": "宜宾市",
+      "file": "js/maps/china/sichuan/yibin.data.js",
+      "districts": 10,
+      "levelBlurbs": 2,
+      "fields": [
+        "area",
+        "landmark",
+        "tagline",
+        "funFact"
+      ]
+    },
+    {
+      "slug": "guangan",
+      "name": "广安市",
+      "file": "js/maps/china/sichuan/guangan.data.js",
+      "districts": 6,
+      "levelBlurbs": 1,
+      "fields": [
+        "area",
+        "landmark",
+        "tagline",
+        "funFact"
+      ]
+    },
+    {
+      "slug": "dazhou",
+      "name": "达州市",
+      "file": "js/maps/china/sichuan/dazhou.data.js",
+      "districts": 7,
+      "levelBlurbs": 1,
+      "fields": [
+        "area",
+        "landmark",
+        "tagline",
+        "funFact"
+      ]
+    },
+    {
+      "slug": "yaan",
+      "name": "雅安市",
+      "file": "js/maps/china/sichuan/yaan.data.js",
+      "districts": 8,
+      "levelBlurbs": 1,
+      "fields": [
+        "area",
+        "landmark",
+        "tagline",
+        "funFact"
+      ]
+    },
+    {
+      "slug": "bazhong",
+      "name": "巴中市",
+      "file": "js/maps/china/sichuan/bazhong.data.js",
+      "districts": 5,
+      "levelBlurbs": 1,
+      "fields": [
+        "area",
+        "landmark",
+        "tagline",
+        "funFact"
+      ]
+    },
+    {
+      "slug": "ziyang",
+      "name": "资阳市",
+      "file": "js/maps/china/sichuan/ziyang.data.js",
+      "districts": 3,
+      "levelBlurbs": 1,
+      "fields": [
+        "area",
+        "landmark",
+        "tagline",
+        "funFact"
+      ]
+    },
+    {
+      "slug": "aba",
+      "name": "阿坝藏族羌族自治州",
+      "file": "js/maps/china/sichuan/aba.data.js",
+      "districts": 13,
+      "levelBlurbs": 2,
+      "fields": [
+        "area",
+        "landmark",
+        "tagline",
+        "funFact"
+      ]
+    },
+    {
+      "slug": "ganzi",
+      "name": "甘孜藏族自治州",
+      "file": "js/maps/china/sichuan/ganzi.data.js",
+      "districts": 18,
+      "levelBlurbs": 3,
+      "fields": [
+        "area",
+        "landmark",
+        "tagline",
+        "funFact"
+      ]
+    },
+    {
+      "slug": "liangshan",
+      "name": "凉山彝族自治州",
+      "file": "js/maps/china/sichuan/liangshan.data.js",
+      "districts": 17,
+      "levelBlurbs": 3,
+      "fields": [
+        "area",
+        "landmark",
+        "tagline",
+        "funFact"
+      ]
+    }
+  ],
+  "dataGaps": [],
+  "fallbackSlugs": []
+}

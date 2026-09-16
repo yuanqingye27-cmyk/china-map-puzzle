@@ -1,0 +1,76 @@
+/* =====================================================================
+ * 地图包 · 眉山市 · 资料与关卡【占位骨架，等待人工补全】
+ * ---------------------------------------------------------------------
+ * 路径：js/maps/china/sichuan/meishan.data.js
+ * 生成：node tools/add-map.js --adcode=511400 --name=meishan --parent=sichuan
+ *
+ * ⚠️ 这是脚本生成的占位内容，自动化流程**不会**再覆盖本文件：
+ *    重新跑 add-map.js 只会刷新 .geo.js，你在这里写的文字是安全的。
+ *
+ * 待补清单（6 个下级行政区 × 4 项）：
+ *   1. area      面积（km²，数字；缺失时信息卡显示"—"）
+ *   2. landmark  地标
+ *   3. tagline   一句话介绍
+ *   4. funFact   冷知识
+ * 关卡（levels）现在只是"每 8 个一组"的机械切分，
+ * 真正好玩的关卡应当按地理/文化逻辑重新分组，并补上 blurb。
+ * ===================================================================== */
+
+(function (global) {
+  'use strict';
+
+  /** 下级行政区资料，key 是国家行政区划代码（adcode） */
+  const DISTRICTS = {
+    "511402": {
+      area: null,                    // TODO 面积（km²，数字）
+      landmark: '【待补充：东坡区地标】',
+      tagline: '【待补充：东坡区一句话介绍】',
+      funFact: '【待补充：东坡区冷知识】',
+    }, // 东坡区
+    "511403": {
+      area: null,                    // TODO 面积（km²，数字）
+      landmark: '【待补充：彭山区地标】',
+      tagline: '【待补充：彭山区一句话介绍】',
+      funFact: '【待补充：彭山区冷知识】',
+    }, // 彭山区
+    "511421": {
+      area: null,                    // TODO 面积（km²，数字）
+      landmark: '【待补充：仁寿县地标】',
+      tagline: '【待补充：仁寿县一句话介绍】',
+      funFact: '【待补充：仁寿县冷知识】',
+    }, // 仁寿县
+    "511423": {
+      area: null,                    // TODO 面积（km²，数字）
+      landmark: '【待补充：洪雅县地标】',
+      tagline: '【待补充：洪雅县一句话介绍】',
+      funFact: '【待补充：洪雅县冷知识】',
+    }, // 洪雅县
+    "511424": {
+      area: null,                    // TODO 面积（km²，数字）
+      landmark: '【待补充：丹棱县地标】',
+      tagline: '【待补充：丹棱县一句话介绍】',
+      funFact: '【待补充：丹棱县冷知识】',
+    }, // 丹棱县
+    "511425": {
+      area: null,                    // TODO 面积（km²，数字）
+      landmark: '【待补充：青神县地标】',
+      tagline: '【待补充：青神县一句话介绍】',
+      funFact: '【待补充：青神县冷知识】',
+    }, // 青神县
+  };
+
+  /** 关卡：自动切分的占位版本，请按地理逻辑重排 */
+  const LEVELS = [
+    {
+      id: 'l1',
+      name: '第一关',
+      short: '第一关',
+      color: '#399ed0',
+      blurb: '【待补充：第一关的分组依据，例如"中心城区"或"沿江城市带"】',
+      adcodes: [511402, 511403, 511421, 511423, 511424, 511425],
+    },
+  ];
+
+  const MAP_DATA = (global.MAP_DATA = global.MAP_DATA || {});
+  MAP_DATA['meishan'] = { districts: DISTRICTS, levels: LEVELS };
+})(window);

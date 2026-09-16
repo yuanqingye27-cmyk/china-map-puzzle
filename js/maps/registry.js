@@ -70,7 +70,26 @@
         "adcode": 510000,
         "children": [
           "chengdu",
-          "zigong"
+          "zigong",
+          "panzhihua",
+          "luzhou",
+          "deyang",
+          "mianyang",
+          "guangyuan",
+          "suining",
+          "neijiang",
+          "leshan",
+          "nanchong",
+          "meishan",
+          "yibin",
+          "guangan",
+          "dazhou",
+          "yaan",
+          "bazhong",
+          "ziyang",
+          "aba",
+          "ganzi",
+          "liangshan"
         ],
         "dir": "china",
         "scripts": [
@@ -103,6 +122,253 @@
           "china/sichuan/zigong.geo.js",
           "china/sichuan/zigong.data.js",
           "china/sichuan/zigong.js"
+        ]
+      },
+      "panzhihua": {
+        "id": "panzhihua",
+        "name": "攀枝花市",
+        "parent": "sichuan",
+        "adcode": 510400,
+        "children": [],
+        "dir": "china/sichuan",
+        "scripts": [
+          "china/sichuan/panzhihua.geo.js",
+          "china/sichuan/panzhihua.data.js",
+          "china/sichuan/panzhihua.js"
+        ]
+      },
+      "luzhou": {
+        "id": "luzhou",
+        "name": "泸州市",
+        "parent": "sichuan",
+        "adcode": 510500,
+        "children": [],
+        "dir": "china/sichuan",
+        "scripts": [
+          "china/sichuan/luzhou.geo.js",
+          "china/sichuan/luzhou.data.js",
+          "china/sichuan/luzhou.js"
+        ]
+      },
+      "deyang": {
+        "id": "deyang",
+        "name": "德阳市",
+        "parent": "sichuan",
+        "adcode": 510600,
+        "children": [],
+        "dir": "china/sichuan",
+        "scripts": [
+          "china/sichuan/deyang.geo.js",
+          "china/sichuan/deyang.data.js",
+          "china/sichuan/deyang.js"
+        ]
+      },
+      "mianyang": {
+        "id": "mianyang",
+        "name": "绵阳市",
+        "parent": "sichuan",
+        "adcode": 510700,
+        "children": [],
+        "dir": "china/sichuan",
+        "scripts": [
+          "china/sichuan/mianyang.geo.js",
+          "china/sichuan/mianyang.data.js",
+          "china/sichuan/mianyang.js"
+        ]
+      },
+      "guangyuan": {
+        "id": "guangyuan",
+        "name": "广元市",
+        "parent": "sichuan",
+        "adcode": 510800,
+        "children": [],
+        "dir": "china/sichuan",
+        "scripts": [
+          "china/sichuan/guangyuan.geo.js",
+          "china/sichuan/guangyuan.data.js",
+          "china/sichuan/guangyuan.js"
+        ]
+      },
+      "suining": {
+        "id": "suining",
+        "name": "遂宁市",
+        "parent": "sichuan",
+        "adcode": 510900,
+        "children": [],
+        "dir": "china/sichuan",
+        "scripts": [
+          "china/sichuan/suining.geo.js",
+          "china/sichuan/suining.data.js",
+          "china/sichuan/suining.js"
+        ]
+      },
+      "neijiang": {
+        "id": "neijiang",
+        "name": "内江市",
+        "parent": "sichuan",
+        "adcode": 511000,
+        "children": [],
+        "dir": "china/sichuan",
+        "scripts": [
+          "china/sichuan/neijiang.geo.js",
+          "china/sichuan/neijiang.data.js",
+          "china/sichuan/neijiang.js"
+        ]
+      },
+      "leshan": {
+        "id": "leshan",
+        "name": "乐山市",
+        "parent": "sichuan",
+        "adcode": 511100,
+        "children": [],
+        "dir": "china/sichuan",
+        "scripts": [
+          "china/sichuan/leshan.geo.js",
+          "china/sichuan/leshan.data.js",
+          "china/sichuan/leshan.js"
+        ]
+      },
+      "nanchong": {
+        "id": "nanchong",
+        "name": "南充市",
+        "parent": "sichuan",
+        "adcode": 511300,
+        "children": [],
+        "dir": "china/sichuan",
+        "scripts": [
+          "china/sichuan/nanchong.geo.js",
+          "china/sichuan/nanchong.data.js",
+          "china/sichuan/nanchong.js"
+        ]
+      },
+      "meishan": {
+        "id": "meishan",
+        "name": "眉山市",
+        "parent": "sichuan",
+        "adcode": 511400,
+        "children": [],
+        "dir": "china/sichuan",
+        "scripts": [
+          "china/sichuan/meishan.geo.js",
+          "china/sichuan/meishan.data.js",
+          "china/sichuan/meishan.js"
+        ]
+      },
+      "yibin": {
+        "id": "yibin",
+        "name": "宜宾市",
+        "parent": "sichuan",
+        "adcode": 511500,
+        "children": [],
+        "dir": "china/sichuan",
+        "scripts": [
+          "china/sichuan/yibin.geo.js",
+          "china/sichuan/yibin.data.js",
+          "china/sichuan/yibin.js"
+        ]
+      },
+      "guangan": {
+        "id": "guangan",
+        "name": "广安市",
+        "parent": "sichuan",
+        "adcode": 511600,
+        "children": [],
+        "dir": "china/sichuan",
+        "scripts": [
+          "china/sichuan/guangan.geo.js",
+          "china/sichuan/guangan.data.js",
+          "china/sichuan/guangan.js"
+        ]
+      },
+      "dazhou": {
+        "id": "dazhou",
+        "name": "达州市",
+        "parent": "sichuan",
+        "adcode": 511700,
+        "children": [],
+        "dir": "china/sichuan",
+        "scripts": [
+          "china/sichuan/dazhou.geo.js",
+          "china/sichuan/dazhou.data.js",
+          "china/sichuan/dazhou.js"
+        ]
+      },
+      "yaan": {
+        "id": "yaan",
+        "name": "雅安市",
+        "parent": "sichuan",
+        "adcode": 511800,
+        "children": [],
+        "dir": "china/sichuan",
+        "scripts": [
+          "china/sichuan/yaan.geo.js",
+          "china/sichuan/yaan.data.js",
+          "china/sichuan/yaan.js"
+        ]
+      },
+      "bazhong": {
+        "id": "bazhong",
+        "name": "巴中市",
+        "parent": "sichuan",
+        "adcode": 511900,
+        "children": [],
+        "dir": "china/sichuan",
+        "scripts": [
+          "china/sichuan/bazhong.geo.js",
+          "china/sichuan/bazhong.data.js",
+          "china/sichuan/bazhong.js"
+        ]
+      },
+      "ziyang": {
+        "id": "ziyang",
+        "name": "资阳市",
+        "parent": "sichuan",
+        "adcode": 512000,
+        "children": [],
+        "dir": "china/sichuan",
+        "scripts": [
+          "china/sichuan/ziyang.geo.js",
+          "china/sichuan/ziyang.data.js",
+          "china/sichuan/ziyang.js"
+        ]
+      },
+      "aba": {
+        "id": "aba",
+        "name": "阿坝藏族羌族自治州",
+        "parent": "sichuan",
+        "adcode": 513200,
+        "children": [],
+        "dir": "china/sichuan",
+        "scripts": [
+          "china/sichuan/aba.geo.js",
+          "china/sichuan/aba.data.js",
+          "china/sichuan/aba.js"
+        ]
+      },
+      "ganzi": {
+        "id": "ganzi",
+        "name": "甘孜藏族自治州",
+        "parent": "sichuan",
+        "adcode": 513300,
+        "children": [],
+        "dir": "china/sichuan",
+        "scripts": [
+          "china/sichuan/ganzi.geo.js",
+          "china/sichuan/ganzi.data.js",
+          "china/sichuan/ganzi.js"
+        ]
+      },
+      "liangshan": {
+        "id": "liangshan",
+        "name": "凉山彝族自治州",
+        "parent": "sichuan",
+        "adcode": 513400,
+        "children": [],
+        "dir": "china/sichuan",
+        "scripts": [
+          "china/sichuan/liangshan.geo.js",
+          "china/sichuan/liangshan.data.js",
+          "china/sichuan/liangshan.js"
         ]
       }
     }
