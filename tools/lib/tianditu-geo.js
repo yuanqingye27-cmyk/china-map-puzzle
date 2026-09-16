@@ -4,17 +4,31 @@
  * ---------------------------------------------------------------------
  * 路径：tools/lib/tianditu-geo.js
  *
- * 接口：GET http://api.tianditu.gov.cn/v2/administrative/district
- *        ?keyword=<名称> | &code=<adcode>   &child=<0|1>   &tk=<开发者Key>
- * 返回：JSON，其中 `boundary` 字段是 **WKT 字符串**（不是 GeoJSON），
- *       所以要用 tools/lib/wkt.js 转一道。
+ * ⛔ 现状（2026-09 用真 Key 实测，结论是"此路不通"，见下）：
+ *   1. **旧文档里的 `/v2/administrative/district` 已废弃**：网关会把多余的路径段拼到
+ *      内部路径后面，返回 404；响应体里的 `path` 字段暴露了重写规律：
+ *        /v2/administrative/district → /api/public/service/division/regions/districts/district (404)
+ *        /v2/administrative          → /api/public/service/division/regions/districts          (500/200)
+ *   2. **现行端点是 `https://api.tianditu.gov.cn/v2/administrative`**（没有 `/district` 后缀）。
+ *   3. **只认 `keyword`（中文名）**：`code=510100` 与 `gb=156510100` 都返回 HTTP 500。
+ *   4. **它不返回边界几何**。成功响应长这样（字段就这些，没有 boundary）：
+ *        {"status":200,"message":"成功","data":{"suggestion":[],
+ *         "district":[{"gb":"156510100","pgb":"156510000","name":"成都市",
+ *           "center":{"lng":104.064296,"lat":30.57513},"level":3,
+ *           "children":[{"gb":"156510104","pgb":"156510100","name":"锦江区",
+ *             "center":{"lng":104.115126,"lat":30.600494},"level":2,"children":[]}]}]}}
+ *      加 `&boundary=1` 无效；`/v2/administrative/boundary?gb=…` 也是 404。
+ *      （网上那篇"天地图 wtk 边界转 GeoJSON"的文章，其 WKT 来自作者自建的 `lunkuo.php`
+ *       代理，并不是这个接口给的 —— 别被它带偏。）
  *
- * ⚠️ 诚实声明：**本文件里的返回结构解析是"防御式"的，尚未用真 Key 验证过。**
- *    （写它的当晚没有可用的 tk，接口对匿名请求返回 {"code":301001,"msg":"非法key"}。）
- *    因此解析策略是"在响应树里找带 boundary 的对象"，而不是死认某个固定路径 ——
- *    天地图不同接口/版本的字段嵌套并不统一。拿到 Key 后请先跑：
- *      node tools/tianditu-check.js --adcode=510100
- *    确认解析结果再看别的。
+ *   ➜ 所以：**要靠天地图拿区划边界，得另找"数据API · 政区要素"这类服务**（控制台里是
+ *     独立的一项，可能需要单独申请/审批），或者直接用官方发布的**带审图号的行政区划数据包**
+ *     （走 `--source=file`）。本文件保留下来是因为：Key 管理、限流、重试、错误码这些
+ *     是通用的，换端点后能直接复用；而 `fetchTianDiTuGeo()` 目前在等一个能返回边界的端点。
+ *
+ * 其它实测结论（与端点无关，长期有效）：
+ *   - 非法 Key 返回的是 **HTTP 403 + JSON**（code 301001），必须**先读 body 再判状态码**；
+ *   - 不带 User-Agent 会被 CloudWAF 拦成 403/418 的 HTML 页。
  *
  * Key 的存放（按优先级）：
  *   1. 命令行 --tk=xxx
@@ -30,7 +44,8 @@ const http = require('http');
 
 const wkt = require('./wkt');
 
-const API_BASE = 'http://api.tianditu.gov.cn/v2/administrative/district';
+/* 现行端点（实测）：注意**没有** `/district` 后缀；且必须用 https */
+const API_BASE = 'https://api.tianditu.gov.cn/v2/administrative';
 const CONFIG_FILE = path.join(__dirname, '..', 'tianditu.config.json');
 
 /** 请求间隔：天地图有配额，批量时必须慢下来（用户红线：加延时，不要死循环重试） */
@@ -198,9 +213,14 @@ async function fetchDistrict(opts) {
   const { tk, delayMs } = resolveKey(opts.tk);
   const log = opts.log || (() => {});
 
+  /* 实测：这个端点只认 keyword（中文名），code / gb 都会 500。
+   * 所以调用方必须提供中文名 —— 用 adcode 查会失败，这不是我们能在客户端补的。 */
+  if (!opts.keyword) {
+    throw new Error('天地图现行接口只支持按中文名（keyword）查询；' +
+      '用 adcode/code 会返回 HTTP 500。请传入 keyword。');
+  }
   const params = new URLSearchParams();
-  if (opts.code) params.set('code', String(opts.code));
-  if (opts.keyword) params.set('keyword', String(opts.keyword));
+  params.set('keyword', String(opts.keyword));
   params.set('child', opts.child ? '1' : '0');
   params.set('tk', tk); // 注意：tk 放最后，日志里不要整个打印出来
   const url = API_BASE + '?' + params.toString();
@@ -248,10 +268,13 @@ async function fetchDistrict(opts) {
  * 调用方据此决定要不要逐个补 —— 这部分等真 Key 验证后再定策略）。
  */
 async function fetchTianDiTuGeo(adcode, opts) {
-  const { items, url, raw } = await fetchDistrict({ ...opts, code: adcode, child: true });
+  const { items, url, raw } = await fetchDistrict({ ...opts, keyword: opts.keyword, child: true });
   if (!items.length) {
-    throw new Error('天地图没有返回任何边界数据（adcode ' + adcode + '）。' +
-      '原始响应片段：' + JSON.stringify(raw).slice(0, 200));
+    throw new Error(
+      '天地图没有返回任何【边界】数据。实测该端点只给行政树与中心点，不含边界几何：\n' +
+      '  ' + JSON.stringify(raw).slice(0, 300) + '\n' +
+      '要边界请改用「数据API · 政区要素」或官方带审图号的行政区划数据包（--source=file）。'
+    );
   }
   const geo = wkt.toFeatureCollection(items);
   return { geo, url, itemCount: items.length };
