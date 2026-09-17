@@ -5,3 +5,7 @@ node_modules/
 
 # 天地图开发者 Key（本地私密配置，绝不入库）
 tools/tianditu.config.json
+
+# 抓取缓存与中间产物（不入库：缓存是本地加速，out/ 是可重建的素材）
+.cache/
+out/

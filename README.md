@@ -124,7 +124,9 @@ tools/test-maps.js            地图包自洽离线自检
 tools/soften-placeholders.js  占位文案 → 共建口径
 tools/area-from-geo.js        从官方边界几何算面积，写进 .data.js（只改 area，不动文字）
 tools/lib/geo-area.js         公共库：球面多边形面积（与 d3.geoArea 同公式）+ 官方公布值锚点
-tools/status.js               一行命令看现状（地图数 / 资料卡缺口 / 数据源 / 下一步）
+tools/facts-batch.js          批量抓区县素材 → out/facts-<市>.json（1 次调用代替几十轮）
+tools/lib/facts-source.js     公共库：抓取（磁盘缓存 + 限流识别退避）+ 句子抽取 + 归属校验
+tools/status.js               一行命令看现状（地图数 / 面积覆盖 / 文案缺口 / 数据源 / 下一步）
 tools/lib/map-tree.js         公共库：目录规则 / 包元信息扫描 / registry 生成
 tools/build-data.js           只重刷成都边界的薄封装（新地图请用 add-map）
 
@@ -179,6 +181,20 @@ node tools/area-from-geo.js --parent=510000 --write   # 一个省一次：只写
 剩下 `landmark / tagline / funFact` 三段文字仍是人工活：**只写能核实的公开内容**，
 核实不了就保留「📖 资料收录中，欢迎参与共建」，宁缺毋假。
 样板见 `js/maps/china/sichuan/leshan.data.js`（文件头列了全部资料来源）。
+
+### 批量补一个市的文字素材
+
+不要"一次一个区县"地查——那是几十轮 tool call，又慢又费。用一条命令抓完整个市：
+
+```bash
+node tools/facts-batch.js --map=zigong --draft
+# 产物：out/facts-zigong.json（素材） + out/draft-zigong.md（给人过目）
+# 主上下文只收到每个区县一行的摘要，网页原文一个字都不进来
+```
+
+抓取层带**磁盘缓存**（`.cache/facts/`）和**限流识别**：正常词条页 200 KB–1 MB，
+小于 50 KB 一律判为限流页并退避重试，失败就如实标 `⏳ 被限流`——绝不把拦截页当正文。
+抓来的面积还会与本地几何面积**交叉校验**，比值异常直接标 `❗`（实测拦下过同名词条抓错）。
 
 ### 整批接入一个省
 

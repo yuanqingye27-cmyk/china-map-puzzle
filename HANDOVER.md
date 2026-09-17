@@ -61,12 +61,19 @@ node tools/test-maps.js 2>&1 | tail -4        # 地图包自洽（adcode/关卡/
 - **现状**：**238/238 条面积已填**（脚本算的，含中国 34 省级 + 四川 21 市州 + 183 区县）。
   **文案**只补了 31 条（成都 20 + 乐山 11），**还剩 207 条 / 621 个字段**。
   准确数字看 `node tools/status.js`（面积覆盖、文案完整分开统计）。
-- **做法**（面积不用再管了，只做文字）：
+- **做法**（只剩人工核实文字这一步）：
   ```bash
-  node tools/status.js --verbose                      # 1. 挑一个市，看缺口
-  # 2. 核实文字：编辑 js/maps/china/sichuan/<市>.data.js 的 landmark/tagline/funFact
-  node tools/test-maps.js 2>&1 | tail -4              # 3. 自检（会校验"每块都有资料卡"）
+  node tools/status.js --verbose                    # 1. 挑一个市，看还有几条占位
+  node tools/facts-batch.js --map=<市> --draft       # 2. 批量抓素材（1 次调用，不灌原文）
+  # 3. 人工核实 out/draft-<市>.md → 写进 js/maps/china/sichuan/<市>.data.js
+  node tools/test-maps.js 2>&1 | tail -4            # 4. 自检
   ```
+- **token 纪律（重要）**：不要"一次一个区县"地查。老办法补一个市要 ~22 次 tool call
+  + 55 KB 上下文；新流水线是 **1 次调用 + 0.6 KB 摘要**，详见 SOP 5.11 第九节。
+- **⚠ 抓取源现状（2026-09）**：`facts-batch` 用的百科镜像（m.baike.com）**已被本项目打限流**
+  （调抽取规则时反复重跑抓取所致，见 SOP 坑 #31）。缓存落在 `.cache/facts/`；
+  重新抓之前先 `--limit=1` 试水，确认能拿到 ≥50 KB 的正文再放量，间隔别低于 1.5 s。
+  **限流页长得像正常 200 响应，工具会标 `⏳ 被限流` 而不是"无资料"——别忽略这个标记。**
 - **面积为什么能脚本化**：天地图官方数据不带面积，但**边界几何自带面积**。
   `tools/area-from-geo.js` 用球面多边形公式算，实测与公布值吻合
   （五通桥 465/465、峨边 2383/2382、乐山全市 12742/12720、绵阳 20256/20200、南充 12491/12482）。
