@@ -548,6 +548,15 @@
         check('[窄屏] 成就面板里有成就条目',
           panel.querySelectorAll('.bp-badges li').length > 0,
           '条目数=' + panel.querySelectorAll('.bp-badges li').length);
+        /* 图鉴（按省进度）也要有内容 —— 它是收集动机的落点，
+         * 而"分母算错"（只显示已碰过的省）是这类统计最常见的 bug。 */
+        const provRows = panel.querySelectorAll('.bp-provinces li');
+        check('[窄屏] 图鉴里有省份进度',
+          provRows.length > 0,
+          '行数=' + provRows.length);
+        const firstNum = provRows.length ? provRows[0].querySelector('.bp-prov-num').textContent : '';
+        check('[窄屏] 省份进度显示"已拼/共几张"格式',
+          /^\d+\/\d+$/.test(firstNum), firstNum);
         panel.querySelector('.bp-close').click();
         await sleep(80);
         check('[窄屏] 点关闭能收起成就面板', panel.hidden);

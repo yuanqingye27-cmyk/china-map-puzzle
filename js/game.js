@@ -281,6 +281,24 @@
    * 这里只负责"把它接到界面上"：读文档 → 记账 → 发成就 → 刷新显示。
    * ========================================================== */
 
+  /** 全部地图的 { mapId: provinceId } 映射：给 progress.summary 算"每省共几张图" */
+  function mapProvinceIndex() {
+    const reg = (global.MAP_REGISTRY || {}).maps || {};
+    const out = {};
+    Object.keys(reg).forEach((id) => {
+      let cur = reg[id];
+      // 往上找到省级（parent 链最多两级：市 → 省 → 中国）
+      for (let i = 0; i < 3 && cur && cur.parent; i++) {
+        const up = reg[cur.parent];
+        if (!up) break;
+        if (String(up.adcode || '').slice(2) === '0000' && up.adcode !== 100000) { out[id] = up.id; return; }
+        cur = up;
+      }
+      out[id] = null;   // 找不到省级（比如中国本身）
+    });
+    return out;
+  }
+
   /** 当前地图属于哪个省（用 registry 的 parent 链推，最多往上找两级） */
   function provinceOf(id) {
     let cur = global.MapLoader.entry(id);
@@ -316,7 +334,7 @@
       hints: result.hints || 0,
       stars: stars,
     });
-    const s = P.summary(doc, Object.keys((global.MAP_REGISTRY || {}).maps || {}));
+    const s = P.summary(doc, Object.keys((global.MAP_REGISTRY || {}).maps || {}), mapProvinceIndex());
     const fresh = P.claimBadges(doc, s);
 
     /* 每日一图打卡：只有"今天这张图"拼完才算打卡。
@@ -353,7 +371,7 @@
     if (!P) { el.hidden = true; return; }
     const doc = P.load();
     const allIds = Object.keys((global.MAP_REGISTRY || {}).maps || {});
-    const s = P.summary(doc, allIds);
+    const s = P.summary(doc, allIds, mapProvinceIndex());
     el.hidden = false;
     el.innerHTML = '<span class="pc-num">' + s.solvedMaps + '</span>'
       + '<span class="pc-total">/' + s.totalMaps + '</span>'
@@ -372,6 +390,31 @@
     showBadgeToast._t = setTimeout(() => { box.hidden = true; }, 5200);
   }
 
+  /**
+   * 图鉴行：按省列出"已拼 / 共几张"。
+   * 【为什么它重要】它同时是两件事：
+   *   ① 玩家的收集进度（看得见的积累 → 动机）
+   *   ② 众包任务的分配表（哪个省缺口大，一目了然）
+   * 只显示"有图可拼的省"，空省不占位置。
+   */
+  function provinceRows(sum) {
+    const provs = Object.keys(sum.provinces || {})
+      .map((k) => sum.provinces[k])
+      .filter((p) => p.total > 0);
+    // 有进度的排前面，其次按缺口从大到小（让"还没动的省"也有存在感）
+    provs.sort((a, b) => (b.solved - a.solved) || (b.total - a.total));
+    if (!provs.length) return '<li class="bp-empty">还没有可拼的地图</li>';
+    return provs.map((p) => {
+      const pct = p.total ? Math.round((p.solved / p.total) * 100) : 0;
+      const done = p.solved >= p.total;
+      return '<li class="' + (done ? 'is-done' : '') + '">'
+        + '<span class="bp-prov-name">' + p.name + '</span>'
+        + '<span class="bp-prov-bar"><i style="width:' + pct + '%"></i></span>'
+        + '<span class="bp-prov-num">' + p.solved + '/' + p.total + '</span>'
+        + '</li>';
+    }).join('');
+  }
+
   /** 成就面板（点顶部的进度条打开） */
   function renderBadgePanel() {
     const panel = document.getElementById('badgePanel');
@@ -380,7 +423,7 @@
     if (!P) return;
     const doc = P.load();
     const allIds = Object.keys((global.MAP_REGISTRY || {}).maps || {});
-    const s = P.summary(doc, allIds);
+    const s = P.summary(doc, allIds, mapProvinceIndex());
     const list = P.badgeList(doc);
 
     const rows = list.map((b) => (
@@ -401,6 +444,8 @@
       + '<div class="bp-stat"><b>' + s.solvedProvinces + '</b><span>个省全通</span></div>'
       + '<div class="bp-stat"><b>' + s.noHintMaps + '</b><span>张未用提示</span></div>'
       + '</div>'
+      + '<h3>图鉴 · 按省进度</h3>'
+      + '<ul class="bp-provinces">' + provinceRows(s) + '</ul>'
       + '<h3>成就 ' + list.filter((b) => b.earned).length + '/' + list.length + '</h3>'
       + '<ul class="bp-badges">' + rows + '</ul>';
 

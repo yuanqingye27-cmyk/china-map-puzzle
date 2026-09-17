@@ -2118,3 +2118,27 @@ body.intro-open { overflow: hidden; }
   .score-row .score-v { font-size: 17px; }
   .score-row .combo b { font-size: 13px; }
 }
+
+/* --- 图鉴：按省进度（成就面板里的收集视图）---
+   它同时是"玩家的收集进度"和"众包任务的分配表"。 */
+.badge-panel .bp-provinces {
+  list-style: none; margin: 0; padding: 0; display: grid; gap: 5px;
+  max-height: 34vh; overflow: auto;
+}
+.badge-panel .bp-provinces li {
+  display: grid;
+  grid-template-columns: 6.5em 1fr 3.5em;
+  align-items: center; gap: 9px;
+  padding: 6px 10px; border-radius: 9px;
+  border: 1px solid var(--line); background: rgb(8 24 20 / 0.35);
+  font-size: 12.5px;
+}
+.badge-panel .bp-provinces li.is-done { border-color: rgb(var(--c-jade) / 0.4); background: rgb(var(--c-jade) / 0.07); }
+.badge-panel .bp-prov-name { color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.badge-panel .bp-prov-bar {
+  height: 5px; border-radius: 999px; background: rgb(255 255 255 / 0.1); overflow: hidden;
+}
+.badge-panel .bp-prov-bar i { display: block; height: 100%; background: var(--jade); border-radius: 999px; }
+.badge-panel .bp-prov-num { text-align: right; color: var(--text-dim); font-variant-numeric: tabular-nums; }
+.badge-panel .bp-provinces li.is-done .bp-prov-num { color: var(--jade); }
+.badge-panel .bp-empty { padding: 12px 4px; text-align: center; color: var(--text-dim); font-size: 12.5px; }

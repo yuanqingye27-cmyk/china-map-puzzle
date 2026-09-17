@@ -221,5 +221,26 @@ console.log('══════════ 进度与成就 · 离线自测 ═�
   check('输入 undefined 不崩', P.searchPlaces(maps, undefined).length === 0);
 }
 
+/* ---------- ⑪ 按省统计：分母要对（图鉴的基础）---------- */
+{
+  const doc = P.emptyDoc();
+  // 玩家只拼完了四川省 2 张（成都、乐山），但四川一共 21 张
+  P.record(doc, { mapId: 'chengdu', province: 'sichuan', provinceName: '四川省', solved: true, levels: 1, levelsTotal: 1, stars: 3 });
+  P.record(doc, { mapId: 'leshan', province: 'sichuan', provinceName: '四川省', solved: true, levels: 1, levelsTotal: 1, stars: 3 });
+
+  const mapProvince = { chengdu: 'sichuan', leshan: 'sichuan', zigong: 'sichuan', guangzhou: 'guangdong' };
+  const s = P.summary(doc, ['chengdu', 'leshan', 'zigong', 'guangzhou'], mapProvince);
+
+  check('按省统计：四川分母 = 21（来自全量映射，不是已碰过的 2）',
+    s.provinces.sichuan.total === 3, JSON.stringify(s.provinces.sichuan));
+  check('按省统计：四川已拼 2', s.provinces.sichuan.solved === 2, String(s.provinces.sichuan.solved));
+  check('按省统计：没碰过的省也在表里（分母 1）',
+    s.provinces.guangdong && s.provinces.guangdong.total === 1, JSON.stringify(s.provinces.guangdong));
+  check('没有映射时退回"已碰过数量"（不崩）', (function () {
+    const s2 = P.summary(doc, ['chengdu', 'leshan'], null);
+    return s2.provinces.sichuan.total === 2;
+  })());
+}
+
 console.log('\n  → ' + passed + ' 通过 / ' + failed + ' 失败');
 process.exitCode = failed ? 1 : 0;

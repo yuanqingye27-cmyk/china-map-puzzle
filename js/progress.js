@@ -230,18 +230,37 @@
   }
 
   /* ---------------- 统计：给界面用的汇总 ---------------- */
-  function summary(doc, allMaps) {
+  /**
+   * 统计汇总。
+   * @param {object} doc  进度文档
+   * @param {string[]} allMapIds  全部地图 id（算总进度与"每省一共几张"用）
+   * @param {object} [mapProvince]  { mapId: provinceId } 映射；给了才能算准"每省共几张图"。
+   *   为什么需要它：只统计"玩家碰过的地图"时，某省的 total 只是他已碰过的数量，
+   *   算不出"这个省我拼了 3/21"——而图鉴要的正是这个分母。
+   */
+  function summary(doc, allMapIds, mapProvince) {
     const list = Object.keys(doc.maps).map((k) => doc.maps[k]);
     const solvedMaps = list.filter((m) => m.solved);
-    const totalMaps = Array.isArray(allMaps) && allMaps.length ? allMaps.length : list.length;
+    const totalMaps = Array.isArray(allMapIds) && allMapIds.length ? allMapIds.length : list.length;
 
-    // 按省汇总（用于"省级全通"和进度条）
+    // 按省汇总：分母优先用"该省一共几张图"（来自 registry），没有就退回已碰过的数量
     const provinces = {};
+    const ensure = (key, name) => {
+      provinces[key] = provinces[key] || { id: key, name: name || key, total: 0, solved: 0, touched: 0 };
+      return provinces[key];
+    };
+    if (mapProvince) {
+      Object.keys(mapProvince).forEach((mapId) => {
+        const p = ensure(String(mapProvince[mapId]));
+        p.total++;   // 这个省一共几张图
+      });
+    }
     list.forEach((m) => {
-      const key = m.province || 'unknown';
-      provinces[key] = provinces[key] || { id: key, name: m.provinceName || key, total: 0, solved: 0 };
-      provinces[key].total++;
-      if (m.solved) provinces[key].solved++;
+      const p = ensure(m.province || 'unknown', m.provinceName);
+      if (m.provinceName) p.name = m.provinceName;
+      p.touched++;
+      if (m.solved) p.solved++;
+      if (!mapProvince || !mapProvince[m.mapId]) p.total++;   // 没有映射时兜底
     });
 
     const totalElapsed = solvedMaps.reduce((n, m) => n + (m.elapsed || 0), 0);
