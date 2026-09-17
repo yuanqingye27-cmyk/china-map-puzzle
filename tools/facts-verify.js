@@ -32,6 +32,10 @@ const TEXT_FIELDS = ['landmark', 'tagline', 'funFact'];
 
 /** 与 facts-source 的 normalizeSpacing 保持一致，便于做原文比对 */
 const normalize = (s) => String(s || '')
+  /* 有些素材（来自内联 JSON 的正文）会残留 \uXXXX 转义，先解码再比对，
+   * 否则"证据看起来一样"却因转义写法不同而误判。 */
+  .replace(/\\u([0-9a-fA-F]{4})/g, (_, h) => String.fromCharCode(parseInt(h, 16)))
+  .replace(/\\+/g, '')
   .replace(/\s+/g, '')
   .replace(/[，。；、：""''（）()【】\[\]·—…!?！？,.:;"']/g, '')
   .trim();
@@ -238,7 +242,85 @@ function main() {
   }
 
   console.log('\n  ✔ 全部通过：每个填了的字段都能追溯到素材原句，面积与几何一致');
-  console.log('  下一步：人工过目 → 写进 js/maps/china/sichuan/<市>.data.js → node tools/test-maps.js');
+
+  /* ---------- --apply：直接落笔到 .data.js ----------
+   * 【为什么要有这一步】
+   * 之前流程是"校验通过 → 人读 JSON → 手写落笔脚本"，最贵的其实是"人读一遍"。
+   * 而人读的那一遍，绝大多数只是在确认脚本已经确认过的事（可追溯、面积对、无编造）。
+   * 所以让脚本**自己落笔**，人只看异常清单。
+   *
+   * 【代价，必须说清】机械校验保"真"，保不了"好" ——
+   * "地理志/获奖名单"这类平淡内容是能通过校验的。省下的人工过目，
+   * 换来的就是这个质量档位。以后可以挑着重新优化，不影响正确性。 */
+  if (!args.flags.has('apply')) {
+    console.log('  下一步：人工过目 → 写进 js/maps/china/sichuan/<市>.data.js → node tools/test-maps.js');
+    console.log('  （想跳过人工过目直接落笔：加 --apply —— 见 SOP 关于"质量档位"的说明）');
+    return;
+  }
+
+  applyToDataFile(slug, payload, { dry: args.flags.has('dry') });
+}
+
+/* ------------------------------------------------------------------ *
+ * 落笔：把校验通过的字段写进 js/maps/<…>/<市>.data.js
+ * ------------------------------------------------------------------ */
+
+function applyToDataFile(slug, payload, opts) {
+  opts = opts || {};
+  const scan = tree.scanMaps();
+  const m = scan.maps[slug];
+  if (!m) { console.error('✘ 没有这张地图：' + slug); process.exitCode = 1; return; }
+  const base = m.dir ? path.join(tree.MAPS_DIR, m.dir, slug) : path.join(tree.MAPS_DIR, slug);
+  const dataFile = base + '.data.js';
+  if (!fs.existsSync(dataFile)) { console.error('✘ 缺 ' + path.relative(tree.ROOT, dataFile)); process.exitCode = 1; return; }
+
+  let src = fs.readFileSync(dataFile, 'utf8');
+  const original = src;
+
+  /* 只替换**仍是占位**的字段：已经有人工内容的字段一个字都不碰
+   * （与 area-from-geo.js 同一套安全原则：脚本不覆盖人工成果）。 */
+  const PLACEHOLDER = '(?:📖 资料收录中，欢迎参与共建|【待补充[^\']*】|（待补充[^\']*）)';
+  let written = 0;
+  let skippedHuman = 0;
+  const lines = [];
+
+  payload.districts.forEach((d) => {
+    const ad = String(d.adcode);
+    const keyRe = new RegExp('(^|\\n)([ \\t]*)(?:"' + ad + '"|' + ad + ')([ \\t]*):[ \\t]*\\{');
+    const km = keyRe.exec(src);
+    if (!km) { lines.push('    ✘ ' + d.name + '：数据文件里找不到 adcode ' + ad); return; }
+
+    const start = km.index + km[0].length;
+    let depth = 1, i = start;
+    while (i < src.length && depth > 0) { if (src[i] === '{') depth++; else if (src[i] === '}') depth--; i++; }
+    let block = src.slice(start, i);
+    const before = block;
+
+    TEXT_FIELDS.forEach((f) => {
+      const v = d[f];
+      if (v === undefined || v === null || v === '') return;
+      const re = new RegExp('([ \\t]*)' + f + ":[ \\t]*'" + PLACEHOLDER + "'", 'm');
+      if (!re.test(block)) { skippedHuman++; return; }   // 已是人工内容 → 不覆盖
+      block = block.replace(re, '$1' + f + ": '" + String(v).replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "'");
+      written++;
+    });
+
+    if (block !== before) { src = src.slice(0, start) + block + src.slice(i); lines.push('    ✔ ' + d.name); }
+  });
+
+  // 语法断言：绝不写出跑不起来的文件
+  try { new vm.Script(src, { filename: dataFile }); }
+  catch (e) { console.error('✘ 语法预检失败，已中止（未写任何文件）：' + e.message); process.exitCode = 1; return; }
+
+  console.log('\n  ── 落笔 ──');
+  lines.forEach((l) => console.log(l));
+  console.log('  写入 ' + written + ' 个字段' + (skippedHuman ? '；' + skippedHuman + ' 个字段已是人工内容，跳过未覆盖' : ''));
+
+  if (src === original) { console.log('  数据文件无变化。'); return; }
+  if (opts.dry) { console.log('  （--dry：未落盘）'); return; }
+  fs.writeFileSync(dataFile, src, 'utf8');
+  console.log('  ✔ 已写入 ' + path.relative(tree.ROOT, dataFile));
+  console.log('  下一步：node tools/test-maps.js 2>&1 | tail -3');
 }
 
 main();

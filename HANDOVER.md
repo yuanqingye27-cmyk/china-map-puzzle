@@ -9,11 +9,11 @@
 
 ## 0. 一句话状态
 
-**23 张天地图官方数据地图（中国 → 四川 → 21 个市州）已交付并锁定 v1.0.0，919 项测试全绿；
+**23 张天地图官方数据地图（中国 → 四川 → 21 个市州）已交付并锁定 v1.0.0，923 项测试全绿；
 238 条资料卡的面积已全部补齐（脚本从官方边界几何算出，全覆盖）；
-文案已覆盖 65 条（其中 45 条三要素完整）、9 个市已动过（成都/乐山/自贡/巴中/内江/攀枝花/泸州/德阳/眉山）；
-补资料已流水线化（脚本抓取 + 子代理判断 + 脚本机械核对，配备防编造校验器）；
-剩下的是"补资料文字"和"把其余省接进来"两件事，都可以一条命令/一份文件地推进。**
+四川 183 条区县文案已补 61 条（14 个市已动过）；
+补资料已完全流水线化：**一条命令一个市，`--apply` 自动落笔，多个市可并行核实**；
+剩余规模：全国还有 315 个地级 / 2701 个县级（约 2740 条资料卡）。**
 
 ---
 
@@ -25,7 +25,7 @@
 
 1. 读根目录的 HANDOVER.md（约 70 行，给我的新对话用的接手指南）
 2. 跑 node tools/status.js
-3. 跑 node tools/e2e-test.js 2>&1 | tail -6      # 基线应为 919 通过 / 0 失败
+3. 跑 node tools/e2e-test.js 2>&1 | tail -6      # 基线应为 923 通过 / 0 失败
 
 然后把"你理解的任务 + 打算怎么做"讲给我听，等我确认再动手。
 
@@ -51,7 +51,7 @@
 
 ```bash
 node tools/status.js                          # 现状：地图数/资料缺口/数据源/下一步
-node tools/e2e-test.js 2>&1 | tail -6         # 基线：919 通过 / 0 失败
+node tools/e2e-test.js 2>&1 | tail -6         # 基线：923 通过 / 0 失败
 node tools/test-maps.js 2>&1 | tail -4        # 地图包自洽（adcode/关卡/资料/来源）
 ```
 
@@ -65,13 +65,16 @@ node tools/test-maps.js 2>&1 | tail -4        # 地图包自洽（adcode/关卡/
   准确数字看 `node tools/status.js`（面积覆盖、文案完整分开统计）。
 - **做法**（三层流水线，一个市约 3 条命令）：
   ```bash
-  node tools/status.js --verbose                    # 1. 挑一个市，看还有几条占位
+  # 规模化档位（推荐）：一条命令一个市，落笔也自动
+  node tools/facts-batch.js --map=<市> --delay=1800 --prompt    # 抓取 + 生成委派指令
+  # 把 out/prompt-<市>.md 交给子代理（或一次 workflow 并行多个市），拿回 out/verify-<市>.json
+  node tools/facts-verify.js --map=<市> --in=out/verify-<市>.json --apply   # 核对 + 自动落笔
+  node tools/test-maps.js 2>&1 | tail -3
+
+  # 精品档位（可选）：对重点市保留人工过目
   node tools/facts-batch.js --map=<市> --delay=3000 --draft --prompt
-  #    → out/facts-<市>.json（素材）/ draft（给人看）/ prompt（给子代理的指令）
-  # 2. 把 out/prompt-<市>.md 整段交给一个子代理（它只读素材、禁止联网），拿回 JSON
-  node tools/facts-verify.js --map=<市> --in=out/verify-<市>.json   # 3. 机械核对有没有编
-  # 4. 人工过目 → 写进 js/maps/china/sichuan/<市>.data.js
-  node tools/test-maps.js 2>&1 | tail -4 && node tools/e2e-test.js 2>&1 | tail -8
+  # → 先看 out/draft-<市>.md，再决定写什么
+  node tools/facts-verify.js --map=<市> --in=out/verify-<市>.json --dry      # 只看会改什么
   ```
 - **token 纪律（重要）**：
   - **不要"一次一个区县"地查**。老办法补一个市 ~22 次 tool call + 55 KB 上下文；
@@ -83,16 +86,20 @@ node tools/test-maps.js 2>&1 | tail -4        # 地图包自洽（adcode/关卡/
     （`tools/test-facts-verify.js`，已进 e2e 离线套件）
   - **建议让子代理把 JSON 写进 `out/verify-<市>.json` 再回你 3 行摘要**，
     这样它产出的长 JSON 不占主上下文（实测这样最省）
-- **流水线实测（已跑 8 个市，共 25 条文案）**：
-  | 市 | 写入 | 保持占位的区县（素材不可用） |
-  | --- | --- | --- |
-  | 自贡 | 5 | 大安区（素材空） |
-  | 巴中 | 5 | — |
-  | 内江 | 3 | 市中区（同名条目 0.09 倍）、东兴区（404） |
-  | 攀枝花 | 4 | 西区（抓成河南石龙区 0.5 倍） |
-  | 泸州 | 6 | 江阳区（同名条目 0.05 倍） |
-  | 德阳 | 6 | — |
-  | 眉山 | 5 | 青神县（0.23 倍） |
+- **进度（四川 183 条区县：完整 61 条 / 有内容 93 条 / 已动 14 个市）**：
+  | 市 | 三要素完整/总数 |
+  | --- | --- |
+  | 成都 | 20/20 |
+  | 乐山 | 11/11 |
+  | 雅安 | 6/8 |
+  | 广元 | 5/7 |
+  | 自贡 | 5/6 |
+  | 巴中 | 3/5 |
+  | 德阳 | 2/6 |
+  | 绵阳 | 2/9 |
+  | 资阳 | 2/3 |
+  | 泸州 / 眉山 / 攀枝花 / 遂宁 / 内江 | 各 1/~5-7 |
+  （用 `node tools/status.js` 看实时数字，别照抄这张表）
 - **三个质量提示（实测踩过）**：
   - **校验通过 ≠ 内容够好**。子代理曾把"石笋沟因此得名"当成荣县的冷知识——
     句子是真的，但主体错了。抽取层已给得名句加 `kind` 标记（`region` / `featured`）
@@ -168,7 +175,7 @@ node tools/test-maps.js 2>&1 | tail -4        # 地图包自洽（adcode/关卡/
 
 ```bash
 node tools/status.js                                   # 现状（资料卡按"条"统计）
-node tools/e2e-test.js 2>&1 | tail -6                  # 全部测试（919）
+node tools/e2e-test.js 2>&1 | tail -6                  # 全部测试（923）
 node tools/test-maps.js 2>&1 | tail -4                 # 地图包自洽
 node tools/soften-placeholders.js [--check]            # 占位文案 → 共建口径
 node tools/area-from-geo.js --only=<id> [--write]      # 从官方边界几何算面积（默认预览）
