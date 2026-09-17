@@ -46,6 +46,21 @@ const SUITES = [
   { name: '多地图冒烟 · 登记册里的每一张地图', page: 'map-smoke.html', timeoutMs: 600000 },
 ];
 
+/* ---------- 命令行开关（诊断用）----------
+ * 地图接满全国后，冒烟套件要跑 400+ 张地图、耗时 8 分钟以上。
+ * 排查某几张地图时不该被迫跑全量，所以给两个开关：
+ *   --only-maps=beijing,dongcheng   只跑这几张地图（透传给 map-smoke.html 的 ?maps=）
+ *   --only-suite=smoke              只跑冒烟套件（跳过成都回归/引擎套件）
+ *   --only-suite=offline            只跑离线检查（不启浏览器，秒级）
+ * 详细日志本来就会打印（页面回传的 log 字段），排查时不要用 tail 截断它。 */
+const argv = process.argv.slice(2);
+const argOf = (k) => {
+  const hit = argv.find((a) => a.startsWith('--' + k + '='));
+  return hit ? hit.split('=').slice(1).join('=') : null;
+};
+const ONLY_MAPS = argOf('only-maps');
+const ONLY_SUITE = argOf('only-suite');
+
 /** 当前正在跑的套件；页面回传结果时用它把 Promise 收尾 */
 let active = null;
 
@@ -124,7 +139,8 @@ function checkMobilePerfCss() {
 function runSuite(suite) {
   const timeoutMs = suite.timeoutMs || DEFAULT_TIMEOUT_MS;
   return new Promise((resolve) => {
-    const url = 'file://' + path.resolve(__dirname, suite.page) + '?port=' + HTTP_PORT;
+    const url = 'file://' + path.resolve(__dirname, suite.page) + '?port=' + HTTP_PORT
+      + (suite.page === 'map-smoke.html' && ONLY_MAPS ? '&maps=' + encodeURIComponent(ONLY_MAPS) : '');
     const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'map-puzzle-e2e-'));
 
     const chrome = spawn(
@@ -269,6 +285,14 @@ async function main() {
 
   const results = [];
   for (const suite of SUITES) {
+    // --only-suite 过滤：smoke=只跑冒烟，selftest/engine 按名字选
+    if (ONLY_SUITE && ONLY_SUITE !== 'all') {
+      const want = ONLY_SUITE === 'smoke' ? 'map-smoke.html'
+        : ONLY_SUITE === 'selftest' ? 'selftest.html'
+        : ONLY_SUITE === 'engine' ? 'engine-test.html' : null;
+      if (want && suite.page !== want) continue;
+      if (!want) continue;   // offline 等未知值 → 不跑任何浏览器套件
+    }
     console.log('\n══════════════ 浏览器端测试：' + suite.name + ' ══════════════');
     const t0 = Date.now();
     const result = await runSuite(suite);

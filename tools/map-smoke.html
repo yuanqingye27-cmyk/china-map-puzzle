@@ -117,19 +117,37 @@
     target.dispatchEvent(new W.PointerEvent(type, opts));
   }
 
-  /** 在凹槽形状内部找一个确实落在多边形里的点（bbox 中心对凹形可能落在外面） */
+  /**
+   * 在凹槽形状内部找一个确实落在多边形里的点。
+   *
+   * 【为什么不能只用 9×9 网格】边界框里"空心"的比例因形状而异：
+   *   · 台湾是狭长形 —— 框里大部分是海，9×9 的格点很容易全落在轮廓外
+   *   · 三沙是散布的群岛 —— 框极大、岛极小，粗网格基本命中不了
+   * 实测这两张（以及海南）因此报"凹槽内找不到落点"，而引擎其实是好的。
+   *
+   * 改成：先试**形心**（凸形/近凸形一步命中），再用**加密网格**兜底（41×41）。
+   * 这只影响"测试怎么找落点"，不改变任何被测行为。
+   */
   function insidePointOf(W, D, adcode) {
     const pathEl = D.querySelector('.slot[data-adcode="' + adcode + '"] path');
     if (!pathEl) return null;
     const bb = pathEl.getBBox();
     const ctm = pathEl.getScreenCTM();
-    for (let iy = 1; iy <= 9; iy++) {
-      for (let ix = 1; ix <= 9; ix++) {
-        const p = new W.DOMPoint(bb.x + bb.width * ix / 10, bb.y + bb.height * iy / 10);
-        if (pathEl.isPointInFill(p)) {
-          const s = p.matrixTransform(ctm);
-          return { x: s.x, y: s.y };
-        }
+    const hit = (dx, dy) => {
+      const p = new W.DOMPoint(bb.x + bb.width * dx, bb.y + bb.height * dy);
+      if (!pathEl.isPointInFill(p)) return null;
+      const s = p.matrixTransform(ctm);
+      return { x: s.x, y: s.y };
+    };
+
+    const center = hit(0.5, 0.5);
+    if (center) return center;
+
+    const N = 41;
+    for (let iy = 1; iy < N; iy++) {
+      for (let ix = 1; ix < N; ix++) {
+        const p = hit(ix / N, iy / N);
+        if (p) return p;
       }
     }
     return null;
