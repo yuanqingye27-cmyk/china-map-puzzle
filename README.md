@@ -101,8 +101,9 @@ js/maps/                      地图工厂：目录层级 = 地图层级（当�
   china.js                    中国（根地图，34 个省级行政区）
   china/sichuan.js            四川省（21 个市州）
   china/sichuan/chengdu.js    成都（20 个区县，资料是人工核实的）
+  china/sichuan/leshan.js     乐山（11 个区县，面积由脚本从官方边界算出 + 资料人工核实）
   china/sichuan/zigong.js     自贡市（6 个区县，add-map 一键生成）
-  china/sichuan/<19 个市>.js  四川其余 19 个市州（batch-add-maps 批量生成，资料待人工补）
+  china/sichuan/<18 个市>.js  四川其余 18 个市州（batch-add-maps 批量生成，资料待补）
   每个地图包三个文件：<id>.js 配置 / <id>.geo.js 边界（构建产物）/ <id>.data.js 资料（人工维护）
 
 tools/add-map.js              单张接入（CLI + 可被调用的 addMap() 库函数）
@@ -112,7 +113,7 @@ tools/lib/wkt.js              天地图返回的是 WKT，这一层转成 GeoJSO
 tools/lib/tianditu-geo.js     天地图行政区划接口客户端（需 Key）
 tools/lib/geo-source.js       数据源抽象：datav | tianditu | file
 tools/test-wkt.js             WKT 转换的离线单测（13 项）
-tools/test-maps.js            地图包自洽离线自检（118 项）
+tools/test-maps.js            地图包自洽离线自检（120 项）
 tools/lib/slugs.js            adcode ↔ 拼音 slug（省表 / 地级表 / 兜底命名）
 batch-report.json             最近一次批量接入的报告（成功/失败/待人工补清单）
 tools/build-registry.js       扫描 js/maps/ 生成登记册（children 由 parent 反推）
@@ -121,6 +122,9 @@ tools/lib/tianditu-portal.js  公共库：天地图官方行政区划服务（�
 tools/tianditu-download.js    抓官方数据到 data/tianditu-official/
 tools/test-maps.js            地图包自洽离线自检
 tools/soften-placeholders.js  占位文案 → 共建口径
+tools/area-from-geo.js        从官方边界几何算面积，写进 .data.js（只改 area，不动文字）
+tools/lib/geo-area.js         公共库：球面多边形面积（与 d3.geoArea 同公式）+ 官方公布值锚点
+tools/status.js               一行命令看现状（地图数 / 资料卡缺口 / 数据源 / 下一步）
 tools/lib/map-tree.js         公共库：目录规则 / 包元信息扫描 / registry 生成
 tools/build-data.js           只重刷成都边界的薄封装（新地图请用 add-map）
 
@@ -150,10 +154,27 @@ node tools/add-map.js --adcode=510300 --name=zigong --parent=sichuan
 它会：算出该放哪个目录（父级没接入会自动补出四川、中国）→ 下载边界 →
 生成三个文件 → 重新生成登记册 → 打印"还需要人工补什么"。
 
-脚本只能生成骨架，**面积 / 地标 / 冷知识 / 关卡分组得人来补**（在 `<id>.data.js` 里），
+脚本只能生成骨架，**地标 / 冷知识 / 关卡分组得人来补**（在 `<id>.data.js` 里），
 这也是为什么一个地图包要拆成三个文件：脚本永远只重写 `<id>.geo.js`，
 你手写的 `<id>.data.js` 它一个字都不碰。刷新边界请用 `--geo-only`，
 **别用 `--force`**（那会连人工文件一起覆盖）。
+
+### 给地图补资料卡
+
+面积**不用手抄**——它本来就是边界几何的属性，而官方边界已经在项目里了：
+
+```bash
+node tools/status.js                                  # 看还有几条占位（按"条"统计）
+node tools/area-from-geo.js --check                   # 校验算法：与政府公布值比对
+node tools/area-from-geo.js --only=leshan --write     # 只写 area，文字一个字不动
+```
+
+实测精度（与乐山市政府网公布值比对）：五通桥 465/465、峨边 2383/2382、全市 12742/12720。
+差异来自制图综合，所以产物在文件头声明为**"几何计算值"**，不冒充官方统计口径。
+
+剩下 `landmark / tagline / funFact` 三段文字仍是人工活：**只写能核实的公开内容**，
+核实不了就保留「📖 资料收录中，欢迎参与共建」，宁缺毋假。
+样板见 `js/maps/china/sichuan/leshan.data.js`（文件头列了全部资料来源）。
 
 ### 整批接入一个省
 

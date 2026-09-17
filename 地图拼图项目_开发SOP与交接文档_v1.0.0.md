@@ -1242,33 +1242,80 @@ node tools/batch-add-maps.js --parent=510000 --only=511100,511300
 > 34 个省级 × 各自的下一级 = 数百张地图，规模远超"批量"该有的样子。
 > 正确姿势是一个省一个省来。
 
-#### 五、怎么补卡片资料（这是人工活）
+#### 五、怎么补卡片资料（面积用脚本，文字靠人）
 
-脚本生成的 `<id>.data.js` 里全是占位符，长这样：
+> **2026-09 更新：面积不再是人工活了。** 见下面第 0 步。
+
+**第 0 步（脚本，一次做完）：批量补面积**
+
+天地图官方行政区划数据只有 `adcode / name / center`，**不带面积**；逐个去别处抄既慢又容易混口径。但面积本来就是边界的属性 —— 用项目自带的官方边界直接算即可：
+
+```bash
+node tools/area-from-geo.js --check              # 校验计算方法（拿官方公布值当锚点）
+node tools/area-from-geo.js --only=leshan        # 预览（默认不写盘）
+node tools/area-from-geo.js --only=leshan --write # 落盘
+node tools/area-from-geo.js --parent=510000 --write # 按父级批量
+```
+
+它**只改 `area`**，`landmark / tagline / funFact` 一个字都不碰；写入前对每个文件做语法预检，并会把「面积口径」写进文件头。
+
+实测精度（乐山，与政府官网公布值比对）：
+
+| 锚点 | 几何计算 | 官方公布 | 差 |
+| --- | --- | --- | --- |
+| 五通桥区 | 465 | 465（乐山市政府网） | 0 |
+| 峨边彝族自治县 | 2383 | 2382（同上） | 1 |
+| 乐山全市合计 | 12742 | 12720.03（百科引用统计口径） | 22（0.17%） |
+
+> 差异来自**制图综合**（官方制图会略去小碎岛、简化边界）。所以产物在文件头声明为
+> **"几何计算值"**，不冒充官方统计口径 —— 数据诚实比数字好看重要。
+> 锚点存在 `tools/lib/geo-area.js` 的 `REFERENCE_ANCHORS`，加新省时可以往里追加。
+
+**第 1 步（人工，不能外包给脚本）：填文字**
+
+面积补完后，占位符长这样（注意 `area` 已经是有意义的数字）：
 
 ```js
 "512002": {
-  area: null,                          // TODO 面积（km²，数字）
-  landmark: '【待补充：雁江区地标】',
-  tagline: '【待补充：雁江区一句话介绍】',
-  funFact: '【待补充：雁江区冷知识】',
+  area: 1636,  // 由 tools/area-from-geo.js 依官方边界几何计算（km²）
+  landmark: '📖 资料收录中，欢迎参与共建',
+  tagline: '📖 资料收录中，欢迎参与共建',
+  funFact: '📖 资料收录中，欢迎参与共建',
 },
 ```
 
-补资料的标准流程：
+填文字的标准流程：
 
-1. 打开报告里的 `needsHuman[]`，挑一个 `file`
-2. **按 adcode 逐个填**（`area` 填数字，单位 km²；其余填文字）。
+1. 跑 `node tools/status.js` 看还有几条占位（**按"条"统计**，混合文件不会被漏掉）
+2. **按 adcode 逐个填**（`landmark / tagline / funFact` 三段文字）。
    **不要动 key（adcode）** —— 它必须和 `<id>.geo.js` 里的 feature 严格对应，
    写反了就会"拼对位置、弹出别人的介绍"（坑 #1）
-3. 关卡（`levels`）也要重排：脚本只按"每 8 个一组"机械切分，好玩的关卡应按地理/文化逻辑分组，并补上 `blurb`
-4. 跑测试：`node tools/e2e-test.js` —— 冒烟套件会核对"每个下级行政区都有资料卡"、
+3. **只写可核实的公开内容**：地名、所属、地标、命名由来、明确记载过的事件。
+   核实不了就**保持占位文案**，不要用"大概是这样"凑数（铁律见 HANDOVER）
+4. 关卡（`levels`）也要重排：脚本只按"每 8 个一组"机械切分，好玩的关卡应按地理/文化逻辑分组，并补上 `blurb`
+5. 跑测试：`node tools/e2e-test.js` —— 冒烟套件会核对"每个下级行政区都有资料卡"、
    "关卡覆盖与 GeoJSON 完全一致"，**漏填或写错 adcode 会被逮住**
-5. 只想刷新边界数据（不动你写的字）：`node tools/add-map.js --adcode=… --name=… --geo-only`
+6. 只想刷新边界数据（不动你写的字）：`node tools/add-map.js --adcode=… --name=… --geo-only`
    —— **千万别用 `--force`**，那会连人工文件一起覆盖
 
-> 补资料时可以拿 `【待补充` 当进度指示：
-> `grep -c '【待补充' js/maps/china/sichuan/*.data.js` 一眼看出哪个市还没动过。
+> **进度指示**：`node tools/status.js` 会给「真实资料卡 N 条 / 共 M 条」和「待补 N 条」，
+> 比 grep 可靠（旧的按文件口径会把"补了一半的市"两边都漏掉，已修）。
+>
+> **参考样板**：`js/maps/china/sichuan/chengdu.data.js`（首个人工版）与
+> `js/maps/china/sichuan/leshan.data.js`（首个"脚本补面积 + 人工填文字"完整版，
+> 文件头记录了全部资料来源）。
+
+**一次补一个市的实操节奏**（乐山 11 个区县实测约 1 轮对话）：
+
+```bash
+node tools/status.js                                      # 1. 挑一个市，看缺口
+node tools/area-from-geo.js --only=<市> --write            # 2. 面积一次到位
+# 3. 核实文字（政府网/百科条目：区情概况、著名景点、名称由来）
+# 4. 写入后立刻自检
+node tools/test-maps.js 2>&1 | tail -4
+node tools/e2e-test.js 2>&1 | tail -6
+git add -A && git commit -m 'feat: <市> 资料卡补齐'
+```
 
 #### 六、一次批量接入的完整节奏
 
@@ -1829,20 +1876,22 @@ git tag -a v1.0.0 -m '…'
 
 ## A.6 遗留工作清单（明天从这里继续）
 
-### P0 · 资料卡（人工活，最影响体验）
-- **现状**：23 张地图里只有**成都 20 个区县**是人工核实资料；其余 **218 条**是共建占位
-  （中国 34 + 四川 21 + 自贡 6 + 另外 19 个市的 157 个区县）。
+### P0 · 资料卡（面积已脚本化，文字仍是人工活）
+- **现状（2026-09 更新）**：**238 条**中已补 **31 条**（成都 20 + 乐山 11），**待补 207 条**
+  （中国 34 + 四川 21 + 其余 20 个市的 152 个区县）。
+  用 `node tools/status.js` 看准确数字（旧口径会漏掉"补了一半的市"）。
+- **面积不再是缺口**：`node tools/area-from-geo.js --parent=510000 --write` 一条命令补完一个省，
+  它只改 `area`，且把口径写进文件头（见 5.11 第五节的精度实测）。
 - **做法**：
   ```bash
-  # 1. 看还有哪些没补（列表在报告里）
-  node -e "const r=require('./batch-report.json');console.log(r.needsHuman.length,'张地图待补')"
-  # 2. 逐个填 js/maps/china/sichuan/<市>.data.js 的 area/landmark/tagline/funFact
+  node tools/status.js                              # 1. 看还有几条占位
+  node tools/area-from-geo.js --only=<市> --write    # 2. 面积一次到位（脚本）
+  # 3. 核实文字：填 landmark/tagline/funFact（人）
   #    ⚠️ 不要改 key（adcode），它必须和 <市>.geo.js 里的 feature 严格对应
-  # 3. 每补完一个市就跑一次自检（会校验"每块都有资料卡"）
-  node tools/test-maps.js
+  node tools/test-maps.js 2>&1 | tail -4            # 4. 自检
   ```
-- **验收**：`node tools/soften-placeholders.js --check` 显示该文件已无占位；全量测试仍全绿。
-- **注意**：**不要用 AI 编造冷知识**。宁可是占位文案，也不要假资料。
+- **验收**：`node tools/status.js` 的「待补资料卡」条数下降；全量测试仍全绿。
+- **注意**：**不要用 AI 编造冷知识**。核实不了就保持占位文案，宁缺毋假。
 
 ### P1 · 结构：把剩下的省接进来（一条命令一个省）
 - **官方行政树统计（准确数）**：3254 个节点 = 中国 1 + **省级 34** + **地级 492** + **县级 2727**。

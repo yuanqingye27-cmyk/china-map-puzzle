@@ -10,7 +10,8 @@
 ## 0. 一句话状态
 
 **23 张天地图官方数据地图（中国 → 四川 → 21 个市州）已交付并锁定 v1.0.0，884 项测试全绿；
-剩下的是"人工补资料卡"和"把其余省接进来"两件事，都可以一条命令/一份文件地推进。**
+资料卡已补 31/238 条（成都 20 + 乐山 11），面积可脚本从官方边界几何批量算出；
+剩下的是"补资料文字"和"把其余省接进来"两件事，都可以一条命令/一份文件地推进。**
 
 ---
 
@@ -29,13 +30,14 @@
 硬性约束（违反即返工）：
 - 严禁修改 js/engine.js
 - 严禁编造资料内容：资料卡缺内容就保持"📖 资料收录中，欢迎参与共建"占位
+  （面积例外：用 node tools/area-from-geo.js 从官方边界几何算，并声明为"几何计算值"）
 - 严禁为了让测试通过而修改测试断言
 - 数据源只用天地图官方：--source=tianditu-portal（在线）或 file --dir=data/tianditu-official（离线）
   （--source=tianditu 是已废弃的 API-Key 路线，会直接报错）
 - 输出纪律：任何脚本/测试一律 `| tail -N`；js/maps/**/*.geo.js 是单行 100KB+，
   禁止 cat/head/tail，需要看内容就用 node 脚本摘要
 
-今天我想做：<填 P0 补资料卡 / P1 接入某个省>
+今天我想做：<填 P0 补资料卡（面积跑脚本、文字人工核实） / P1 接入某个省>
 ```
 
 > 把 `<绝对路径>` 和 `<填 …>` 替换掉即可。这段话就是"上下文引导"，
@@ -55,17 +57,25 @@ node tools/test-maps.js 2>&1 | tail -4        # 地图包自洽（adcode/关卡/
 
 ## 3. 两条主线（明天大概率做其中一条）
 
-### P0 · 补资料卡（人工活，最影响体验）
-- **缺口**：**218 条**（中国 34 + 四川 21 + 自贡 6 + 另外 19 个市的 157 个区县）；
-  只有**成都 20 个区县**是人工核实过的。
+### P0 · 补资料卡（**面积用脚本，文字靠人**）
+- **缺口**：**207 条**（238 条中已补 31 条：成都 20 + 乐山 11）；
+  准确数字看 `node tools/status.js`（按"条"统计，混合文件不会被漏掉）。
 - **做法**：
   ```bash
-  node tools/soften-placeholders.js --check     # 看还有哪些文件是占位
-  # 编辑 js/maps/china/sichuan/<市>.data.js：填 area(数字,km²)/landmark/tagline/funFact
-  node tools/test-maps.js 2>&1 | tail -4        # 填完自检（会校验"每块都有资料卡"）
+  node tools/status.js                              # 1. 挑一个市，看缺口
+  node tools/area-from-geo.js --only=<市> --write    # 2. 面积脚本一次到位（只改 area）
+  # 3. 核实文字：编辑 js/maps/china/sichuan/<市>.data.js 的 landmark/tagline/funFact
+  node tools/test-maps.js 2>&1 | tail -4            # 4. 自检（会校验"每块都有资料卡"）
   ```
+- **面积为什么能脚本化**：天地图官方数据不带面积，但**边界几何自带面积**。
+  `tools/area-from-geo.js` 用球面多边形公式算，实测与政府公布值吻合
+  （五通桥 465/465、峨边 2383/2382、乐山全市 12742/12720），可复现、零编造。
+  产物在文件头声明为"几何计算值"，不冒充官方统计口径。详见 SOP 5.11 第五节。
 - **铁律**：**不要动 key（adcode）** —— 它必须与 `<市>.geo.js` 里的 feature 严格对应，
-  写反了会"拼对位置、弹出别人的介绍"（SOP 坑 #1）。也**不要编造冷知识**。
+  写反了会"拼对位置、弹出别人的介绍"（SOP 坑 #1）。也**不要编造冷知识**：
+  核实不了就保持占位文案，宁缺毋假。
+- **样板**：`js/maps/china/sichuan/leshan.data.js`（第一个"脚本补面积 + 人工填文字"的完整市，
+  文件头列了全部资料来源）。
 
 ### P1 · 接入更多省（脚本活，一条命令一个省）
 - **已接入**：省级 1（四川）、地级 21。**待接入**：**315 个地级**（官方树共 492 个）。
@@ -88,6 +98,7 @@ node tools/test-maps.js 2>&1 | tail -4        # 地图包自洽（adcode/关卡/
 | --- | --- |
 | 接手/找方向 | **本文件** + `node tools/status.js` |
 | 加地图的完整流程 | SOP 的 **5.11 批量地图操作手册** |
+| 补资料卡（面积怎么来、文字怎么填） | SOP 的 **5.11 第五节** |
 | 数据来源/合规/九段线 | SOP 的 **5.12 地图合规与数据来源** |
 | 地图包字段与目录规则 | SOP 的 **3.5 世界地图层级规范** |
 | 踩过的坑（28 条） | SOP 第四章，**按关键词现查**，不要通读 |
@@ -113,10 +124,12 @@ node tools/test-maps.js 2>&1 | tail -4        # 地图包自洽（adcode/关卡/
 ## 6. 常用命令速查
 
 ```bash
-node tools/status.js                                   # 现状
+node tools/status.js                                   # 现状（资料卡按"条"统计）
 node tools/e2e-test.js 2>&1 | tail -6                  # 全部测试（884）
 node tools/test-maps.js 2>&1 | tail -4                 # 地图包自洽
 node tools/soften-placeholders.js [--check]            # 占位文案 → 共建口径
+node tools/area-from-geo.js --only=<id> [--write]      # 从官方边界几何算面积（默认预览）
+node tools/area-from-geo.js --check                    # 校验面积算法（与官方公布值比对）
 node tools/batch-add-maps.js --parent=<省 adcode>      # 批量接入一个省
 node tools/tianditu-download.js [--only=<adcode>]      # 抓官方数据到 data/tianditu-official/
 node tools/replace-geo-source.js --source=file --dir=data/tianditu-official [--only=<id>|--parent=<adcode>]
