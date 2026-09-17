@@ -14,6 +14,11 @@
  *   4. funFact   冷知识
  * 关卡（levels）现在只是"每 8 个一组"的机械切分，
  * 真正好玩的关卡应当按地理/文化逻辑重新分组，并补上 blurb。
+ * [area-from-geo] 面积口径：本文件 area 由 tools/area-from-geo.js 从
+ * 《aba.geo.js》的官方边界几何计算得出（球面多边形面积，与 d3.geoArea 同公式），
+ * 与拼图所用边界严格同源、可复现；属"几何计算值"，不等于官方公布的统计口径面积。
+ * 重新生成：node tools/area-from-geo.js --only=aba --write
+
  * ===================================================================== */
 
 (function (global) {
@@ -22,79 +27,79 @@
   /** 下级行政区资料，key 是国家行政区划代码（adcode） */
   const DISTRICTS = {
     "513201": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 6630,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 马尔康市
     "513221": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 4087,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 汶川县
     "513222": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 4326,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 理县
     "513223": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 3899,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 茂县
     "513224": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 8346,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 松潘县
     "513225": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 5274,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 九寨沟县
     "513226": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 5365,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 金川县
     "513227": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 5569,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 小金县
     "513228": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 4145,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 黑水县
     "513230": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 6649,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 壤塘县
     "513231": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 10119,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 阿坝县
     "513232": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 10335,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 若尔盖县
     "513233": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 8305,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',

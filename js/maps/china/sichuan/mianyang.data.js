@@ -14,6 +14,11 @@
  *   4. funFact   冷知识
  * 关卡（levels）现在只是"每 8 个一组"的机械切分，
  * 真正好玩的关卡应当按地理/文化逻辑重新分组，并补上 blurb。
+ * [area-from-geo] 面积口径：本文件 area 由 tools/area-from-geo.js 从
+ * 《mianyang.geo.js》的官方边界几何计算得出（球面多边形面积，与 d3.geoArea 同公式），
+ * 与拼图所用边界严格同源、可复现；属"几何计算值"，不等于官方公布的统计口径面积。
+ * 重新生成：node tools/area-from-geo.js --only=mianyang --write
+
  * ===================================================================== */
 
 (function (global) {
@@ -22,55 +27,55 @@
   /** 下级行政区资料，key 是国家行政区划代码（adcode） */
   const DISTRICTS = {
     "510703": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 553,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 涪城区
     "510704": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 1019,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 游仙区
     "510705": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 1181,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 安州区
     "510722": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 2658,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 三台县
     "510723": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 1648,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 盐亭县
     "510725": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 1445,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 梓潼县
     "510726": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 3087,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 北川羌族自治县
     "510727": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 5939,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 平武县
     "510781": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 2725,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',

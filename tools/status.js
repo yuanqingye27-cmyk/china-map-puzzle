@@ -38,21 +38,49 @@ const dataRel = maps
   .filter((f) => fs.existsSync(path.join(tree.MAPS_DIR, f)));
 
 const BUILD_TEXT = '📖 资料收录中，欢迎参与共建';
-let placeholderEntries = 0;
-let placeholderFiles = 0;
-let realEntries = 0;
+let placeholderEntries = 0;   // 三段文案里只要还有占位，就算"待补"
+let placeholderFiles = 0;     // 整份文件一条都没补
+let realEntries = 0;          // 四要素全部有值
+let areaFilled = 0;           // area 有值（含脚本算的）
+let textPlaceholder = 0;      // 文案字段里还有占位的字段数（landmark/tagline/funFact 合计）
 const realFiles = [];
 const mixedFiles = [];
 dataRel.forEach((f) => {
   const t = fs.readFileSync(path.join(tree.MAPS_DIR, f), 'utf8');
-  const blocks = (t.match(/^\s*(?:"\d{6}"|\d{6}):\s*\{/gm) || []).length;
-  if (!blocks) return;
-  const hits = t.split(BUILD_TEXT).length - 1;
-  const ph = Math.min(blocks, Math.round(hits / 3));
-  placeholderEntries += ph;
-  realEntries += blocks - ph;
-  if (ph === 0) realFiles.push(f);
-  else if (ph < blocks) mixedFiles.push(f + '（' + (blocks - ph) + '/' + blocks + '）');
+
+  /* 逐块精确统计，而不是把全文出现次数除以 3 估算 ——
+   * 面积补完后，一个文件里"area 有值、文案还是占位"是常态，
+   * 估算会把它算成占位整块，看不出面积进度。 */
+  const blocks = [];
+  const keyRe = /^[ \t]*(?:"(\d{6})"|(\d{6}))[ \t]*:[ \t]*\{/gm;
+  let km;
+  while ((km = keyRe.exec(t)) !== null) {
+    const start = km.index + km[0].length;
+    let depth = 1;
+    let i = start;
+    while (i < t.length && depth > 0) {
+      if (t[i] === '{') depth++;
+      else if (t[i] === '}') depth--;
+      i++;
+    }
+    blocks.push(t.slice(start, i));
+  }
+  if (!blocks.length) return;
+
+  let phBlocks = 0;
+  let phFields = 0;
+  blocks.forEach((b) => {
+    const phHere = b.split(BUILD_TEXT).length - 1;
+    phFields += phHere;
+    if (phHere > 0) phBlocks++;
+    if (!/^[ \t]*area[ \t]*:[ \t]*null/m.test(b)) areaFilled++;
+  });
+  placeholderEntries += phBlocks;
+  realEntries += blocks.length - phBlocks;
+  textPlaceholder += phFields;
+  if (phBlocks === 0) realFiles.push(f);
+  else if (phBlocks < blocks.length) mixedFiles.push(f + '（已补 ' + (blocks.length - phBlocks) + '/' + blocks.length + '）');
+  else if (areaFilled) mixedFiles.push(f + '（面积已补，文案待补 ' + blocks.length + '）');
   else placeholderFiles++;
 });
 
@@ -91,11 +119,17 @@ line('已接入地图', maps.length + ' 张');
 line('层级', '中国（34 省级）→ 四川省（21 市州）→ 各自区县');
 line('地图清单', maps.map((m) => m.id).join(', '));
 console.log('');
-line('真实资料卡', realEntries + ' 条 / 共 ' + (realEntries + placeholderEntries) + ' 条'
-  + (realFiles.length ? '；整份完成的文件：' + realFiles.map((f) => path.basename(f, '.data.js')).join(', ') : ''));
-if (mixedFiles.length) line('部分完成', mixedFiles.join(', '));
-line('待补资料卡', placeholderEntries + ' 条（整份未动的文件 ' + placeholderFiles + ' 个）');
-line('资料缺口怎么看', 'node tools/status.js —— 或用 tools/area-from-geo.js 批量补面积');
+const TOTAL = realEntries + placeholderEntries;
+line('面积覆盖', areaFilled + ' / ' + TOTAL + ' 条'
+  + (areaFilled === TOTAL ? '（全覆盖 ✅，由 tools/area-from-geo.js 依官方边界几何算出）'
+                          : '（脚本可批量：node tools/area-from-geo.js --parent=<省 adcode> --write）'));
+line('文案完整', realEntries + ' / ' + TOTAL + ' 条（landmark + tagline + funFact 都不再是占位）'
+  + (realFiles.length ? '；整份完成：' + realFiles.map((f) => path.basename(f, '.data.js')).join(', ') : ''));
+if (mixedFiles.length) {
+  // 默认只报数量，避免几十个文件把"20 行内"的设计撑破；详情用 --verbose
+  line('待补文案', placeholderEntries + ' 条 / ' + textPlaceholder + ' 个字段'
+    + (process.argv.includes('--verbose') ? '\n                   ' + mixedFiles.join(' ') : '　（' + mixedFiles.length + ' 个文件，加 --verbose 看清单）'));
+}
 console.log('');
 if (manifest) {
   line('数据源', manifest.providerLabel);
@@ -117,7 +151,8 @@ console.log('');
 console.log('══════════ 下一步（选一条） ══════════');
 console.log('  基线自检      node tools/e2e-test.js 2>&1 | tail -6        （应为 884 通过 / 0 失败）');
 console.log('  地图包自检    node tools/test-maps.js 2>&1 | tail -4');
-console.log('  P0 补资料卡   编辑 js/maps/china/sichuan/<市>.data.js，填完跑 test-maps.js');
+console.log('  P0 补资料卡   面积：node tools/area-from-geo.js --parent=<省 adcode> --write');
+console.log('                文字：编辑 js/maps/china/sichuan/<市>.data.js 的 landmark/tagline/funFact');
 console.log('  P1 接入一个省 先在 tools/lib/slugs.js 补该省地级市拼音，再：');
 console.log('                node tools/batch-add-maps.js --parent=<省 adcode>');
 console.log('  换一张图的数据 node tools/replace-geo-source.js --source=file --dir=data/tianditu-official --only=<id>');

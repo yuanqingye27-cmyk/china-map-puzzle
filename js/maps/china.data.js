@@ -14,6 +14,11 @@
  *   4. funFact   冷知识
  * 关卡（levels）现在只是"每 8 个一组"的机械切分，
  * 真正好玩的关卡应当按地理/文化逻辑重新分组，并补上 blurb。
+ * [area-from-geo] 面积口径：本文件 area 由 tools/area-from-geo.js 从
+ * 《china.geo.js》的官方边界几何计算得出（球面多边形面积，与 d3.geoArea 同公式），
+ * 与拼图所用边界严格同源、可复现；属"几何计算值"，不等于官方公布的统计口径面积。
+ * 重新生成：node tools/area-from-geo.js --only=china --write
+
  * ===================================================================== */
 
 (function (global) {
@@ -22,205 +27,205 @@
   /** 下级行政区资料，key 是国家行政区划代码（adcode） */
   const DISTRICTS = {
     "110000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 16403,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 北京市
     "120000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 11932,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 天津市
     "130000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 187810,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 河北省
     "140000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 156587,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 山西省
     "150000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 1143679,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 内蒙古自治区
     "210000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 147022,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 辽宁省
     "220000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 190677,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 吉林省
     "230000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 451575,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 黑龙江省
     "310000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 7213,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 上海市
     "320000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 102789,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 江苏省
     "330000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 104294,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 浙江省
     "340000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 140388,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 安徽省
     "350000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 122716,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 福建省
     "360000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 167318,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 江西省
     "370000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 155698,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 山东省
     "410000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 165644,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 河南省
     "420000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 186109,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 湖北省
     "430000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 212371,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 湖南省
     "440000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 179142,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 广东省
     "450000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 237033,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 广西壮族自治区
     "460000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 40211,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 海南省
     "500000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 82517,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 重庆市
     "510000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 486318,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 四川省
     "520000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 176292,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 贵州省
     "530000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 384072,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 云南省
     "540000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 1203240,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 西藏自治区
     "610000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 205657,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 陕西省
     "620000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 425256,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 甘肃省
     "630000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 696748,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 青海省
     "640000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 51960,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 宁夏回族自治区
     "650000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 1628229,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 新疆维吾尔自治区
     "710000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 36435,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 台湾省
     "810000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 1084,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 香港特别行政区
     "820000": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 25.2,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',

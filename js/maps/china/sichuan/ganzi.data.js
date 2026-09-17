@@ -14,6 +14,11 @@
  *   4. funFact   冷知识
  * 关卡（levels）现在只是"每 8 个一组"的机械切分，
  * 真正好玩的关卡应当按地理/文化逻辑重新分组，并补上 blurb。
+ * [area-from-geo] 面积口径：本文件 area 由 tools/area-from-geo.js 从
+ * 《ganzi.geo.js》的官方边界几何计算得出（球面多边形面积，与 d3.geoArea 同公式），
+ * 与拼图所用边界严格同源、可复现；属"几何计算值"，不等于官方公布的统计口径面积。
+ * 重新生成：node tools/area-from-geo.js --only=ganzi --write
+
  * ===================================================================== */
 
 (function (global) {
@@ -22,109 +27,109 @@
   /** 下级行政区资料，key 是国家行政区划代码（adcode） */
   const DISTRICTS = {
     "513301": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 11607,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 康定市
     "513322": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 2167,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 泸定县
     "513323": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 4512,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 丹巴县
     "513324": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 6778,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 九龙县
     "513325": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 7576,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 雅江县
     "513326": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 7030,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 道孚县
     "513327": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 4481,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 炉霍县
     "513328": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 6870,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 甘孜县
     "513329": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 9258,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 新龙县
     "513330": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 11442,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 德格县
     "513331": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 10288,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 白玉县
     "513332": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 22398,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 石渠县
     "513333": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 8766,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 色达县
     "513334": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 14021,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 理塘县
     "513335": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 7668,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 巴塘县
     "513336": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 4951,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 乡城县
     "513337": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 7076,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 稻城县
     "513338": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 2905,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',

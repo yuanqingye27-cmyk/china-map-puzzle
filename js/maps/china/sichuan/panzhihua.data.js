@@ -14,6 +14,11 @@
  *   4. funFact   冷知识
  * 关卡（levels）现在只是"每 8 个一组"的机械切分，
  * 真正好玩的关卡应当按地理/文化逻辑重新分组，并补上 blurb。
+ * [area-from-geo] 面积口径：本文件 area 由 tools/area-from-geo.js 从
+ * 《panzhihua.geo.js》的官方边界几何计算得出（球面多边形面积，与 d3.geoArea 同公式），
+ * 与拼图所用边界严格同源、可复现；属"几何计算值"，不等于官方公布的统计口径面积。
+ * 重新生成：node tools/area-from-geo.js --only=panzhihua --write
+
  * ===================================================================== */
 
 (function (global) {
@@ -22,31 +27,31 @@
   /** 下级行政区资料，key 是国家行政区划代码（adcode） */
   const DISTRICTS = {
     "510402": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 165,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 东区
     "510403": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 122,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 西区
     "510411": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 1721,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 仁和区
     "510421": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 2111,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',
     }, // 米易县
     "510422": {
-      area: null,                    // TODO 面积（km²，数字）
+      area: 3289,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '📖 资料收录中，欢迎参与共建',
       tagline: '📖 资料收录中，欢迎参与共建',
       funFact: '📖 资料收录中，欢迎参与共建',

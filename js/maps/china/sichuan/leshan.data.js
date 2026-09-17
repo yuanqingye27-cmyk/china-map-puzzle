@@ -36,67 +36,67 @@
   /** 下级行政区资料，key 是国家行政区划代码（adcode） */
   const DISTRICTS = {
     "511102": {
-      area: 840,  // 由 tools/area-from-geo.js 依官方边界几何计算（km²）
+      area: 840,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '乐山大佛、嘉定坊、乐山文庙',
       tagline: '乐山的主城，三江汇流、大佛坐镇，嘉州古城的老街区都在这儿。',
       funFact: '乐山大佛开凿于唐代开元元年（713年），1996 年被列入世界文化遗产名录。',
     }, // 市中区
     "511111": {
-      area: 606,  // 由 tools/area-from-geo.js 依官方边界几何计算（km²）
+      area: 606,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '郭沫若故居、美女峰',
       tagline: '郭沫若的故乡，城区就在大渡河畔。',
       funFact: '区名取自"灵山秀水、沙岸湾环"，1985 年才设区。',
     }, // 沙湾区
     "511112": {
-      area: 465,  // 由 tools/area-from-geo.js 依官方边界几何计算（km²）
+      area: 465,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '五通桥古镇、小西湖',
       tagline: '因盐而兴的老工业区，也是远近闻名的水乡。',
       funFact: '五通桥因盐业兴盛，当地把穿城而过的水面称作"小西湖"。',
     }, // 五通桥区
     "511113": {
-      area: 603,  // 由 tools/area-from-geo.js 依官方边界几何计算（km²）
+      area: 603,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '金口河大峡谷、铁道兵博物馆',
       tagline: '大渡河横穿全境，成昆铁路在这里钻进峡谷。',
       funFact: '金口河是大渡河边一个享受少数民族自治县待遇的县级区。',
     }, // 金口河区
     "511123": {
-      area: 1375,  // 由 tools/area-from-geo.js 依官方边界几何计算（km²）
+      area: 1375,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '嘉阳小火车、罗城古镇',
       tagline: '既能坐蒸汽小火车，也能逛"船形街"罗城古镇。',
       funFact: '嘉阳小火车轨距只有 762 毫米，大约是标准轨距的一半。',
     }, // 犍为县
     "511124": {
-      area: 842,  // 由 tools/area-from-geo.js 依官方边界几何计算（km²）
+      area: 842,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '雷畅故居',
       tagline: '传统农业县，川西南保存最完整的明清民居之一在这儿。',
       funFact: '当地流传着"九子十翰林"的典故，说的是雷畅一家的科举故事。',
     }, // 井研县
     "511126": {
-      area: 742,  // 由 tools/area-from-geo.js 依官方边界几何计算（km²）
+      area: 742,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '东风堰、千佛岩',
       tagline: '既有千年灌溉工程，也是种类繁多的民间手工造纸之乡。',
       funFact: '东风堰始建于 1662 年，是中国首批世界灌溉工程遗产之一。',
     }, // 夹江县
     "511129": {
-      area: 1412,  // 由 tools/area-from-geo.js 依官方边界几何计算（km²）
+      area: 1412,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '沐川竹海、桃源山居',
       tagline: '满山竹林，是乐山的生态屏障。',
       funFact: '沐川林地占土地总面积的近八成，是四川有名的竹乡。',
     }, // 沐川县
     "511132": {
-      area: 2383,  // 由 tools/area-from-geo.js 依官方边界几何计算（km²）
+      area: 2383,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '黑竹沟',
       tagline: '大渡河穿城而过，是小凉山深处的彝族聚居地。',
       funFact: '县名"峨边"是彝语"佳支依达"的音译，意为"丝绸之河"。',
     }, // 峨边彝族自治县
     "511133": {
-      area: 2291,  // 由 tools/area-from-geo.js 依官方边界几何计算（km²）
+      area: 2291,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '大风顶国家级自然保护区、玛瑙苗寨',
       tagline: '小凉山里的彝乡，原始森林和野生动植物资源富集。',
       funFact: '大风顶自然保护区以保护大熊猫为主，有"中国野生动植物基因库"之称。',
     }, // 马边彝族自治县
     "511181": {
-      area: 1183,  // 由 tools/area-from-geo.js 依官方边界几何计算（km²）
+      area: 1183,  // [geo-area] 依官方边界几何计算（km²）
       landmark: '峨眉山、报国寺、伏虎寺',
       tagline: '因峨眉山得名，山就是这座城的名片。',
       funFact: '山上的报国寺、伏虎寺、清音阁、万年寺、洪椿坪，同属全国重点文物保护单位"峨眉山古建筑群"。',

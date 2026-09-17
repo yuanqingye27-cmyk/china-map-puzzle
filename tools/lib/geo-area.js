@@ -111,6 +111,21 @@ const REFERENCE_ANCHORS = [
     source: '同上：全市幅员面积为1.27万平方公里（应为 11 个区县之和）',
     sumOf: 511100,
   },
+  /* ---- 地级市这一层的锚点（面积写在省包 china/sichuan.data.js 里） ---- */
+  {
+    label: '绵阳市',
+    adcode: 510700,
+    official: 20200,
+    tolerance: 100,
+    source: '百科条目引官方口径：辖区面积 2.02 万平方千米',
+  },
+  {
+    label: '南充市',
+    adcode: 511300,
+    official: 12482,
+    tolerance: 30,
+    source: '百科条目引官方口径：总面积 12482 平方千米',
+  },
 ];
 
 module.exports = {
