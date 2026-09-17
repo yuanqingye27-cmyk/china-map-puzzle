@@ -1,0 +1,82 @@
+{
+  "map": "zigong",
+  "mapName": "自贡市",
+  "adcode": 510300,
+  "generatedAt": "2026-09-17",
+  "source": "【测试夹具】合成数据，结构与 tools/facts-batch.js 产物一致，用于离线验证 facts-verify.js",
+  "districts": [
+    {
+      "name": "自流井区",
+      "adcode": 510302,
+      "ok": true,
+      "source": "https://example.invalid/1",
+      "collision": null,
+      "geoArea": 155,
+      "check": { "status": "match", "textArea": 159.9, "geoArea": 155, "ratio": 1.03 },
+      "area": ["截至2022年末，辖区总面积159.9平方千米，东西长20.54千米。"],
+      "etymology": ["自流井区因境内有一口自流盐井而得名。"],
+      "spots": ["区内有自贡盐业历史博物馆、西秦会馆等文物古迹。"],
+      "factual": ["自流井区是自贡市的政治、经济、文化中心。", "民国三十一年（1942年），桐垱镇更名为自井镇。"]
+    },
+    {
+      "name": "富顺县",
+      "adcode": 510322,
+      "ok": true,
+      "source": "https://example.invalid/2",
+      "collision": null,
+      "geoArea": 1343,
+      "check": { "status": "match", "textArea": 1342, "geoArea": 1343, "ratio": 1.0 },
+      "area": ["年末，政区面积1342平方千米。"],
+      "etymology": [],
+      "spots": ["富顺文庙是全国重点文物保护单位。"],
+      "factual": ["富顺县建县于北周天和二年（公元567年）。"]
+    },
+    {
+      "name": "贡井区",
+      "adcode": 510303,
+      "ok": true,
+      "source": "https://example.invalid/3",
+      "collision": null,
+      "geoArea": 408,
+      "check": { "status": "match", "textArea": 410.2, "geoArea": 408, "ratio": 1.01 },
+      "area": ["全区辖区面积410.2平方千米。"],
+      "etymology": [],
+      "spots": ["贡井区有贡井盐场遗址。"],
+      "factual": ["贡井区因盐业而设。"],
+      "textLength": 500000
+    },
+    {
+      "name": "大安区",
+      "adcode": 510304,
+      "ok": true,
+      "source": "https://example.invalid/4",
+      "collision": null,
+      "geoArea": 401,
+      "check": { "status": "mismatch", "textArea": 398.0, "geoArea": 401, "ratio": 0.99 },
+      "area": [],
+      "etymology": [],
+      "spots": [],
+      "factual": []
+    },
+    {
+      "name": "市中区",
+      "adcode": 510399,
+      "ok": true,
+      "source": "https://example.invalid/5",
+      "collision": ["内江市", "眉山市"],
+      "geoArea": null,
+      "check": null,
+      "area": ["市中区面积387.5平方公里。"],
+      "etymology": [],
+      "spots": ["市中区有黄鹤湖旅游区。"],
+      "factual": ["市中区素有川中枢纽之称。"]
+    },
+    {
+      "name": "荣县",
+      "adcode": 510321,
+      "ok": false,
+      "throttled": true,
+      "error": "被限流（返回 6313 字节，非正文；已退避重试）"
+    }
+  ]
+}

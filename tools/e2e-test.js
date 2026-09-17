@@ -189,6 +189,9 @@ async function main() {
    * 天地图要 Key 才能联网调，"能测的部分先测死"，等 Key 到手就只剩网络这一件事要查。 */
   const wktResult = runOfflineTest('test-wkt.js');
   const mapsResult = runOfflineTest('test-maps.js');
+  /* 子代理产出校验器的自测：这个校验器是"防止编造内容进项目"的守门人，
+   * 守门人自己坏掉必须能被发现，所以把它钉进离线套件。 */
+  const verifyResult = runOfflineTest('test-facts-verify.js');
   console.log('  ' + (wktResult.failed ? '✘' : '✔') +
     ' WKT → GeoJSON 转换（' + wktResult.passed + ' 通过 / ' + wktResult.failed + ' 失败）' +
     (wktResult.failed ? '：' + wktResult.failures.join('、') : ''));
@@ -198,6 +201,11 @@ async function main() {
     ' 地图包自洽（adcode/关卡/资料/来源）：' + mapsResult.passed + ' 通过 / ' + mapsResult.failed + ' 失败' +
     (mapsResult.failed ? '：' + mapsResult.failures.join('、') : ''));
   if (mapsResult.failed) process.exitCode = 1;
+
+  console.log('  ' + (verifyResult.failed ? '✘' : '✔') +
+    ' 子代理产出校验器（防编造守门人自测）：' + verifyResult.passed + ' 通过 / ' + verifyResult.failed + ' 失败' +
+    (verifyResult.failed ? '：' + verifyResult.failures.join('、') : ''));
+  if (verifyResult.failed) process.exitCode = 1;
   console.log('');
 
   const server = http.createServer((req, res) => {
@@ -264,14 +272,15 @@ async function main() {
 
   // ---- 汇总 ----
   const totalPassed = results.reduce((n, r) => n + (r.result.passed || 0), 0) +
-    wktResult.passed + mapsResult.passed;
+    wktResult.passed + mapsResult.passed + verifyResult.passed;
   const totalFailed = results.reduce((n, r) => n + (r.result.failed || 0), 0) +
-    wktResult.failed + mapsResult.failed;
+    wktResult.failed + mapsResult.failed + verifyResult.failed;
   const broken = results.filter((r) => r.result.crashed).map((r) => r.suite.name);
 
   console.log('\n══════════════ 汇总 ══════════════');
   console.log(`  ${wktResult.failed ? '✘' : '✔'} 离线检查 · WKT → GeoJSON：${wktResult.passed} 通过 / ${wktResult.failed} 失败`);
   console.log(`  ${mapsResult.failed ? '✘' : '✔'} 离线检查 · 地图包自洽：${mapsResult.passed} 通过 / ${mapsResult.failed} 失败`);
+  console.log(`  ${verifyResult.failed ? '✘' : '✔'} 离线检查 · 子代理产出校验器：${verifyResult.passed} 通过 / ${verifyResult.failed} 失败`);
   results.forEach(({ suite, result }) => {
     const mark = result.crashed ? '✘ 未收到结果' : (result.failed ? '✘' : '✔');
     const secs = result.elapsedMs ? `（${(result.elapsedMs / 1000).toFixed(1)}s）` : '';

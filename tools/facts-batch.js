@@ -198,6 +198,28 @@ async function fetchSequential(items, delayMs, fn, onProgress) {
     fs.writeFileSync(draftFile, renderDraft(payload), 'utf8');
     console.log('\n  草稿：' + path.relative(tree.ROOT, draftFile) + '（人过目后再写进 .data.js）');
   }
+
+  /* 生成"委派给子代理"的自包含指令：子代理只读 facts JSON，**不联网**。
+   * 设计意图见 SOP 5.11 第九节：脚本接触外部世界，子代理负责判断，
+   * 主上下文只收结论 —— 这样"核实"这一步也不占主上下文。 */
+  if (args.flags.has('prompt')) {
+    const tplFile = path.join(__dirname, 'fixtures', 'verify-prompt.md');
+    if (!fs.existsSync(tplFile)) { console.error('缺模板：' + tplFile); process.exitCode = 1; return; }
+    const prompt = fs.readFileSync(tplFile, 'utf8')
+      .replace(/\{\{FACTS_FILE\}\}/g, path.relative(tree.ROOT, outFile))
+      .replace(/\{\{MAP_SLUG\}\}/g, slug);
+
+    const wantStdout = args.values.prompt === '-';
+    if (wantStdout) {
+      process.stdout.write(prompt);
+    } else {
+      const pFile = path.join(OUT_DIR, 'prompt-' + slug + '.md');
+      fs.writeFileSync(pFile, prompt, 'utf8');
+      console.log('\n  子代理指令：' + path.relative(tree.ROOT, pFile));
+      console.log('    用法：把它整段交给一个子代理（它会只读 ' + path.relative(tree.ROOT, outFile) + '，不联网），');
+      console.log('    拿回 JSON 后用 node tools/facts-verify.js --map=' + slug + ' 校验。');
+    }
+  }
 })().catch((e) => { console.error('失败：' + e.message); process.exitCode = 1; });
 
 /** 生成"给人过目"的草稿：每条只列候选句子，**不代替判断** */
@@ -209,12 +231,21 @@ function renderDraft(payload) {
   payload.districts.forEach((r) => {
     L.push('## ' + r.name + '（' + r.adcode + '）');
     if (!r.ok) { L.push('- ⚠ 抓取失败：' + r.error + '\n'); return; }
-    if (r.collision) L.push('- ⚠ **疑似撞车**：页面前部出现 ' + r.collision.join('、') + '，请人工确认是否抓错条目');
+    if (r.collision) L.push('- ⚠ **疑似撞车**：素材里找不到所属市，却出现 ' + [].concat(r.collision).join('、') + '，请人工确认是否抓错条目');
+    if (r.check && r.check.status === 'mismatch') L.push('- ❗ **面积对不上**：文本 ' + r.check.textArea + ' vs 几何 ' + r.check.geoArea + '，疑似抓错条目');
     L.push('- 来源：' + r.source);
-    if (r.area.length) { L.push('- 面积候选：'); r.area.forEach((s) => L.push('  - ' + s)); }
-    if (r.etymology.length) { L.push('- 名称由来候选：'); r.etymology.forEach((s) => L.push('  - ' + s)); }
-    if (r.spots.length) { L.push('- 景点候选：'); r.spots.forEach((s) => L.push('  - ' + s)); }
-    if (r.factual.length) { L.push('- 其他事实候选：'); r.factual.forEach((s) => L.push('  - ' + s)); }
+    if (r.area && r.area.length) { L.push('- 面积候选：'); r.area.forEach((s) => L.push('  - ' + s)); }
+    if (r.etymology && r.etymology.length) {
+      L.push('- 得名候选（`区名` = 本区县名本身的由来；`featured` = 某个**具体对象**的得名，');
+      L.push('  例如"石笋沟因此得名"——**不能当作本区县的冷知识**）：');
+      r.etymology.forEach((e) => {
+        const kind = typeof e === 'string' ? 'unknown' : e.kind;
+        const text = typeof e === 'string' ? e : e.text;
+        L.push('  - [' + kind + '] ' + text);
+      });
+    }
+    if (r.spots && r.spots.length) { L.push('- 景点候选：'); r.spots.forEach((s) => L.push('  - ' + s)); }
+    if (r.factual && r.factual.length) { L.push('- 其他事实候选：'); r.factual.forEach((s) => L.push('  - ' + s)); }
     L.push('');
   });
   return L.join('\n');

@@ -210,11 +210,40 @@ function pickArea(text) {
   ).slice(0, 5);
 }
 
-/** 名称由来 */
+/**
+ * 名称由来 / 得名类句子。
+ *
+ * 实测教训：只按"因…得名"这个模式匹配，会把**景区、河流、村落**的命名由来
+ * 也当成"这个区县的名称由来"。例如荣县抓到的第一句是
+ * "沟内有一高约40米的巨石，如石笋凌空，石笋沟因此而得名" —— 那是石笋沟的由来，
+ * 跟"荣县"这个名字毫无关系。子代理照单全收，就会写出很没水平的"冷知识"。
+ *
+ * 所以这里给每条标一个 kind，把判断依据摆到明面上：
+ *   region   本区县名本身的由来（最高价值）
+ *   featured 景区/河流/村落等**具体对象**的得名（有价值，但不能冒充区名由来）
+ *   unknown  判不出来
+ * 由下游（子代理/人）按 kind 决定怎么用，脚本不替它下结论。
+ */
 function pickEtymology(text) {
-  return dedupe(splitSentences(text).filter((s) =>
+  const sents = dedupe(splitSentences(text).filter((s) =>
     !isNoise(s) && /(因.{0,12}得名|由此得名|故名|名称由来|取.{0,6}之意)/.test(s)
-  )).slice(0, 4);
+    // 小标题（"名称由来 -->"）不是句子，别放进来冒充由来
+    && !/^(名称由来|历史沿革|行政区划|自然地理)\s*(-->|—+>)?$/.test(s.trim())
+  )).slice(0, 5);
+  return sents.map(classifyEtymology);
+}
+
+/** 判断一句"得名"讲的是本区县，还是某个具体对象 */
+function classifyEtymology(sentence) {
+  // 明显是"某个对象"的得名
+  const objSuffix = /([\u4e00-\u9fa5]{1,6}(沟|山|河|溪|湖|桥|镇|村|寺|庙|塔|井|场|街|坝|坪|岩|洞|泉|堰|关|寨|楼|阁|园|寺))因此得名/;
+  const objThen = /([\u4e00-\u9fa5]{1,6}(沟|山|河|溪|湖|桥|镇|村|寺|庙|塔|井|场|街|坝|坪|岩|洞|泉|堰|关|寨|楼|阁|园))[，、]?.*(得名|故名)/;
+  let kind = 'unknown';
+  if (objSuffix.test(sentence) || objThen.test(sentence)) kind = 'featured';
+  // 明确讲区县名本身
+  if (/(因|以).{0,10}(得名|为名)/.test(sentence) && /(区|县|市|州)(名|因此|由此)/.test(sentence)) kind = 'region';
+  if (/名称由来/.test(sentence)) kind = 'region';
+  return { text: sentence, kind };
 }
 
 /** 景点/地标 */
@@ -268,12 +297,24 @@ async function extractOne(name, opts) {
     ok: true,
     source: r.url,
     collision,
+    /* 面积沿用字符串数组（下游按"有没有数字"判断即可）；
+     * 由来是 {text, kind} 结构 —— kind 区分"区名本身"与"某个对象的得名"，
+     * 避免子代理把"石笋沟因此得名"当成"荣县名字的由来"（实测踩过）。 */
     area: pickArea(t).slice(0, 6),
-    etymology: pickEtymology(t).slice(0, 4),
+    etymology: pickEtymology(t),
     spots: pickSpots(t).slice(0, 8),
     factual: pickFactual(t).slice(0, 12),
     textLength: t.length,
   };
+}
+
+/** 把 candidate 统一成字符串列表（供原文比对 / 草稿渲染 / 摘要统计共用） */
+function candidateTexts(d) {
+  const asText = (x) => (typeof x === 'string' ? x : (x && x.text) || '');
+  return []
+    .concat(d.area || [], d.etymology || [], d.spots || [], d.factual || [])
+    .map(asText)
+    .filter(Boolean);
 }
 
 /**
@@ -305,4 +346,4 @@ function qualifyName(name, parentName) {
   return parentName.replace(/[市州]$/, '') + name;
 }
 
-module.exports = { fetchText, htmlToText, splitSentences, pickArea, pickEtymology, pickSpots, pickFactual, extractOne, qualifyName, detectCollision };
+module.exports = { fetchText, htmlToText, splitSentences, pickArea, pickEtymology, pickSpots, pickFactual, extractOne, qualifyName, detectCollision, candidateTexts };
