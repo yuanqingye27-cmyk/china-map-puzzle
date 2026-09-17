@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'taiyuan',
-    name: 'taiyuan',
+    name: '太原市',
     parent: 'shanxi',
     adcode: 140100,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'taiyuan',
+      cityName: '太原市',
       districtCount: 10,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shanxi/taiyuan.geo.js 存在且没有被浏览器拦截。',

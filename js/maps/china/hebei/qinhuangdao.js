@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'qinhuangdao',
-    name: 'qinhuangdao',
+    name: '秦皇岛市',
     parent: 'hebei',
     adcode: 130300,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'qinhuangdao',
+      cityName: '秦皇岛市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hebei/qinhuangdao.geo.js 存在且没有被浏览器拦截。',

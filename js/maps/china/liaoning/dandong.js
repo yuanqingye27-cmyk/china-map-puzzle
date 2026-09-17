@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'dandong',
-    name: 'dandong',
+    name: '丹东市',
     parent: 'liaoning',
     adcode: 210600,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'dandong',
+      cityName: '丹东市',
       districtCount: 6,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/liaoning/dandong.geo.js 存在且没有被浏览器拦截。',

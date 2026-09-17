@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'maoming',
-    name: 'maoming',
+    name: '茂名市',
     parent: 'guangdong',
     adcode: 440900,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'maoming',
+      cityName: '茂名市',
       districtCount: 5,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangdong/maoming.geo.js 存在且没有被浏览器拦截。',

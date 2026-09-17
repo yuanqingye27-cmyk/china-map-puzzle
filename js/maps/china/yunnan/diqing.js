@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'diqing',
-    name: 'diqing',
+    name: '迪庆藏族自治州',
     parent: 'yunnan',
     adcode: 533400,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'diqing',
+      cityName: '迪庆藏族自治州',
       districtCount: 3,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/yunnan/diqing.geo.js 存在且没有被浏览器拦截。',

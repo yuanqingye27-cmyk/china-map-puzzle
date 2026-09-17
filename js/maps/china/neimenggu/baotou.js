@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'baotou',
-    name: 'baotou',
+    name: '包头市',
     parent: 'neimenggu',
     adcode: 150200,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'baotou',
+      cityName: '包头市',
       districtCount: 9,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/neimenggu/baotou.geo.js 存在且没有被浏览器拦截。',

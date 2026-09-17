@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'shanghai',
-    name: 'shanghai',
+    name: '上海市',
     parent: 'china',
     adcode: 310000,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'shanghai',
+      cityName: '上海市',
       districtCount: 16,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shanghai.geo.js 存在且没有被浏览器拦截。',

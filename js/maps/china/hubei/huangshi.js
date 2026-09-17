@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'huangshi',
-    name: 'huangshi',
+    name: '黄石市',
     parent: 'hubei',
     adcode: 420200,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'huangshi',
+      cityName: '黄石市',
       districtCount: 6,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hubei/huangshi.geo.js 存在且没有被浏览器拦截。',

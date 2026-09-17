@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'rikaze',
-    name: 'rikaze',
+    name: '日喀则市',
     parent: 'xizang',
     adcode: 540200,
 
@@ -61,7 +61,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'rikaze',
+      cityName: '日喀则市',
       districtCount: 18,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/xizang/rikaze.geo.js 存在且没有被浏览器拦截。',

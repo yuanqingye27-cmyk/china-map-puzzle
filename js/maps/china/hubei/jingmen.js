@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'jingmen',
-    name: 'jingmen',
+    name: '荆门市',
     parent: 'hubei',
     adcode: 420800,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'jingmen',
+      cityName: '荆门市',
       districtCount: 5,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hubei/jingmen.geo.js 存在且没有被浏览器拦截。',

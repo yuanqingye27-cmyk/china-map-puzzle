@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'wuhai',
-    name: 'wuhai',
+    name: '乌海市',
     parent: 'neimenggu',
     adcode: 150300,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'wuhai',
+      cityName: '乌海市',
       districtCount: 3,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/neimenggu/wuhai.geo.js 存在且没有被浏览器拦截。',

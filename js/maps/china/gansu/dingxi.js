@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'dingxi',
-    name: 'dingxi',
+    name: '定西市',
     parent: 'gansu',
     adcode: 621100,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'dingxi',
+      cityName: '定西市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/gansu/dingxi.geo.js 存在且没有被浏览器拦截。',

@@ -35,7 +35,7 @@
   const CONFIG = {
     /* ---------------- 身份与层级 ---------------- */
     id: 'chengdu',
-    name: '成都',
+    name: '成都市',
     parent: 'sichuan',   // 上一级地图包 id，null 表示已是根
     adcode: 510100,      // 本级行政区划代码
     children: [],        // 下一级地图包 id（成都下面是区县，没有子地图包）
@@ -103,7 +103,7 @@
      * 引擎用这里的值去拼。
      * -------------------------------------- */
     texts: {
-      cityName: '成都',
+      cityName: '成都市',
       districtCount: 20,   // 全部区县数，通关文案里用
       // 数据结构缺失时的应急提示（直接写进 <body>）
       missingDataHint:

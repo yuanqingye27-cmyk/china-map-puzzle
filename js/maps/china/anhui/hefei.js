@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'hefei',
-    name: 'hefei',
+    name: '合肥市',
     parent: 'anhui',
     adcode: 340100,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'hefei',
+      cityName: '合肥市',
       districtCount: 9,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/anhui/hefei.geo.js 存在且没有被浏览器拦截。',

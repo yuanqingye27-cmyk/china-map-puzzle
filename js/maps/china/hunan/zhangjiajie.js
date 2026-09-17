@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'zhangjiajie',
-    name: 'zhangjiajie',
+    name: '张家界市',
     parent: 'hunan',
     adcode: 430800,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'zhangjiajie',
+      cityName: '张家界市',
       districtCount: 4,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hunan/zhangjiajie.geo.js 存在且没有被浏览器拦截。',

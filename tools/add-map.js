@@ -55,6 +55,15 @@ const geoSource = require('./lib/geo-source');
 
 /* slug 表（省级 / 地级）与 adcode 层级推断都在公共库里，见 tools/lib/slugs.js */
 const slugs = require('./lib/slugs');
+
+/* 官方地名表（adcode → 中文名）。取显示名时兜底用，见 nameOfAdcode 的说明。 */
+let NAME_MAP = {};
+try { NAME_MAP = require('./lib/name-map.json'); } catch (e) { NAME_MAP = {}; }
+
+/** adcode → 官方中文名（拿不到就返回 null，由调用方决定怎么兜底） */
+function nameOfAdcode(adcode) {
+  return NAME_MAP[String(adcode)] || null;
+}
 const PROVINCE_SLUGS = slugs.PROVINCE_SLUGS;
 const CHINA = slugs.CHINA;
 
@@ -536,7 +545,7 @@ async function addMap(opts) {
     const hasChildren = features.length > 1;
     featuresBySlug[item.slug] = features;
 
-    // 2) 显示名：向父级借（父级的 features 就是它的下级列表）
+    // 2) 显示名：优先向父级借（父级的 features 就是它的下级列表）
     let label = null;
     const parentFeatures = item.parentSlug ? featuresBySlug[item.parentSlug] : null;
     if (parentFeatures) {
@@ -548,7 +557,16 @@ async function addMap(opts) {
       }
     }
     if (!label && item.adcode === CHINA.adcode) label = '中国';
-    if (!label) label = item.slug; // 实在借不到就用 slug 兜底
+    /* 【兜底：查官方地名表】不要直接退回 slug。
+     * 实测踩过：省级地图是单独接入的，批处理到它时"父级 features 缓存"是空的，
+     * 于是借不到名字 → 静默用 slug（hebei / shijiazhuang…）→ **整个菜单全是拼音**。
+     * 这个 bug 从接第二个省就存在，直到看界面才发现。 */
+    if (!label) label = nameOfAdcode(item.adcode);
+    if (!label) label = item.slug;   // 连地名表都没有才用 slug（并告警）
+    if (label === item.slug) {
+      log('  ⚠ 取不到「' + item.slug + '」的中文名，暂用 slug 代替。' +
+        '若这是新省/市，跑 node tools/gen-name-map.js 补上官方地名表。');
+    }
 
     if (!hasChildren) {
       log('  ⚠ DataV 上这张地图没有下级区划（只拿到它自己 1 个 feature），拼图会只有 1 块');

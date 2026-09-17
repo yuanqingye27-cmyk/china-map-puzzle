@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'hanzhong',
-    name: 'hanzhong',
+    name: '汉中市',
     parent: 'shaanxi',
     adcode: 610700,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'hanzhong',
+      cityName: '汉中市',
       districtCount: 11,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shaanxi/hanzhong.geo.js 存在且没有被浏览器拦截。',

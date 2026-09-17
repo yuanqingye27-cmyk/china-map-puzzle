@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'jieyang',
-    name: 'jieyang',
+    name: '揭阳市',
     parent: 'guangdong',
     adcode: 445200,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'jieyang',
+      cityName: '揭阳市',
       districtCount: 5,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangdong/jieyang.geo.js 存在且没有被浏览器拦截。',

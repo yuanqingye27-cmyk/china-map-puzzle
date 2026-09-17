@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'hebi',
-    name: 'hebi',
+    name: '鹤壁市',
     parent: 'henan',
     adcode: 410600,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'hebi',
+      cityName: '鹤壁市',
       districtCount: 5,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/henan/hebi.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'benxi',
-    name: 'benxi',
+    name: '本溪市',
     parent: 'liaoning',
     adcode: 210500,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'benxi',
+      cityName: '本溪市',
       districtCount: 6,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/liaoning/benxi.geo.js 存在且没有被浏览器拦截。',

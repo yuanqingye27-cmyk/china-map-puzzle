@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'boertala',
-    name: 'boertala',
+    name: '博尔塔拉蒙古自治州',
     parent: 'xinjiang',
     adcode: 652700,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'boertala',
+      cityName: '博尔塔拉蒙古自治州',
       districtCount: 4,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/xinjiang/boertala.geo.js 存在且没有被浏览器拦截。',

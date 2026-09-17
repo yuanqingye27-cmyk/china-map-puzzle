@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'hongkong',
-    name: 'hongkong',
+    name: '香港特别行政区',
     parent: 'china',
     adcode: 810000,
 
@@ -61,7 +61,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'hongkong',
+      cityName: '香港特别行政区',
       districtCount: 18,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hongkong.geo.js 存在且没有被浏览器拦截。',

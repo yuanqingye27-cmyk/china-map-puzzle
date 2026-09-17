@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'lianyungang',
-    name: 'lianyungang',
+    name: '连云港市',
     parent: 'jiangsu',
     adcode: 320700,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'lianyungang',
+      cityName: '连云港市',
       districtCount: 6,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jiangsu/lianyungang.geo.js 存在且没有被浏览器拦截。',

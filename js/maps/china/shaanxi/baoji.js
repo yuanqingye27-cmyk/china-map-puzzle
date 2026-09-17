@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'baoji',
-    name: 'baoji',
+    name: '宝鸡市',
     parent: 'shaanxi',
     adcode: 610300,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'baoji',
+      cityName: '宝鸡市',
       districtCount: 12,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shaanxi/baoji.geo.js 存在且没有被浏览器拦截。',

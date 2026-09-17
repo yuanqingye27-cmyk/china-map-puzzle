@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'jinchang',
-    name: 'jinchang',
+    name: '金昌市',
     parent: 'gansu',
     adcode: 620300,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'jinchang',
+      cityName: '金昌市',
       districtCount: 2,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/gansu/jinchang.geo.js 存在且没有被浏览器拦截。',

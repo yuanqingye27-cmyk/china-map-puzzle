@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'chuzhou',
-    name: 'chuzhou',
+    name: '滁州市',
     parent: 'anhui',
     adcode: 341100,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'chuzhou',
+      cityName: '滁州市',
       districtCount: 8,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/anhui/chuzhou.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'zhuzhou',
-    name: 'zhuzhou',
+    name: '株洲市',
     parent: 'hunan',
     adcode: 430200,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'zhuzhou',
+      cityName: '株洲市',
       districtCount: 9,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hunan/zhuzhou.geo.js 存在且没有被浏览器拦截。',

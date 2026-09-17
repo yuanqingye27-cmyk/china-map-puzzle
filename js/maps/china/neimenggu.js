@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'neimenggu',
-    name: 'neimenggu',
+    name: '内蒙古自治区',
     parent: 'china',
     adcode: 150000,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'neimenggu',
+      cityName: '内蒙古自治区',
       districtCount: 12,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/neimenggu.geo.js 存在且没有被浏览器拦截。',

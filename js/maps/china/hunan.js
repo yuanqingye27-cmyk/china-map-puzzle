@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'hunan',
-    name: 'hunan',
+    name: '湖南省',
     parent: 'china',
     adcode: 430000,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'hunan',
+      cityName: '湖南省',
       districtCount: 14,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hunan.geo.js 存在且没有被浏览器拦截。',

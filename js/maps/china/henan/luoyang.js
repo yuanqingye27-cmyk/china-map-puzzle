@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'luoyang',
-    name: 'luoyang',
+    name: '洛阳市',
     parent: 'henan',
     adcode: 410300,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'luoyang',
+      cityName: '洛阳市',
       districtCount: 14,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/henan/luoyang.geo.js 存在且没有被浏览器拦截。',

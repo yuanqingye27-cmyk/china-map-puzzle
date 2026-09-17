@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'yancheng',
-    name: 'yancheng',
+    name: '盐城市',
     parent: 'jiangsu',
     adcode: 320900,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'yancheng',
+      cityName: '盐城市',
       districtCount: 9,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jiangsu/yancheng.geo.js 存在且没有被浏览器拦截。',

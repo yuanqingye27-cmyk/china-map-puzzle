@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'zhenjiang',
-    name: 'zhenjiang',
+    name: '镇江市',
     parent: 'jiangsu',
     adcode: 321100,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'zhenjiang',
+      cityName: '镇江市',
       districtCount: 6,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jiangsu/zhenjiang.geo.js 存在且没有被浏览器拦截。',

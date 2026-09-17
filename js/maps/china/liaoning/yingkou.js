@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'yingkou',
-    name: 'yingkou',
+    name: '营口市',
     parent: 'liaoning',
     adcode: 210800,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'yingkou',
+      cityName: '营口市',
       districtCount: 6,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/liaoning/yingkou.geo.js 存在且没有被浏览器拦截。',

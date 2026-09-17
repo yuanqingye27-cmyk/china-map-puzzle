@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'suzhoushi',
-    name: 'suzhoushi',
+    name: '宿州市',
     parent: 'anhui',
     adcode: 341300,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'suzhoushi',
+      cityName: '宿州市',
       districtCount: 5,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/anhui/suzhoushi.geo.js 存在且没有被浏览器拦截。',

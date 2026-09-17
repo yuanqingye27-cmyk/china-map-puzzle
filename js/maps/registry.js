@@ -50,7 +50,7 @@
     "maps": {
       "china": {
         "id": "china",
-        "name": "中国",
+        "name": "中华人民共和国",
         "parent": null,
         "adcode": 100000,
         "children": [
@@ -92,7 +92,7 @@
       },
       "beijing": {
         "id": "beijing",
-        "name": "beijing",
+        "name": "北京市",
         "parent": "china",
         "adcode": 110000,
         "children": [],
@@ -100,7 +100,7 @@
       },
       "tianjin": {
         "id": "tianjin",
-        "name": "tianjin",
+        "name": "天津市",
         "parent": "china",
         "adcode": 120000,
         "children": [],
@@ -108,7 +108,7 @@
       },
       "hebei": {
         "id": "hebei",
-        "name": "hebei",
+        "name": "河北省",
         "parent": "china",
         "adcode": 130000,
         "children": [
@@ -128,7 +128,7 @@
       },
       "shijiazhuang": {
         "id": "shijiazhuang",
-        "name": "shijiazhuang",
+        "name": "石家庄市",
         "parent": "hebei",
         "adcode": 130100,
         "children": [],
@@ -136,7 +136,7 @@
       },
       "tangshan": {
         "id": "tangshan",
-        "name": "tangshan",
+        "name": "唐山市",
         "parent": "hebei",
         "adcode": 130200,
         "children": [],
@@ -144,7 +144,7 @@
       },
       "qinhuangdao": {
         "id": "qinhuangdao",
-        "name": "qinhuangdao",
+        "name": "秦皇岛市",
         "parent": "hebei",
         "adcode": 130300,
         "children": [],
@@ -152,7 +152,7 @@
       },
       "handan": {
         "id": "handan",
-        "name": "handan",
+        "name": "邯郸市",
         "parent": "hebei",
         "adcode": 130400,
         "children": [],
@@ -160,7 +160,7 @@
       },
       "xingtai": {
         "id": "xingtai",
-        "name": "xingtai",
+        "name": "邢台市",
         "parent": "hebei",
         "adcode": 130500,
         "children": [],
@@ -168,7 +168,7 @@
       },
       "baoding": {
         "id": "baoding",
-        "name": "baoding",
+        "name": "保定市",
         "parent": "hebei",
         "adcode": 130600,
         "children": [],
@@ -176,7 +176,7 @@
       },
       "zhangjiakou": {
         "id": "zhangjiakou",
-        "name": "zhangjiakou",
+        "name": "张家口市",
         "parent": "hebei",
         "adcode": 130700,
         "children": [],
@@ -184,7 +184,7 @@
       },
       "chengde": {
         "id": "chengde",
-        "name": "chengde",
+        "name": "承德市",
         "parent": "hebei",
         "adcode": 130800,
         "children": [],
@@ -192,7 +192,7 @@
       },
       "cangzhou": {
         "id": "cangzhou",
-        "name": "cangzhou",
+        "name": "沧州市",
         "parent": "hebei",
         "adcode": 130900,
         "children": [],
@@ -200,7 +200,7 @@
       },
       "langfang": {
         "id": "langfang",
-        "name": "langfang",
+        "name": "廊坊市",
         "parent": "hebei",
         "adcode": 131000,
         "children": [],
@@ -208,7 +208,7 @@
       },
       "hengshui": {
         "id": "hengshui",
-        "name": "hengshui",
+        "name": "衡水市",
         "parent": "hebei",
         "adcode": 131100,
         "children": [],
@@ -216,7 +216,7 @@
       },
       "shanxi": {
         "id": "shanxi",
-        "name": "shanxi",
+        "name": "山西省",
         "parent": "china",
         "adcode": 140000,
         "children": [
@@ -236,7 +236,7 @@
       },
       "taiyuan": {
         "id": "taiyuan",
-        "name": "taiyuan",
+        "name": "太原市",
         "parent": "shanxi",
         "adcode": 140100,
         "children": [],
@@ -244,7 +244,7 @@
       },
       "datong": {
         "id": "datong",
-        "name": "datong",
+        "name": "大同市",
         "parent": "shanxi",
         "adcode": 140200,
         "children": [],
@@ -252,7 +252,7 @@
       },
       "yangquan": {
         "id": "yangquan",
-        "name": "yangquan",
+        "name": "阳泉市",
         "parent": "shanxi",
         "adcode": 140300,
         "children": [],
@@ -260,7 +260,7 @@
       },
       "changzhi": {
         "id": "changzhi",
-        "name": "changzhi",
+        "name": "长治市",
         "parent": "shanxi",
         "adcode": 140400,
         "children": [],
@@ -268,7 +268,7 @@
       },
       "jincheng": {
         "id": "jincheng",
-        "name": "jincheng",
+        "name": "晋城市",
         "parent": "shanxi",
         "adcode": 140500,
         "children": [],
@@ -276,7 +276,7 @@
       },
       "shuozhou": {
         "id": "shuozhou",
-        "name": "shuozhou",
+        "name": "朔州市",
         "parent": "shanxi",
         "adcode": 140600,
         "children": [],
@@ -284,7 +284,7 @@
       },
       "jinzhong": {
         "id": "jinzhong",
-        "name": "jinzhong",
+        "name": "晋中市",
         "parent": "shanxi",
         "adcode": 140700,
         "children": [],
@@ -292,7 +292,7 @@
       },
       "yuncheng": {
         "id": "yuncheng",
-        "name": "yuncheng",
+        "name": "运城市",
         "parent": "shanxi",
         "adcode": 140800,
         "children": [],
@@ -300,7 +300,7 @@
       },
       "xinzhou": {
         "id": "xinzhou",
-        "name": "xinzhou",
+        "name": "忻州市",
         "parent": "shanxi",
         "adcode": 140900,
         "children": [],
@@ -308,7 +308,7 @@
       },
       "linfen": {
         "id": "linfen",
-        "name": "linfen",
+        "name": "临汾市",
         "parent": "shanxi",
         "adcode": 141000,
         "children": [],
@@ -316,7 +316,7 @@
       },
       "lliang": {
         "id": "lliang",
-        "name": "lliang",
+        "name": "吕梁市",
         "parent": "shanxi",
         "adcode": 141100,
         "children": [],
@@ -324,7 +324,7 @@
       },
       "neimenggu": {
         "id": "neimenggu",
-        "name": "neimenggu",
+        "name": "内蒙古自治区",
         "parent": "china",
         "adcode": 150000,
         "children": [
@@ -345,7 +345,7 @@
       },
       "huhehaote": {
         "id": "huhehaote",
-        "name": "huhehaote",
+        "name": "呼和浩特市",
         "parent": "neimenggu",
         "adcode": 150100,
         "children": [],
@@ -353,7 +353,7 @@
       },
       "baotou": {
         "id": "baotou",
-        "name": "baotou",
+        "name": "包头市",
         "parent": "neimenggu",
         "adcode": 150200,
         "children": [],
@@ -361,7 +361,7 @@
       },
       "wuhai": {
         "id": "wuhai",
-        "name": "wuhai",
+        "name": "乌海市",
         "parent": "neimenggu",
         "adcode": 150300,
         "children": [],
@@ -369,7 +369,7 @@
       },
       "chifeng": {
         "id": "chifeng",
-        "name": "chifeng",
+        "name": "赤峰市",
         "parent": "neimenggu",
         "adcode": 150400,
         "children": [],
@@ -377,7 +377,7 @@
       },
       "tongliao": {
         "id": "tongliao",
-        "name": "tongliao",
+        "name": "通辽市",
         "parent": "neimenggu",
         "adcode": 150500,
         "children": [],
@@ -385,7 +385,7 @@
       },
       "eerduosi": {
         "id": "eerduosi",
-        "name": "eerduosi",
+        "name": "鄂尔多斯市",
         "parent": "neimenggu",
         "adcode": 150600,
         "children": [],
@@ -393,7 +393,7 @@
       },
       "hulunbeier": {
         "id": "hulunbeier",
-        "name": "hulunbeier",
+        "name": "呼伦贝尔市",
         "parent": "neimenggu",
         "adcode": 150700,
         "children": [],
@@ -401,7 +401,7 @@
       },
       "bayannaoer": {
         "id": "bayannaoer",
-        "name": "bayannaoer",
+        "name": "巴彦淖尔市",
         "parent": "neimenggu",
         "adcode": 150800,
         "children": [],
@@ -409,7 +409,7 @@
       },
       "wulanchabu": {
         "id": "wulanchabu",
-        "name": "wulanchabu",
+        "name": "乌兰察布市",
         "parent": "neimenggu",
         "adcode": 150900,
         "children": [],
@@ -417,7 +417,7 @@
       },
       "xingan": {
         "id": "xingan",
-        "name": "xingan",
+        "name": "兴安盟",
         "parent": "neimenggu",
         "adcode": 152200,
         "children": [],
@@ -425,7 +425,7 @@
       },
       "xilinguole": {
         "id": "xilinguole",
-        "name": "xilinguole",
+        "name": "锡林郭勒盟",
         "parent": "neimenggu",
         "adcode": 152500,
         "children": [],
@@ -433,7 +433,7 @@
       },
       "alashan": {
         "id": "alashan",
-        "name": "alashan",
+        "name": "阿拉善盟",
         "parent": "neimenggu",
         "adcode": 152900,
         "children": [],
@@ -441,7 +441,7 @@
       },
       "liaoning": {
         "id": "liaoning",
-        "name": "liaoning",
+        "name": "辽宁省",
         "parent": "china",
         "adcode": 210000,
         "children": [
@@ -464,7 +464,7 @@
       },
       "shenyang": {
         "id": "shenyang",
-        "name": "shenyang",
+        "name": "沈阳市",
         "parent": "liaoning",
         "adcode": 210100,
         "children": [],
@@ -472,7 +472,7 @@
       },
       "dalian": {
         "id": "dalian",
-        "name": "dalian",
+        "name": "大连市",
         "parent": "liaoning",
         "adcode": 210200,
         "children": [],
@@ -480,7 +480,7 @@
       },
       "anshan": {
         "id": "anshan",
-        "name": "anshan",
+        "name": "鞍山市",
         "parent": "liaoning",
         "adcode": 210300,
         "children": [],
@@ -488,7 +488,7 @@
       },
       "fushun": {
         "id": "fushun",
-        "name": "fushun",
+        "name": "抚顺市",
         "parent": "liaoning",
         "adcode": 210400,
         "children": [],
@@ -496,7 +496,7 @@
       },
       "benxi": {
         "id": "benxi",
-        "name": "benxi",
+        "name": "本溪市",
         "parent": "liaoning",
         "adcode": 210500,
         "children": [],
@@ -504,7 +504,7 @@
       },
       "dandong": {
         "id": "dandong",
-        "name": "dandong",
+        "name": "丹东市",
         "parent": "liaoning",
         "adcode": 210600,
         "children": [],
@@ -512,7 +512,7 @@
       },
       "jinzhou": {
         "id": "jinzhou",
-        "name": "jinzhou",
+        "name": "锦州市",
         "parent": "liaoning",
         "adcode": 210700,
         "children": [],
@@ -520,7 +520,7 @@
       },
       "yingkou": {
         "id": "yingkou",
-        "name": "yingkou",
+        "name": "营口市",
         "parent": "liaoning",
         "adcode": 210800,
         "children": [],
@@ -528,7 +528,7 @@
       },
       "fuxin": {
         "id": "fuxin",
-        "name": "fuxin",
+        "name": "阜新市",
         "parent": "liaoning",
         "adcode": 210900,
         "children": [],
@@ -536,7 +536,7 @@
       },
       "liaoyang": {
         "id": "liaoyang",
-        "name": "liaoyang",
+        "name": "辽阳市",
         "parent": "liaoning",
         "adcode": 211000,
         "children": [],
@@ -544,7 +544,7 @@
       },
       "panjin": {
         "id": "panjin",
-        "name": "panjin",
+        "name": "盘锦市",
         "parent": "liaoning",
         "adcode": 211100,
         "children": [],
@@ -552,7 +552,7 @@
       },
       "tieling": {
         "id": "tieling",
-        "name": "tieling",
+        "name": "铁岭市",
         "parent": "liaoning",
         "adcode": 211200,
         "children": [],
@@ -560,7 +560,7 @@
       },
       "chaoyangshi": {
         "id": "chaoyangshi",
-        "name": "chaoyangshi",
+        "name": "朝阳市",
         "parent": "liaoning",
         "adcode": 211300,
         "children": [],
@@ -568,7 +568,7 @@
       },
       "huludao": {
         "id": "huludao",
-        "name": "huludao",
+        "name": "葫芦岛市",
         "parent": "liaoning",
         "adcode": 211400,
         "children": [],
@@ -576,7 +576,7 @@
       },
       "jilin": {
         "id": "jilin",
-        "name": "jilin",
+        "name": "吉林省",
         "parent": "china",
         "adcode": 220000,
         "children": [
@@ -594,7 +594,7 @@
       },
       "changchun": {
         "id": "changchun",
-        "name": "changchun",
+        "name": "长春市",
         "parent": "jilin",
         "adcode": 220100,
         "children": [],
@@ -602,7 +602,7 @@
       },
       "jilinshi": {
         "id": "jilinshi",
-        "name": "jilinshi",
+        "name": "吉林市",
         "parent": "jilin",
         "adcode": 220200,
         "children": [],
@@ -610,7 +610,7 @@
       },
       "siping": {
         "id": "siping",
-        "name": "siping",
+        "name": "四平市",
         "parent": "jilin",
         "adcode": 220300,
         "children": [],
@@ -618,7 +618,7 @@
       },
       "liaoyuan": {
         "id": "liaoyuan",
-        "name": "liaoyuan",
+        "name": "辽源市",
         "parent": "jilin",
         "adcode": 220400,
         "children": [],
@@ -626,7 +626,7 @@
       },
       "tonghua": {
         "id": "tonghua",
-        "name": "tonghua",
+        "name": "通化市",
         "parent": "jilin",
         "adcode": 220500,
         "children": [],
@@ -634,7 +634,7 @@
       },
       "baishan": {
         "id": "baishan",
-        "name": "baishan",
+        "name": "白山市",
         "parent": "jilin",
         "adcode": 220600,
         "children": [],
@@ -642,7 +642,7 @@
       },
       "songyuan": {
         "id": "songyuan",
-        "name": "songyuan",
+        "name": "松原市",
         "parent": "jilin",
         "adcode": 220700,
         "children": [],
@@ -650,7 +650,7 @@
       },
       "baicheng": {
         "id": "baicheng",
-        "name": "baicheng",
+        "name": "白城市",
         "parent": "jilin",
         "adcode": 220800,
         "children": [],
@@ -658,7 +658,7 @@
       },
       "yanbian": {
         "id": "yanbian",
-        "name": "yanbian",
+        "name": "延边朝鲜族自治州",
         "parent": "jilin",
         "adcode": 222400,
         "children": [],
@@ -666,7 +666,7 @@
       },
       "heilongjiang": {
         "id": "heilongjiang",
-        "name": "heilongjiang",
+        "name": "黑龙江省",
         "parent": "china",
         "adcode": 230000,
         "children": [
@@ -688,7 +688,7 @@
       },
       "haerbin": {
         "id": "haerbin",
-        "name": "haerbin",
+        "name": "哈尔滨市",
         "parent": "heilongjiang",
         "adcode": 230100,
         "children": [],
@@ -696,7 +696,7 @@
       },
       "qiqihaer": {
         "id": "qiqihaer",
-        "name": "qiqihaer",
+        "name": "齐齐哈尔市",
         "parent": "heilongjiang",
         "adcode": 230200,
         "children": [],
@@ -704,7 +704,7 @@
       },
       "jixi": {
         "id": "jixi",
-        "name": "jixi",
+        "name": "鸡西市",
         "parent": "heilongjiang",
         "adcode": 230300,
         "children": [],
@@ -712,7 +712,7 @@
       },
       "hegang": {
         "id": "hegang",
-        "name": "hegang",
+        "name": "鹤岗市",
         "parent": "heilongjiang",
         "adcode": 230400,
         "children": [],
@@ -720,7 +720,7 @@
       },
       "shuangyashan": {
         "id": "shuangyashan",
-        "name": "shuangyashan",
+        "name": "双鸭山市",
         "parent": "heilongjiang",
         "adcode": 230500,
         "children": [],
@@ -728,7 +728,7 @@
       },
       "daqing": {
         "id": "daqing",
-        "name": "daqing",
+        "name": "大庆市",
         "parent": "heilongjiang",
         "adcode": 230600,
         "children": [],
@@ -736,7 +736,7 @@
       },
       "yichun": {
         "id": "yichun",
-        "name": "yichun",
+        "name": "伊春市",
         "parent": "heilongjiang",
         "adcode": 230700,
         "children": [],
@@ -744,7 +744,7 @@
       },
       "jiamusi": {
         "id": "jiamusi",
-        "name": "jiamusi",
+        "name": "佳木斯市",
         "parent": "heilongjiang",
         "adcode": 230800,
         "children": [],
@@ -752,7 +752,7 @@
       },
       "qitaihe": {
         "id": "qitaihe",
-        "name": "qitaihe",
+        "name": "七台河市",
         "parent": "heilongjiang",
         "adcode": 230900,
         "children": [],
@@ -760,7 +760,7 @@
       },
       "mudanjiang": {
         "id": "mudanjiang",
-        "name": "mudanjiang",
+        "name": "牡丹江市",
         "parent": "heilongjiang",
         "adcode": 231000,
         "children": [],
@@ -768,7 +768,7 @@
       },
       "heihe": {
         "id": "heihe",
-        "name": "heihe",
+        "name": "黑河市",
         "parent": "heilongjiang",
         "adcode": 231100,
         "children": [],
@@ -776,7 +776,7 @@
       },
       "suihua": {
         "id": "suihua",
-        "name": "suihua",
+        "name": "绥化市",
         "parent": "heilongjiang",
         "adcode": 231200,
         "children": [],
@@ -784,7 +784,7 @@
       },
       "daxinganling": {
         "id": "daxinganling",
-        "name": "daxinganling",
+        "name": "大兴安岭地区",
         "parent": "heilongjiang",
         "adcode": 232700,
         "children": [],
@@ -792,7 +792,7 @@
       },
       "shanghai": {
         "id": "shanghai",
-        "name": "shanghai",
+        "name": "上海市",
         "parent": "china",
         "adcode": 310000,
         "children": [],
@@ -800,7 +800,7 @@
       },
       "jiangsu": {
         "id": "jiangsu",
-        "name": "jiangsu",
+        "name": "江苏省",
         "parent": "china",
         "adcode": 320000,
         "children": [
@@ -822,7 +822,7 @@
       },
       "nanjing": {
         "id": "nanjing",
-        "name": "nanjing",
+        "name": "南京市",
         "parent": "jiangsu",
         "adcode": 320100,
         "children": [],
@@ -830,7 +830,7 @@
       },
       "wuxi": {
         "id": "wuxi",
-        "name": "wuxi",
+        "name": "无锡市",
         "parent": "jiangsu",
         "adcode": 320200,
         "children": [],
@@ -838,7 +838,7 @@
       },
       "xuzhou": {
         "id": "xuzhou",
-        "name": "xuzhou",
+        "name": "徐州市",
         "parent": "jiangsu",
         "adcode": 320300,
         "children": [],
@@ -846,7 +846,7 @@
       },
       "changzhou": {
         "id": "changzhou",
-        "name": "changzhou",
+        "name": "常州市",
         "parent": "jiangsu",
         "adcode": 320400,
         "children": [],
@@ -854,7 +854,7 @@
       },
       "suzhou": {
         "id": "suzhou",
-        "name": "suzhou",
+        "name": "苏州市",
         "parent": "jiangsu",
         "adcode": 320500,
         "children": [],
@@ -862,7 +862,7 @@
       },
       "nantong": {
         "id": "nantong",
-        "name": "nantong",
+        "name": "南通市",
         "parent": "jiangsu",
         "adcode": 320600,
         "children": [],
@@ -870,7 +870,7 @@
       },
       "lianyungang": {
         "id": "lianyungang",
-        "name": "lianyungang",
+        "name": "连云港市",
         "parent": "jiangsu",
         "adcode": 320700,
         "children": [],
@@ -878,7 +878,7 @@
       },
       "huaian": {
         "id": "huaian",
-        "name": "huaian",
+        "name": "淮安市",
         "parent": "jiangsu",
         "adcode": 320800,
         "children": [],
@@ -886,7 +886,7 @@
       },
       "yancheng": {
         "id": "yancheng",
-        "name": "yancheng",
+        "name": "盐城市",
         "parent": "jiangsu",
         "adcode": 320900,
         "children": [],
@@ -894,7 +894,7 @@
       },
       "yangzhou": {
         "id": "yangzhou",
-        "name": "yangzhou",
+        "name": "扬州市",
         "parent": "jiangsu",
         "adcode": 321000,
         "children": [],
@@ -902,7 +902,7 @@
       },
       "zhenjiang": {
         "id": "zhenjiang",
-        "name": "zhenjiang",
+        "name": "镇江市",
         "parent": "jiangsu",
         "adcode": 321100,
         "children": [],
@@ -910,7 +910,7 @@
       },
       "taizhou": {
         "id": "taizhou",
-        "name": "taizhou",
+        "name": "泰州市",
         "parent": "jiangsu",
         "adcode": 321200,
         "children": [],
@@ -918,7 +918,7 @@
       },
       "suqian": {
         "id": "suqian",
-        "name": "suqian",
+        "name": "宿迁市",
         "parent": "jiangsu",
         "adcode": 321300,
         "children": [],
@@ -926,7 +926,7 @@
       },
       "zhejiang": {
         "id": "zhejiang",
-        "name": "zhejiang",
+        "name": "浙江省",
         "parent": "china",
         "adcode": 330000,
         "children": [
@@ -946,7 +946,7 @@
       },
       "hangzhou": {
         "id": "hangzhou",
-        "name": "hangzhou",
+        "name": "杭州市",
         "parent": "zhejiang",
         "adcode": 330100,
         "children": [],
@@ -954,7 +954,7 @@
       },
       "ningbo": {
         "id": "ningbo",
-        "name": "ningbo",
+        "name": "宁波市",
         "parent": "zhejiang",
         "adcode": 330200,
         "children": [],
@@ -962,7 +962,7 @@
       },
       "wenzhou": {
         "id": "wenzhou",
-        "name": "wenzhou",
+        "name": "温州市",
         "parent": "zhejiang",
         "adcode": 330300,
         "children": [],
@@ -970,7 +970,7 @@
       },
       "jiaxing": {
         "id": "jiaxing",
-        "name": "jiaxing",
+        "name": "嘉兴市",
         "parent": "zhejiang",
         "adcode": 330400,
         "children": [],
@@ -978,7 +978,7 @@
       },
       "huzhou": {
         "id": "huzhou",
-        "name": "huzhou",
+        "name": "湖州市",
         "parent": "zhejiang",
         "adcode": 330500,
         "children": [],
@@ -986,7 +986,7 @@
       },
       "shaoxing": {
         "id": "shaoxing",
-        "name": "shaoxing",
+        "name": "绍兴市",
         "parent": "zhejiang",
         "adcode": 330600,
         "children": [],
@@ -994,7 +994,7 @@
       },
       "jinhua": {
         "id": "jinhua",
-        "name": "jinhua",
+        "name": "金华市",
         "parent": "zhejiang",
         "adcode": 330700,
         "children": [],
@@ -1002,7 +1002,7 @@
       },
       "quzhou": {
         "id": "quzhou",
-        "name": "quzhou",
+        "name": "衢州市",
         "parent": "zhejiang",
         "adcode": 330800,
         "children": [],
@@ -1010,7 +1010,7 @@
       },
       "zhoushan": {
         "id": "zhoushan",
-        "name": "zhoushan",
+        "name": "舟山市",
         "parent": "zhejiang",
         "adcode": 330900,
         "children": [],
@@ -1018,7 +1018,7 @@
       },
       "taizhoushi": {
         "id": "taizhoushi",
-        "name": "taizhoushi",
+        "name": "台州市",
         "parent": "zhejiang",
         "adcode": 331000,
         "children": [],
@@ -1026,7 +1026,7 @@
       },
       "lishui": {
         "id": "lishui",
-        "name": "lishui",
+        "name": "丽水市",
         "parent": "zhejiang",
         "adcode": 331100,
         "children": [],
@@ -1034,7 +1034,7 @@
       },
       "anhui": {
         "id": "anhui",
-        "name": "anhui",
+        "name": "安徽省",
         "parent": "china",
         "adcode": 340000,
         "children": [
@@ -1059,7 +1059,7 @@
       },
       "hefei": {
         "id": "hefei",
-        "name": "hefei",
+        "name": "合肥市",
         "parent": "anhui",
         "adcode": 340100,
         "children": [],
@@ -1067,7 +1067,7 @@
       },
       "wuhu": {
         "id": "wuhu",
-        "name": "wuhu",
+        "name": "芜湖市",
         "parent": "anhui",
         "adcode": 340200,
         "children": [],
@@ -1075,7 +1075,7 @@
       },
       "bengbu": {
         "id": "bengbu",
-        "name": "bengbu",
+        "name": "蚌埠市",
         "parent": "anhui",
         "adcode": 340300,
         "children": [],
@@ -1083,7 +1083,7 @@
       },
       "huainan": {
         "id": "huainan",
-        "name": "huainan",
+        "name": "淮南市",
         "parent": "anhui",
         "adcode": 340400,
         "children": [],
@@ -1091,7 +1091,7 @@
       },
       "maanshan": {
         "id": "maanshan",
-        "name": "maanshan",
+        "name": "马鞍山市",
         "parent": "anhui",
         "adcode": 340500,
         "children": [],
@@ -1099,7 +1099,7 @@
       },
       "huaibei": {
         "id": "huaibei",
-        "name": "huaibei",
+        "name": "淮北市",
         "parent": "anhui",
         "adcode": 340600,
         "children": [],
@@ -1107,7 +1107,7 @@
       },
       "tongling": {
         "id": "tongling",
-        "name": "tongling",
+        "name": "铜陵市",
         "parent": "anhui",
         "adcode": 340700,
         "children": [],
@@ -1115,7 +1115,7 @@
       },
       "anqing": {
         "id": "anqing",
-        "name": "anqing",
+        "name": "安庆市",
         "parent": "anhui",
         "adcode": 340800,
         "children": [],
@@ -1123,7 +1123,7 @@
       },
       "huangshan": {
         "id": "huangshan",
-        "name": "huangshan",
+        "name": "黄山市",
         "parent": "anhui",
         "adcode": 341000,
         "children": [],
@@ -1131,7 +1131,7 @@
       },
       "chuzhou": {
         "id": "chuzhou",
-        "name": "chuzhou",
+        "name": "滁州市",
         "parent": "anhui",
         "adcode": 341100,
         "children": [],
@@ -1139,7 +1139,7 @@
       },
       "fuyang": {
         "id": "fuyang",
-        "name": "fuyang",
+        "name": "阜阳市",
         "parent": "anhui",
         "adcode": 341200,
         "children": [],
@@ -1147,7 +1147,7 @@
       },
       "suzhoushi": {
         "id": "suzhoushi",
-        "name": "suzhoushi",
+        "name": "宿州市",
         "parent": "anhui",
         "adcode": 341300,
         "children": [],
@@ -1155,7 +1155,7 @@
       },
       "luan": {
         "id": "luan",
-        "name": "luan",
+        "name": "六安市",
         "parent": "anhui",
         "adcode": 341500,
         "children": [],
@@ -1163,7 +1163,7 @@
       },
       "bozhou": {
         "id": "bozhou",
-        "name": "bozhou",
+        "name": "亳州市",
         "parent": "anhui",
         "adcode": 341600,
         "children": [],
@@ -1171,7 +1171,7 @@
       },
       "chizhou": {
         "id": "chizhou",
-        "name": "chizhou",
+        "name": "池州市",
         "parent": "anhui",
         "adcode": 341700,
         "children": [],
@@ -1179,7 +1179,7 @@
       },
       "xuancheng": {
         "id": "xuancheng",
-        "name": "xuancheng",
+        "name": "宣城市",
         "parent": "anhui",
         "adcode": 341800,
         "children": [],
@@ -1187,7 +1187,7 @@
       },
       "fujian": {
         "id": "fujian",
-        "name": "fujian",
+        "name": "福建省",
         "parent": "china",
         "adcode": 350000,
         "children": [
@@ -1205,7 +1205,7 @@
       },
       "fuzhou": {
         "id": "fuzhou",
-        "name": "fuzhou",
+        "name": "福州市",
         "parent": "fujian",
         "adcode": 350100,
         "children": [],
@@ -1213,7 +1213,7 @@
       },
       "xiamen": {
         "id": "xiamen",
-        "name": "xiamen",
+        "name": "厦门市",
         "parent": "fujian",
         "adcode": 350200,
         "children": [],
@@ -1221,7 +1221,7 @@
       },
       "putian": {
         "id": "putian",
-        "name": "putian",
+        "name": "莆田市",
         "parent": "fujian",
         "adcode": 350300,
         "children": [],
@@ -1229,7 +1229,7 @@
       },
       "sanming": {
         "id": "sanming",
-        "name": "sanming",
+        "name": "三明市",
         "parent": "fujian",
         "adcode": 350400,
         "children": [],
@@ -1237,7 +1237,7 @@
       },
       "quanzhou": {
         "id": "quanzhou",
-        "name": "quanzhou",
+        "name": "泉州市",
         "parent": "fujian",
         "adcode": 350500,
         "children": [],
@@ -1245,7 +1245,7 @@
       },
       "zhangzhou": {
         "id": "zhangzhou",
-        "name": "zhangzhou",
+        "name": "漳州市",
         "parent": "fujian",
         "adcode": 350600,
         "children": [],
@@ -1253,7 +1253,7 @@
       },
       "nanping": {
         "id": "nanping",
-        "name": "nanping",
+        "name": "南平市",
         "parent": "fujian",
         "adcode": 350700,
         "children": [],
@@ -1261,7 +1261,7 @@
       },
       "longyan": {
         "id": "longyan",
-        "name": "longyan",
+        "name": "龙岩市",
         "parent": "fujian",
         "adcode": 350800,
         "children": [],
@@ -1269,7 +1269,7 @@
       },
       "ningde": {
         "id": "ningde",
-        "name": "ningde",
+        "name": "宁德市",
         "parent": "fujian",
         "adcode": 350900,
         "children": [],
@@ -1277,7 +1277,7 @@
       },
       "jiangxi": {
         "id": "jiangxi",
-        "name": "jiangxi",
+        "name": "江西省",
         "parent": "china",
         "adcode": 360000,
         "children": [
@@ -1297,7 +1297,7 @@
       },
       "nanchang": {
         "id": "nanchang",
-        "name": "nanchang",
+        "name": "南昌市",
         "parent": "jiangxi",
         "adcode": 360100,
         "children": [],
@@ -1305,7 +1305,7 @@
       },
       "jingdezhen": {
         "id": "jingdezhen",
-        "name": "jingdezhen",
+        "name": "景德镇市",
         "parent": "jiangxi",
         "adcode": 360200,
         "children": [],
@@ -1313,7 +1313,7 @@
       },
       "pingxiang": {
         "id": "pingxiang",
-        "name": "pingxiang",
+        "name": "萍乡市",
         "parent": "jiangxi",
         "adcode": 360300,
         "children": [],
@@ -1321,7 +1321,7 @@
       },
       "jiujiang": {
         "id": "jiujiang",
-        "name": "jiujiang",
+        "name": "九江市",
         "parent": "jiangxi",
         "adcode": 360400,
         "children": [],
@@ -1329,7 +1329,7 @@
       },
       "xinyu": {
         "id": "xinyu",
-        "name": "xinyu",
+        "name": "新余市",
         "parent": "jiangxi",
         "adcode": 360500,
         "children": [],
@@ -1337,7 +1337,7 @@
       },
       "yingtan": {
         "id": "yingtan",
-        "name": "yingtan",
+        "name": "鹰潭市",
         "parent": "jiangxi",
         "adcode": 360600,
         "children": [],
@@ -1345,7 +1345,7 @@
       },
       "ganzhou": {
         "id": "ganzhou",
-        "name": "ganzhou",
+        "name": "赣州市",
         "parent": "jiangxi",
         "adcode": 360700,
         "children": [],
@@ -1353,7 +1353,7 @@
       },
       "jian": {
         "id": "jian",
-        "name": "jian",
+        "name": "吉安市",
         "parent": "jiangxi",
         "adcode": 360800,
         "children": [],
@@ -1361,7 +1361,7 @@
       },
       "yichunshi": {
         "id": "yichunshi",
-        "name": "yichunshi",
+        "name": "宜春市",
         "parent": "jiangxi",
         "adcode": 360900,
         "children": [],
@@ -1369,7 +1369,7 @@
       },
       "fuzhoushi": {
         "id": "fuzhoushi",
-        "name": "fuzhoushi",
+        "name": "抚州市",
         "parent": "jiangxi",
         "adcode": 361000,
         "children": [],
@@ -1377,7 +1377,7 @@
       },
       "shangrao": {
         "id": "shangrao",
-        "name": "shangrao",
+        "name": "上饶市",
         "parent": "jiangxi",
         "adcode": 361100,
         "children": [],
@@ -1385,7 +1385,7 @@
       },
       "shandong": {
         "id": "shandong",
-        "name": "shandong",
+        "name": "山东省",
         "parent": "china",
         "adcode": 370000,
         "children": [
@@ -1410,7 +1410,7 @@
       },
       "jinan": {
         "id": "jinan",
-        "name": "jinan",
+        "name": "济南市",
         "parent": "shandong",
         "adcode": 370100,
         "children": [],
@@ -1418,7 +1418,7 @@
       },
       "qingdao": {
         "id": "qingdao",
-        "name": "qingdao",
+        "name": "青岛市",
         "parent": "shandong",
         "adcode": 370200,
         "children": [],
@@ -1426,7 +1426,7 @@
       },
       "zibo": {
         "id": "zibo",
-        "name": "zibo",
+        "name": "淄博市",
         "parent": "shandong",
         "adcode": 370300,
         "children": [],
@@ -1434,7 +1434,7 @@
       },
       "zaozhuang": {
         "id": "zaozhuang",
-        "name": "zaozhuang",
+        "name": "枣庄市",
         "parent": "shandong",
         "adcode": 370400,
         "children": [],
@@ -1442,7 +1442,7 @@
       },
       "dongying": {
         "id": "dongying",
-        "name": "dongying",
+        "name": "东营市",
         "parent": "shandong",
         "adcode": 370500,
         "children": [],
@@ -1450,7 +1450,7 @@
       },
       "yantai": {
         "id": "yantai",
-        "name": "yantai",
+        "name": "烟台市",
         "parent": "shandong",
         "adcode": 370600,
         "children": [],
@@ -1458,7 +1458,7 @@
       },
       "weifang": {
         "id": "weifang",
-        "name": "weifang",
+        "name": "潍坊市",
         "parent": "shandong",
         "adcode": 370700,
         "children": [],
@@ -1466,7 +1466,7 @@
       },
       "jining": {
         "id": "jining",
-        "name": "jining",
+        "name": "济宁市",
         "parent": "shandong",
         "adcode": 370800,
         "children": [],
@@ -1474,7 +1474,7 @@
       },
       "taian": {
         "id": "taian",
-        "name": "taian",
+        "name": "泰安市",
         "parent": "shandong",
         "adcode": 370900,
         "children": [],
@@ -1482,7 +1482,7 @@
       },
       "weihai": {
         "id": "weihai",
-        "name": "weihai",
+        "name": "威海市",
         "parent": "shandong",
         "adcode": 371000,
         "children": [],
@@ -1490,7 +1490,7 @@
       },
       "rizhao": {
         "id": "rizhao",
-        "name": "rizhao",
+        "name": "日照市",
         "parent": "shandong",
         "adcode": 371100,
         "children": [],
@@ -1498,7 +1498,7 @@
       },
       "linyi": {
         "id": "linyi",
-        "name": "linyi",
+        "name": "临沂市",
         "parent": "shandong",
         "adcode": 371300,
         "children": [],
@@ -1506,7 +1506,7 @@
       },
       "dezhou": {
         "id": "dezhou",
-        "name": "dezhou",
+        "name": "德州市",
         "parent": "shandong",
         "adcode": 371400,
         "children": [],
@@ -1514,7 +1514,7 @@
       },
       "liaocheng": {
         "id": "liaocheng",
-        "name": "liaocheng",
+        "name": "聊城市",
         "parent": "shandong",
         "adcode": 371500,
         "children": [],
@@ -1522,7 +1522,7 @@
       },
       "binzhou": {
         "id": "binzhou",
-        "name": "binzhou",
+        "name": "滨州市",
         "parent": "shandong",
         "adcode": 371600,
         "children": [],
@@ -1530,7 +1530,7 @@
       },
       "heze": {
         "id": "heze",
-        "name": "heze",
+        "name": "菏泽市",
         "parent": "shandong",
         "adcode": 371700,
         "children": [],
@@ -1538,7 +1538,7 @@
       },
       "henan": {
         "id": "henan",
-        "name": "henan",
+        "name": "河南省",
         "parent": "china",
         "adcode": 410000,
         "children": [
@@ -1564,7 +1564,7 @@
       },
       "zhengzhou": {
         "id": "zhengzhou",
-        "name": "zhengzhou",
+        "name": "郑州市",
         "parent": "henan",
         "adcode": 410100,
         "children": [],
@@ -1572,7 +1572,7 @@
       },
       "kaifeng": {
         "id": "kaifeng",
-        "name": "kaifeng",
+        "name": "开封市",
         "parent": "henan",
         "adcode": 410200,
         "children": [],
@@ -1580,7 +1580,7 @@
       },
       "luoyang": {
         "id": "luoyang",
-        "name": "luoyang",
+        "name": "洛阳市",
         "parent": "henan",
         "adcode": 410300,
         "children": [],
@@ -1588,7 +1588,7 @@
       },
       "pingdingshan": {
         "id": "pingdingshan",
-        "name": "pingdingshan",
+        "name": "平顶山市",
         "parent": "henan",
         "adcode": 410400,
         "children": [],
@@ -1596,7 +1596,7 @@
       },
       "anyang": {
         "id": "anyang",
-        "name": "anyang",
+        "name": "安阳市",
         "parent": "henan",
         "adcode": 410500,
         "children": [],
@@ -1604,7 +1604,7 @@
       },
       "hebi": {
         "id": "hebi",
-        "name": "hebi",
+        "name": "鹤壁市",
         "parent": "henan",
         "adcode": 410600,
         "children": [],
@@ -1612,7 +1612,7 @@
       },
       "xinxiang": {
         "id": "xinxiang",
-        "name": "xinxiang",
+        "name": "新乡市",
         "parent": "henan",
         "adcode": 410700,
         "children": [],
@@ -1620,7 +1620,7 @@
       },
       "jiaozuo": {
         "id": "jiaozuo",
-        "name": "jiaozuo",
+        "name": "焦作市",
         "parent": "henan",
         "adcode": 410800,
         "children": [],
@@ -1628,7 +1628,7 @@
       },
       "puyang": {
         "id": "puyang",
-        "name": "puyang",
+        "name": "濮阳市",
         "parent": "henan",
         "adcode": 410900,
         "children": [],
@@ -1636,7 +1636,7 @@
       },
       "xuchang": {
         "id": "xuchang",
-        "name": "xuchang",
+        "name": "许昌市",
         "parent": "henan",
         "adcode": 411000,
         "children": [],
@@ -1644,7 +1644,7 @@
       },
       "luohe": {
         "id": "luohe",
-        "name": "luohe",
+        "name": "漯河市",
         "parent": "henan",
         "adcode": 411100,
         "children": [],
@@ -1652,7 +1652,7 @@
       },
       "sanmenxia": {
         "id": "sanmenxia",
-        "name": "sanmenxia",
+        "name": "三门峡市",
         "parent": "henan",
         "adcode": 411200,
         "children": [],
@@ -1660,7 +1660,7 @@
       },
       "nanyang": {
         "id": "nanyang",
-        "name": "nanyang",
+        "name": "南阳市",
         "parent": "henan",
         "adcode": 411300,
         "children": [],
@@ -1668,7 +1668,7 @@
       },
       "shangqiu": {
         "id": "shangqiu",
-        "name": "shangqiu",
+        "name": "商丘市",
         "parent": "henan",
         "adcode": 411400,
         "children": [],
@@ -1676,7 +1676,7 @@
       },
       "xinyang": {
         "id": "xinyang",
-        "name": "xinyang",
+        "name": "信阳市",
         "parent": "henan",
         "adcode": 411500,
         "children": [],
@@ -1684,7 +1684,7 @@
       },
       "zhoukou": {
         "id": "zhoukou",
-        "name": "zhoukou",
+        "name": "周口市",
         "parent": "henan",
         "adcode": 411600,
         "children": [],
@@ -1692,7 +1692,7 @@
       },
       "zhumadian": {
         "id": "zhumadian",
-        "name": "zhumadian",
+        "name": "驻马店市",
         "parent": "henan",
         "adcode": 411700,
         "children": [],
@@ -1700,7 +1700,7 @@
       },
       "hubei": {
         "id": "hubei",
-        "name": "hubei",
+        "name": "湖北省",
         "parent": "china",
         "adcode": 420000,
         "children": [
@@ -1722,7 +1722,7 @@
       },
       "wuhan": {
         "id": "wuhan",
-        "name": "wuhan",
+        "name": "武汉市",
         "parent": "hubei",
         "adcode": 420100,
         "children": [],
@@ -1730,7 +1730,7 @@
       },
       "huangshi": {
         "id": "huangshi",
-        "name": "huangshi",
+        "name": "黄石市",
         "parent": "hubei",
         "adcode": 420200,
         "children": [],
@@ -1738,7 +1738,7 @@
       },
       "shiyan": {
         "id": "shiyan",
-        "name": "shiyan",
+        "name": "十堰市",
         "parent": "hubei",
         "adcode": 420300,
         "children": [],
@@ -1746,7 +1746,7 @@
       },
       "yichang": {
         "id": "yichang",
-        "name": "yichang",
+        "name": "宜昌市",
         "parent": "hubei",
         "adcode": 420500,
         "children": [],
@@ -1754,7 +1754,7 @@
       },
       "xiangyang": {
         "id": "xiangyang",
-        "name": "xiangyang",
+        "name": "襄阳市",
         "parent": "hubei",
         "adcode": 420600,
         "children": [],
@@ -1762,7 +1762,7 @@
       },
       "ezhou": {
         "id": "ezhou",
-        "name": "ezhou",
+        "name": "鄂州市",
         "parent": "hubei",
         "adcode": 420700,
         "children": [],
@@ -1770,7 +1770,7 @@
       },
       "jingmen": {
         "id": "jingmen",
-        "name": "jingmen",
+        "name": "荆门市",
         "parent": "hubei",
         "adcode": 420800,
         "children": [],
@@ -1778,7 +1778,7 @@
       },
       "xiaogan": {
         "id": "xiaogan",
-        "name": "xiaogan",
+        "name": "孝感市",
         "parent": "hubei",
         "adcode": 420900,
         "children": [],
@@ -1786,7 +1786,7 @@
       },
       "jingzhou": {
         "id": "jingzhou",
-        "name": "jingzhou",
+        "name": "荆州市",
         "parent": "hubei",
         "adcode": 421000,
         "children": [],
@@ -1794,7 +1794,7 @@
       },
       "huanggang": {
         "id": "huanggang",
-        "name": "huanggang",
+        "name": "黄冈市",
         "parent": "hubei",
         "adcode": 421100,
         "children": [],
@@ -1802,7 +1802,7 @@
       },
       "xianning": {
         "id": "xianning",
-        "name": "xianning",
+        "name": "咸宁市",
         "parent": "hubei",
         "adcode": 421200,
         "children": [],
@@ -1810,7 +1810,7 @@
       },
       "suizhou": {
         "id": "suizhou",
-        "name": "suizhou",
+        "name": "随州市",
         "parent": "hubei",
         "adcode": 421300,
         "children": [],
@@ -1818,7 +1818,7 @@
       },
       "enshi": {
         "id": "enshi",
-        "name": "enshi",
+        "name": "恩施土家族苗族自治州",
         "parent": "hubei",
         "adcode": 422800,
         "children": [],
@@ -1826,7 +1826,7 @@
       },
       "hunan": {
         "id": "hunan",
-        "name": "hunan",
+        "name": "湖南省",
         "parent": "china",
         "adcode": 430000,
         "children": [
@@ -1849,7 +1849,7 @@
       },
       "changsha": {
         "id": "changsha",
-        "name": "changsha",
+        "name": "长沙市",
         "parent": "hunan",
         "adcode": 430100,
         "children": [],
@@ -1857,7 +1857,7 @@
       },
       "zhuzhou": {
         "id": "zhuzhou",
-        "name": "zhuzhou",
+        "name": "株洲市",
         "parent": "hunan",
         "adcode": 430200,
         "children": [],
@@ -1865,7 +1865,7 @@
       },
       "xiangtan": {
         "id": "xiangtan",
-        "name": "xiangtan",
+        "name": "湘潭市",
         "parent": "hunan",
         "adcode": 430300,
         "children": [],
@@ -1873,7 +1873,7 @@
       },
       "hengyang": {
         "id": "hengyang",
-        "name": "hengyang",
+        "name": "衡阳市",
         "parent": "hunan",
         "adcode": 430400,
         "children": [],
@@ -1881,7 +1881,7 @@
       },
       "shaoyang": {
         "id": "shaoyang",
-        "name": "shaoyang",
+        "name": "邵阳市",
         "parent": "hunan",
         "adcode": 430500,
         "children": [],
@@ -1889,7 +1889,7 @@
       },
       "yueyang": {
         "id": "yueyang",
-        "name": "yueyang",
+        "name": "岳阳市",
         "parent": "hunan",
         "adcode": 430600,
         "children": [],
@@ -1897,7 +1897,7 @@
       },
       "changde": {
         "id": "changde",
-        "name": "changde",
+        "name": "常德市",
         "parent": "hunan",
         "adcode": 430700,
         "children": [],
@@ -1905,7 +1905,7 @@
       },
       "zhangjiajie": {
         "id": "zhangjiajie",
-        "name": "zhangjiajie",
+        "name": "张家界市",
         "parent": "hunan",
         "adcode": 430800,
         "children": [],
@@ -1913,7 +1913,7 @@
       },
       "yiyang": {
         "id": "yiyang",
-        "name": "yiyang",
+        "name": "益阳市",
         "parent": "hunan",
         "adcode": 430900,
         "children": [],
@@ -1921,7 +1921,7 @@
       },
       "chenzhou": {
         "id": "chenzhou",
-        "name": "chenzhou",
+        "name": "郴州市",
         "parent": "hunan",
         "adcode": 431000,
         "children": [],
@@ -1929,7 +1929,7 @@
       },
       "yongzhou": {
         "id": "yongzhou",
-        "name": "yongzhou",
+        "name": "永州市",
         "parent": "hunan",
         "adcode": 431100,
         "children": [],
@@ -1937,7 +1937,7 @@
       },
       "huaihua": {
         "id": "huaihua",
-        "name": "huaihua",
+        "name": "怀化市",
         "parent": "hunan",
         "adcode": 431200,
         "children": [],
@@ -1945,7 +1945,7 @@
       },
       "loudi": {
         "id": "loudi",
-        "name": "loudi",
+        "name": "娄底市",
         "parent": "hunan",
         "adcode": 431300,
         "children": [],
@@ -1953,7 +1953,7 @@
       },
       "xiangxi": {
         "id": "xiangxi",
-        "name": "xiangxi",
+        "name": "湘西土家族苗族自治州",
         "parent": "hunan",
         "adcode": 433100,
         "children": [],
@@ -1961,7 +1961,7 @@
       },
       "guangdong": {
         "id": "guangdong",
-        "name": "guangdong",
+        "name": "广东省",
         "parent": "china",
         "adcode": 440000,
         "children": [
@@ -1989,7 +1989,7 @@
       },
       "guangzhou": {
         "id": "guangzhou",
-        "name": "guangzhou",
+        "name": "广州市",
         "parent": "guangdong",
         "adcode": 440100,
         "children": [],
@@ -1997,7 +1997,7 @@
       },
       "shaoguan": {
         "id": "shaoguan",
-        "name": "shaoguan",
+        "name": "韶关市",
         "parent": "guangdong",
         "adcode": 440200,
         "children": [],
@@ -2005,7 +2005,7 @@
       },
       "shenzhen": {
         "id": "shenzhen",
-        "name": "shenzhen",
+        "name": "深圳市",
         "parent": "guangdong",
         "adcode": 440300,
         "children": [],
@@ -2013,7 +2013,7 @@
       },
       "zhuhai": {
         "id": "zhuhai",
-        "name": "zhuhai",
+        "name": "珠海市",
         "parent": "guangdong",
         "adcode": 440400,
         "children": [],
@@ -2021,7 +2021,7 @@
       },
       "shantou": {
         "id": "shantou",
-        "name": "shantou",
+        "name": "汕头市",
         "parent": "guangdong",
         "adcode": 440500,
         "children": [],
@@ -2029,7 +2029,7 @@
       },
       "foshan": {
         "id": "foshan",
-        "name": "foshan",
+        "name": "佛山市",
         "parent": "guangdong",
         "adcode": 440600,
         "children": [],
@@ -2037,7 +2037,7 @@
       },
       "jiangmen": {
         "id": "jiangmen",
-        "name": "jiangmen",
+        "name": "江门市",
         "parent": "guangdong",
         "adcode": 440700,
         "children": [],
@@ -2045,7 +2045,7 @@
       },
       "zhanjiang": {
         "id": "zhanjiang",
-        "name": "zhanjiang",
+        "name": "湛江市",
         "parent": "guangdong",
         "adcode": 440800,
         "children": [],
@@ -2053,7 +2053,7 @@
       },
       "maoming": {
         "id": "maoming",
-        "name": "maoming",
+        "name": "茂名市",
         "parent": "guangdong",
         "adcode": 440900,
         "children": [],
@@ -2061,7 +2061,7 @@
       },
       "zhaoqing": {
         "id": "zhaoqing",
-        "name": "zhaoqing",
+        "name": "肇庆市",
         "parent": "guangdong",
         "adcode": 441200,
         "children": [],
@@ -2069,7 +2069,7 @@
       },
       "huizhou": {
         "id": "huizhou",
-        "name": "huizhou",
+        "name": "惠州市",
         "parent": "guangdong",
         "adcode": 441300,
         "children": [],
@@ -2077,7 +2077,7 @@
       },
       "meizhou": {
         "id": "meizhou",
-        "name": "meizhou",
+        "name": "梅州市",
         "parent": "guangdong",
         "adcode": 441400,
         "children": [],
@@ -2085,7 +2085,7 @@
       },
       "shanwei": {
         "id": "shanwei",
-        "name": "shanwei",
+        "name": "汕尾市",
         "parent": "guangdong",
         "adcode": 441500,
         "children": [],
@@ -2093,7 +2093,7 @@
       },
       "heyuan": {
         "id": "heyuan",
-        "name": "heyuan",
+        "name": "河源市",
         "parent": "guangdong",
         "adcode": 441600,
         "children": [],
@@ -2101,7 +2101,7 @@
       },
       "yangjiang": {
         "id": "yangjiang",
-        "name": "yangjiang",
+        "name": "阳江市",
         "parent": "guangdong",
         "adcode": 441700,
         "children": [],
@@ -2109,7 +2109,7 @@
       },
       "qingyuan": {
         "id": "qingyuan",
-        "name": "qingyuan",
+        "name": "清远市",
         "parent": "guangdong",
         "adcode": 441800,
         "children": [],
@@ -2117,7 +2117,7 @@
       },
       "chaozhou": {
         "id": "chaozhou",
-        "name": "chaozhou",
+        "name": "潮州市",
         "parent": "guangdong",
         "adcode": 445100,
         "children": [],
@@ -2125,7 +2125,7 @@
       },
       "jieyang": {
         "id": "jieyang",
-        "name": "jieyang",
+        "name": "揭阳市",
         "parent": "guangdong",
         "adcode": 445200,
         "children": [],
@@ -2133,7 +2133,7 @@
       },
       "yunfu": {
         "id": "yunfu",
-        "name": "yunfu",
+        "name": "云浮市",
         "parent": "guangdong",
         "adcode": 445300,
         "children": [],
@@ -2141,7 +2141,7 @@
       },
       "guangxi": {
         "id": "guangxi",
-        "name": "guangxi",
+        "name": "广西壮族自治区",
         "parent": "china",
         "adcode": 450000,
         "children": [
@@ -2164,7 +2164,7 @@
       },
       "nanning": {
         "id": "nanning",
-        "name": "nanning",
+        "name": "南宁市",
         "parent": "guangxi",
         "adcode": 450100,
         "children": [],
@@ -2172,7 +2172,7 @@
       },
       "liuzhou": {
         "id": "liuzhou",
-        "name": "liuzhou",
+        "name": "柳州市",
         "parent": "guangxi",
         "adcode": 450200,
         "children": [],
@@ -2180,7 +2180,7 @@
       },
       "guilin": {
         "id": "guilin",
-        "name": "guilin",
+        "name": "桂林市",
         "parent": "guangxi",
         "adcode": 450300,
         "children": [],
@@ -2188,7 +2188,7 @@
       },
       "wuzhou": {
         "id": "wuzhou",
-        "name": "wuzhou",
+        "name": "梧州市",
         "parent": "guangxi",
         "adcode": 450400,
         "children": [],
@@ -2196,7 +2196,7 @@
       },
       "beihai": {
         "id": "beihai",
-        "name": "beihai",
+        "name": "北海市",
         "parent": "guangxi",
         "adcode": 450500,
         "children": [],
@@ -2204,7 +2204,7 @@
       },
       "fangchenggang": {
         "id": "fangchenggang",
-        "name": "fangchenggang",
+        "name": "防城港市",
         "parent": "guangxi",
         "adcode": 450600,
         "children": [],
@@ -2212,7 +2212,7 @@
       },
       "qinzhou": {
         "id": "qinzhou",
-        "name": "qinzhou",
+        "name": "钦州市",
         "parent": "guangxi",
         "adcode": 450700,
         "children": [],
@@ -2220,7 +2220,7 @@
       },
       "guigang": {
         "id": "guigang",
-        "name": "guigang",
+        "name": "贵港市",
         "parent": "guangxi",
         "adcode": 450800,
         "children": [],
@@ -2228,7 +2228,7 @@
       },
       "yulin": {
         "id": "yulin",
-        "name": "yulin",
+        "name": "玉林市",
         "parent": "guangxi",
         "adcode": 450900,
         "children": [],
@@ -2236,7 +2236,7 @@
       },
       "baise": {
         "id": "baise",
-        "name": "baise",
+        "name": "百色市",
         "parent": "guangxi",
         "adcode": 451000,
         "children": [],
@@ -2244,7 +2244,7 @@
       },
       "hezhou": {
         "id": "hezhou",
-        "name": "hezhou",
+        "name": "贺州市",
         "parent": "guangxi",
         "adcode": 451100,
         "children": [],
@@ -2252,7 +2252,7 @@
       },
       "hechi": {
         "id": "hechi",
-        "name": "hechi",
+        "name": "河池市",
         "parent": "guangxi",
         "adcode": 451200,
         "children": [],
@@ -2260,7 +2260,7 @@
       },
       "laibin": {
         "id": "laibin",
-        "name": "laibin",
+        "name": "来宾市",
         "parent": "guangxi",
         "adcode": 451300,
         "children": [],
@@ -2268,7 +2268,7 @@
       },
       "chongzuo": {
         "id": "chongzuo",
-        "name": "chongzuo",
+        "name": "崇左市",
         "parent": "guangxi",
         "adcode": 451400,
         "children": [],
@@ -2276,7 +2276,7 @@
       },
       "hainan": {
         "id": "hainan",
-        "name": "hainan",
+        "name": "海南省",
         "parent": "china",
         "adcode": 460000,
         "children": [
@@ -2288,7 +2288,7 @@
       },
       "haikou": {
         "id": "haikou",
-        "name": "haikou",
+        "name": "海口市",
         "parent": "hainan",
         "adcode": 460100,
         "children": [],
@@ -2296,7 +2296,7 @@
       },
       "sanya": {
         "id": "sanya",
-        "name": "sanya",
+        "name": "三亚市",
         "parent": "hainan",
         "adcode": 460200,
         "children": [],
@@ -2304,7 +2304,7 @@
       },
       "sansha": {
         "id": "sansha",
-        "name": "sansha",
+        "name": "三沙市",
         "parent": "hainan",
         "adcode": 460300,
         "children": [],
@@ -2312,7 +2312,7 @@
       },
       "chongqing": {
         "id": "chongqing",
-        "name": "chongqing",
+        "name": "重庆市",
         "parent": "china",
         "adcode": 500000,
         "children": [],
@@ -2320,7 +2320,7 @@
       },
       "sichuan": {
         "id": "sichuan",
-        "name": "sichuan",
+        "name": "四川省",
         "parent": "china",
         "adcode": 510000,
         "children": [
@@ -2350,7 +2350,7 @@
       },
       "chengdu": {
         "id": "chengdu",
-        "name": "成都",
+        "name": "成都市",
         "parent": "sichuan",
         "adcode": 510100,
         "children": [],
@@ -2518,7 +2518,7 @@
       },
       "guizhou": {
         "id": "guizhou",
-        "name": "guizhou",
+        "name": "贵州省",
         "parent": "china",
         "adcode": 520000,
         "children": [
@@ -2536,7 +2536,7 @@
       },
       "guiyang": {
         "id": "guiyang",
-        "name": "guiyang",
+        "name": "贵阳市",
         "parent": "guizhou",
         "adcode": 520100,
         "children": [],
@@ -2544,7 +2544,7 @@
       },
       "liupanshui": {
         "id": "liupanshui",
-        "name": "liupanshui",
+        "name": "六盘水市",
         "parent": "guizhou",
         "adcode": 520200,
         "children": [],
@@ -2552,7 +2552,7 @@
       },
       "zunyi": {
         "id": "zunyi",
-        "name": "zunyi",
+        "name": "遵义市",
         "parent": "guizhou",
         "adcode": 520300,
         "children": [],
@@ -2560,7 +2560,7 @@
       },
       "anshun": {
         "id": "anshun",
-        "name": "anshun",
+        "name": "安顺市",
         "parent": "guizhou",
         "adcode": 520400,
         "children": [],
@@ -2568,7 +2568,7 @@
       },
       "bijie": {
         "id": "bijie",
-        "name": "bijie",
+        "name": "毕节市",
         "parent": "guizhou",
         "adcode": 520500,
         "children": [],
@@ -2576,7 +2576,7 @@
       },
       "tongren": {
         "id": "tongren",
-        "name": "tongren",
+        "name": "铜仁市",
         "parent": "guizhou",
         "adcode": 520600,
         "children": [],
@@ -2584,7 +2584,7 @@
       },
       "qianxinan": {
         "id": "qianxinan",
-        "name": "qianxinan",
+        "name": "黔西南布依族苗族自治州",
         "parent": "guizhou",
         "adcode": 522300,
         "children": [],
@@ -2592,7 +2592,7 @@
       },
       "qiandongnan": {
         "id": "qiandongnan",
-        "name": "qiandongnan",
+        "name": "黔东南苗族侗族自治州",
         "parent": "guizhou",
         "adcode": 522600,
         "children": [],
@@ -2600,7 +2600,7 @@
       },
       "qiannan": {
         "id": "qiannan",
-        "name": "qiannan",
+        "name": "黔南布依族苗族自治州",
         "parent": "guizhou",
         "adcode": 522700,
         "children": [],
@@ -2608,7 +2608,7 @@
       },
       "yunnan": {
         "id": "yunnan",
-        "name": "yunnan",
+        "name": "云南省",
         "parent": "china",
         "adcode": 530000,
         "children": [
@@ -2633,7 +2633,7 @@
       },
       "kunming": {
         "id": "kunming",
-        "name": "kunming",
+        "name": "昆明市",
         "parent": "yunnan",
         "adcode": 530100,
         "children": [],
@@ -2641,7 +2641,7 @@
       },
       "qujing": {
         "id": "qujing",
-        "name": "qujing",
+        "name": "曲靖市",
         "parent": "yunnan",
         "adcode": 530300,
         "children": [],
@@ -2649,7 +2649,7 @@
       },
       "yuxi": {
         "id": "yuxi",
-        "name": "yuxi",
+        "name": "玉溪市",
         "parent": "yunnan",
         "adcode": 530400,
         "children": [],
@@ -2657,7 +2657,7 @@
       },
       "baoshanshi": {
         "id": "baoshanshi",
-        "name": "baoshanshi",
+        "name": "保山市",
         "parent": "yunnan",
         "adcode": 530500,
         "children": [],
@@ -2665,7 +2665,7 @@
       },
       "zhaotong": {
         "id": "zhaotong",
-        "name": "zhaotong",
+        "name": "昭通市",
         "parent": "yunnan",
         "adcode": 530600,
         "children": [],
@@ -2673,7 +2673,7 @@
       },
       "lijiang": {
         "id": "lijiang",
-        "name": "lijiang",
+        "name": "丽江市",
         "parent": "yunnan",
         "adcode": 530700,
         "children": [],
@@ -2681,7 +2681,7 @@
       },
       "puer": {
         "id": "puer",
-        "name": "puer",
+        "name": "普洱市",
         "parent": "yunnan",
         "adcode": 530800,
         "children": [],
@@ -2689,7 +2689,7 @@
       },
       "lincang": {
         "id": "lincang",
-        "name": "lincang",
+        "name": "临沧市",
         "parent": "yunnan",
         "adcode": 530900,
         "children": [],
@@ -2697,7 +2697,7 @@
       },
       "chuxiong": {
         "id": "chuxiong",
-        "name": "chuxiong",
+        "name": "楚雄彝族自治州",
         "parent": "yunnan",
         "adcode": 532300,
         "children": [],
@@ -2705,7 +2705,7 @@
       },
       "honghe": {
         "id": "honghe",
-        "name": "honghe",
+        "name": "红河哈尼族彝族自治州",
         "parent": "yunnan",
         "adcode": 532500,
         "children": [],
@@ -2713,7 +2713,7 @@
       },
       "wenshan": {
         "id": "wenshan",
-        "name": "wenshan",
+        "name": "文山壮族苗族自治州",
         "parent": "yunnan",
         "adcode": 532600,
         "children": [],
@@ -2721,7 +2721,7 @@
       },
       "xishuangbanna": {
         "id": "xishuangbanna",
-        "name": "xishuangbanna",
+        "name": "西双版纳傣族自治州",
         "parent": "yunnan",
         "adcode": 532800,
         "children": [],
@@ -2729,7 +2729,7 @@
       },
       "dali": {
         "id": "dali",
-        "name": "dali",
+        "name": "大理白族自治州",
         "parent": "yunnan",
         "adcode": 532900,
         "children": [],
@@ -2737,7 +2737,7 @@
       },
       "dehong": {
         "id": "dehong",
-        "name": "dehong",
+        "name": "德宏傣族景颇族自治州",
         "parent": "yunnan",
         "adcode": 533100,
         "children": [],
@@ -2745,7 +2745,7 @@
       },
       "nujiang": {
         "id": "nujiang",
-        "name": "nujiang",
+        "name": "怒江傈僳族自治州",
         "parent": "yunnan",
         "adcode": 533300,
         "children": [],
@@ -2753,7 +2753,7 @@
       },
       "diqing": {
         "id": "diqing",
-        "name": "diqing",
+        "name": "迪庆藏族自治州",
         "parent": "yunnan",
         "adcode": 533400,
         "children": [],
@@ -2761,7 +2761,7 @@
       },
       "xizang": {
         "id": "xizang",
-        "name": "xizang",
+        "name": "西藏自治区",
         "parent": "china",
         "adcode": 540000,
         "children": [
@@ -2777,7 +2777,7 @@
       },
       "lasa": {
         "id": "lasa",
-        "name": "lasa",
+        "name": "拉萨市",
         "parent": "xizang",
         "adcode": 540100,
         "children": [],
@@ -2785,7 +2785,7 @@
       },
       "rikaze": {
         "id": "rikaze",
-        "name": "rikaze",
+        "name": "日喀则市",
         "parent": "xizang",
         "adcode": 540200,
         "children": [],
@@ -2793,7 +2793,7 @@
       },
       "changdou": {
         "id": "changdou",
-        "name": "changdou",
+        "name": "昌都市",
         "parent": "xizang",
         "adcode": 540300,
         "children": [],
@@ -2801,7 +2801,7 @@
       },
       "linzhi": {
         "id": "linzhi",
-        "name": "linzhi",
+        "name": "林芝市",
         "parent": "xizang",
         "adcode": 540400,
         "children": [],
@@ -2809,7 +2809,7 @@
       },
       "shannan": {
         "id": "shannan",
-        "name": "shannan",
+        "name": "山南市",
         "parent": "xizang",
         "adcode": 540500,
         "children": [],
@@ -2817,7 +2817,7 @@
       },
       "naqu": {
         "id": "naqu",
-        "name": "naqu",
+        "name": "那曲市",
         "parent": "xizang",
         "adcode": 540600,
         "children": [],
@@ -2825,7 +2825,7 @@
       },
       "ali": {
         "id": "ali",
-        "name": "ali",
+        "name": "阿里地区",
         "parent": "xizang",
         "adcode": 542500,
         "children": [],
@@ -2833,7 +2833,7 @@
       },
       "shaanxi": {
         "id": "shaanxi",
-        "name": "shaanxi",
+        "name": "陕西省",
         "parent": "china",
         "adcode": 610000,
         "children": [
@@ -2852,7 +2852,7 @@
       },
       "xian": {
         "id": "xian",
-        "name": "xian",
+        "name": "西安市",
         "parent": "shaanxi",
         "adcode": 610100,
         "children": [],
@@ -2860,7 +2860,7 @@
       },
       "tongchuan": {
         "id": "tongchuan",
-        "name": "tongchuan",
+        "name": "铜川市",
         "parent": "shaanxi",
         "adcode": 610200,
         "children": [],
@@ -2868,7 +2868,7 @@
       },
       "baoji": {
         "id": "baoji",
-        "name": "baoji",
+        "name": "宝鸡市",
         "parent": "shaanxi",
         "adcode": 610300,
         "children": [],
@@ -2876,7 +2876,7 @@
       },
       "xianyang": {
         "id": "xianyang",
-        "name": "xianyang",
+        "name": "咸阳市",
         "parent": "shaanxi",
         "adcode": 610400,
         "children": [],
@@ -2884,7 +2884,7 @@
       },
       "weinan": {
         "id": "weinan",
-        "name": "weinan",
+        "name": "渭南市",
         "parent": "shaanxi",
         "adcode": 610500,
         "children": [],
@@ -2892,7 +2892,7 @@
       },
       "yanan": {
         "id": "yanan",
-        "name": "yanan",
+        "name": "延安市",
         "parent": "shaanxi",
         "adcode": 610600,
         "children": [],
@@ -2900,7 +2900,7 @@
       },
       "hanzhong": {
         "id": "hanzhong",
-        "name": "hanzhong",
+        "name": "汉中市",
         "parent": "shaanxi",
         "adcode": 610700,
         "children": [],
@@ -2908,7 +2908,7 @@
       },
       "yulinshi": {
         "id": "yulinshi",
-        "name": "yulinshi",
+        "name": "榆林市",
         "parent": "shaanxi",
         "adcode": 610800,
         "children": [],
@@ -2916,7 +2916,7 @@
       },
       "ankang": {
         "id": "ankang",
-        "name": "ankang",
+        "name": "安康市",
         "parent": "shaanxi",
         "adcode": 610900,
         "children": [],
@@ -2924,7 +2924,7 @@
       },
       "shangluo": {
         "id": "shangluo",
-        "name": "shangluo",
+        "name": "商洛市",
         "parent": "shaanxi",
         "adcode": 611000,
         "children": [],
@@ -2932,7 +2932,7 @@
       },
       "gansu": {
         "id": "gansu",
-        "name": "gansu",
+        "name": "甘肃省",
         "parent": "china",
         "adcode": 620000,
         "children": [
@@ -2954,7 +2954,7 @@
       },
       "lanzhou": {
         "id": "lanzhou",
-        "name": "lanzhou",
+        "name": "兰州市",
         "parent": "gansu",
         "adcode": 620100,
         "children": [],
@@ -2962,7 +2962,7 @@
       },
       "jinchang": {
         "id": "jinchang",
-        "name": "jinchang",
+        "name": "金昌市",
         "parent": "gansu",
         "adcode": 620300,
         "children": [],
@@ -2970,7 +2970,7 @@
       },
       "baiyin": {
         "id": "baiyin",
-        "name": "baiyin",
+        "name": "白银市",
         "parent": "gansu",
         "adcode": 620400,
         "children": [],
@@ -2978,7 +2978,7 @@
       },
       "tianshui": {
         "id": "tianshui",
-        "name": "tianshui",
+        "name": "天水市",
         "parent": "gansu",
         "adcode": 620500,
         "children": [],
@@ -2986,7 +2986,7 @@
       },
       "wuwei": {
         "id": "wuwei",
-        "name": "wuwei",
+        "name": "武威市",
         "parent": "gansu",
         "adcode": 620600,
         "children": [],
@@ -2994,7 +2994,7 @@
       },
       "zhangye": {
         "id": "zhangye",
-        "name": "zhangye",
+        "name": "张掖市",
         "parent": "gansu",
         "adcode": 620700,
         "children": [],
@@ -3002,7 +3002,7 @@
       },
       "pingliang": {
         "id": "pingliang",
-        "name": "pingliang",
+        "name": "平凉市",
         "parent": "gansu",
         "adcode": 620800,
         "children": [],
@@ -3010,7 +3010,7 @@
       },
       "jiuquan": {
         "id": "jiuquan",
-        "name": "jiuquan",
+        "name": "酒泉市",
         "parent": "gansu",
         "adcode": 620900,
         "children": [],
@@ -3018,7 +3018,7 @@
       },
       "qingyang": {
         "id": "qingyang",
-        "name": "qingyang",
+        "name": "庆阳市",
         "parent": "gansu",
         "adcode": 621000,
         "children": [],
@@ -3026,7 +3026,7 @@
       },
       "dingxi": {
         "id": "dingxi",
-        "name": "dingxi",
+        "name": "定西市",
         "parent": "gansu",
         "adcode": 621100,
         "children": [],
@@ -3034,7 +3034,7 @@
       },
       "longnan": {
         "id": "longnan",
-        "name": "longnan",
+        "name": "陇南市",
         "parent": "gansu",
         "adcode": 621200,
         "children": [],
@@ -3042,7 +3042,7 @@
       },
       "linxia": {
         "id": "linxia",
-        "name": "linxia",
+        "name": "临夏回族自治州",
         "parent": "gansu",
         "adcode": 622900,
         "children": [],
@@ -3050,7 +3050,7 @@
       },
       "gannan": {
         "id": "gannan",
-        "name": "gannan",
+        "name": "甘南藏族自治州",
         "parent": "gansu",
         "adcode": 623000,
         "children": [],
@@ -3058,7 +3058,7 @@
       },
       "qinghai": {
         "id": "qinghai",
-        "name": "qinghai",
+        "name": "青海省",
         "parent": "china",
         "adcode": 630000,
         "children": [
@@ -3075,7 +3075,7 @@
       },
       "xining": {
         "id": "xining",
-        "name": "xining",
+        "name": "西宁市",
         "parent": "qinghai",
         "adcode": 630100,
         "children": [],
@@ -3083,7 +3083,7 @@
       },
       "haidong": {
         "id": "haidong",
-        "name": "haidong",
+        "name": "海东市",
         "parent": "qinghai",
         "adcode": 630200,
         "children": [],
@@ -3091,7 +3091,7 @@
       },
       "haibei": {
         "id": "haibei",
-        "name": "haibei",
+        "name": "海北藏族自治州",
         "parent": "qinghai",
         "adcode": 632200,
         "children": [],
@@ -3099,7 +3099,7 @@
       },
       "huangnan": {
         "id": "huangnan",
-        "name": "huangnan",
+        "name": "黄南藏族自治州",
         "parent": "qinghai",
         "adcode": 632300,
         "children": [],
@@ -3107,7 +3107,7 @@
       },
       "hainanzhou": {
         "id": "hainanzhou",
-        "name": "hainanzhou",
+        "name": "海南藏族自治州",
         "parent": "qinghai",
         "adcode": 632500,
         "children": [],
@@ -3115,7 +3115,7 @@
       },
       "guoluo": {
         "id": "guoluo",
-        "name": "guoluo",
+        "name": "果洛藏族自治州",
         "parent": "qinghai",
         "adcode": 632600,
         "children": [],
@@ -3123,7 +3123,7 @@
       },
       "yushu": {
         "id": "yushu",
-        "name": "yushu",
+        "name": "玉树藏族自治州",
         "parent": "qinghai",
         "adcode": 632700,
         "children": [],
@@ -3131,7 +3131,7 @@
       },
       "haixi": {
         "id": "haixi",
-        "name": "haixi",
+        "name": "海西蒙古族藏族自治州",
         "parent": "qinghai",
         "adcode": 632800,
         "children": [],
@@ -3139,7 +3139,7 @@
       },
       "ningxia": {
         "id": "ningxia",
-        "name": "ningxia",
+        "name": "宁夏回族自治区",
         "parent": "china",
         "adcode": 640000,
         "children": [
@@ -3153,7 +3153,7 @@
       },
       "yinchuan": {
         "id": "yinchuan",
-        "name": "yinchuan",
+        "name": "银川市",
         "parent": "ningxia",
         "adcode": 640100,
         "children": [],
@@ -3161,7 +3161,7 @@
       },
       "shizuishan": {
         "id": "shizuishan",
-        "name": "shizuishan",
+        "name": "石嘴山市",
         "parent": "ningxia",
         "adcode": 640200,
         "children": [],
@@ -3169,7 +3169,7 @@
       },
       "wuzhong": {
         "id": "wuzhong",
-        "name": "wuzhong",
+        "name": "吴忠市",
         "parent": "ningxia",
         "adcode": 640300,
         "children": [],
@@ -3177,7 +3177,7 @@
       },
       "guyuan": {
         "id": "guyuan",
-        "name": "guyuan",
+        "name": "固原市",
         "parent": "ningxia",
         "adcode": 640400,
         "children": [],
@@ -3185,7 +3185,7 @@
       },
       "zhongwei": {
         "id": "zhongwei",
-        "name": "zhongwei",
+        "name": "中卫市",
         "parent": "ningxia",
         "adcode": 640500,
         "children": [],
@@ -3193,7 +3193,7 @@
       },
       "xinjiang": {
         "id": "xinjiang",
-        "name": "xinjiang",
+        "name": "新疆维吾尔自治区",
         "parent": "china",
         "adcode": 650000,
         "children": [
@@ -3216,7 +3216,7 @@
       },
       "wulumuqi": {
         "id": "wulumuqi",
-        "name": "wulumuqi",
+        "name": "乌鲁木齐市",
         "parent": "xinjiang",
         "adcode": 650100,
         "children": [],
@@ -3224,7 +3224,7 @@
       },
       "kelamayi": {
         "id": "kelamayi",
-        "name": "kelamayi",
+        "name": "克拉玛依市",
         "parent": "xinjiang",
         "adcode": 650200,
         "children": [],
@@ -3232,7 +3232,7 @@
       },
       "tulufan": {
         "id": "tulufan",
-        "name": "tulufan",
+        "name": "吐鲁番市",
         "parent": "xinjiang",
         "adcode": 650400,
         "children": [],
@@ -3240,7 +3240,7 @@
       },
       "hami": {
         "id": "hami",
-        "name": "hami",
+        "name": "哈密市",
         "parent": "xinjiang",
         "adcode": 650500,
         "children": [],
@@ -3248,7 +3248,7 @@
       },
       "changji": {
         "id": "changji",
-        "name": "changji",
+        "name": "昌吉回族自治州",
         "parent": "xinjiang",
         "adcode": 652300,
         "children": [],
@@ -3256,7 +3256,7 @@
       },
       "boertala": {
         "id": "boertala",
-        "name": "boertala",
+        "name": "博尔塔拉蒙古自治州",
         "parent": "xinjiang",
         "adcode": 652700,
         "children": [],
@@ -3264,7 +3264,7 @@
       },
       "bayinguoleng": {
         "id": "bayinguoleng",
-        "name": "bayinguoleng",
+        "name": "巴音郭楞蒙古自治州",
         "parent": "xinjiang",
         "adcode": 652800,
         "children": [],
@@ -3272,7 +3272,7 @@
       },
       "akesu": {
         "id": "akesu",
-        "name": "akesu",
+        "name": "阿克苏地区",
         "parent": "xinjiang",
         "adcode": 652900,
         "children": [],
@@ -3280,7 +3280,7 @@
       },
       "kezilesukeerkezi": {
         "id": "kezilesukeerkezi",
-        "name": "kezilesukeerkezi",
+        "name": "克孜勒苏柯尔克孜自治州",
         "parent": "xinjiang",
         "adcode": 653000,
         "children": [],
@@ -3288,7 +3288,7 @@
       },
       "kashen": {
         "id": "kashen",
-        "name": "kashen",
+        "name": "喀什地区",
         "parent": "xinjiang",
         "adcode": 653100,
         "children": [],
@@ -3296,7 +3296,7 @@
       },
       "hetian": {
         "id": "hetian",
-        "name": "hetian",
+        "name": "和田地区",
         "parent": "xinjiang",
         "adcode": 653200,
         "children": [],
@@ -3304,7 +3304,7 @@
       },
       "yilihasake": {
         "id": "yilihasake",
-        "name": "yilihasake",
+        "name": "伊犁哈萨克自治州",
         "parent": "xinjiang",
         "adcode": 654000,
         "children": [],
@@ -3312,7 +3312,7 @@
       },
       "tacheng": {
         "id": "tacheng",
-        "name": "tacheng",
+        "name": "塔城地区",
         "parent": "xinjiang",
         "adcode": 654200,
         "children": [],
@@ -3320,7 +3320,7 @@
       },
       "aletai": {
         "id": "aletai",
-        "name": "aletai",
+        "name": "阿勒泰地区",
         "parent": "xinjiang",
         "adcode": 654300,
         "children": [],
@@ -3328,7 +3328,7 @@
       },
       "taiwan": {
         "id": "taiwan",
-        "name": "taiwan",
+        "name": "台湾省",
         "parent": "china",
         "adcode": 710000,
         "children": [],
@@ -3336,7 +3336,7 @@
       },
       "hongkong": {
         "id": "hongkong",
-        "name": "hongkong",
+        "name": "香港特别行政区",
         "parent": "china",
         "adcode": 810000,
         "children": [],

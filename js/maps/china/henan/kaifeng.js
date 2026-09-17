@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'kaifeng',
-    name: 'kaifeng',
+    name: '开封市',
     parent: 'henan',
     adcode: 410200,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'kaifeng',
+      cityName: '开封市',
       districtCount: 9,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/henan/kaifeng.geo.js 存在且没有被浏览器拦截。',

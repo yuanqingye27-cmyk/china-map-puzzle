@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'anshan',
-    name: 'anshan',
+    name: '鞍山市',
     parent: 'liaoning',
     adcode: 210300,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'anshan',
+      cityName: '鞍山市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/liaoning/anshan.geo.js 存在且没有被浏览器拦截。',

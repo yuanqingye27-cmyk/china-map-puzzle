@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'bijie',
-    name: 'bijie',
+    name: '毕节市',
     parent: 'guizhou',
     adcode: 520500,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'bijie',
+      cityName: '毕节市',
       districtCount: 8,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guizhou/bijie.geo.js 存在且没有被浏览器拦截。',

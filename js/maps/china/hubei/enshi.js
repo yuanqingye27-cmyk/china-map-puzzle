@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'enshi',
-    name: 'enshi',
+    name: '恩施土家族苗族自治州',
     parent: 'hubei',
     adcode: 422800,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'enshi',
+      cityName: '恩施土家族苗族自治州',
       districtCount: 8,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hubei/enshi.geo.js 存在且没有被浏览器拦截。',

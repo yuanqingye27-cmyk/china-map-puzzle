@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'changzhi',
-    name: 'changzhi',
+    name: '长治市',
     parent: 'shanxi',
     adcode: 140400,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'changzhi',
+      cityName: '长治市',
       districtCount: 12,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shanxi/changzhi.geo.js 存在且没有被浏览器拦截。',

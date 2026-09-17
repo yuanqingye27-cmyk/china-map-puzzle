@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'xiamen',
-    name: 'xiamen',
+    name: '厦门市',
     parent: 'fujian',
     adcode: 350200,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'xiamen',
+      cityName: '厦门市',
       districtCount: 6,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/fujian/xiamen.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'laibin',
-    name: 'laibin',
+    name: '来宾市',
     parent: 'guangxi',
     adcode: 451300,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'laibin',
+      cityName: '来宾市',
       districtCount: 6,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangxi/laibin.geo.js 存在且没有被浏览器拦截。',

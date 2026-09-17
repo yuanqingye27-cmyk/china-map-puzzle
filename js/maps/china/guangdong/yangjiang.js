@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'yangjiang',
-    name: 'yangjiang',
+    name: '阳江市',
     parent: 'guangdong',
     adcode: 441700,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'yangjiang',
+      cityName: '阳江市',
       districtCount: 4,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangdong/yangjiang.geo.js 存在且没有被浏览器拦截。',

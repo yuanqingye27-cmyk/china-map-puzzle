@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'lliang',
-    name: 'lliang',
+    name: '吕梁市',
     parent: 'shanxi',
     adcode: 141100,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'lliang',
+      cityName: '吕梁市',
       districtCount: 13,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shanxi/lliang.geo.js 存在且没有被浏览器拦截。',

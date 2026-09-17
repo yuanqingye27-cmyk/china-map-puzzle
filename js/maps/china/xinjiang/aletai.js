@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'aletai',
-    name: 'aletai',
+    name: '阿勒泰地区',
     parent: 'xinjiang',
     adcode: 654300,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'aletai',
+      cityName: '阿勒泰地区',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/xinjiang/aletai.geo.js 存在且没有被浏览器拦截。',

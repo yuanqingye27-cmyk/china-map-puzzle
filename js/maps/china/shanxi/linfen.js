@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'linfen',
-    name: 'linfen',
+    name: '临汾市',
     parent: 'shanxi',
     adcode: 141000,
 
@@ -61,7 +61,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'linfen',
+      cityName: '临汾市',
       districtCount: 17,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shanxi/linfen.geo.js 存在且没有被浏览器拦截。',

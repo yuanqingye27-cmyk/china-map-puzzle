@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'zhaoqing',
-    name: 'zhaoqing',
+    name: '肇庆市',
     parent: 'guangdong',
     adcode: 441200,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'zhaoqing',
+      cityName: '肇庆市',
       districtCount: 8,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangdong/zhaoqing.geo.js 存在且没有被浏览器拦截。',

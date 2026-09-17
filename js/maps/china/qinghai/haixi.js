@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'haixi',
-    name: 'haixi',
+    name: '海西蒙古族藏族自治州',
     parent: 'qinghai',
     adcode: 632800,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'haixi',
+      cityName: '海西蒙古族藏族自治州',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/qinghai/haixi.geo.js 存在且没有被浏览器拦截。',

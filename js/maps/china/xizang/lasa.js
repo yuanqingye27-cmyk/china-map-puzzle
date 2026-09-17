@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'lasa',
-    name: 'lasa',
+    name: '拉萨市',
     parent: 'xizang',
     adcode: 540100,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'lasa',
+      cityName: '拉萨市',
       districtCount: 8,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/xizang/lasa.geo.js 存在且没有被浏览器拦截。',

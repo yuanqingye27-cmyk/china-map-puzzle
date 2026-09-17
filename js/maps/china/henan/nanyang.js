@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'nanyang',
-    name: 'nanyang',
+    name: '南阳市',
     parent: 'henan',
     adcode: 411300,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'nanyang',
+      cityName: '南阳市',
       districtCount: 13,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/henan/nanyang.geo.js 存在且没有被浏览器拦截。',

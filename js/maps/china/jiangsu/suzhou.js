@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'suzhou',
-    name: 'suzhou',
+    name: '苏州市',
     parent: 'jiangsu',
     adcode: 320500,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'suzhou',
+      cityName: '苏州市',
       districtCount: 9,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jiangsu/suzhou.geo.js 存在且没有被浏览器拦截。',

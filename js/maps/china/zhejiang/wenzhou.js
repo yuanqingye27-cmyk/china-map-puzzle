@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'wenzhou',
-    name: 'wenzhou',
+    name: '温州市',
     parent: 'zhejiang',
     adcode: 330300,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'wenzhou',
+      cityName: '温州市',
       districtCount: 12,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/zhejiang/wenzhou.geo.js 存在且没有被浏览器拦截。',

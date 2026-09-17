@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'bozhou',
-    name: 'bozhou',
+    name: '亳州市',
     parent: 'anhui',
     adcode: 341600,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'bozhou',
+      cityName: '亳州市',
       districtCount: 4,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/anhui/bozhou.geo.js 存在且没有被浏览器拦截。',

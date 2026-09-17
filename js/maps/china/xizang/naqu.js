@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'naqu',
-    name: 'naqu',
+    name: '那曲市',
     parent: 'xizang',
     adcode: 540600,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'naqu',
+      cityName: '那曲市',
       districtCount: 11,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/xizang/naqu.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'longnan',
-    name: 'longnan',
+    name: '陇南市',
     parent: 'gansu',
     adcode: 621200,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'longnan',
+      cityName: '陇南市',
       districtCount: 9,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/gansu/longnan.geo.js 存在且没有被浏览器拦截。',

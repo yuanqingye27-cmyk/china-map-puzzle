@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'putian',
-    name: 'putian',
+    name: '莆田市',
     parent: 'fujian',
     adcode: 350300,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'putian',
+      cityName: '莆田市',
       districtCount: 5,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/fujian/putian.geo.js 存在且没有被浏览器拦截。',

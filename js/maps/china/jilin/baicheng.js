@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'baicheng',
-    name: 'baicheng',
+    name: '白城市',
     parent: 'jilin',
     adcode: 220800,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'baicheng',
+      cityName: '白城市',
       districtCount: 5,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jilin/baicheng.geo.js 存在且没有被浏览器拦截。',

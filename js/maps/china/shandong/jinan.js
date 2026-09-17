@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'jinan',
-    name: 'jinan',
+    name: '济南市',
     parent: 'shandong',
     adcode: 370100,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'jinan',
+      cityName: '济南市',
       districtCount: 12,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shandong/jinan.geo.js 存在且没有被浏览器拦截。',

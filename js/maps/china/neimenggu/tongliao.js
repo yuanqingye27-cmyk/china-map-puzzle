@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'tongliao',
-    name: 'tongliao',
+    name: '通辽市',
     parent: 'neimenggu',
     adcode: 150500,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'tongliao',
+      cityName: '通辽市',
       districtCount: 8,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/neimenggu/tongliao.geo.js 存在且没有被浏览器拦截。',

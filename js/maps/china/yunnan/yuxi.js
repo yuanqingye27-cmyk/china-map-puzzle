@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'yuxi',
-    name: 'yuxi',
+    name: '玉溪市',
     parent: 'yunnan',
     adcode: 530400,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'yuxi',
+      cityName: '玉溪市',
       districtCount: 9,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/yunnan/yuxi.geo.js 存在且没有被浏览器拦截。',

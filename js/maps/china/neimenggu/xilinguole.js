@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'xilinguole',
-    name: 'xilinguole',
+    name: '锡林郭勒盟',
     parent: 'neimenggu',
     adcode: 152500,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'xilinguole',
+      cityName: '锡林郭勒盟',
       districtCount: 12,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/neimenggu/xilinguole.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'jinhua',
-    name: 'jinhua',
+    name: '金华市',
     parent: 'zhejiang',
     adcode: 330700,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'jinhua',
+      cityName: '金华市',
       districtCount: 9,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/zhejiang/jinhua.geo.js 存在且没有被浏览器拦截。',

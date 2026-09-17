@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'hami',
-    name: 'hami',
+    name: '哈密市',
     parent: 'xinjiang',
     adcode: 650500,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'hami',
+      cityName: '哈密市',
       districtCount: 3,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/xinjiang/hami.geo.js 存在且没有被浏览器拦截。',

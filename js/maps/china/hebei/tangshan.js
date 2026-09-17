@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'tangshan',
-    name: 'tangshan',
+    name: '唐山市',
     parent: 'hebei',
     adcode: 130200,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'tangshan',
+      cityName: '唐山市',
       districtCount: 14,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hebei/tangshan.geo.js 存在且没有被浏览器拦截。',

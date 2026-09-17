@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'bayinguoleng',
-    name: 'bayinguoleng',
+    name: '巴音郭楞蒙古自治州',
     parent: 'xinjiang',
     adcode: 652800,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'bayinguoleng',
+      cityName: '巴音郭楞蒙古自治州',
       districtCount: 9,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/xinjiang/bayinguoleng.geo.js 存在且没有被浏览器拦截。',

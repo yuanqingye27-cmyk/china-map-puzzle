@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'fuxin',
-    name: 'fuxin',
+    name: '阜新市',
     parent: 'liaoning',
     adcode: 210900,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'fuxin',
+      cityName: '阜新市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/liaoning/fuxin.geo.js 存在且没有被浏览器拦截。',

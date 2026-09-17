@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'suihua',
-    name: 'suihua',
+    name: '绥化市',
     parent: 'heilongjiang',
     adcode: 231200,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'suihua',
+      cityName: '绥化市',
       districtCount: 10,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/heilongjiang/suihua.geo.js 存在且没有被浏览器拦截。',

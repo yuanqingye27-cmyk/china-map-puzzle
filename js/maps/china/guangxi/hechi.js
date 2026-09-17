@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'hechi',
-    name: 'hechi',
+    name: '河池市',
     parent: 'guangxi',
     adcode: 451200,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'hechi',
+      cityName: '河池市',
       districtCount: 11,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangxi/hechi.geo.js 存在且没有被浏览器拦截。',

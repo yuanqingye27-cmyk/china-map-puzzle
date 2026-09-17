@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'hulunbeier',
-    name: 'hulunbeier',
+    name: '呼伦贝尔市',
     parent: 'neimenggu',
     adcode: 150700,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'hulunbeier',
+      cityName: '呼伦贝尔市',
       districtCount: 14,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/neimenggu/hulunbeier.geo.js 存在且没有被浏览器拦截。',

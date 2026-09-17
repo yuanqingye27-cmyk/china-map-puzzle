@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'bayannaoer',
-    name: 'bayannaoer',
+    name: '巴彦淖尔市',
     parent: 'neimenggu',
     adcode: 150800,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'bayannaoer',
+      cityName: '巴彦淖尔市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/neimenggu/bayannaoer.geo.js 存在且没有被浏览器拦截。',

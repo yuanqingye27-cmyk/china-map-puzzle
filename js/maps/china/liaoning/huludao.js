@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'huludao',
-    name: 'huludao',
+    name: '葫芦岛市',
     parent: 'liaoning',
     adcode: 211400,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'huludao',
+      cityName: '葫芦岛市',
       districtCount: 6,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/liaoning/huludao.geo.js 存在且没有被浏览器拦截。',

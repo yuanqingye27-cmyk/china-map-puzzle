@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'chizhou',
-    name: 'chizhou',
+    name: '池州市',
     parent: 'anhui',
     adcode: 341700,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'chizhou',
+      cityName: '池州市',
       districtCount: 4,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/anhui/chizhou.geo.js 存在且没有被浏览器拦截。',

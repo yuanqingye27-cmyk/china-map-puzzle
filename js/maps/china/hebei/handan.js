@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'handan',
-    name: 'handan',
+    name: '邯郸市',
     parent: 'hebei',
     adcode: 130400,
 
@@ -61,7 +61,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'handan',
+      cityName: '邯郸市',
       districtCount: 18,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hebei/handan.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'ganzhou',
-    name: 'ganzhou',
+    name: '赣州市',
     parent: 'jiangxi',
     adcode: 360700,
 
@@ -61,7 +61,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'ganzhou',
+      cityName: '赣州市',
       districtCount: 18,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jiangxi/ganzhou.geo.js 存在且没有被浏览器拦截。',

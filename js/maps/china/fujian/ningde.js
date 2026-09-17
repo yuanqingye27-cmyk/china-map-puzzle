@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'ningde',
-    name: 'ningde',
+    name: '宁德市',
     parent: 'fujian',
     adcode: 350900,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'ningde',
+      cityName: '宁德市',
       districtCount: 9,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/fujian/ningde.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'yichang',
-    name: 'yichang',
+    name: '宜昌市',
     parent: 'hubei',
     adcode: 420500,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'yichang',
+      cityName: '宜昌市',
       districtCount: 13,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hubei/yichang.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'shenzhen',
-    name: 'shenzhen',
+    name: '深圳市',
     parent: 'guangdong',
     adcode: 440300,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'shenzhen',
+      cityName: '深圳市',
       districtCount: 9,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangdong/shenzhen.geo.js 存在且没有被浏览器拦截。',

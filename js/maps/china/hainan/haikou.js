@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'haikou',
-    name: 'haikou',
+    name: '海口市',
     parent: 'hainan',
     adcode: 460100,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'haikou',
+      cityName: '海口市',
       districtCount: 4,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hainan/haikou.geo.js 存在且没有被浏览器拦截。',

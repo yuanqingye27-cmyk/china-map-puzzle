@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'haerbin',
-    name: 'haerbin',
+    name: '哈尔滨市',
     parent: 'heilongjiang',
     adcode: 230100,
 
@@ -61,7 +61,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'haerbin',
+      cityName: '哈尔滨市',
       districtCount: 18,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/heilongjiang/haerbin.geo.js 存在且没有被浏览器拦截。',

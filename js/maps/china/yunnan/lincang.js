@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'lincang',
-    name: 'lincang',
+    name: '临沧市',
     parent: 'yunnan',
     adcode: 530900,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'lincang',
+      cityName: '临沧市',
       districtCount: 8,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/yunnan/lincang.geo.js 存在且没有被浏览器拦截。',

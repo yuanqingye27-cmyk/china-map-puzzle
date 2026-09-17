@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'kashen',
-    name: 'kashen',
+    name: '喀什地区',
     parent: 'xinjiang',
     adcode: 653100,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'kashen',
+      cityName: '喀什地区',
       districtCount: 12,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/xinjiang/kashen.geo.js 存在且没有被浏览器拦截。',

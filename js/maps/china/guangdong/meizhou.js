@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'meizhou',
-    name: 'meizhou',
+    name: '梅州市',
     parent: 'guangdong',
     adcode: 441400,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'meizhou',
+      cityName: '梅州市',
       districtCount: 8,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangdong/meizhou.geo.js 存在且没有被浏览器拦截。',

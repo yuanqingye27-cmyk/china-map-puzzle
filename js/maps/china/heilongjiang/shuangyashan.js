@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'shuangyashan',
-    name: 'shuangyashan',
+    name: '双鸭山市',
     parent: 'heilongjiang',
     adcode: 230500,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'shuangyashan',
+      cityName: '双鸭山市',
       districtCount: 8,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/heilongjiang/shuangyashan.geo.js 存在且没有被浏览器拦截。',

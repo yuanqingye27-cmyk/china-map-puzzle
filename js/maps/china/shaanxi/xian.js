@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'xian',
-    name: 'xian',
+    name: '西安市',
     parent: 'shaanxi',
     adcode: 610100,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'xian',
+      cityName: '西安市',
       districtCount: 13,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shaanxi/xian.geo.js 存在且没有被浏览器拦截。',

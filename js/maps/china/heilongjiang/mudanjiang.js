@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'mudanjiang',
-    name: 'mudanjiang',
+    name: '牡丹江市',
     parent: 'heilongjiang',
     adcode: 231000,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'mudanjiang',
+      cityName: '牡丹江市',
       districtCount: 10,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/heilongjiang/mudanjiang.geo.js 存在且没有被浏览器拦截。',

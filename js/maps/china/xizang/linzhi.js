@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'linzhi',
-    name: 'linzhi',
+    name: '林芝市',
     parent: 'xizang',
     adcode: 540400,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'linzhi',
+      cityName: '林芝市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/xizang/linzhi.geo.js 存在且没有被浏览器拦截。',

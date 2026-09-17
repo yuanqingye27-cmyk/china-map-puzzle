@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'zhangjiakou',
-    name: 'zhangjiakou',
+    name: '张家口市',
     parent: 'hebei',
     adcode: 130700,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'zhangjiakou',
+      cityName: '张家口市',
       districtCount: 16,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hebei/zhangjiakou.geo.js 存在且没有被浏览器拦截。',

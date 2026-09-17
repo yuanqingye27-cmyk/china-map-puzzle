@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'dalian',
-    name: 'dalian',
+    name: '大连市',
     parent: 'liaoning',
     adcode: 210200,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'dalian',
+      cityName: '大连市',
       districtCount: 10,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/liaoning/dalian.geo.js 存在且没有被浏览器拦截。',

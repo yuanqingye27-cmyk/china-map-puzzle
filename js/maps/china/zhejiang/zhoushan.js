@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'zhoushan',
-    name: 'zhoushan',
+    name: '舟山市',
     parent: 'zhejiang',
     adcode: 330900,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'zhoushan',
+      cityName: '舟山市',
       districtCount: 4,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/zhejiang/zhoushan.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'kezilesukeerkezi',
-    name: 'kezilesukeerkezi',
+    name: '克孜勒苏柯尔克孜自治州',
     parent: 'xinjiang',
     adcode: 653000,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'kezilesukeerkezi',
+      cityName: '克孜勒苏柯尔克孜自治州',
       districtCount: 4,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/xinjiang/kezilesukeerkezi.geo.js 存在且没有被浏览器拦截。',

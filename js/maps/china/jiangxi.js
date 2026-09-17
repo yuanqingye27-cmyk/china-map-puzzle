@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'jiangxi',
-    name: 'jiangxi',
+    name: '江西省',
     parent: 'china',
     adcode: 360000,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'jiangxi',
+      cityName: '江西省',
       districtCount: 11,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jiangxi.geo.js 存在且没有被浏览器拦截。',

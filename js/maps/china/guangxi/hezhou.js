@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'hezhou',
-    name: 'hezhou',
+    name: '贺州市',
     parent: 'guangxi',
     adcode: 451100,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'hezhou',
+      cityName: '贺州市',
       districtCount: 5,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangxi/hezhou.geo.js 存在且没有被浏览器拦截。',

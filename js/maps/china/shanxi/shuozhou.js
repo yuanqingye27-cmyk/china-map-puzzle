@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'shuozhou',
-    name: 'shuozhou',
+    name: '朔州市',
     parent: 'shanxi',
     adcode: 140600,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'shuozhou',
+      cityName: '朔州市',
       districtCount: 6,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shanxi/shuozhou.geo.js 存在且没有被浏览器拦截。',

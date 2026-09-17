@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'chaoyangshi',
-    name: 'chaoyangshi',
+    name: '朝阳市',
     parent: 'liaoning',
     adcode: 211300,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'chaoyangshi',
+      cityName: '朝阳市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/liaoning/chaoyangshi.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'ningbo',
-    name: 'ningbo',
+    name: '宁波市',
     parent: 'zhejiang',
     adcode: 330200,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'ningbo',
+      cityName: '宁波市',
       districtCount: 10,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/zhejiang/ningbo.geo.js 存在且没有被浏览器拦截。',

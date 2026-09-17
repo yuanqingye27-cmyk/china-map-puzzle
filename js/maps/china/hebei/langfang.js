@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'langfang',
-    name: 'langfang',
+    name: '廊坊市',
     parent: 'hebei',
     adcode: 131000,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'langfang',
+      cityName: '廊坊市',
       districtCount: 10,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hebei/langfang.geo.js 存在且没有被浏览器拦截。',

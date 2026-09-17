@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'qianxinan',
-    name: 'qianxinan',
+    name: '黔西南布依族苗族自治州',
     parent: 'guizhou',
     adcode: 522300,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'qianxinan',
+      cityName: '黔西南布依族苗族自治州',
       districtCount: 8,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guizhou/qianxinan.geo.js 存在且没有被浏览器拦截。',

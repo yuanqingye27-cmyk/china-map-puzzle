@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'guigang',
-    name: 'guigang',
+    name: '贵港市',
     parent: 'guangxi',
     adcode: 450800,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'guigang',
+      cityName: '贵港市',
       districtCount: 5,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangxi/guigang.geo.js 存在且没有被浏览器拦截。',

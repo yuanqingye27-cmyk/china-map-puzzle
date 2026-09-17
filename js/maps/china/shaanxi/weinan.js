@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'weinan',
-    name: 'weinan',
+    name: '渭南市',
     parent: 'shaanxi',
     adcode: 610500,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'weinan',
+      cityName: '渭南市',
       districtCount: 11,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shaanxi/weinan.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'anshun',
-    name: 'anshun',
+    name: '安顺市',
     parent: 'guizhou',
     adcode: 520400,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'anshun',
+      cityName: '安顺市',
       districtCount: 6,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guizhou/anshun.geo.js 存在且没有被浏览器拦截。',

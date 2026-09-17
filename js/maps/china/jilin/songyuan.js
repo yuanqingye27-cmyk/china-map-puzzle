@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'songyuan',
-    name: 'songyuan',
+    name: '松原市',
     parent: 'jilin',
     adcode: 220700,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'songyuan',
+      cityName: '松原市',
       districtCount: 5,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jilin/songyuan.geo.js 存在且没有被浏览器拦截。',

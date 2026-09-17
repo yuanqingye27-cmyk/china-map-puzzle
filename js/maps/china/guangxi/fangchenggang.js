@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'fangchenggang',
-    name: 'fangchenggang',
+    name: '防城港市',
     parent: 'guangxi',
     adcode: 450600,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'fangchenggang',
+      cityName: '防城港市',
       districtCount: 4,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangxi/fangchenggang.geo.js 存在且没有被浏览器拦截。',

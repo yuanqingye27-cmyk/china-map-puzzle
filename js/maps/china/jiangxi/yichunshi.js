@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'yichunshi',
-    name: 'yichunshi',
+    name: '宜春市',
     parent: 'jiangxi',
     adcode: 360900,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'yichunshi',
+      cityName: '宜春市',
       districtCount: 10,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jiangxi/yichunshi.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'chifeng',
-    name: 'chifeng',
+    name: '赤峰市',
     parent: 'neimenggu',
     adcode: 150400,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'chifeng',
+      cityName: '赤峰市',
       districtCount: 12,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/neimenggu/chifeng.geo.js 存在且没有被浏览器拦截。',

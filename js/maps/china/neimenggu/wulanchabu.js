@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'wulanchabu',
-    name: 'wulanchabu',
+    name: '乌兰察布市',
     parent: 'neimenggu',
     adcode: 150900,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'wulanchabu',
+      cityName: '乌兰察布市',
       districtCount: 11,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/neimenggu/wulanchabu.geo.js 存在且没有被浏览器拦截。',

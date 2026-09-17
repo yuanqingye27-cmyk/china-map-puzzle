@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'zibo',
-    name: 'zibo',
+    name: '淄博市',
     parent: 'shandong',
     adcode: 370300,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'zibo',
+      cityName: '淄博市',
       districtCount: 8,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shandong/zibo.geo.js 存在且没有被浏览器拦截。',

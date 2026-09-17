@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'ali',
-    name: 'ali',
+    name: '阿里地区',
     parent: 'xizang',
     adcode: 542500,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'ali',
+      cityName: '阿里地区',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/xizang/ali.geo.js 存在且没有被浏览器拦截。',

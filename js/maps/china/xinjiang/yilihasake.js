@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'yilihasake',
-    name: 'yilihasake',
+    name: '伊犁哈萨克自治州',
     parent: 'xinjiang',
     adcode: 654000,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'yilihasake',
+      cityName: '伊犁哈萨克自治州',
       districtCount: 11,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/xinjiang/yilihasake.geo.js 存在且没有被浏览器拦截。',

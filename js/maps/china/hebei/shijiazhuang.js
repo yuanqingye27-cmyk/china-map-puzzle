@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'shijiazhuang',
-    name: 'shijiazhuang',
+    name: '石家庄市',
     parent: 'hebei',
     adcode: 130100,
 
@@ -61,7 +61,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'shijiazhuang',
+      cityName: '石家庄市',
       districtCount: 22,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hebei/shijiazhuang.geo.js 存在且没有被浏览器拦截。',

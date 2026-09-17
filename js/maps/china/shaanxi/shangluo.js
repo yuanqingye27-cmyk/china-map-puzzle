@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'shangluo',
-    name: 'shangluo',
+    name: '商洛市',
     parent: 'shaanxi',
     adcode: 611000,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'shangluo',
+      cityName: '商洛市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shaanxi/shangluo.geo.js 存在且没有被浏览器拦截。',

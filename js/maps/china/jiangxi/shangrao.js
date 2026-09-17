@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'shangrao',
-    name: 'shangrao',
+    name: '上饶市',
     parent: 'jiangxi',
     adcode: 361100,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'shangrao',
+      cityName: '上饶市',
       districtCount: 12,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jiangxi/shangrao.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'chongqing',
-    name: 'chongqing',
+    name: '重庆市',
     parent: 'china',
     adcode: 500000,
 
@@ -63,7 +63,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'chongqing',
+      cityName: '重庆市',
       districtCount: 38,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/chongqing.geo.js 存在且没有被浏览器拦截。',

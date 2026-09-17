@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'baishan',
-    name: 'baishan',
+    name: '白山市',
     parent: 'jilin',
     adcode: 220600,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'baishan',
+      cityName: '白山市',
       districtCount: 6,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jilin/baishan.geo.js 存在且没有被浏览器拦截。',

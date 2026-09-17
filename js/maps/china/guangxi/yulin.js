@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'yulin',
-    name: 'yulin',
+    name: '玉林市',
     parent: 'guangxi',
     adcode: 450900,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'yulin',
+      cityName: '玉林市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangxi/yulin.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'jinzhong',
-    name: 'jinzhong',
+    name: '晋中市',
     parent: 'shanxi',
     adcode: 140700,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'jinzhong',
+      cityName: '晋中市',
       districtCount: 11,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shanxi/jinzhong.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'zhangye',
-    name: 'zhangye',
+    name: '张掖市',
     parent: 'gansu',
     adcode: 620700,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'zhangye',
+      cityName: '张掖市',
       districtCount: 6,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/gansu/zhangye.geo.js 存在且没有被浏览器拦截。',

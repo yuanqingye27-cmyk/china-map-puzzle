@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'huaibei',
-    name: 'huaibei',
+    name: '淮北市',
     parent: 'anhui',
     adcode: 340600,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'huaibei',
+      cityName: '淮北市',
       districtCount: 4,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/anhui/huaibei.geo.js 存在且没有被浏览器拦截。',

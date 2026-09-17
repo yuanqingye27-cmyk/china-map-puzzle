@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'jiamusi',
-    name: 'jiamusi',
+    name: '佳木斯市',
     parent: 'heilongjiang',
     adcode: 230800,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'jiamusi',
+      cityName: '佳木斯市',
       districtCount: 10,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/heilongjiang/jiamusi.geo.js 存在且没有被浏览器拦截。',

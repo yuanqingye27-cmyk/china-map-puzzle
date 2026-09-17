@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'honghe',
-    name: 'honghe',
+    name: '红河哈尼族彝族自治州',
     parent: 'yunnan',
     adcode: 532500,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'honghe',
+      cityName: '红河哈尼族彝族自治州',
       districtCount: 13,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/yunnan/honghe.geo.js 存在且没有被浏览器拦截。',

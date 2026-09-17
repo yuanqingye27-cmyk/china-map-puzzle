@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'xinjiang',
-    name: 'xinjiang',
+    name: '新疆维吾尔自治区',
     parent: 'china',
     adcode: 650000,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'xinjiang',
+      cityName: '新疆维吾尔自治区',
       districtCount: 14,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/xinjiang.geo.js 存在且没有被浏览器拦截。',

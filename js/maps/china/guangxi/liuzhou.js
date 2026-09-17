@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'liuzhou',
-    name: 'liuzhou',
+    name: '柳州市',
     parent: 'guangxi',
     adcode: 450200,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'liuzhou',
+      cityName: '柳州市',
       districtCount: 10,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangxi/liuzhou.geo.js 存在且没有被浏览器拦截。',

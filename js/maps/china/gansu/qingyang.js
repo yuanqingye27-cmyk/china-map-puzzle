@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'qingyang',
-    name: 'qingyang',
+    name: '庆阳市',
     parent: 'gansu',
     adcode: 621000,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'qingyang',
+      cityName: '庆阳市',
       districtCount: 8,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/gansu/qingyang.geo.js 存在且没有被浏览器拦截。',

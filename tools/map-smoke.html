@@ -396,6 +396,18 @@
     check('[' + id + '] 选择器当前选中的就是这张地图', !!sel && sel.value === id,
       sel ? sel.value : '没有 #mapSelect');
 
+    /* 选择器里的**每一张**地图都要显示中文名，不能是拼音 slug。
+     * 【为什么断言】接入 33 个省之后发现 344 张地图的显示名被静默兜底成了 slug
+     * （hebei / shijiazhuang / xingtai…），菜单里全是拼音：
+     * 根因是取显示名只有"向父级 geo 借"一条路径，而省级地图是单独接入的，
+     * 批处理到它时父级 features 缓存是空的 → 借不到就退成了 slug。 */
+    if (sel) {
+      const pinyinOnly = [...sel.options].filter((o) => !/[\u4e00-\u9fa5]/.test(o.textContent));
+      check('[' + id + '] 选择器里没有拼音占位的名字（共 ' + sel.options.length + ' 项）',
+        pinyinOnly.length === 0,
+        pinyinOnly.length + ' 项是拼音：' + pinyinOnly.slice(0, 6).map((o) => o.textContent).join(' / '));
+    }
+
     // 期望的面包屑：从根一路到当前地图
     const expectTrail = [];
     for (let cur = registry.maps[id], guard = 0; cur && guard < 16; guard++) {
@@ -419,6 +431,24 @@
     check('[' + id + '] 标题栏文案跟着地图走',
       (D.getElementById('brandTitle') || {}).textContent === entry.name + '地图拼图',
       (D.getElementById('brandTitle') || {}).textContent);
+
+    /* 欢迎动画的文案也必须跟着地图走。
+     * 【为什么单独断言】它是**整屏开场**，index.html 里写的是占位文案，
+     * 早先 updateBrand() 只同步了标题栏、漏了这里 ——
+     * 结果进任何地图开场都写"CHENGDU · 20 个区县"（用户实测报的 bug）。
+     * 这类"漏同步一处文案"的问题靠人眼看容易漏，所以钉成断言。 */
+    const introTitleEl = D.getElementById('introTitle');
+    const introKicker = D.getElementById('introKicker');
+    check('[' + id + '] 欢迎动画标题跟着地图走',
+      !!introTitleEl && introTitleEl.textContent === entry.name + '地图拼图',
+      introTitleEl ? introTitleEl.textContent : '页面里没有 #introTitle');
+    /* kicker 必须**以本图的名字开头** —— 直接比对，不用"黑名单"。
+     * 【为什么不用黑名单】我第一版写的是"不许出现成都/CHENGDU"，
+     * 结果成都地图自己被判失败（在成都地图上出现"成都"本来就是对的）。
+     * 断言要表达"文案等于当前地图"，而不是"不许出现某个词"。 */
+    check('[' + id + '] 欢迎动画的副标题属于当前地图',
+      !!introKicker && introKicker.textContent.indexOf(entry.name) === 0,
+      introKicker ? ('实际=' + introKicker.textContent + '，期望以「' + entry.name + '」开头') : '页面里没有 #introKicker');
 
     // 7) 进度持久化：拼上的那一块，刷新后应当还在（每张地图各自一套存档 key）
     const reloaded = new Promise((r) => frame.addEventListener('load', r, { once: true }));

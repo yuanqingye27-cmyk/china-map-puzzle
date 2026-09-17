@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'cangzhou',
-    name: 'cangzhou',
+    name: '沧州市',
     parent: 'hebei',
     adcode: 130900,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'cangzhou',
+      cityName: '沧州市',
       districtCount: 16,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hebei/cangzhou.geo.js 存在且没有被浏览器拦截。',

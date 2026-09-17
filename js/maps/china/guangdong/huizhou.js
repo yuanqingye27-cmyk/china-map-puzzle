@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'huizhou',
-    name: 'huizhou',
+    name: '惠州市',
     parent: 'guangdong',
     adcode: 441300,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'huizhou',
+      cityName: '惠州市',
       districtCount: 5,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangdong/huizhou.geo.js 存在且没有被浏览器拦截。',

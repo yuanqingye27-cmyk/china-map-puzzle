@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'baoding',
-    name: 'baoding',
+    name: '保定市',
     parent: 'hebei',
     adcode: 130600,
 
@@ -61,7 +61,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'baoding',
+      cityName: '保定市',
       districtCount: 24,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hebei/baoding.geo.js 存在且没有被浏览器拦截。',

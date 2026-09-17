@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'beijing',
-    name: 'beijing',
+    name: '北京市',
     parent: 'china',
     adcode: 110000,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'beijing',
+      cityName: '北京市',
       districtCount: 16,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/beijing.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'kunming',
-    name: 'kunming',
+    name: '昆明市',
     parent: 'yunnan',
     adcode: 530100,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'kunming',
+      cityName: '昆明市',
       districtCount: 14,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/yunnan/kunming.geo.js 存在且没有被浏览器拦截。',

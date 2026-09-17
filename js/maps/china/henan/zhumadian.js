@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'zhumadian',
-    name: 'zhumadian',
+    name: '驻马店市',
     parent: 'henan',
     adcode: 411700,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'zhumadian',
+      cityName: '驻马店市',
       districtCount: 10,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/henan/zhumadian.geo.js 存在且没有被浏览器拦截。',

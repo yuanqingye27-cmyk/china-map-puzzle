@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'shanwei',
-    name: 'shanwei',
+    name: '汕尾市',
     parent: 'guangdong',
     adcode: 441500,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'shanwei',
+      cityName: '汕尾市',
       districtCount: 4,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangdong/shanwei.geo.js 存在且没有被浏览器拦截。',

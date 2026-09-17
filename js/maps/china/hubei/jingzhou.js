@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'jingzhou',
-    name: 'jingzhou',
+    name: '荆州市',
     parent: 'hubei',
     adcode: 421000,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'jingzhou',
+      cityName: '荆州市',
       districtCount: 8,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hubei/jingzhou.geo.js 存在且没有被浏览器拦截。',

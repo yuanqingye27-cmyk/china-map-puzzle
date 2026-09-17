@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'yanan',
-    name: 'yanan',
+    name: '延安市',
     parent: 'shaanxi',
     adcode: 610600,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'yanan',
+      cityName: '延安市',
       districtCount: 13,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shaanxi/yanan.geo.js 存在且没有被浏览器拦截。',

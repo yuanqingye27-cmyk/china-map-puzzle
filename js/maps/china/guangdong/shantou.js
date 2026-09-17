@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'shantou',
-    name: 'shantou',
+    name: '汕头市',
     parent: 'guangdong',
     adcode: 440500,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'shantou',
+      cityName: '汕头市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangdong/shantou.geo.js 存在且没有被浏览器拦截。',

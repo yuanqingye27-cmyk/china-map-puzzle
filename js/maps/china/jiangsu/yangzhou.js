@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'yangzhou',
-    name: 'yangzhou',
+    name: '扬州市',
     parent: 'jiangsu',
     adcode: 321000,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'yangzhou',
+      cityName: '扬州市',
       districtCount: 6,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jiangsu/yangzhou.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'xiaogan',
-    name: 'xiaogan',
+    name: '孝感市',
     parent: 'hubei',
     adcode: 420900,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'xiaogan',
+      cityName: '孝感市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hubei/xiaogan.geo.js 存在且没有被浏览器拦截。',

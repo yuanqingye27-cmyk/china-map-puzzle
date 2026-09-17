@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'taizhoushi',
-    name: 'taizhoushi',
+    name: '台州市',
     parent: 'zhejiang',
     adcode: 331000,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'taizhoushi',
+      cityName: '台州市',
       districtCount: 9,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/zhejiang/taizhoushi.geo.js 存在且没有被浏览器拦截。',

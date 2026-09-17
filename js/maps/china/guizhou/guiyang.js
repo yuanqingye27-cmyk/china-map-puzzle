@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'guiyang',
-    name: 'guiyang',
+    name: '贵阳市',
     parent: 'guizhou',
     adcode: 520100,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'guiyang',
+      cityName: '贵阳市',
       districtCount: 10,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guizhou/guiyang.geo.js 存在且没有被浏览器拦截。',

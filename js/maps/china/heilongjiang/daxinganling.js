@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'daxinganling',
-    name: 'daxinganling',
+    name: '大兴安岭地区',
     parent: 'heilongjiang',
     adcode: 232700,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'daxinganling',
+      cityName: '大兴安岭地区',
       districtCount: 3,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/heilongjiang/daxinganling.geo.js 存在且没有被浏览器拦截。',

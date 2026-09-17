@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'akesu',
-    name: 'akesu',
+    name: '阿克苏地区',
     parent: 'xinjiang',
     adcode: 652900,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'akesu',
+      cityName: '阿克苏地区',
       districtCount: 9,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/xinjiang/akesu.geo.js 存在且没有被浏览器拦截。',

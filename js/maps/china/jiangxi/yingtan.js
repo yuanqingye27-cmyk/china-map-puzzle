@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'yingtan',
-    name: 'yingtan',
+    name: '鹰潭市',
     parent: 'jiangxi',
     adcode: 360600,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'yingtan',
+      cityName: '鹰潭市',
       districtCount: 3,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jiangxi/yingtan.geo.js 存在且没有被浏览器拦截。',

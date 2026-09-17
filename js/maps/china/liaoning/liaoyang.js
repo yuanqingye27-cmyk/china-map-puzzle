@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'liaoyang',
-    name: 'liaoyang',
+    name: '辽阳市',
     parent: 'liaoning',
     adcode: 211000,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'liaoyang',
+      cityName: '辽阳市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/liaoning/liaoyang.geo.js 存在且没有被浏览器拦截。',

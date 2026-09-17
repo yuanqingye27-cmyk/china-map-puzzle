@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'anqing',
-    name: 'anqing',
+    name: '安庆市',
     parent: 'anhui',
     adcode: 340800,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'anqing',
+      cityName: '安庆市',
       districtCount: 10,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/anhui/anqing.geo.js 存在且没有被浏览器拦截。',

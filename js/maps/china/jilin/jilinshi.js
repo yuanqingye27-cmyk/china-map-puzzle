@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'jilinshi',
-    name: 'jilinshi',
+    name: '吉林市',
     parent: 'jilin',
     adcode: 220200,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'jilinshi',
+      cityName: '吉林市',
       districtCount: 9,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jilin/jilinshi.geo.js 存在且没有被浏览器拦截。',

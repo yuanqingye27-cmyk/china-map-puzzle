@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'jiujiang',
-    name: 'jiujiang',
+    name: '九江市',
     parent: 'jiangxi',
     adcode: 360400,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'jiujiang',
+      cityName: '九江市',
       districtCount: 13,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jiangxi/jiujiang.geo.js 存在且没有被浏览器拦截。',

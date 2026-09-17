@@ -75,19 +75,44 @@
     global.location.href = urlForMap(id);
   }
 
-  /** 把标题栏的文案换成当前这张地图的（换地图后不该还写着"成都"） */
+  /**
+   * 把页面文案换成当前这张地图的。
+   *
+   * 【为什么必须有这个函数】index.html 是**静态骨架**，里面的"成都"只是占位，
+   * 真正的文案必须由当前地图驱动 —— 否则进河北也写着"成都地图拼图"。
+   * 实测踩过的坑：早先只同步了标题栏（brandTitle / brandSub），
+   * **漏了整屏欢迎动画**（intro-kicker / intro-title），
+   * 于是每次进游戏开场都写"CHENGDU · 20 个区县"。
+   * 所以这里统一处理三处：标题栏 + 欢迎动画 + 无障碍标签/文档标题。
+   */
   function updateBrand(config, id) {
     const name = (config && config.name) || id;
-    const title = document.getElementById('brandTitle');
-    const sub = document.getElementById('brandSub');
     // 数量以配置里的 districtCount 为准：geo 里可能还混着非行政区 feature
     // （比如全国数据里的南海九段线），拿 features.length 会多说一个
     const count = (config && config.texts && config.texts.districtCount) ||
       (config && config.geo && config.geo.features.length) || 0;
+    const unit = (config && config.texts && config.texts.districtUnit) || '个下级行政区';
+
+    // ① 标题栏
+    const title = document.getElementById('brandTitle');
+    const sub = document.getElementById('brandSub');
     if (title) title.textContent = name + '地图拼图';
-    if (sub) sub.textContent = '拖动碎片，拼出' + name + (count ? '的 ' + count + ' 个下级行政区' : '');
+    if (sub) sub.textContent = '拖动碎片，拼出' + name + (count ? '的 ' + count + ' ' + unit : '');
+
+    // ② 欢迎动画（整屏开场）—— 曾经漏掉的就是这里
+    const kicker = document.getElementById('introKicker');
+    const introTitle = document.getElementById('introTitle');
+    const introSub = document.getElementById('introSub');
+    if (kicker) kicker.textContent = count ? name + ' · ' + count + ' ' + unit : name;
+    if (introTitle) introTitle.textContent = name + '地图拼图';
+    if (introSub) introSub.textContent = '拖动碎片，把它们放回地图上本来的位置';
+
+    // ③ 无障碍与文档标题
     const mapEl = document.getElementById('map');
     if (mapEl) mapEl.setAttribute('aria-label', name + '行政区划拼图板');
+    const introEl = document.getElementById('intro');
+    if (introEl) introEl.setAttribute('aria-label', '欢迎来到' + name + '地图拼图');
+    document.title = name + '地图拼图';
   }
 
   /** 渲染面包屑：中国 › 四川省 › 自贡市（前几级可点，末级是当前） */
@@ -116,35 +141,69 @@
   }
 
   /**
-   * 渲染地图选择器：把 registry 里的树按层级缩进排成下拉项。
-   * 父级还没接入的地图（registry.orphans）挂到顶层并注明，不藏起来 ——
-   * 它是一个"父级空位还等着填"的信号，不该让用户在界面上找不到这张图。
+   * 渲染地图选择器。
+   *
+   * 【为什么按省分组】接入全国后这里有 363 个选项，平铺成一长条极难找。
+   * 改成两层结构，让"层级"由分组表达，而不是靠缩进空格：
+   *   · 每个省级地图 = 一个 <optgroup>（组标签就是省名）
+   *   · 省级自己放在组内第一项（标注"全省"）= 看全省
+   *   · 地级市放进所属省的组里，不再缩进（组已经表达了层级）
+   * 父级还没接入的地图（registry.orphans）仍挂出来并注明，不藏起来 ——
+   * 它是"父级空位还等着填"的信号，不该让用户在界面上找不到。
    */
   function renderSelect(currentId) {
     const sel = document.getElementById('mapSelect');
     if (!sel) return;
     const reg = global.MAP_REGISTRY || { roots: [], orphans: [], maps: {} };
+    sel.innerHTML = '';
 
-    const option = (id, depth, note) => {
+    const makeOption = (id, note) => {
       const m = global.MapLoader.entry(id);
-      if (!m) return;
+      if (!m) return null;
       const o = document.createElement('option');
       o.value = id;
-      o.textContent = '　'.repeat(depth) + m.name + (note ? '（' + note + '）' : '');
+      o.textContent = m.name + (note ? '（' + note + '）' : '');
       if (id === currentId) o.selected = true;
-      sel.appendChild(o);
+      return o;
     };
 
-    // 从根往下递归，depth 决定缩进 —— 山东下的济南会显示在济南下面
+    const roots = reg.roots || [];
+    const placed = new Set();
+
+    // ① 省级分组：每个根（中国）的直接子级就是一个省
+    roots.forEach((rootId) => {
+      global.MapLoader.childrenOf(rootId).forEach((pid) => {
+        const p = global.MapLoader.entry(pid);
+        if (!p) return;
+        const group = document.createElement('optgroup');
+        group.label = p.name;
+        const self = makeOption(pid, '全省');
+        if (self) group.appendChild(self);
+        placed.add(pid);
+        global.MapLoader.childrenOf(pid).forEach((c) => {
+          const o = makeOption(c.id);
+          if (o) { group.appendChild(o); placed.add(c.id); }
+        });
+        sel.appendChild(group);
+      });
+    });
+
+    /* ② 兜底：任何没被上面覆盖的（根自身、孤儿、更深的层级）按缩进补上，
+     * 保证任何形状的树都能完整显示，不会"某些地图在界面里找不到"。 */
     const walk = (id, depth, guard) => {
-      if (guard > 16) return; // 防止 parent 成环把自己递归死
-      option(id, depth);
+      if (guard > 16) return;         // 防止 parent 成环把自己递归死
+      if (!placed.has(id)) {
+        const o = makeOption(id);
+        if (o) { o.textContent = '　'.repeat(depth) + o.textContent; sel.appendChild(o); placed.add(id); }
+      }
       global.MapLoader.childrenOf(id).forEach((c) => walk(c.id, depth + 1, guard + 1));
     };
+    roots.forEach((id) => walk(id, 0, 0));
+    (reg.orphans || []).forEach((o) => {
+      const opt = makeOption(o.id, '父级 ' + o.parent + ' 待接入');
+      if (opt) sel.appendChild(opt);
+    });
 
-    sel.innerHTML = '';
-    (reg.roots || []).forEach((id) => walk(id, 0, 0));
-    (reg.orphans || []).forEach((o) => option(o.id, 0, '父级 ' + o.parent + ' 待接入'));
     sel.onchange = () => goToMap(sel.value);
   }
 

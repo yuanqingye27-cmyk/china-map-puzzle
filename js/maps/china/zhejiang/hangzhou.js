@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'hangzhou',
-    name: 'hangzhou',
+    name: '杭州市',
     parent: 'zhejiang',
     adcode: 330100,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'hangzhou',
+      cityName: '杭州市',
       districtCount: 13,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/zhejiang/hangzhou.geo.js 存在且没有被浏览器拦截。',

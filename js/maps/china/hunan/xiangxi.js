@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'xiangxi',
-    name: 'xiangxi',
+    name: '湘西土家族苗族自治州',
     parent: 'hunan',
     adcode: 433100,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'xiangxi',
+      cityName: '湘西土家族苗族自治州',
       districtCount: 8,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hunan/xiangxi.geo.js 存在且没有被浏览器拦截。',

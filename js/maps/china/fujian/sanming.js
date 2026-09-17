@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'sanming',
-    name: 'sanming',
+    name: '三明市',
     parent: 'fujian',
     adcode: 350400,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'sanming',
+      cityName: '三明市',
       districtCount: 11,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/fujian/sanming.geo.js 存在且没有被浏览器拦截。',

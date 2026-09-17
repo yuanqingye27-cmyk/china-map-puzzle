@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'fuyang',
-    name: 'fuyang',
+    name: '阜阳市',
     parent: 'anhui',
     adcode: 341200,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'fuyang',
+      cityName: '阜阳市',
       districtCount: 8,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/anhui/fuyang.geo.js 存在且没有被浏览器拦截。',

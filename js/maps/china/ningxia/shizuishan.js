@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'shizuishan',
-    name: 'shizuishan',
+    name: '石嘴山市',
     parent: 'ningxia',
     adcode: 640200,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'shizuishan',
+      cityName: '石嘴山市',
       districtCount: 3,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/ningxia/shizuishan.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'weihai',
-    name: 'weihai',
+    name: '威海市',
     parent: 'shandong',
     adcode: 371000,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'weihai',
+      cityName: '威海市',
       districtCount: 4,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shandong/weihai.geo.js 存在且没有被浏览器拦截。',

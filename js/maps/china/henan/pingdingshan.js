@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'pingdingshan',
-    name: 'pingdingshan',
+    name: '平顶山市',
     parent: 'henan',
     adcode: 410400,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'pingdingshan',
+      cityName: '平顶山市',
       districtCount: 10,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/henan/pingdingshan.geo.js 存在且没有被浏览器拦截。',

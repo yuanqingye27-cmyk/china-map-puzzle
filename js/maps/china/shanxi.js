@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'shanxi',
-    name: 'shanxi',
+    name: '山西省',
     parent: 'china',
     adcode: 140000,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'shanxi',
+      cityName: '山西省',
       districtCount: 11,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shanxi.geo.js 存在且没有被浏览器拦截。',

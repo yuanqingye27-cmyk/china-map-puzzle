@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'xinzhou',
-    name: 'xinzhou',
+    name: '忻州市',
     parent: 'shanxi',
     adcode: 140900,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'xinzhou',
+      cityName: '忻州市',
       districtCount: 14,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shanxi/xinzhou.geo.js 存在且没有被浏览器拦截。',

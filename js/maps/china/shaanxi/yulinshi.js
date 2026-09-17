@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'yulinshi',
-    name: 'yulinshi',
+    name: '榆林市',
     parent: 'shaanxi',
     adcode: 610800,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'yulinshi',
+      cityName: '榆林市',
       districtCount: 12,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shaanxi/yulinshi.geo.js 存在且没有被浏览器拦截。',

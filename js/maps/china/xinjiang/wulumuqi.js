@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'wulumuqi',
-    name: 'wulumuqi',
+    name: '乌鲁木齐市',
     parent: 'xinjiang',
     adcode: 650100,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'wulumuqi',
+      cityName: '乌鲁木齐市',
       districtCount: 8,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/xinjiang/wulumuqi.geo.js 存在且没有被浏览器拦截。',

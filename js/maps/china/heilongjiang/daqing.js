@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'daqing',
-    name: 'daqing',
+    name: '大庆市',
     parent: 'heilongjiang',
     adcode: 230600,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'daqing',
+      cityName: '大庆市',
       districtCount: 9,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/heilongjiang/daqing.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'fujian',
-    name: 'fujian',
+    name: '福建省',
     parent: 'china',
     adcode: 350000,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'fujian',
+      cityName: '福建省',
       districtCount: 9,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/fujian.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'huanggang',
-    name: 'huanggang',
+    name: '黄冈市',
     parent: 'hubei',
     adcode: 421100,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'huanggang',
+      cityName: '黄冈市',
       districtCount: 10,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hubei/huanggang.geo.js 存在且没有被浏览器拦截。',

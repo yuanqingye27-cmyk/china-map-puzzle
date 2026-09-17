@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'eerduosi',
-    name: 'eerduosi',
+    name: '鄂尔多斯市',
     parent: 'neimenggu',
     adcode: 150600,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'eerduosi',
+      cityName: '鄂尔多斯市',
       districtCount: 9,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/neimenggu/eerduosi.geo.js 存在且没有被浏览器拦截。',

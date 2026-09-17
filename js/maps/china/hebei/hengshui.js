@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'hengshui',
-    name: 'hengshui',
+    name: '衡水市',
     parent: 'hebei',
     adcode: 131100,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'hengshui',
+      cityName: '衡水市',
       districtCount: 11,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hebei/hengshui.geo.js 存在且没有被浏览器拦截。',

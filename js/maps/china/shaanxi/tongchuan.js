@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'tongchuan',
-    name: 'tongchuan',
+    name: '铜川市',
     parent: 'shaanxi',
     adcode: 610200,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'tongchuan',
+      cityName: '铜川市',
       districtCount: 4,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shaanxi/tongchuan.geo.js 存在且没有被浏览器拦截。',

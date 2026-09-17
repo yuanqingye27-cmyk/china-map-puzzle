@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'yunfu',
-    name: 'yunfu',
+    name: '云浮市',
     parent: 'guangdong',
     adcode: 445300,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'yunfu',
+      cityName: '云浮市',
       districtCount: 5,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangdong/yunfu.geo.js 存在且没有被浏览器拦截。',

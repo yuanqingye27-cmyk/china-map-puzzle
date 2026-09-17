@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'heilongjiang',
-    name: 'heilongjiang',
+    name: '黑龙江省',
     parent: 'china',
     adcode: 230000,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'heilongjiang',
+      cityName: '黑龙江省',
       districtCount: 13,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/heilongjiang.geo.js 存在且没有被浏览器拦截。',

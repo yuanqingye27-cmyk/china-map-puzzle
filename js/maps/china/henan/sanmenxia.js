@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'sanmenxia',
-    name: 'sanmenxia',
+    name: '三门峡市',
     parent: 'henan',
     adcode: 411200,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'sanmenxia',
+      cityName: '三门峡市',
       districtCount: 6,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/henan/sanmenxia.geo.js 存在且没有被浏览器拦截。',

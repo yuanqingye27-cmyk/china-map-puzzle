@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'china',
-    name: '中国',
+    name: '中华人民共和国',
     parent: null,
     adcode: 100000,
 
@@ -63,7 +63,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: '中国',
+      cityName: '中华人民共和国',
       districtCount: 34,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china.geo.js 存在且没有被浏览器拦截。',

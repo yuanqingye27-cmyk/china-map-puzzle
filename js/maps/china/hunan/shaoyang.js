@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'shaoyang',
-    name: 'shaoyang',
+    name: '邵阳市',
     parent: 'hunan',
     adcode: 430500,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'shaoyang',
+      cityName: '邵阳市',
       districtCount: 12,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hunan/shaoyang.geo.js 存在且没有被浏览器拦截。',

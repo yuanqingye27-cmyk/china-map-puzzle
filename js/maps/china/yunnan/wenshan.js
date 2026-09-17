@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'wenshan',
-    name: 'wenshan',
+    name: '文山壮族苗族自治州',
     parent: 'yunnan',
     adcode: 532600,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'wenshan',
+      cityName: '文山壮族苗族自治州',
       districtCount: 8,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/yunnan/wenshan.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'zhejiang',
-    name: 'zhejiang',
+    name: '浙江省',
     parent: 'china',
     adcode: 330000,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'zhejiang',
+      cityName: '浙江省',
       districtCount: 11,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/zhejiang.geo.js 存在且没有被浏览器拦截。',

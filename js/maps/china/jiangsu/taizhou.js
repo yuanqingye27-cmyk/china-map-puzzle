@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'taizhou',
-    name: 'taizhou',
+    name: '泰州市',
     parent: 'jiangsu',
     adcode: 321200,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'taizhou',
+      cityName: '泰州市',
       districtCount: 6,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jiangsu/taizhou.geo.js 存在且没有被浏览器拦截。',

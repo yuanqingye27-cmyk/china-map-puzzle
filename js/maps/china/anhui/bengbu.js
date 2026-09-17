@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'bengbu',
-    name: 'bengbu',
+    name: '蚌埠市',
     parent: 'anhui',
     adcode: 340300,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'bengbu',
+      cityName: '蚌埠市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/anhui/bengbu.geo.js 存在且没有被浏览器拦截。',

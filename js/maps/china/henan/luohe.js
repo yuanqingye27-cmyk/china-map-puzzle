@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'luohe',
-    name: 'luohe',
+    name: '漯河市',
     parent: 'henan',
     adcode: 411100,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'luohe',
+      cityName: '漯河市',
       districtCount: 5,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/henan/luohe.geo.js 存在且没有被浏览器拦截。',

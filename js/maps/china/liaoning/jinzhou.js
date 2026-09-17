@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'jinzhou',
-    name: 'jinzhou',
+    name: '锦州市',
     parent: 'liaoning',
     adcode: 210700,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'jinzhou',
+      cityName: '锦州市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/liaoning/jinzhou.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'chenzhou',
-    name: 'chenzhou',
+    name: '郴州市',
     parent: 'hunan',
     adcode: 431000,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'chenzhou',
+      cityName: '郴州市',
       districtCount: 11,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hunan/chenzhou.geo.js 存在且没有被浏览器拦截。',

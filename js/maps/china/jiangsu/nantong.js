@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'nantong',
-    name: 'nantong',
+    name: '南通市',
     parent: 'jiangsu',
     adcode: 320600,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'nantong',
+      cityName: '南通市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jiangsu/nantong.geo.js 存在且没有被浏览器拦截。',

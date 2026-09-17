@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'haidong',
-    name: 'haidong',
+    name: '海东市',
     parent: 'qinghai',
     adcode: 630200,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'haidong',
+      cityName: '海东市',
       districtCount: 6,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/qinghai/haidong.geo.js 存在且没有被浏览器拦截。',

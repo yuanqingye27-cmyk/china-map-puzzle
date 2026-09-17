@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'yinchuan',
-    name: 'yinchuan',
+    name: '银川市',
     parent: 'ningxia',
     adcode: 640100,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'yinchuan',
+      cityName: '银川市',
       districtCount: 6,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/ningxia/yinchuan.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'qinghai',
-    name: 'qinghai',
+    name: '青海省',
     parent: 'china',
     adcode: 630000,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'qinghai',
+      cityName: '青海省',
       districtCount: 8,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/qinghai.geo.js 存在且没有被浏览器拦截。',

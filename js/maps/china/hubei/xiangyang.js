@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'xiangyang',
-    name: 'xiangyang',
+    name: '襄阳市',
     parent: 'hubei',
     adcode: 420600,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'xiangyang',
+      cityName: '襄阳市',
       districtCount: 9,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hubei/xiangyang.geo.js 存在且没有被浏览器拦截。',

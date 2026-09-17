@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'wuwei',
-    name: 'wuwei',
+    name: '武威市',
     parent: 'gansu',
     adcode: 620600,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'wuwei',
+      cityName: '武威市',
       districtCount: 4,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/gansu/wuwei.geo.js 存在且没有被浏览器拦截。',

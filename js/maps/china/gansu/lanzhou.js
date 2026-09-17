@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'lanzhou',
-    name: 'lanzhou',
+    name: '兰州市',
     parent: 'gansu',
     adcode: 620100,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'lanzhou',
+      cityName: '兰州市',
       districtCount: 8,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/gansu/lanzhou.geo.js 存在且没有被浏览器拦截。',

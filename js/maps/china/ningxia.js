@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'ningxia',
-    name: 'ningxia',
+    name: '宁夏回族自治区',
     parent: 'china',
     adcode: 640000,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'ningxia',
+      cityName: '宁夏回族自治区',
       districtCount: 5,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/ningxia.geo.js 存在且没有被浏览器拦截。',

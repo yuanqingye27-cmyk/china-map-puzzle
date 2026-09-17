@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'jiuquan',
-    name: 'jiuquan',
+    name: '酒泉市',
     parent: 'gansu',
     adcode: 620900,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'jiuquan',
+      cityName: '酒泉市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/gansu/jiuquan.geo.js 存在且没有被浏览器拦截。',

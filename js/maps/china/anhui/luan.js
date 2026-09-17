@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'luan',
-    name: 'luan',
+    name: '六安市',
     parent: 'anhui',
     adcode: 341500,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'luan',
+      cityName: '六安市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/anhui/luan.geo.js 存在且没有被浏览器拦截。',

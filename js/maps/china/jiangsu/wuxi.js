@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'wuxi',
-    name: 'wuxi',
+    name: '无锡市',
     parent: 'jiangsu',
     adcode: 320200,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'wuxi',
+      cityName: '无锡市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jiangsu/wuxi.geo.js 存在且没有被浏览器拦截。',

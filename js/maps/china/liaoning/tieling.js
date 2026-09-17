@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'tieling',
-    name: 'tieling',
+    name: '铁岭市',
     parent: 'liaoning',
     adcode: 211200,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'tieling',
+      cityName: '铁岭市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/liaoning/tieling.geo.js 存在且没有被浏览器拦截。',

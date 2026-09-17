@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'lijiang',
-    name: 'lijiang',
+    name: '丽江市',
     parent: 'yunnan',
     adcode: 530700,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'lijiang',
+      cityName: '丽江市',
       districtCount: 5,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/yunnan/lijiang.geo.js 存在且没有被浏览器拦截。',

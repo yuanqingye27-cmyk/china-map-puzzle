@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'pingxiang',
-    name: 'pingxiang',
+    name: '萍乡市',
     parent: 'jiangxi',
     adcode: 360300,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'pingxiang',
+      cityName: '萍乡市',
       districtCount: 5,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jiangxi/pingxiang.geo.js 存在且没有被浏览器拦截。',

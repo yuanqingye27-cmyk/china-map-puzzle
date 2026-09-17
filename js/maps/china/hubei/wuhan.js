@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'wuhan',
-    name: 'wuhan',
+    name: '武汉市',
     parent: 'hubei',
     adcode: 420100,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'wuhan',
+      cityName: '武汉市',
       districtCount: 13,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hubei/wuhan.geo.js 存在且没有被浏览器拦截。',

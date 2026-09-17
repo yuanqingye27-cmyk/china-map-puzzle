@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'yunnan',
-    name: 'yunnan',
+    name: '云南省',
     parent: 'china',
     adcode: 530000,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'yunnan',
+      cityName: '云南省',
       districtCount: 16,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/yunnan.geo.js 存在且没有被浏览器拦截。',

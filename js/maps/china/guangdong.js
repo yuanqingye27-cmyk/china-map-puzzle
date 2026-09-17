@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'guangdong',
-    name: 'guangdong',
+    name: '广东省',
     parent: 'china',
     adcode: 440000,
 
@@ -61,7 +61,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'guangdong',
+      cityName: '广东省',
       districtCount: 19,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangdong.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'loudi',
-    name: 'loudi',
+    name: '娄底市',
     parent: 'hunan',
     adcode: 431300,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'loudi',
+      cityName: '娄底市',
       districtCount: 5,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hunan/loudi.geo.js 存在且没有被浏览器拦截。',

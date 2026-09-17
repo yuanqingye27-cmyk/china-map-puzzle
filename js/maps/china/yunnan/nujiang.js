@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'nujiang',
-    name: 'nujiang',
+    name: '怒江傈僳族自治州',
     parent: 'yunnan',
     adcode: 533300,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'nujiang',
+      cityName: '怒江傈僳族自治州',
       districtCount: 4,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/yunnan/nujiang.geo.js 存在且没有被浏览器拦截。',

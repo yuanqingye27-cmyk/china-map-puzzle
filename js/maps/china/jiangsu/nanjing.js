@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'nanjing',
-    name: 'nanjing',
+    name: '南京市',
     parent: 'jiangsu',
     adcode: 320100,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'nanjing',
+      cityName: '南京市',
       districtCount: 11,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jiangsu/nanjing.geo.js 存在且没有被浏览器拦截。',

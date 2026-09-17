@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'alashan',
-    name: 'alashan',
+    name: '阿拉善盟',
     parent: 'neimenggu',
     adcode: 152900,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'alashan',
+      cityName: '阿拉善盟',
       districtCount: 3,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/neimenggu/alashan.geo.js 存在且没有被浏览器拦截。',

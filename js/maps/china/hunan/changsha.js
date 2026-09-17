@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'changsha',
-    name: 'changsha',
+    name: '长沙市',
     parent: 'hunan',
     adcode: 430100,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'changsha',
+      cityName: '长沙市',
       districtCount: 9,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hunan/changsha.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'gannan',
-    name: 'gannan',
+    name: '甘南藏族自治州',
     parent: 'gansu',
     adcode: 623000,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'gannan',
+      cityName: '甘南藏族自治州',
       districtCount: 8,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/gansu/gannan.geo.js 存在且没有被浏览器拦截。',

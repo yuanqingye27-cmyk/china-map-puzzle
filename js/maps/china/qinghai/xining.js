@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'xining',
-    name: 'xining',
+    name: '西宁市',
     parent: 'qinghai',
     adcode: 630100,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'xining',
+      cityName: '西宁市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/qinghai/xining.geo.js 存在且没有被浏览器拦截。',

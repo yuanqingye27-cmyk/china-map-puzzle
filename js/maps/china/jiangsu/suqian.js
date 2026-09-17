@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'suqian',
-    name: 'suqian',
+    name: '宿迁市',
     parent: 'jiangsu',
     adcode: 321300,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'suqian',
+      cityName: '宿迁市',
       districtCount: 5,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jiangsu/suqian.geo.js 存在且没有被浏览器拦截。',

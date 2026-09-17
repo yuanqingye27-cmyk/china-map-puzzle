@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'jincheng',
-    name: 'jincheng',
+    name: '晋城市',
     parent: 'shanxi',
     adcode: 140500,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'jincheng',
+      cityName: '晋城市',
       districtCount: 6,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shanxi/jincheng.geo.js 存在且没有被浏览器拦截。',

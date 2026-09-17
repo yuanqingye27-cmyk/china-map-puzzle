@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'ezhou',
-    name: 'ezhou',
+    name: '鄂州市',
     parent: 'hubei',
     adcode: 420700,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'ezhou',
+      cityName: '鄂州市',
       districtCount: 3,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hubei/ezhou.geo.js 存在且没有被浏览器拦截。',

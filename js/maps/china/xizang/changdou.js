@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'changdou',
-    name: 'changdou',
+    name: '昌都市',
     parent: 'xizang',
     adcode: 540300,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'changdou',
+      cityName: '昌都市',
       districtCount: 11,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/xizang/changdou.geo.js 存在且没有被浏览器拦截。',

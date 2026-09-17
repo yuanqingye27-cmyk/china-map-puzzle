@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'huhehaote',
-    name: 'huhehaote',
+    name: '呼和浩特市',
     parent: 'neimenggu',
     adcode: 150100,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'huhehaote',
+      cityName: '呼和浩特市',
       districtCount: 9,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/neimenggu/huhehaote.geo.js 存在且没有被浏览器拦截。',

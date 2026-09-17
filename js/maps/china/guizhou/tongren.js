@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'tongren',
-    name: 'tongren',
+    name: '铜仁市',
     parent: 'guizhou',
     adcode: 520600,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'tongren',
+      cityName: '铜仁市',
       districtCount: 10,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guizhou/tongren.geo.js 存在且没有被浏览器拦截。',

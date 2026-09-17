@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'guilin',
-    name: 'guilin',
+    name: '桂林市',
     parent: 'guangxi',
     adcode: 450300,
 
@@ -61,7 +61,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'guilin',
+      cityName: '桂林市',
       districtCount: 17,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangxi/guilin.geo.js 存在且没有被浏览器拦截。',

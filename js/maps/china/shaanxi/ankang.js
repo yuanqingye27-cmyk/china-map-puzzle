@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'ankang',
-    name: 'ankang',
+    name: '安康市',
     parent: 'shaanxi',
     adcode: 610900,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'ankang',
+      cityName: '安康市',
       districtCount: 10,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shaanxi/ankang.geo.js 存在且没有被浏览器拦截。',

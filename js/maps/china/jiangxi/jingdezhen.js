@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'jingdezhen',
-    name: 'jingdezhen',
+    name: '景德镇市',
     parent: 'jiangxi',
     adcode: 360200,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'jingdezhen',
+      cityName: '景德镇市',
       districtCount: 4,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jiangxi/jingdezhen.geo.js 存在且没有被浏览器拦截。',

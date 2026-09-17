@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'linxia',
-    name: 'linxia',
+    name: '临夏回族自治州',
     parent: 'gansu',
     adcode: 622900,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'linxia',
+      cityName: '临夏回族自治州',
       districtCount: 8,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/gansu/linxia.geo.js 存在且没有被浏览器拦截。',

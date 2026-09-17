@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'xingtai',
-    name: 'xingtai',
+    name: '邢台市',
     parent: 'hebei',
     adcode: 130500,
 
@@ -61,7 +61,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'xingtai',
+      cityName: '邢台市',
       districtCount: 18,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hebei/xingtai.geo.js 存在且没有被浏览器拦截。',

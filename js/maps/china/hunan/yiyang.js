@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'yiyang',
-    name: 'yiyang',
+    name: '益阳市',
     parent: 'hunan',
     adcode: 430900,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'yiyang',
+      cityName: '益阳市',
       districtCount: 6,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hunan/yiyang.geo.js 存在且没有被浏览器拦截。',

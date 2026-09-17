@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'sanya',
-    name: 'sanya',
+    name: '三亚市',
     parent: 'hainan',
     adcode: 460200,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'sanya',
+      cityName: '三亚市',
       districtCount: 4,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hainan/sanya.geo.js 存在且没有被浏览器拦截。',

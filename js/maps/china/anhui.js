@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'anhui',
-    name: 'anhui',
+    name: '安徽省',
     parent: 'china',
     adcode: 340000,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'anhui',
+      cityName: '安徽省',
       districtCount: 16,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/anhui.geo.js 存在且没有被浏览器拦截。',

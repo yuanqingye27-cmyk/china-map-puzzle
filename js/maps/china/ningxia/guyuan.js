@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'guyuan',
-    name: 'guyuan',
+    name: '固原市',
     parent: 'ningxia',
     adcode: 640400,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'guyuan',
+      cityName: '固原市',
       districtCount: 5,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/ningxia/guyuan.geo.js 存在且没有被浏览器拦截。',

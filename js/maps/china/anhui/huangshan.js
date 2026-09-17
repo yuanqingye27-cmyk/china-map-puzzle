@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'huangshan',
-    name: 'huangshan',
+    name: '黄山市',
     parent: 'anhui',
     adcode: 341000,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'huangshan',
+      cityName: '黄山市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/anhui/huangshan.geo.js 存在且没有被浏览器拦截。',

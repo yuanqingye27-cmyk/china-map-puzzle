@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'shandong',
-    name: 'shandong',
+    name: '山东省',
     parent: 'china',
     adcode: 370000,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'shandong',
+      cityName: '山东省',
       districtCount: 16,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shandong.geo.js 存在且没有被浏览器拦截。',

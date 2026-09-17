@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'jilin',
-    name: 'jilin',
+    name: '吉林省',
     parent: 'china',
     adcode: 220000,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'jilin',
+      cityName: '吉林省',
       districtCount: 9,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jilin.geo.js 存在且没有被浏览器拦截。',

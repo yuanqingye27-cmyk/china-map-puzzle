@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'chongzuo',
-    name: 'chongzuo',
+    name: '崇左市',
     parent: 'guangxi',
     adcode: 451400,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'chongzuo',
+      cityName: '崇左市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangxi/chongzuo.geo.js 存在且没有被浏览器拦截。',

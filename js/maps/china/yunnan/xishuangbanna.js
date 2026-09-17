@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'xishuangbanna',
-    name: 'xishuangbanna',
+    name: '西双版纳傣族自治州',
     parent: 'yunnan',
     adcode: 532800,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'xishuangbanna',
+      cityName: '西双版纳傣族自治州',
       districtCount: 3,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/yunnan/xishuangbanna.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'xingan',
-    name: 'xingan',
+    name: '兴安盟',
     parent: 'neimenggu',
     adcode: 152200,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'xingan',
+      cityName: '兴安盟',
       districtCount: 6,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/neimenggu/xingan.geo.js 存在且没有被浏览器拦截。',

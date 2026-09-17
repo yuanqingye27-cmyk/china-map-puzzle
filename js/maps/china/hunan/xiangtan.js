@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'xiangtan',
-    name: 'xiangtan',
+    name: '湘潭市',
     parent: 'hunan',
     adcode: 430300,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'xiangtan',
+      cityName: '湘潭市',
       districtCount: 5,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hunan/xiangtan.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'heze',
-    name: 'heze',
+    name: '菏泽市',
     parent: 'shandong',
     adcode: 371700,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'heze',
+      cityName: '菏泽市',
       districtCount: 9,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shandong/heze.geo.js 存在且没有被浏览器拦截。',

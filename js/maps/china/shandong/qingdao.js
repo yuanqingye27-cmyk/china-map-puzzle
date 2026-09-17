@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'qingdao',
-    name: 'qingdao',
+    name: '青岛市',
     parent: 'shandong',
     adcode: 370200,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'qingdao',
+      cityName: '青岛市',
       districtCount: 10,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shandong/qingdao.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'tianshui',
-    name: 'tianshui',
+    name: '天水市',
     parent: 'gansu',
     adcode: 620500,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'tianshui',
+      cityName: '天水市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/gansu/tianshui.geo.js 存在且没有被浏览器拦截。',

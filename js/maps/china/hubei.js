@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'hubei',
-    name: 'hubei',
+    name: '湖北省',
     parent: 'china',
     adcode: 420000,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'hubei',
+      cityName: '湖北省',
       districtCount: 13,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hubei.geo.js 存在且没有被浏览器拦截。',

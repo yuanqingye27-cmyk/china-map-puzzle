@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'liaoning',
-    name: 'liaoning',
+    name: '辽宁省',
     parent: 'china',
     adcode: 210000,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'liaoning',
+      cityName: '辽宁省',
       districtCount: 14,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/liaoning.geo.js 存在且没有被浏览器拦截。',

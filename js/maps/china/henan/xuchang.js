@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'xuchang',
-    name: 'xuchang',
+    name: '许昌市',
     parent: 'henan',
     adcode: 411000,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'xuchang',
+      cityName: '许昌市',
       districtCount: 6,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/henan/xuchang.geo.js 存在且没有被浏览器拦截。',

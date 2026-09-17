@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'zaozhuang',
-    name: 'zaozhuang',
+    name: '枣庄市',
     parent: 'shandong',
     adcode: 370400,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'zaozhuang',
+      cityName: '枣庄市',
       districtCount: 6,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shandong/zaozhuang.geo.js 存在且没有被浏览器拦截。',

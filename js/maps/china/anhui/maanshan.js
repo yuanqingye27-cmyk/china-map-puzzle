@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'maanshan',
-    name: 'maanshan',
+    name: '马鞍山市',
     parent: 'anhui',
     adcode: 340500,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'maanshan',
+      cityName: '马鞍山市',
       districtCount: 6,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/anhui/maanshan.geo.js 存在且没有被浏览器拦截。',

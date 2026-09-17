@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'qujing',
-    name: 'qujing',
+    name: '曲靖市',
     parent: 'yunnan',
     adcode: 530300,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'qujing',
+      cityName: '曲靖市',
       districtCount: 9,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/yunnan/qujing.geo.js 存在且没有被浏览器拦截。',

@@ -61,7 +61,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'liangshan',
+      cityName: '凉山彝族自治州',
       districtCount: 17,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/sichuan/liangshan.geo.js 存在且没有被浏览器拦截。',

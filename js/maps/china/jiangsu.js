@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'jiangsu',
-    name: 'jiangsu',
+    name: '江苏省',
     parent: 'china',
     adcode: 320000,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'jiangsu',
+      cityName: '江苏省',
       districtCount: 13,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jiangsu.geo.js 存在且没有被浏览器拦截。',

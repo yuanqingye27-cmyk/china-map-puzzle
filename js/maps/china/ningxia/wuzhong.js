@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'wuzhong',
-    name: 'wuzhong',
+    name: '吴忠市',
     parent: 'ningxia',
     adcode: 640300,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'wuzhong',
+      cityName: '吴忠市',
       districtCount: 5,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/ningxia/wuzhong.geo.js 存在且没有被浏览器拦截。',

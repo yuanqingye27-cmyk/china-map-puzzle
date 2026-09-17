@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'datong',
-    name: 'datong',
+    name: '大同市',
     parent: 'shanxi',
     adcode: 140200,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'datong',
+      cityName: '大同市',
       districtCount: 10,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shanxi/datong.geo.js 存在且没有被浏览器拦截。',

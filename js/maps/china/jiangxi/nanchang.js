@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'nanchang',
-    name: 'nanchang',
+    name: '南昌市',
     parent: 'jiangxi',
     adcode: 360100,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'nanchang',
+      cityName: '南昌市',
       districtCount: 9,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jiangxi/nanchang.geo.js 存在且没有被浏览器拦截。',

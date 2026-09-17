@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'yantai',
-    name: 'yantai',
+    name: '烟台市',
     parent: 'shandong',
     adcode: 370600,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'yantai',
+      cityName: '烟台市',
       districtCount: 11,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shandong/yantai.geo.js 存在且没有被浏览器拦截。',

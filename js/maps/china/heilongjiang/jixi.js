@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'jixi',
-    name: 'jixi',
+    name: '鸡西市',
     parent: 'heilongjiang',
     adcode: 230300,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'jixi',
+      cityName: '鸡西市',
       districtCount: 9,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/heilongjiang/jixi.geo.js 存在且没有被浏览器拦截。',

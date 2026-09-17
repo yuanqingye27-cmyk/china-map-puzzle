@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'shaoxing',
-    name: 'shaoxing',
+    name: '绍兴市',
     parent: 'zhejiang',
     adcode: 330600,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'shaoxing',
+      cityName: '绍兴市',
       districtCount: 6,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/zhejiang/shaoxing.geo.js 存在且没有被浏览器拦截。',

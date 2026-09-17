@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'changchun',
-    name: 'changchun',
+    name: '长春市',
     parent: 'jilin',
     adcode: 220100,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'changchun',
+      cityName: '长春市',
       districtCount: 11,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jilin/changchun.geo.js 存在且没有被浏览器拦截。',

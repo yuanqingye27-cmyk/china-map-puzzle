@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'guangzhou',
-    name: 'guangzhou',
+    name: '广州市',
     parent: 'guangdong',
     adcode: 440100,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'guangzhou',
+      cityName: '广州市',
       districtCount: 11,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangdong/guangzhou.geo.js 存在且没有被浏览器拦截。',

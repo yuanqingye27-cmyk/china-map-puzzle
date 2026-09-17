@@ -384,7 +384,7 @@ try {
 <!-- ======================= 开场欢迎动画 =======================
      覆盖整屏，展示五个成都元素（熊猫 / 竹子 / 银杏 / 脸谱 / 盖碗茶），
      依次弹入后浮出标题与「开始探索」。同一次会话内不会重复出现。 -->
-<div class="intro" id="intro" role="dialog" aria-modal="true" aria-label="欢迎来到成都地图拼图" hidden>
+<div class="intro" id="intro" role="dialog" aria-modal="true" aria-label="欢迎" hidden>
   <div class="intro-inner">
     <div class="intro-marks" aria-hidden="true">
       <svg class="intro-mark" viewBox="0 0 64 64"><use href="#i-panda"/></svg>
@@ -393,9 +393,9 @@ try {
       <svg class="intro-mark" viewBox="0 0 80 80"><use href="#i-opera"/></svg>
       <svg class="intro-mark" viewBox="0 0 80 80"><use href="#i-tea"/></svg>
     </div>
-    <p class="intro-kicker">CHENGDU · 20 个区县</p>
-    <h1 class="intro-title">成都地图拼图</h1>
-    <p class="intro-sub">拖动碎片，把它们放回地图上本来的位置</p>
+    <p class="intro-kicker" id="introKicker">地图拼图</p>
+    <h1 class="intro-title" id="introTitle">地图拼图</h1>
+    <p class="intro-sub" id="introSub">拖动碎片，把它们放回地图上本来的位置</p>
     <button class="btn btn-primary intro-btn" id="introStart" type="button">开始探索</button>
     <p class="intro-skip">点任意位置也可以直接开始</p>
   </div>

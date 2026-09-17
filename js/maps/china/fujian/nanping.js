@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'nanping',
-    name: 'nanping',
+    name: '南平市',
     parent: 'fujian',
     adcode: 350700,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'nanping',
+      cityName: '南平市',
       districtCount: 10,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/fujian/nanping.geo.js 存在且没有被浏览器拦截。',

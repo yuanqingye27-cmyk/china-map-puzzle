@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'quzhou',
-    name: 'quzhou',
+    name: '衢州市',
     parent: 'zhejiang',
     adcode: 330800,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'quzhou',
+      cityName: '衢州市',
       districtCount: 6,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/zhejiang/quzhou.geo.js 存在且没有被浏览器拦截。',

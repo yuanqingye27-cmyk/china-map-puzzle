@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'hegang',
-    name: 'hegang',
+    name: '鹤岗市',
     parent: 'heilongjiang',
     adcode: 230400,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'hegang',
+      cityName: '鹤岗市',
       districtCount: 8,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/heilongjiang/hegang.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'xianyang',
-    name: 'xianyang',
+    name: '咸阳市',
     parent: 'shaanxi',
     adcode: 610400,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'xianyang',
+      cityName: '咸阳市',
       districtCount: 14,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shaanxi/xianyang.geo.js 存在且没有被浏览器拦截。',

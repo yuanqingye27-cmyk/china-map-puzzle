@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'jining',
-    name: 'jining',
+    name: '济宁市',
     parent: 'shandong',
     adcode: 370800,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'jining',
+      cityName: '济宁市',
       districtCount: 11,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shandong/jining.geo.js 存在且没有被浏览器拦截。',

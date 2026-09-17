@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'jian',
-    name: 'jian',
+    name: '吉安市',
     parent: 'jiangxi',
     adcode: 360800,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'jian',
+      cityName: '吉安市',
       districtCount: 13,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jiangxi/jian.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'hengyang',
-    name: 'hengyang',
+    name: '衡阳市',
     parent: 'hunan',
     adcode: 430400,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'hengyang',
+      cityName: '衡阳市',
       districtCount: 12,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hunan/hengyang.geo.js 存在且没有被浏览器拦截。',

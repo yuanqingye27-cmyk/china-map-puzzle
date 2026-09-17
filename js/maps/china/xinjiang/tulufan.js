@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'tulufan',
-    name: 'tulufan',
+    name: '吐鲁番市',
     parent: 'xinjiang',
     adcode: 650400,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'tulufan',
+      cityName: '吐鲁番市',
       districtCount: 3,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/xinjiang/tulufan.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'tonghua',
-    name: 'tonghua',
+    name: '通化市',
     parent: 'jilin',
     adcode: 220500,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'tonghua',
+      cityName: '通化市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jilin/tonghua.geo.js 存在且没有被浏览器拦截。',

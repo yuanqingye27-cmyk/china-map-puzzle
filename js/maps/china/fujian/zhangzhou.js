@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'zhangzhou',
-    name: 'zhangzhou',
+    name: '漳州市',
     parent: 'fujian',
     adcode: 350600,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'zhangzhou',
+      cityName: '漳州市',
       districtCount: 11,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/fujian/zhangzhou.geo.js 存在且没有被浏览器拦截。',

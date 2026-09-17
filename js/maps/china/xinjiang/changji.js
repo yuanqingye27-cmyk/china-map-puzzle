@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'changji',
-    name: 'changji',
+    name: '昌吉回族自治州',
     parent: 'xinjiang',
     adcode: 652300,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'changji',
+      cityName: '昌吉回族自治州',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/xinjiang/changji.geo.js 存在且没有被浏览器拦截。',

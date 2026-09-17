@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'yanbian',
-    name: 'yanbian',
+    name: '延边朝鲜族自治州',
     parent: 'jilin',
     adcode: 222400,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'yanbian',
+      cityName: '延边朝鲜族自治州',
       districtCount: 8,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jilin/yanbian.geo.js 存在且没有被浏览器拦截。',

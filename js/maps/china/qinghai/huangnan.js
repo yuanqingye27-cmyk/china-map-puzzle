@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'huangnan',
-    name: 'huangnan',
+    name: '黄南藏族自治州',
     parent: 'qinghai',
     adcode: 632300,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'huangnan',
+      cityName: '黄南藏族自治州',
       districtCount: 4,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/qinghai/huangnan.geo.js 存在且没有被浏览器拦截。',

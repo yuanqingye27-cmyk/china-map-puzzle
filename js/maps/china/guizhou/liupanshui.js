@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'liupanshui',
-    name: 'liupanshui',
+    name: '六盘水市',
     parent: 'guizhou',
     adcode: 520200,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'liupanshui',
+      cityName: '六盘水市',
       districtCount: 4,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guizhou/liupanshui.geo.js 存在且没有被浏览器拦截。',

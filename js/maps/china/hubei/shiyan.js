@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'shiyan',
-    name: 'shiyan',
+    name: '十堰市',
     parent: 'hubei',
     adcode: 420300,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'shiyan',
+      cityName: '十堰市',
       districtCount: 8,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hubei/shiyan.geo.js 存在且没有被浏览器拦截。',

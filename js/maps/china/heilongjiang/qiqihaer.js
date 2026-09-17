@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'qiqihaer',
-    name: 'qiqihaer',
+    name: '齐齐哈尔市',
     parent: 'heilongjiang',
     adcode: 230200,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'qiqihaer',
+      cityName: '齐齐哈尔市',
       districtCount: 16,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/heilongjiang/qiqihaer.geo.js 存在且没有被浏览器拦截。',

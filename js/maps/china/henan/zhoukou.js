@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'zhoukou',
-    name: 'zhoukou',
+    name: '周口市',
     parent: 'henan',
     adcode: 411600,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'zhoukou',
+      cityName: '周口市',
       districtCount: 10,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/henan/zhoukou.geo.js 存在且没有被浏览器拦截。',

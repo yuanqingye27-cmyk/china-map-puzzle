@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'puer',
-    name: 'puer',
+    name: '普洱市',
     parent: 'yunnan',
     adcode: 530800,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'puer',
+      cityName: '普洱市',
       districtCount: 10,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/yunnan/puer.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'liaoyuan',
-    name: 'liaoyuan',
+    name: '辽源市',
     parent: 'jilin',
     adcode: 220400,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'liaoyuan',
+      cityName: '辽源市',
       districtCount: 4,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jilin/liaoyuan.geo.js 存在且没有被浏览器拦截。',

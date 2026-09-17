@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'xuancheng',
-    name: 'xuancheng',
+    name: '宣城市',
     parent: 'anhui',
     adcode: 341800,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'xuancheng',
+      cityName: '宣城市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/anhui/xuancheng.geo.js 存在且没有被浏览器拦截。',

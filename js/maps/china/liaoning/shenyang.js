@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'shenyang',
-    name: 'shenyang',
+    name: '沈阳市',
     parent: 'liaoning',
     adcode: 210100,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'shenyang',
+      cityName: '沈阳市',
       districtCount: 13,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/liaoning/shenyang.geo.js 存在且没有被浏览器拦截。',

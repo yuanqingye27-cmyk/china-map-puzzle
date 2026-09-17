@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'huaihua',
-    name: 'huaihua',
+    name: '怀化市',
     parent: 'hunan',
     adcode: 431200,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'huaihua',
+      cityName: '怀化市',
       districtCount: 12,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hunan/huaihua.geo.js 存在且没有被浏览器拦截。',

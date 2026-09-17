@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'dali',
-    name: 'dali',
+    name: '大理白族自治州',
     parent: 'yunnan',
     adcode: 532900,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'dali',
+      cityName: '大理白族自治州',
       districtCount: 12,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/yunnan/dali.geo.js 存在且没有被浏览器拦截。',

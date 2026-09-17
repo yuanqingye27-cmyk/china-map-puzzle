@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'xinxiang',
-    name: 'xinxiang',
+    name: '新乡市',
     parent: 'henan',
     adcode: 410700,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'xinxiang',
+      cityName: '新乡市',
       districtCount: 12,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/henan/xinxiang.geo.js 存在且没有被浏览器拦截。',

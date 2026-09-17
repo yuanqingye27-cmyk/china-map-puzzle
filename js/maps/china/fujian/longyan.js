@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'longyan',
-    name: 'longyan',
+    name: '龙岩市',
     parent: 'fujian',
     adcode: 350800,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'longyan',
+      cityName: '龙岩市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/fujian/longyan.geo.js 存在且没有被浏览器拦截。',

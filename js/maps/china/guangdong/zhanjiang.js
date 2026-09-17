@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'zhanjiang',
-    name: 'zhanjiang',
+    name: '湛江市',
     parent: 'guangdong',
     adcode: 440800,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'zhanjiang',
+      cityName: '湛江市',
       districtCount: 9,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangdong/zhanjiang.geo.js 存在且没有被浏览器拦截。',

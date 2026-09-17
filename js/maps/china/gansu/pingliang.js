@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'pingliang',
-    name: 'pingliang',
+    name: '平凉市',
     parent: 'gansu',
     adcode: 620800,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'pingliang',
+      cityName: '平凉市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/gansu/pingliang.geo.js 存在且没有被浏览器拦截。',

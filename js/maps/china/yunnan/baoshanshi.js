@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'baoshanshi',
-    name: 'baoshanshi',
+    name: '保山市',
     parent: 'yunnan',
     adcode: 530500,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'baoshanshi',
+      cityName: '保山市',
       districtCount: 5,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/yunnan/baoshanshi.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'baise',
-    name: 'baise',
+    name: '百色市',
     parent: 'guangxi',
     adcode: 451000,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'baise',
+      cityName: '百色市',
       districtCount: 12,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangxi/baise.geo.js 存在且没有被浏览器拦截。',

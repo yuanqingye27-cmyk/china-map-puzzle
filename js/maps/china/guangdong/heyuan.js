@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'heyuan',
-    name: 'heyuan',
+    name: '河源市',
     parent: 'guangdong',
     adcode: 441600,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'heyuan',
+      cityName: '河源市',
       districtCount: 6,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangdong/heyuan.geo.js 存在且没有被浏览器拦截。',

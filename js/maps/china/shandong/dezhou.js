@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'dezhou',
-    name: 'dezhou',
+    name: '德州市',
     parent: 'shandong',
     adcode: 371400,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'dezhou',
+      cityName: '德州市',
       districtCount: 11,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shandong/dezhou.geo.js 存在且没有被浏览器拦截。',

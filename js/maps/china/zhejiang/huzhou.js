@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'huzhou',
-    name: 'huzhou',
+    name: '湖州市',
     parent: 'zhejiang',
     adcode: 330500,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'huzhou',
+      cityName: '湖州市',
       districtCount: 5,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/zhejiang/huzhou.geo.js 存在且没有被浏览器拦截。',

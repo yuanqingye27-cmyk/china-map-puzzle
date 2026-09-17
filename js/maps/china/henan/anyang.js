@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'anyang',
-    name: 'anyang',
+    name: '安阳市',
     parent: 'henan',
     adcode: 410500,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'anyang',
+      cityName: '安阳市',
       districtCount: 9,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/henan/anyang.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'xinyang',
-    name: 'xinyang',
+    name: '信阳市',
     parent: 'henan',
     adcode: 411500,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'xinyang',
+      cityName: '信阳市',
       districtCount: 10,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/henan/xinyang.geo.js 存在且没有被浏览器拦截。',

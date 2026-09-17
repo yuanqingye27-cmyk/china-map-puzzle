@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'fuzhoushi',
-    name: 'fuzhoushi',
+    name: '抚州市',
     parent: 'jiangxi',
     adcode: 361000,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'fuzhoushi',
+      cityName: '抚州市',
       districtCount: 11,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jiangxi/fuzhoushi.geo.js 存在且没有被浏览器拦截。',

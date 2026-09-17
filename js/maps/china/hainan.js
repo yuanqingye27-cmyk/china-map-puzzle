@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'hainan',
-    name: 'hainan',
+    name: '海南省',
     parent: 'china',
     adcode: 460000,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'hainan',
+      cityName: '海南省',
       districtCount: 3,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hainan.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'taiwan',
-    name: 'taiwan',
+    name: '台湾省',
     parent: 'china',
     adcode: 710000,
 
@@ -61,7 +61,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'taiwan',
+      cityName: '台湾省',
       districtCount: 20,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/taiwan.geo.js 存在且没有被浏览器拦截。',

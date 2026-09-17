@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'binzhou',
-    name: 'binzhou',
+    name: '滨州市',
     parent: 'shandong',
     adcode: 371600,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'binzhou',
+      cityName: '滨州市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shandong/binzhou.geo.js 存在且没有被浏览器拦截。',

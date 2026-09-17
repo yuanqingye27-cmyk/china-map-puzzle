@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'linyi',
-    name: 'linyi',
+    name: '临沂市',
     parent: 'shandong',
     adcode: 371300,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'linyi',
+      cityName: '临沂市',
       districtCount: 12,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shandong/linyi.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'tongling',
-    name: 'tongling',
+    name: '铜陵市',
     parent: 'anhui',
     adcode: 340700,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'tongling',
+      cityName: '铜陵市',
       districtCount: 4,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/anhui/tongling.geo.js 存在且没有被浏览器拦截。',

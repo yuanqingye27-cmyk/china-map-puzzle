@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'hainanzhou',
-    name: 'hainanzhou',
+    name: '海南藏族自治州',
     parent: 'qinghai',
     adcode: 632500,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'hainanzhou',
+      cityName: '海南藏族自治州',
       districtCount: 5,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/qinghai/hainanzhou.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'yushu',
-    name: 'yushu',
+    name: '玉树藏族自治州',
     parent: 'qinghai',
     adcode: 632700,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'yushu',
+      cityName: '玉树藏族自治州',
       districtCount: 6,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/qinghai/yushu.geo.js 存在且没有被浏览器拦截。',

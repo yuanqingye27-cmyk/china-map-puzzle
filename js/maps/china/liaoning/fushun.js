@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'fushun',
-    name: 'fushun',
+    name: '抚顺市',
     parent: 'liaoning',
     adcode: 210400,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'fushun',
+      cityName: '抚顺市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/liaoning/fushun.geo.js 存在且没有被浏览器拦截。',

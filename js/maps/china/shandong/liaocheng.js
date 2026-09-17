@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'liaocheng',
-    name: 'liaocheng',
+    name: '聊城市',
     parent: 'shandong',
     adcode: 371500,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'liaocheng',
+      cityName: '聊城市',
       districtCount: 8,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shandong/liaocheng.geo.js 存在且没有被浏览器拦截。',

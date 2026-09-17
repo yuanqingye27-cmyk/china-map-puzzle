@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'jiangmen',
-    name: 'jiangmen',
+    name: '江门市',
     parent: 'guangdong',
     adcode: 440700,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'jiangmen',
+      cityName: '江门市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangdong/jiangmen.geo.js 存在且没有被浏览器拦截。',

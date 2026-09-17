@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'zhongwei',
-    name: 'zhongwei',
+    name: '中卫市',
     parent: 'ningxia',
     adcode: 640500,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'zhongwei',
+      cityName: '中卫市',
       districtCount: 3,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/ningxia/zhongwei.geo.js 存在且没有被浏览器拦截。',

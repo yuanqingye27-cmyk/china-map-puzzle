@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'huaian',
-    name: 'huaian',
+    name: '淮安市',
     parent: 'jiangsu',
     adcode: 320800,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'huaian',
+      cityName: '淮安市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jiangsu/huaian.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'qingyuan',
-    name: 'qingyuan',
+    name: '清远市',
     parent: 'guangdong',
     adcode: 441800,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'qingyuan',
+      cityName: '清远市',
       districtCount: 8,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangdong/qingyuan.geo.js 存在且没有被浏览器拦截。',

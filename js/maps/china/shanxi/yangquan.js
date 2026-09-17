@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'yangquan',
-    name: 'yangquan',
+    name: '阳泉市',
     parent: 'shanxi',
     adcode: 140300,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'yangquan',
+      cityName: '阳泉市',
       districtCount: 5,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shanxi/yangquan.geo.js 存在且没有被浏览器拦截。',

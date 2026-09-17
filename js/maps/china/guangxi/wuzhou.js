@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'wuzhou',
-    name: 'wuzhou',
+    name: '梧州市',
     parent: 'guangxi',
     adcode: 450400,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'wuzhou',
+      cityName: '梧州市',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangxi/wuzhou.geo.js 存在且没有被浏览器拦截。',

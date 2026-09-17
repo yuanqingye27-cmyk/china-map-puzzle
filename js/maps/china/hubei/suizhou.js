@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'suizhou',
-    name: 'suizhou',
+    name: '随州市',
     parent: 'hubei',
     adcode: 421300,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'suizhou',
+      cityName: '随州市',
       districtCount: 3,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hubei/suizhou.geo.js 存在且没有被浏览器拦截。',

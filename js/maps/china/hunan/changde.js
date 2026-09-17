@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'changde',
-    name: 'changde',
+    name: '常德市',
     parent: 'hunan',
     adcode: 430700,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'changde',
+      cityName: '常德市',
       districtCount: 9,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hunan/changde.geo.js 存在且没有被浏览器拦截。',

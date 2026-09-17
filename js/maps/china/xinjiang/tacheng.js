@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'tacheng',
-    name: 'tacheng',
+    name: '塔城地区',
     parent: 'xinjiang',
     adcode: 654200,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'tacheng',
+      cityName: '塔城地区',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/xinjiang/tacheng.geo.js 存在且没有被浏览器拦截。',

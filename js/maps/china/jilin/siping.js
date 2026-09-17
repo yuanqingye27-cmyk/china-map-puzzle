@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'siping',
-    name: 'siping',
+    name: '四平市',
     parent: 'jilin',
     adcode: 220300,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'siping',
+      cityName: '四平市',
       districtCount: 5,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/jilin/siping.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'beihai',
-    name: 'beihai',
+    name: '北海市',
     parent: 'guangxi',
     adcode: 450500,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'beihai',
+      cityName: '北海市',
       districtCount: 4,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangxi/beihai.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'panjin',
-    name: 'panjin',
+    name: '盘锦市',
     parent: 'liaoning',
     adcode: 211100,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'panjin',
+      cityName: '盘锦市',
       districtCount: 4,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/liaoning/panjin.geo.js 存在且没有被浏览器拦截。',

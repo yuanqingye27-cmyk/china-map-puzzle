@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'sichuan',
-    name: 'sichuan',
+    name: '四川省',
     parent: 'china',
     adcode: 510000,
 
@@ -61,7 +61,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'sichuan',
+      cityName: '四川省',
       districtCount: 21,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/sichuan.geo.js 存在且没有被浏览器拦截。',

@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'weifang',
-    name: 'weifang',
+    name: '潍坊市',
     parent: 'shandong',
     adcode: 370700,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'weifang',
+      cityName: '潍坊市',
       districtCount: 12,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shandong/weifang.geo.js 存在且没有被浏览器拦截。',

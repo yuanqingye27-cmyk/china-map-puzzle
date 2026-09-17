@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'xizang',
-    name: 'xizang',
+    name: '西藏自治区',
     parent: 'china',
     adcode: 540000,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'xizang',
+      cityName: '西藏自治区',
       districtCount: 7,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/xizang.geo.js 存在且没有被浏览器拦截。',

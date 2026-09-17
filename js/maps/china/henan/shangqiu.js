@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'shangqiu',
-    name: 'shangqiu',
+    name: '商丘市',
     parent: 'henan',
     adcode: 411400,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'shangqiu',
+      cityName: '商丘市',
       districtCount: 9,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/henan/shangqiu.geo.js 存在且没有被浏览器拦截。',

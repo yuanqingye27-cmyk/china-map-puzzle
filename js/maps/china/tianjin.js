@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'tianjin',
-    name: 'tianjin',
+    name: '天津市',
     parent: 'china',
     adcode: 120000,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'tianjin',
+      cityName: '天津市',
       districtCount: 16,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/tianjin.geo.js 存在且没有被浏览器拦截。',

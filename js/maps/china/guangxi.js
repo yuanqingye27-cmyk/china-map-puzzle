@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'guangxi',
-    name: 'guangxi',
+    name: '广西壮族自治区',
     parent: 'china',
     adcode: 450000,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'guangxi',
+      cityName: '广西壮族自治区',
       districtCount: 14,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangxi.geo.js 存在且没有被浏览器拦截。',

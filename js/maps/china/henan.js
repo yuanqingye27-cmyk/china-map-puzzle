@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'henan',
-    name: 'henan',
+    name: '河南省',
     parent: 'china',
     adcode: 410000,
 
@@ -61,7 +61,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'henan',
+      cityName: '河南省',
       districtCount: 17,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/henan.geo.js 存在且没有被浏览器拦截。',

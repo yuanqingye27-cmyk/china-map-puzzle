@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'nanning',
-    name: 'nanning',
+    name: '南宁市',
     parent: 'guangxi',
     adcode: 450100,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'nanning',
+      cityName: '南宁市',
       districtCount: 12,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangxi/nanning.geo.js 存在且没有被浏览器拦截。',

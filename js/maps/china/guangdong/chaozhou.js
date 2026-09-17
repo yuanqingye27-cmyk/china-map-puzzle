@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'chaozhou',
-    name: 'chaozhou',
+    name: '潮州市',
     parent: 'guangdong',
     adcode: 445100,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'chaozhou',
+      cityName: '潮州市',
       districtCount: 3,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangdong/chaozhou.geo.js 存在且没有被浏览器拦截。',

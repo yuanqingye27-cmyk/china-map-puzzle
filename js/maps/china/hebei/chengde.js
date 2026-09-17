@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'chengde',
-    name: 'chengde',
+    name: '承德市',
     parent: 'hebei',
     adcode: 130800,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'chengde',
+      cityName: '承德市',
       districtCount: 11,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hebei/chengde.geo.js 存在且没有被浏览器拦截。',

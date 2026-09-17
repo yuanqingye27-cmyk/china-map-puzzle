@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'dongying',
-    name: 'dongying',
+    name: '东营市',
     parent: 'shandong',
     adcode: 370500,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'dongying',
+      cityName: '东营市',
       districtCount: 5,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shandong/dongying.geo.js 存在且没有被浏览器拦截。',

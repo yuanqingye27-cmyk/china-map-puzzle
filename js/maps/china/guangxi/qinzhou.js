@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'qinzhou',
-    name: 'qinzhou',
+    name: '钦州市',
     parent: 'guangxi',
     adcode: 450700,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'qinzhou',
+      cityName: '钦州市',
       districtCount: 4,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangxi/qinzhou.geo.js 存在且没有被浏览器拦截。',

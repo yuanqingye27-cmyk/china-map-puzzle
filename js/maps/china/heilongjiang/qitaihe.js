@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'qitaihe',
-    name: 'qitaihe',
+    name: '七台河市',
     parent: 'heilongjiang',
     adcode: 230900,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'qitaihe',
+      cityName: '七台河市',
       districtCount: 4,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/heilongjiang/qitaihe.geo.js 存在且没有被浏览器拦截。',

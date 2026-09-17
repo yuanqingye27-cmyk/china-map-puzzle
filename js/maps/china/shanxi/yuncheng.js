@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'yuncheng',
-    name: 'yuncheng',
+    name: '运城市',
     parent: 'shanxi',
     adcode: 140800,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'yuncheng',
+      cityName: '运城市',
       districtCount: 13,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shanxi/yuncheng.geo.js 存在且没有被浏览器拦截。',

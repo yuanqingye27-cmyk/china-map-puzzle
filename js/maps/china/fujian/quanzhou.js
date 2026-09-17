@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'quanzhou',
-    name: 'quanzhou',
+    name: '泉州市',
     parent: 'fujian',
     adcode: 350500,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'quanzhou',
+      cityName: '泉州市',
       districtCount: 12,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/fujian/quanzhou.geo.js 存在且没有被浏览器拦截。',

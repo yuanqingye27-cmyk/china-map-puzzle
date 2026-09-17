@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'zhaotong',
-    name: 'zhaotong',
+    name: '昭通市',
     parent: 'yunnan',
     adcode: 530600,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'zhaotong',
+      cityName: '昭通市',
       districtCount: 11,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/yunnan/zhaotong.geo.js 存在且没有被浏览器拦截。',

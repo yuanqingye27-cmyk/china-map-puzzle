@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'rizhao',
-    name: 'rizhao',
+    name: '日照市',
     parent: 'shandong',
     adcode: 371100,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'rizhao',
+      cityName: '日照市',
       districtCount: 4,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shandong/rizhao.geo.js 存在且没有被浏览器拦截。',

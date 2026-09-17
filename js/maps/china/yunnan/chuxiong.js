@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'chuxiong',
-    name: 'chuxiong',
+    name: '楚雄彝族自治州',
     parent: 'yunnan',
     adcode: 532300,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'chuxiong',
+      cityName: '楚雄彝族自治州',
       districtCount: 10,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/yunnan/chuxiong.geo.js 存在且没有被浏览器拦截。',

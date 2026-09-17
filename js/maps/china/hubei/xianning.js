@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'xianning',
-    name: 'xianning',
+    name: '咸宁市',
     parent: 'hubei',
     adcode: 421200,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'xianning',
+      cityName: '咸宁市',
       districtCount: 6,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hubei/xianning.geo.js 存在且没有被浏览器拦截。',

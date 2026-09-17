@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'shannan',
-    name: 'shannan',
+    name: '山南市',
     parent: 'xizang',
     adcode: 540500,
 
@@ -60,7 +60,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'shannan',
+      cityName: '山南市',
       districtCount: 12,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/xizang/shannan.geo.js 存在且没有被浏览器拦截。',

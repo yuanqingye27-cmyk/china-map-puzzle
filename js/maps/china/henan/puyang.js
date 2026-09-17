@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'puyang',
-    name: 'puyang',
+    name: '濮阳市',
     parent: 'henan',
     adcode: 410900,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'puyang',
+      cityName: '濮阳市',
       districtCount: 6,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/henan/puyang.geo.js 存在且没有被浏览器拦截。',

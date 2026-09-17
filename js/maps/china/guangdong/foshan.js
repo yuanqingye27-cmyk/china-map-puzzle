@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'foshan',
-    name: 'foshan',
+    name: '佛山市',
     parent: 'guangdong',
     adcode: 440600,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'foshan',
+      cityName: '佛山市',
       districtCount: 5,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangdong/foshan.geo.js 存在且没有被浏览器拦截。',

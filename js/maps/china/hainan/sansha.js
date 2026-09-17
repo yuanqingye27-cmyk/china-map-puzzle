@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'sansha',
-    name: 'sansha',
+    name: '三沙市',
     parent: 'hainan',
     adcode: 460300,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'sansha',
+      cityName: '三沙市',
       districtCount: 2,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hainan/sansha.geo.js 存在且没有被浏览器拦截。',

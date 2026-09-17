@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'zhuhai',
-    name: 'zhuhai',
+    name: '珠海市',
     parent: 'guangdong',
     adcode: 440400,
 
@@ -59,7 +59,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: 'zhuhai',
+      cityName: '珠海市',
       districtCount: 3,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/guangdong/zhuhai.geo.js 存在且没有被浏览器拦截。',
