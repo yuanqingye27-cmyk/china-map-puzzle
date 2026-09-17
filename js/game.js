@@ -25,6 +25,9 @@
   /** 没有 ?map= 参数时默认启动哪张地图 */
   const DEFAULT_MAP = 'chengdu';
 
+  /** 当前地图 id。boot() 里赋值；分享/进度等跨函数逻辑要用到它 */
+  let CURRENT_ID = DEFAULT_MAP;
+
   function showFatal(message) {
     document.body.innerHTML =
       '<p style="padding:40px;color:#e7f2ec;font-family:sans-serif">' + message + '</p>';
@@ -271,6 +274,7 @@
     }
 
     const id = pickMapId();
+    CURRENT_ID = id;
 
   /* ==================== 跨地图进度与成就 ====================
    * 账本逻辑全在 js/progress.js（纯函数，可移植、可单测）；
@@ -402,6 +406,94 @@
     });
   }
 
+  /* ==================== 分享成绩 ====================
+   * 逻辑全在 js/share.js（纯函数部分有单测）。
+   * 这里只负责：拼完一整张地图时弹一个面板，把 canvas 卡片给玩家。
+   * 只在"整张图拼完"出现 —— 每关都弹会烦人，而且玩家最想分享的是"我拼完了成都"。
+   * ============================================== */
+
+  /** 生成并展示分享卡片 */
+  function showShareCard() {
+    const S = global.MapShare;
+    const P = global.MapProgress;
+    if (!S || !P) return;
+
+    const eng = global.__ENGINE__;
+    const state = eng && eng.getState ? eng.getState() : {};
+    const entry = global.MapLoader.entry(CURRENT_ID);
+    const doc = P.load();
+    const prov = provinceOf(CURRENT_ID);
+    const allIds = Object.keys((global.MAP_REGISTRY || {}).maps || {});
+    const sum = P.summary(doc, allIds);
+
+    const data = S.buildCardData(S.collectInput(
+      {
+        levelName: state.levelName || '',
+        levelIndex: state.levelIndex || 0,
+        levelTotal: state.levelTotal || 1,
+        elapsed: state.elapsed || 0,
+        tries: state.tries || 0,
+        hints: state.hints || 0,
+      },
+      sum,
+      { name: (entry && entry.name) || CURRENT_ID, provinceName: prov.name },
+      doc
+    ));
+
+    const panel = document.getElementById('sharePanel');
+    if (!panel) return;
+    panel.hidden = false;
+    panel.innerHTML =
+      '<div class="sp-head"><h2>分享成绩</h2>'
+      + '<button type="button" class="sp-close" aria-label="关闭">✕</button></div>'
+      + '<canvas class="sp-canvas" id="shareCanvas"></canvas>'
+      + '<div class="sp-actions">'
+      + '<button type="button" class="btn btn-primary" id="shareSave">保存图片</button>'
+      + '<button type="button" class="btn btn-ghost" id="shareCopy">复制文案</button>'
+      + '</div>'
+      + '<p class="sp-tip" id="shareTip">长按图片也能保存（手机端）</p>';
+
+    const canvas = panel.querySelector('#shareCanvas');
+    const ok = S.drawCard(canvas, data);
+
+    const close = panel.querySelector('.sp-close');
+    if (close) close.addEventListener('click', () => { panel.hidden = true; });
+
+    const tip = panel.querySelector('#shareTip');
+    const save = panel.querySelector('#shareSave');
+    if (save) {
+      save.addEventListener('click', () => {
+        const url = S.toDataURL(canvas);
+        if (!url) { if (tip) tip.textContent = '这个浏览器不支持导出图片，可用"复制文案"'; return; }
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = '地图拼图-' + ((entry && entry.name) || CURRENT_ID) + '.png';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        if (tip) tip.textContent = '已保存到下载目录';
+      });
+    }
+    const copy = panel.querySelector('#shareCopy');
+    if (copy) {
+      copy.addEventListener('click', () => {
+        const text = S.buildShareText(data);
+        // 优先用异步剪贴板；失败就退回"选中提示"，不弹 alert 打断
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(
+              () => { if (tip) tip.textContent = '文案已复制'; },
+              () => { if (tip) tip.textContent = '复制失败，可手动选中：' + text; }
+            );
+            return;
+          }
+        } catch (e) { /* 落到下面的兜底 */ }
+        if (tip) tip.textContent = text;
+      });
+    }
+    if (!ok && tip) tip.textContent = '卡片绘制失败（浏览器不支持 Canvas 2D）';
+  }
+
   global.MapLoader.load(id)
       .then((config) => {
         /* 通关整张地图时记账 + 发成就。
@@ -409,6 +501,19 @@
          * 这样引擎保持可移植，进度逻辑也能被别的宿主复用。 */
         config.onMapSolved = (result) => {
           recordMapSolved(config, id, result);
+          /* 整张地图拼完 → 在结算画面上补一个"分享成绩"入口。
+           * 【为什么在这里加按钮，而不是改引擎】按钮属于宿主层 UI；
+           * 引擎只要在合适的时机回调一次，宿主接住就行（引擎保持可移植）。 */
+          const actions = document.getElementById('modalActions');
+          if (actions && !actions.querySelector('[data-share]')) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn btn-primary';
+            btn.setAttribute('data-share', '1');
+            btn.textContent = '分享成绩';
+            btn.addEventListener('click', showShareCard);
+            actions.insertBefore(btn, actions.firstChild);
+          }
         };
 
         // 配置缺失时引擎内部会兜底并提示（不会抛）

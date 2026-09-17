@@ -1914,3 +1914,41 @@ body.intro-open { overflow: hidden; }
   .progress-chip .pc-label, .progress-chip .pc-badges { display: none; }
   .badge-panel .bp-stats { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* =====================================================================
+ * 分享面板（对应 js/share.js）
+ * ===================================================================== */
+.share-panel {
+  position: fixed; inset: 0; z-index: 80;
+  display: grid; place-items: center;
+  background: rgb(4 12 10 / 0.78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 16px; overflow: auto;
+}
+.share-panel[hidden] { display: none; }
+.share-panel .sp-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px; width: 100%; max-width: 360px;
+}
+.share-panel h2 { margin: 0; font-size: 17px; }
+.share-panel .sp-close {
+  border: 1px solid var(--line); background: transparent; color: var(--text-dim);
+  width: 30px; height: 30px; border-radius: 9px; cursor: pointer;
+}
+.share-panel .sp-close:hover { color: var(--text); border-color: rgb(var(--c-jade) / 0.5); }
+/* 卡片固定 3:4，窄屏时按宽度自适应；canvas 给固定内部分辨率保证清晰 */
+.share-panel .sp-canvas {
+  display: block; width: 100%; max-width: 360px;
+  height: auto; border-radius: 14px;
+  border: 1px solid var(--line);
+  box-shadow: 0 16px 40px rgb(0 0 0 / 0.45);
+}
+.share-panel .sp-actions {
+  display: flex; gap: 10px; margin-top: 14px; width: 100%; max-width: 360px;
+}
+.share-panel .sp-actions .btn { flex: 1; }
+.share-panel .sp-tip {
+  margin: 10px 0 0; font-size: 12px; color: var(--text-dim);
+  text-align: center; max-width: 360px;
+}

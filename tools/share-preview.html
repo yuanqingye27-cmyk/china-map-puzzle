@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>分享卡片预览</title>
+<style>
+  body { margin: 0; background: #0b1512; font-family: -apple-system, sans-serif; }
+  #card { display: block; margin: 20px auto; width: 360px; border-radius: 12px; }
+  #err { color: #ff8f8f; text-align: center; padding: 20px; font-size: 14px; }
+</style>
+</head>
+<body>
+<canvas id="card"></canvas>
+<p id="err"></p>
+<script src="../js/share.js"></script>
+<script>
+/* 用一组典型数据画一张卡片，供人工/截图检查视觉效果。
+ * 为什么要这么绕：卡片绘制依赖 Canvas，只能在浏览器里跑；
+ * 而"文案对不对"已经由 tools/test-share.js 在 Node 里测透了。 */
+(function () {
+  var S = window.MapShare;
+  var canvas = document.getElementById('card');
+  if (!S) { document.getElementById('err').textContent = 'share.js 没加载'; return; }
+
+  var data = S.buildCardData({
+    mapName: '成都市', provinceName: '四川省',
+    levelName: '中心城区', levelIndex: 0, levelTotal: 3,
+    elapsed: 214000, tries: 6, hints: 0,
+    solvedMaps: 17, totalMaps: 363, percent: 5,
+    badges: [{ name: '第一步' }, { name: '一省全通' }],
+  });
+
+  // 画一个占位地图轮廓（真实使用时会传本关的 SVG path）
+  var ok = S.drawCard(canvas, data, {
+    mapPath: 'M60 40 L300 30 L340 120 L280 200 L320 300 L200 360 L90 320 L40 200 Z',
+    vbW: 400, vbH: 400, vbX: 0, vbY: 0,
+  });
+  if (!ok) document.getElementById('err').textContent = 'drawCard 返回 false';
+  document.title = 'ready-' + (ok ? 'ok' : 'fail');
+})();
+</script>
+</body>
+</html>

@@ -150,11 +150,15 @@ async function main() {
   try { fs.unlinkSync(out); } catch (e) { /* 本来就不存在 */ }
 
   const server = await serve();
-  const url = `http://127.0.0.1:${PORT}/tools/shot.html?map=${encodeURIComponent(mapId)}` +
-    (drag ? '&drag=1' : '') + (debug ? '&debug=1' : '') +
-    (vw && vh ? '&vw=' + vw + '&vh=' + vh : '') +
-    (args.level ? '&level=' + args.level : '') +
-    (args.fit ? '&fit=' + args.fit : '');
+  /* --page=<相对路径> 截任意页面（不只是地图）。
+   * 用途：分享卡片的绘制只能靠肉眼验证，用它截 tools/share-preview.html。 */
+  const url = args.page
+    ? `http://127.0.0.1:${PORT}/` + String(args.page).replace(/^\//, '')
+    : `http://127.0.0.1:${PORT}/tools/shot.html?map=${encodeURIComponent(mapId)}` +
+      (drag ? '&drag=1' : '') + (debug ? '&debug=1' : '') +
+      (vw && vh ? '&vw=' + vw + '&vh=' + vh : '') +
+      (args.level ? '&level=' + args.level : '') +
+      (args.fit ? '&fit=' + args.fit : '');
   const userDataDir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'shot-'));
 
   console.log('地址：' + url);

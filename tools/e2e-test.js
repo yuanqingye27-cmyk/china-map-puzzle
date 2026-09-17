@@ -219,6 +219,9 @@ async function main() {
   /* 跨地图进度与成就的自测：它是"玩家的账本"，算错了不会崩、
    * 只会安静地给出错误数字（比崩溃更难发现），所以必须钉住。 */
   const progressResult = runOfflineTest('test-progress.js');
+  /* 分享图的**文案逻辑**自测：绘制只能在浏览器里看，
+   * 但"卡片上写什么"是纯函数，可以在 Node 里测透（写错了用户一眼就看出来）。 */
+  const shareResult = runOfflineTest('test-share.js');
   console.log('  ' + (wktResult.failed ? '✘' : '✔') +
     ' WKT → GeoJSON 转换（' + wktResult.passed + ' 通过 / ' + wktResult.failed + ' 失败）' +
     (wktResult.failed ? '：' + wktResult.failures.join('、') : ''));
@@ -243,6 +246,11 @@ async function main() {
     ' 进度与成就账本：' + progressResult.passed + ' 通过 / ' + progressResult.failed + ' 失败' +
     (progressResult.failed ? '：' + progressResult.failures.join('、') : ''));
   if (progressResult.failed) process.exitCode = 1;
+
+  console.log('  ' + (shareResult.failed ? '✘' : '✔') +
+    ' 分享图文案：' + shareResult.passed + ' 通过 / ' + shareResult.failed + ' 失败' +
+    (shareResult.failed ? '：' + shareResult.failures.join('、') : ''));
+  if (shareResult.failed) process.exitCode = 1;
   console.log('');
 
   const server = http.createServer((req, res) => {
@@ -317,9 +325,9 @@ async function main() {
 
   // ---- 汇总 ----
   const totalPassed = results.reduce((n, r) => n + (r.result.passed || 0), 0) +
-    wktResult.passed + mapsResult.passed + verifyResult.passed + areaPickResult.passed + progressResult.passed;
+    wktResult.passed + mapsResult.passed + verifyResult.passed + areaPickResult.passed + progressResult.passed + shareResult.passed;
   const totalFailed = results.reduce((n, r) => n + (r.result.failed || 0), 0) +
-    wktResult.failed + mapsResult.failed + verifyResult.failed + areaPickResult.failed + progressResult.failed;
+    wktResult.failed + mapsResult.failed + verifyResult.failed + areaPickResult.failed + progressResult.failed + shareResult.failed;
   const broken = results.filter((r) => r.result.crashed).map((r) => r.suite.name);
 
   console.log('\n══════════════ 汇总 ══════════════');
@@ -328,6 +336,7 @@ async function main() {
   console.log(`  ${verifyResult.failed ? '✘' : '✔'} 离线检查 · 子代理产出校验器：${verifyResult.passed} 通过 / ${verifyResult.failed} 失败`);
   console.log(`  ${areaPickResult.failed ? '✘' : '✔'} 离线检查 · 面积抽取器回归：${areaPickResult.passed} 通过 / ${areaPickResult.failed} 失败`);
   console.log(`  ${progressResult.failed ? '✘' : '✔'} 离线检查 · 进度与成就账本：${progressResult.passed} 通过 / ${progressResult.failed} 失败`);
+  console.log(`  ${shareResult.failed ? '✘' : '✔'} 离线检查 · 分享图文案：${shareResult.passed} 通过 / ${shareResult.failed} 失败`);
   results.forEach(({ suite, result }) => {
     const mark = result.crashed ? '✘ 未收到结果' : (result.failed ? '✘' : '✔');
     const secs = result.elapsedMs ? `（${(result.elapsedMs / 1000).toFixed(1)}s）` : '';

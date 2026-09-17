@@ -403,6 +403,12 @@ try {
      aria-label="我的进度与成就" hidden></div>
 <div class="badge-toast" id="badgeToast" role="status" aria-live="polite" hidden></div>
 
+<!-- ==================== 分享面板 ====================
+     拼完整张地图后从结算画面进入；卡片由 js/share.js 用 Canvas 画出来。
+     只在"整张图拼完"出现 —— 每关都弹会烦人，而玩家最想分享的是"我拼完了成都"。 -->
+<div class="share-panel" id="sharePanel" role="dialog" aria-modal="true"
+     aria-label="分享成绩" hidden></div>
+
 <!-- ==================== 开场欢迎动画 ====================
      覆盖整屏，展示五个成都元素（熊猫 / 竹子 / 银杏 / 脸谱 / 盖碗茶），
      依次弹入后浮出标题与「开始探索」。同一次会话内不会重复出现。 -->
@@ -453,6 +459,8 @@ try {
 <script src="js/geomap.js"></script>
 <!-- 跨地图进度与成就：纯逻辑层，不依赖 DOM/引擎（见 js/progress.js 的说明） -->
 <script src="js/progress.js"></script>
+<!-- 分享成绩图：文案逻辑是纯函数、绘制依赖 Canvas（见 js/share.js 的说明） -->
+<script src="js/share.js"></script>
 <script src="js/engine.js"></script>
 <script src="js/game.js"></script>
 </body>
