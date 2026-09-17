@@ -118,6 +118,14 @@ async function main() {
     const features = fetched.geo.features;
     children = features
       .filter((f) => geoLib.isAdminAdcode(f.properties.adcode))
+      /* 【只给"有下级"的建地图】adcode 以 00 结尾的是地级（省级是 x0000，地级是 xx00）。
+       * 以非 00 结尾的是**县级**——对直辖市（北京/天津/上海的区）和省直管县级
+       * （海南的儋州/五指山…、湖北的仙桃/潜江/天门…）来说，它们就是最下一级：
+       *   · 单独建地图 → DISTRICTS 与 LEVELS 全空 → 引擎崩（Cannot read 'adcodes'）
+       *   · 而它们**本来就作为省级地图的一块碎片存在**（北京地图的 16 块就是东西城…）
+       * 所以在源头就不要给它们建地图，而不是建完再清理。
+       * （历史教训：先按"每个子级都建"跑完全国，再靠 prune-empty-maps 事后删掉 123 张。） */
+      .filter((f) => Number(f.properties.adcode) % 100 === 0)
       .map((f) => ({ adcode: Number(f.properties.adcode), name: f.properties.name }))
       .sort((a, b) => a.adcode - b.adcode);
     const selfName = features.find((f) => Number(f.properties.adcode) === parentAdcode);

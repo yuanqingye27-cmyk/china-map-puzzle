@@ -50,7 +50,7 @@ const CITY_SLUGS = {
   // ---- 天津（120000）16 个 ----
   120101: "heping", 120102: "hedong",
   120103: "hexi", 120104: "nankai",
-  120105: "hebei", 120106: "hongqiao",
+  120105: "hebeiqu", 120106: "hongqiao",
   120110: "dongli", 120111: "xiqing",
   120112: "jinnan", 120113: "beichen",
   120114: "wuqing", 120115: "baodi",
@@ -86,7 +86,7 @@ const CITY_SLUGS = {
   211100: "panjin", 211200: "tieling",
   211300: "chaoyangshi", 211400: "huludao",
   // ---- 吉林（220000）9 个 ----
-  220100: "changchun", 220200: "jilin",
+  220100: "changchun", 220200: "jilinshi",
   220300: "siping", 220400: "liaoyuan",
   220500: "tonghua", 220600: "baishan",
   220700: "songyuan", 220800: "baicheng",
@@ -284,7 +284,7 @@ const CITY_SLUGS = {
   // ---- 青海（630000）8 个 ----
   630100: "xining", 630200: "haidong",
   632200: "haibei", 632300: "huangnan",
-  632500: "hainan", 632600: "guoluo",
+  632500: "hainanzhou", 632600: "guoluo",
   632700: "yushu", 632800: "haixi",
   // ---- 宁夏（640000）5 个 ----
   640100: "yinchuan", 640200: "shizuishan",

@@ -581,6 +581,7 @@
         "adcode": 220000,
         "children": [
           "changchun",
+          "jilinshi",
           "siping",
           "liaoyuan",
           "tonghua",
@@ -596,6 +597,14 @@
         "name": "changchun",
         "parent": "jilin",
         "adcode": 220100,
+        "children": [],
+        "dir": "china/jilin"
+      },
+      "jilinshi": {
+        "id": "jilinshi",
+        "name": "jilinshi",
+        "parent": "jilin",
+        "adcode": 220200,
         "children": [],
         "dir": "china/jilin"
       },
@@ -3057,6 +3066,7 @@
           "haidong",
           "haibei",
           "huangnan",
+          "hainanzhou",
           "guoluo",
           "yushu",
           "haixi"
@@ -3092,6 +3102,14 @@
         "name": "huangnan",
         "parent": "qinghai",
         "adcode": 632300,
+        "children": [],
+        "dir": "china/qinghai"
+      },
+      "hainanzhou": {
+        "id": "hainanzhou",
+        "name": "hainanzhou",
+        "parent": "qinghai",
+        "adcode": 632500,
         "children": [],
         "dir": "china/qinghai"
       },
