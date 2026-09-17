@@ -1795,3 +1795,122 @@ body.intro-open { overflow: hidden; }
   .board-mark,
   .bg-deco { display: none; }
 }
+
+/* =====================================================================
+ * 跨地图进度 与 成就
+ * ---------------------------------------------------------------------
+ * 对应 js/progress.js（纯逻辑）与 js/game.js 里的 render* 函数。
+ * 设计意图：让玩家**随时看得见积累** —— 363 张地图是这个项目最大的资产，
+ * 不展示出来玩家不知道自己玩了多少。
+ * ===================================================================== */
+
+/* --- 顶部的"已拼 N/总数"小徽标 --- */
+.progress-chip {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  border: 1px solid var(--line);
+  background: rgb(8 24 20 / 0.66);
+  border-radius: 12px;
+  padding: 6px 11px;
+  cursor: pointer;
+  color: var(--text);
+  font: inherit;
+  line-height: 1;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: border-color 160ms ease, color 160ms ease;
+}
+.progress-chip:hover { border-color: rgb(var(--c-jade) / 0.5); }
+.progress-chip .pc-num { font-size: 15px; font-weight: 700; color: var(--jade); }
+.progress-chip .pc-total { font-size: 12px; color: var(--text-dim); }
+.progress-chip .pc-label { font-size: 11.5px; color: var(--text-dim); margin-left: 3px; }
+.progress-chip .pc-badges {
+  font-size: 11.5px;
+  color: var(--text-dim);
+  margin-left: 7px;
+  padding-left: 7px;
+  border-left: 1px solid var(--line);
+}
+
+/* --- 成就面板 --- */
+.badge-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  background: rgb(4 12 10 / 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 20px;
+  overflow: auto;
+}
+.badge-panel[hidden] { display: none; }
+.badge-panel > * { max-width: 560px; width: 100%; }
+
+.badge-panel {
+  /* 面板本体用一个内层容器承载，避免 grid 居中把内容拉满宽 */
+  grid-template-rows: none;
+}
+.badge-panel .bp-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.badge-panel h2 { margin: 0; font-size: 19px; }
+.badge-panel h3 { margin: 18px 0 10px; font-size: 14px; color: var(--text-dim); font-weight: 600; }
+.badge-panel .bp-close {
+  border: 1px solid var(--line); background: transparent; color: var(--text-dim);
+  width: 30px; height: 30px; border-radius: 9px; cursor: pointer; font-size: 14px;
+}
+.badge-panel .bp-close:hover { color: var(--text); border-color: rgb(var(--c-jade) / 0.5); }
+
+.badge-panel .bp-stats {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+}
+.badge-panel .bp-stat {
+  background: rgb(8 24 20 / 0.6); border: 1px solid var(--line);
+  border-radius: 12px; padding: 11px 10px; text-align: center;
+}
+.badge-panel .bp-stat b { display: block; font-size: 20px; color: var(--jade); }
+.badge-panel .bp-stat span { font-size: 11.5px; color: var(--text-dim); }
+
+.badge-panel .bp-badges { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+.badge-panel .bp-badges li {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: 11px;
+  border: 1px solid var(--line); background: rgb(8 24 20 / 0.4);
+  opacity: 0.55;
+}
+.badge-panel .bp-badges li.is-earned { opacity: 1; border-color: rgb(var(--c-jade) / 0.42); background: rgb(var(--c-jade) / 0.08); }
+.badge-panel .bp-icon { font-size: 17px; }
+.badge-panel .bp-text b { display: block; font-size: 13.5px; }
+.badge-panel .bp-text em { font-style: normal; font-size: 11.5px; color: var(--text-dim); }
+
+/* --- 新成就的即时提示 --- */
+.badge-toast {
+  position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%);
+  z-index: 70; min-width: 240px; max-width: 90vw;
+  padding: 13px 17px; border-radius: 14px;
+  border: 1px solid rgb(var(--c-jade) / 0.45);
+  background: rgb(6 20 16 / 0.94);
+  box-shadow: 0 12px 34px rgb(0 0 0 / 0.42);
+  animation: badgeIn 320ms ease both;
+}
+.badge-toast[hidden] { display: none; }
+.badge-toast .bt-title { font-size: 12px; color: var(--jade); margin-bottom: 6px; letter-spacing: 0.06em; }
+.badge-toast .bt-item { display: flex; align-items: baseline; gap: 8px; }
+.badge-toast .bt-item b { font-size: 14px; }
+.badge-toast .bt-item span { font-size: 11.5px; color: var(--text-dim); }
+@keyframes badgeIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* 窄屏：进度徽标收小，成就统计改两列（四列会挤成一团） */
+@media (max-width: 620px) {
+  .progress-chip { padding: 5px 9px; border-radius: 10px; }
+  .progress-chip .pc-num { font-size: 13.5px; }
+  .progress-chip .pc-label, .progress-chip .pc-badges { display: none; }
+  .badge-panel .bp-stats { grid-template-columns: repeat(2, 1fr); }
+}

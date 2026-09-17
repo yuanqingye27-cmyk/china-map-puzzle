@@ -272,8 +272,145 @@
 
     const id = pickMapId();
 
-    global.MapLoader.load(id)
+  /* ==================== 跨地图进度与成就 ====================
+   * 账本逻辑全在 js/progress.js（纯函数，可移植、可单测）；
+   * 这里只负责"把它接到界面上"：读文档 → 记账 → 发成就 → 刷新显示。
+   * ========================================================== */
+
+  /** 当前地图属于哪个省（用 registry 的 parent 链推，最多往上找两级） */
+  function provinceOf(id) {
+    let cur = global.MapLoader.entry(id);
+    for (let i = 0; i < 2 && cur && cur.parent; i++) {
+      cur = global.MapLoader.entry(cur.parent);
+    }
+    return cur ? { id: cur.id, name: cur.name } : { id: null, name: null };
+  }
+
+  function loadProgressDoc() {
+    return global.MapProgress.load();
+  }
+
+  /** 拼完整张地图后的记账与成就提示 */
+  function recordMapSolved(config, id, result) {
+    const P = global.MapProgress;
+    if (!P) return;
+    const doc = P.load();
+    const prov = provinceOf(id);
+    const levelCount = result.levelCount || 1;
+    // 单张地图的星：每关最多 3 星，这里用"没提示 + 少失误"粗算一个总星
+    const stars = Math.max(0, levelCount * 3 - (result.hints || 0) * 2 - Math.max(0, (result.tries || 0) - levelCount));
+    P.record(doc, {
+      mapId: id,
+      mapName: (config && config.name) || id,
+      province: prov.id,
+      provinceName: prov.name,
+      solved: true,
+      levels: levelCount,
+      levelsTotal: levelCount,
+      elapsed: result.elapsed || 0,
+      tries: result.tries || 0,
+      hints: result.hints || 0,
+      stars: stars,
+    });
+    const s = P.summary(doc, Object.keys((global.MAP_REGISTRY || {}).maps || {}));
+    const fresh = P.claimBadges(doc, s);
+    P.save(doc);
+    renderProgressBar();
+    if (fresh.length) showBadgeToast(fresh);
+  }
+
+  /** 顶部那条"已拼 N/总数"的进度显示 */
+  function renderProgressBar() {
+    const el = document.getElementById('progressChip');
+    if (!el) return;
+    const P = global.MapProgress;
+    if (!P) { el.hidden = true; return; }
+    const doc = P.load();
+    const allIds = Object.keys((global.MAP_REGISTRY || {}).maps || {});
+    const s = P.summary(doc, allIds);
+    el.hidden = false;
+    el.innerHTML = '<span class="pc-num">' + s.solvedMaps + '</span>'
+      + '<span class="pc-total">/' + s.totalMaps + '</span>'
+      + '<span class="pc-label">已拼地图</span>'
+      + '<span class="pc-badges" title="已获成就">🏅 ' + (doc.badges || []).length + '</span>';
+  }
+
+  /** 新成就的提示：复用引擎那套 toast 样式（自己建一个，避免依赖引擎内部） */
+  function showBadgeToast(badges) {
+    const box = document.getElementById('badgeToast');
+    if (!box) return;
+    box.innerHTML = '<div class="bt-title">🏅 获得成就</div>'
+      + badges.map((b) => '<div class="bt-item"><b>' + b.name + '</b><span>' + b.desc + '</span></div>').join('');
+    box.hidden = false;
+    clearTimeout(showBadgeToast._t);
+    showBadgeToast._t = setTimeout(() => { box.hidden = true; }, 5200);
+  }
+
+  /** 成就面板（点顶部的进度条打开） */
+  function renderBadgePanel() {
+    const panel = document.getElementById('badgePanel');
+    if (!panel) return;
+    const P = global.MapProgress;
+    if (!P) return;
+    const doc = P.load();
+    const allIds = Object.keys((global.MAP_REGISTRY || {}).maps || {});
+    const s = P.summary(doc, allIds);
+    const list = P.badgeList(doc);
+
+    const rows = list.map((b) => (
+      '<li class="' + (b.earned ? 'is-earned' : '') + '">'
+      + '<span class="bp-icon">' + (b.earned ? '🏅' : '🔒') + '</span>'
+      + '<span class="bp-text"><b>' + b.name + '</b><em>' + b.desc + '</em></span>'
+      + '</li>'
+    )).join('');
+
+    panel.innerHTML =
+      '<div class="bp-head">'
+      + '<h2>我的进度</h2>'
+      + '<button type="button" class="bp-close" aria-label="关闭">✕</button>'
+      + '</div>'
+      + '<div class="bp-stats">'
+      + '<div class="bp-stat"><b>' + s.solvedMaps + '</b><span>/' + s.totalMaps + ' 张地图</span></div>'
+      + '<div class="bp-stat"><b>' + s.percent + '%</b><span>完成度</span></div>'
+      + '<div class="bp-stat"><b>' + s.solvedProvinces + '</b><span>个省全通</span></div>'
+      + '<div class="bp-stat"><b>' + s.noHintMaps + '</b><span>张未用提示</span></div>'
+      + '</div>'
+      + '<h3>成就 ' + list.filter((b) => b.earned).length + '/' + list.length + '</h3>'
+      + '<ul class="bp-badges">' + rows + '</ul>';
+
+    panel.hidden = false;
+    const close = panel.querySelector('.bp-close');
+    if (close) close.addEventListener('click', () => { panel.hidden = true; });
+  }
+
+  /** 顶部进度条：点击打开成就面板（只绑一次） */
+  function bindProgressChip() {
+    const chip = document.getElementById('progressChip');
+    if (!chip || chip.dataset.bound) return;
+    chip.dataset.bound = '1';
+    chip.addEventListener('click', renderBadgePanel);
+
+    // 面板外点一下关闭（和开场动画同一套交互习惯）
+    const panel = document.getElementById('badgePanel');
+    if (panel) {
+      panel.addEventListener('click', (ev) => {
+        if (ev.target === panel) panel.hidden = true;
+      });
+    }
+    document.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Escape' && panel && !panel.hidden) panel.hidden = true;
+    });
+  }
+
+  global.MapLoader.load(id)
       .then((config) => {
+        /* 通关整张地图时记账 + 发成就。
+         * 引擎只报"拼完了"，跨地图的账本归 js/progress.js ——
+         * 这样引擎保持可移植，进度逻辑也能被别的宿主复用。 */
+        config.onMapSolved = (result) => {
+          recordMapSolved(config, id, result);
+        };
+
         // 配置缺失时引擎内部会兜底并提示（不会抛）
         // 注意 start() 不返回任何东西，实例要先接住再启动
         const engine = global.MapPuzzleEngine.create(config);
@@ -284,6 +421,8 @@
         // 导航 UI 属于宿主层：引擎起来之后再渲染，它就是"最后一件事"
         updateBrand(config, id);
         renderNav(id);
+        renderProgressBar();
+        bindProgressChip();
 
         markReady(id);
       })

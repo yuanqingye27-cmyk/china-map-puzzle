@@ -264,6 +264,11 @@ try {
       </div>
     </div>
     <div class="topbar-right">
+      <!-- 跨地图总进度：让玩家随时知道"我在哪、还差多少"。
+           数据来自 js/progress.js（跨地图账本），点击打开成就面板。 -->
+      <button class="progress-chip" id="progressChip" type="button"
+              aria-label="查看我的进度与成就" hidden></button>
+
       <!-- 关卡标签已搬到 mapbar 的独立一行（见下方），这里只留音效与主题 -->
       <!-- 音效开关：两个图标叠在同一格，由 aria-pressed 决定显示哪个 -->
       <button class="sound-btn" id="soundBtn" type="button"
@@ -391,7 +396,14 @@ try {
   </main>
 </div>
 
-<!-- ======================= 开场欢迎动画 =======================
+<!-- ==================== 成就面板 与 成就提示 ====================
+     数据全部来自 js/progress.js（跨地图账本）。
+     放在页面末尾：它是覆盖层，不需要参与首屏布局计算。 -->
+<div class="badge-panel" id="badgePanel" role="dialog" aria-modal="true"
+     aria-label="我的进度与成就" hidden></div>
+<div class="badge-toast" id="badgeToast" role="status" aria-live="polite" hidden></div>
+
+<!-- ==================== 开场欢迎动画 ====================
      覆盖整屏，展示五个成都元素（熊猫 / 竹子 / 银杏 / 脸谱 / 盖碗茶），
      依次弹入后浮出标题与「开始探索」。同一次会话内不会重复出现。 -->
 <div class="intro" id="intro" role="dialog" aria-modal="true" aria-label="欢迎" hidden>
@@ -439,6 +451,8 @@ try {
 <script src="js/maps/registry.js"></script>
 <script src="js/maps/loader.js"></script>
 <script src="js/geomap.js"></script>
+<!-- 跨地图进度与成就：纯逻辑层，不依赖 DOM/引擎（见 js/progress.js 的说明） -->
+<script src="js/progress.js"></script>
 <script src="js/engine.js"></script>
 <script src="js/game.js"></script>
 </body>

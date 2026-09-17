@@ -1281,9 +1281,25 @@
 
       const isLast = state.levelIndex === LEVELS.length - 1;
 
-      // 全部拼完就拉远到全图，让玩家看一眼自己拼出来的完整地图
+      /* 全部拼完就拉远到全图，让玩家看一眼自己拼出来的完整地图 */
       if (isLast) {
         animateViewBox(computeLevelViewBox([...shapes.keys()]), 1100);
+        /* 通关整张地图的通知 —— 交给宿主层决定"记账/发成就/弹提示"。
+         * 【为什么由宿主层做】引擎只该知道"这张图拼完了"，
+         * 跨地图的进度账本（js/progress.js）与它无关；
+         * 这样引擎保持可移植，进度逻辑也能被别的宿主复用。 */
+        if (typeof config.onMapSolved === 'function') {
+          try {
+            config.onMapSolved({
+              mapId: config.id,
+              mapName: config.name,
+              levelCount: LEVELS.length,
+              elapsed: state.elapsed,
+              tries: state.tries,
+              hints: state.hints,
+            });
+          } catch (e) { /* 回调出错不能影响结算画面 */ }
+        }
       }
 
       setTimeout(() => {
