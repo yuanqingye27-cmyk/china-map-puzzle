@@ -27,12 +27,13 @@ out/
 # 部署产物：由根目录的源文件复制而来，可随时重建，不入库
 # （重建方式见 deploy/README-部署到Cloudflare.md）
 deploy/
+deploy-sichuan/
 
 # 临时下载的二进制（例如隧道工具），不入库
 tools/bin/
 ```
 
-**这次我补了两条**：`deploy/` 和 `tools/bin/`。原因写在注释里了。
+**这次我补了三条**：`deploy/`、`deploy-sichuan/`、`tools/bin/`。原因写在注释里了。
 
 ### 顺手修掉一个"规则不生效"的坑
 
@@ -68,7 +69,8 @@ tools/bin/
 | 路径 | 体积 | 为什么排除 |
 | --- | --- | --- |
 | `out/` | 约 40 MB | 打包产物（单文件离线包等）。**可由 `tools/bundle.js` 一键重建**，不必占仓库 |
-| `deploy/` | 20 MB | 部署产物，由源文件复制而来，一条命令就能重建 |
+| `deploy/` | 20 MB | 部署产物（完整版 1101 个文件），由源文件复制而来，一条命令就能重建 |
+| `deploy-sichuan/` | 1.3 MB | 部署产物（单文件精简版），由 `tools/bundle.js` 一键重建 |
 | `.cache/` | 视情况 | 抓取缓存、npm 缓存。本地加速用，重建成本低 |
 | `tools/tianditu.config.json` | 小 | **天地图开发者 Key，绝不入库** |
 | `归档.zip` | 大 | 已被 `*.zip` 覆盖 |
