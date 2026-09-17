@@ -183,6 +183,30 @@ function main() {
       const hit = corpus.some((c) => c.includes(n) || n.includes(c) && c.length > 12);
       if (!hit) {
         reject(tag + '：' + f + ' 的 evidence 在素材里找不到 → 疑似编造：' + JSON.stringify(String(ev).slice(0, 60)));
+        return;
+      }
+
+      /* ⑤ landmark 必须**原样出现在它自己的 evidence 里**。
+       * 实测漏洞：子代理给恩阳区写 landmark='恩阳古镇'，evidence 却是
+       * "古镇内既有连接川陕的米仓古道…" —— evidence 是真的，但"恩阳古镇"这五个字
+       * 素材里从没出现，是它用记忆补的。只查 evidence 查不出来，必须查 landmark 本身。 */
+      if (f === 'landmark') {
+        const parts = String(val).split(/[、,，/／]/).map((x) => x.replace(/[（(].*$/, '').trim()).filter(Boolean);
+        const missing = parts.filter((p) => {
+          const np = normalize(p);
+          return np && !n.includes(np) && !corpus.some((c) => c.includes(np));
+        });
+        if (missing.length) {
+          reject(tag + '：landmark 里的 ' + missing.map((m) => '「' + m + '」').join('、')
+            + ' 在素材里找不到 → 疑似用记忆补充（landmark 必须原样出现在素材中）');
+        }
+      }
+
+      // ⑥ 括号成对：截断的句子会留下不闭合的括号
+      const open = (String(val).match(/[（(]/g) || []).length;
+      const close = (String(val).match(/[）)]/g) || []).length;
+      if (open !== close) {
+        warn(tag + '：' + f + ' 括号不闭合（' + open + ' 开 / ' + close + ' 闭），像是从素材里截断了');
       }
     });
   });

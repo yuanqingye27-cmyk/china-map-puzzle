@@ -134,5 +134,23 @@ const r7 = runVerify(noEvidence);
 check('缺 evidence → 拦下（exit 1）', r7.code === 1, '实际 exit=' + r7.code);
 check('  且指出无法追溯', /无法追溯/.test(r7.out));
 
+/* ---------- 用例 8：landmark 用记忆补充（素材里没有这个名字）→ 必须拦下 ---------- */
+/* 真实案例：子代理给恩阳区写 landmark='恩阳古镇'，evidence 却是"古镇内既有…米仓古道…"。
+ * evidence 是真的，但"恩阳古镇"这五个字素材里从没出现 —— 只查 evidence 查不出来。 */
+const memoryLandmark = JSON.parse(JSON.stringify(good));
+memoryLandmark.districts[1].landmark = '富顺文庙、赵化古镇';
+memoryLandmark.districts[1].evidence.landmark = '富顺文庙是全国重点文物保护单位。';
+const r8 = runVerify(memoryLandmark);
+check('landmark 用记忆补充 → 拦下（exit 1）', r8.code === 1, '实际 exit=' + r8.code);
+check('  且指出疑似用记忆补充', /疑似用记忆补充/.test(r8.out));
+check('  且点名到具体成分', /赵化古镇/.test(r8.out));
+
+/* ---------- 用例 9：landmark 全部能在素材中找到 → 通过 ---------- */
+const corpusLandmark = JSON.parse(JSON.stringify(good));
+corpusLandmark.districts[1].landmark = '富顺文庙';
+corpusLandmark.districts[1].evidence.landmark = '富顺文庙是全国重点文物保护单位。';
+const r9 = runVerify(corpusLandmark);
+check('landmark 全部有素材依据 → 通过（exit 0）', r9.code === 0, '实际 exit=' + r9.code);
+
 console.log('\n  → ' + passed + ' 通过 / ' + failed + ' 失败');
 process.exitCode = failed ? 1 : 0;

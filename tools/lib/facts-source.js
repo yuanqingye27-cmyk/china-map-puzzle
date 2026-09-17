@@ -184,9 +184,18 @@ function dedupe(list) {
 }
 
 /**
- * 面积句子：这是最容易抓错的字段，按可信度排序。
- * 实测教训：句子里出现"面积"和数字不代表它讲的是**这个行政区**的面积 ——
- * "中丘中谷地貌…分布面积仅 0.01 平方千米"会排在正确答案（159.9 平方千米）前面。
+ * 面积句子：这是最容易抓错的字段。
+ *
+ * 实测三种抓错（都被几何交叉校验兜住了，但抽取层本身该更干净）：
+ *   ① 米易县 → 「响水河…集雨面积284平方千米」（河流集雨面积，不是县域面积）
+ *   ② 盐边县 → 「该河干流长38千米，流城面积616平方千米」（流域面积；原文还有错别字"流城"）
+ *   ③ 西区   → 「石龙区总面积60.8平方公里」（抓成了河南平顶山的石龙区）
+ *
+ * 早期版本用 `score > 0` 过滤，**当所有面积句都被降权时就一个都不剩** ——
+ * 兜底失效，反而把"最像但明显不是"的句子漏给了下游。现在改成：
+ *   分值 > 0  → 标 kind='region'（像是本行政区面积）
+ *   分值 ≤ 0  → 仍然返回，但标 kind='other'，让子代理/人一眼看出它不是行政区面积
+ * 宁可把"可疑"明说，也不要假装没抓到。
  */
 function pickArea(text) {
   const sents = splitSentences(text).filter((s) =>
@@ -198,16 +207,18 @@ function pickArea(text) {
     if (/(辖区|境域|政区|全区|全县|全市)?总?面积(为|是)?\s*\d/.test(s)) score += 8;
     if (/截至\s*\d{4}\s*年/.test(s)) score += 3;
     if (/(幅员面积|辖区面积|总面积|境域面积|政区面积)/.test(s)) score += 3;
-    // 明显不是"本区总面积"的句子降权
-    if (/分布面积|灌溉面积|流域面积|占地面积|建筑面积|建成区|保护区|绿化|耕地|林地面|水域面积|集雨区|库容|洪水位/.test(s)) score -= 8;
-    if (/东西长|南北宽|海拔|东经|北纬/.test(s)) score -= 1;
-    return { s, score };
+    // 明显不是"本行政区总面积"的句子：河湖工程、用地、保护地……
+    if (/分布面积|灌溉面积|集雨面积|流域面积|流城面积|汇水面积|占地面积|建筑面积|建成区|保护区|绿化|耕地|林地面|水域面积|库容|洪水位|网格|覆盖面积/.test(s)) score -= 8;
+    if (/东西长|南北宽|海拔|东经|北纬|干流长|河道长/.test(s)) score -= 1;
+    return { text: s, score, kind: score > 0 ? 'region' : 'other' };
   });
-  return dedupe(
-    scored.filter((x) => x.score > 0 && !isNoise(x.s))
-      .sort((a, b) => b.score - a.score)
-      .map((x) => x.s)
-  ).slice(0, 5);
+  // 高分的排前面，但低分的也保留（明说"这些不是行政区面积"）。
+  // 注意：dedupe 只吃字符串，所以先去重再套 kind，别把对象喂给它。
+  const kept = dedupe(scored.filter((x) => !isNoise(x.text)).sort((a, b) => b.score - a.score).map((x) => x.text));
+  return kept.map((t) => {
+    const found = scored.find((x) => x.text === t);
+    return { text: t, kind: found && found.score > 0 ? 'region' : 'other' };
+  }).slice(0, 5);
 }
 
 /**

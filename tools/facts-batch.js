@@ -72,13 +72,17 @@ function loadDistricts(slug) {
  */
 function crossCheckArea(r) {
   if (!r.ok || !r.geoArea) return null;
+  const asText = (x) => (typeof x === 'string' ? x : (x && x.text) || '');
   const nums = [];
-  r.area.forEach((s) => {
-    const m = /(\d+(?:\.\d+)?)\s*(平方千米|平方公里|km²)/.exec(s);
+  // 只拿"像是本行政区面积"的句子参与比对；被降权的（流域/集雨/网格…）不参与，
+  // 否则会拿"响水河集雨面积284"去比"米易县2111"，得出无意义的结论
+  (r.area || []).forEach((x) => {
+    const kind = typeof x === 'string' ? 'region' : x.kind;
+    if (kind !== 'region') return;
+    const m = /(\d+(?:\.\d+)?)\s*(平方千米|平方公里|km²)/.exec(asText(x));
     if (m) nums.push(Number(m[1]));
   });
   if (!nums.length) return { status: 'no-area', geoArea: r.geoArea };
-  // 取与几何面积最接近的一个作为"它对不上的那一个"
   const best = nums.reduce((a, b) => (Math.abs(b - r.geoArea) < Math.abs(a - r.geoArea) ? b : a));
   const ratio = best / r.geoArea;
   if (ratio > 0.75 && ratio < 1.35) return { status: 'match', textArea: best, geoArea: r.geoArea, ratio: Number(ratio.toFixed(2)) };
@@ -234,7 +238,15 @@ function renderDraft(payload) {
     if (r.collision) L.push('- ⚠ **疑似撞车**：素材里找不到所属市，却出现 ' + [].concat(r.collision).join('、') + '，请人工确认是否抓错条目');
     if (r.check && r.check.status === 'mismatch') L.push('- ❗ **面积对不上**：文本 ' + r.check.textArea + ' vs 几何 ' + r.check.geoArea + '，疑似抓错条目');
     L.push('- 来源：' + r.source);
-    if (r.area && r.area.length) { L.push('- 面积候选：'); r.area.forEach((s) => L.push('  - ' + s)); }
+    if (r.area && r.area.length) {
+      L.push('- 面积候选（`region` = 像是本行政区面积，**只有这种能用**；');
+      L.push('  `other` = 河流/工程/网格等其他面积，**不是行政区面积，不能用**）：');
+      r.area.forEach((a) => {
+        const kind = typeof a === 'string' ? 'region' : a.kind;
+        const text = typeof a === 'string' ? a : a.text;
+        L.push('  - [' + kind + '] ' + text);
+      });
+    }
     if (r.etymology && r.etymology.length) {
       L.push('- 得名候选（`区名` = 本区县名本身的由来；`featured` = 某个**具体对象**的得名，');
       L.push('  例如"石笋沟因此得名"——**不能当作本区县的冷知识**）：');
