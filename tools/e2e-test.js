@@ -192,6 +192,9 @@ async function main() {
   /* 子代理产出校验器的自测：这个校验器是"防止编造内容进项目"的守门人，
    * 守门人自己坏掉必须能被发现，所以把它钉进离线套件。 */
   const verifyResult = runOfflineTest('test-facts-verify.js');
+  /* 面积抽取器的自测：它是资料卡里最容易抓错的字段，前后出过四次问题，
+   * 把真实踩过的句子钉成回归用例。 */
+  const areaPickResult = runOfflineTest('test-area-pick.js');
   console.log('  ' + (wktResult.failed ? '✘' : '✔') +
     ' WKT → GeoJSON 转换（' + wktResult.passed + ' 通过 / ' + wktResult.failed + ' 失败）' +
     (wktResult.failed ? '：' + wktResult.failures.join('、') : ''));
@@ -206,6 +209,11 @@ async function main() {
     ' 子代理产出校验器（防编造守门人自测）：' + verifyResult.passed + ' 通过 / ' + verifyResult.failed + ' 失败' +
     (verifyResult.failed ? '：' + verifyResult.failures.join('、') : ''));
   if (verifyResult.failed) process.exitCode = 1;
+
+  console.log('  ' + (areaPickResult.failed ? '✘' : '✔') +
+    ' 面积抽取器（真实踩过的错句回归）：' + areaPickResult.passed + ' 通过 / ' + areaPickResult.failed + ' 失败' +
+    (areaPickResult.failed ? '：' + areaPickResult.failures.join('、') : ''));
+  if (areaPickResult.failed) process.exitCode = 1;
   console.log('');
 
   const server = http.createServer((req, res) => {
@@ -272,15 +280,16 @@ async function main() {
 
   // ---- 汇总 ----
   const totalPassed = results.reduce((n, r) => n + (r.result.passed || 0), 0) +
-    wktResult.passed + mapsResult.passed + verifyResult.passed;
+    wktResult.passed + mapsResult.passed + verifyResult.passed + areaPickResult.passed;
   const totalFailed = results.reduce((n, r) => n + (r.result.failed || 0), 0) +
-    wktResult.failed + mapsResult.failed + verifyResult.failed;
+    wktResult.failed + mapsResult.failed + verifyResult.failed + areaPickResult.failed;
   const broken = results.filter((r) => r.result.crashed).map((r) => r.suite.name);
 
   console.log('\n══════════════ 汇总 ══════════════');
   console.log(`  ${wktResult.failed ? '✘' : '✔'} 离线检查 · WKT → GeoJSON：${wktResult.passed} 通过 / ${wktResult.failed} 失败`);
   console.log(`  ${mapsResult.failed ? '✘' : '✔'} 离线检查 · 地图包自洽：${mapsResult.passed} 通过 / ${mapsResult.failed} 失败`);
   console.log(`  ${verifyResult.failed ? '✘' : '✔'} 离线检查 · 子代理产出校验器：${verifyResult.passed} 通过 / ${verifyResult.failed} 失败`);
+  console.log(`  ${areaPickResult.failed ? '✘' : '✔'} 离线检查 · 面积抽取器回归：${areaPickResult.passed} 通过 / ${areaPickResult.failed} 失败`);
   results.forEach(({ suite, result }) => {
     const mark = result.crashed ? '✘ 未收到结果' : (result.failed ? '✘' : '✔');
     const secs = result.elapsedMs ? `（${(result.elapsedMs / 1000).toFixed(1)}s）` : '';
