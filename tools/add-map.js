@@ -216,6 +216,21 @@ function renderLevelsSource(levels) {
 }
 
 /**
+ * 读官方类型表 { adcode: type }。数据由 tools/mca-check.js --write-tree 生成。
+ * 读不到就返回空对象（此时 autoLevels 会退回名字后缀判断）。
+ */
+let _officialTypes = null;
+function loadOfficialTypes() {
+  if (_officialTypes) return _officialTypes;
+  _officialTypes = {};
+  try {
+    const rows = require('./lib/mca-tree.json');
+    rows.forEach((r) => { if (r.code6 && r.type) _officialTypes[String(Number(r.code6))] = r.type; });
+  } catch (e) { /* 没有就不优化 */ }
+  return _officialTypes;
+}
+
+/**
  * 关卡分组：**按行政类型**（市辖区 / 县级市 / 县）。
  *
  * 【为什么不再"每 8 个一组"】
@@ -232,18 +247,32 @@ function renderLevelsSource(levels) {
  * 那部分只能靠人 —— 所以 blurb 里会写清"这是按行政类型的自动分组，欢迎重排"。
  */
 function autoLevels(features, adcode) {
-  /* 类型判断要看 **adcode 的层级**，不能只看名字后缀：
-   *   · 地级市（xx00）与县级市（xxxx）都以"市"结尾，光看后缀会把它们混为一谈
-   *     —— 实测安徽省地图（下辖 21 个地级市）会被全归进"其他"。
-   *   · 自治州/地区/盟也是"一整片"，与市同级，归到"其他"更合适。 */
+  /* 类型判断**优先用官方 type**（民政部国家地名信息库，见 tools/mca-check.js）。
+   * 为什么不能只看名字后缀：
+   *   · 地级市（xx00）与县级市（xxxx）都以"市"结尾 → 光看后缀会把安徽省
+   *     21 个地级市全归进"其他"（实测踩过）
+   *   · `旗` / `自治旗` / `林区` / `特区` 从名字看不出归属 → 内蒙古的 49 个旗
+   *     会被丢进"其他"（官方树里确实有这些类型）
+   * 官方 type 是权威分类，抓一次落盘（tools/lib/mca-tree.json，205 KB）。
+   * 拿不到时退回名字后缀判断，保证工具能独立工作。 */
+  const OFFICIAL = loadOfficialTypes();
+  const TYPE_MAP = {
+    '市辖区': 'district', '县': 'county', '县级市': 'countyCity',
+    '自治县': 'county', '旗': 'county', '自治旗': 'county',
+    '林区': 'county', '特区': 'county',
+    '地级市': 'city', '自治州': 'prefecture', '地区': 'prefecture', '盟': 'prefecture',
+  };
   const typeOf = (f) => {
     const n = String(f.properties.name || '');
     const a = Number(f.properties.adcode);
-    const isPrefecture = a % 100 === 0;   // 地级（xx00）
+    const off = OFFICIAL[String(a)];          // 官方 type
+    if (off && TYPE_MAP[off]) return TYPE_MAP[off];
+    // —— 退回名字后缀判断 ——
+    const isPrefecture = a % 100 === 0;       // 地级（xx00）
     if (isPrefecture) {
       if (/自治州$/.test(n)) return 'prefecture';
       if (/(地区|盟)$/.test(n)) return 'prefecture';
-      return 'city';                      // 地级市
+      return 'city';
     }
     if (/区$/.test(n)) return 'district';
     if (/市$/.test(n)) return 'countyCity';
