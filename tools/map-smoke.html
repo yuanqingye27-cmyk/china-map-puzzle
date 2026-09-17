@@ -522,6 +522,38 @@
       edge('#soundBtn') <= vw + 1 && edge('#themeSwitch') <= vw + 1,
       'sound=' + Math.round(edge('#soundBtn')) + ' theme=' + Math.round(edge('#themeSwitch')));
 
+    /* 新增的 UI（进度徽标 / 每日一图）也要验不溢出 ——
+     * 窄屏溢出这个坑在本项目踩过多次（见 SOP：flex 子项 min-width:auto）。
+     * 它们是有条件显示的（进度徽标要 MapProgress 就绪），所以只在可见时检查。 */
+    const chip = D.getElementById('progressChip');
+    if (chip && !chip.hidden) {
+      check('[窄屏] 进度徽标没溢出屏幕', edge('#progressChip') <= vw + 1, '右边 ' + Math.round(edge('#progressChip')));
+    }
+    const daily = D.getElementById('dailyChip');
+    if (daily && !daily.hidden) {
+      check('[窄屏] 每日一图没溢出屏幕', edge('#dailyChip') <= vw + 1, '右边 ' + Math.round(edge('#dailyChip')));
+    }
+
+    /* 成就面板：打开后也不能把页面撑出横向滚动条。
+     * 它是 position:fixed 覆盖层，但内容（成就列表）仍可能撑宽。 */
+    if (chip && !chip.hidden) {
+      chip.click();
+      await sleep(120);
+      const panel = D.getElementById('badgePanel');
+      check('[窄屏] 点进度徽标能打开成就面板', !!panel && !panel.hidden);
+      if (panel && !panel.hidden) {
+        check('[窄屏] 成就面板打开后没有横向溢出',
+          D.body.scrollWidth <= vw + 1,
+          'scrollWidth=' + D.body.scrollWidth + ' vs 视口=' + vw);
+        check('[窄屏] 成就面板里有成就条目',
+          panel.querySelectorAll('.bp-badges li').length > 0,
+          '条目数=' + panel.querySelectorAll('.bp-badges li').length);
+        panel.querySelector('.bp-close').click();
+        await sleep(80);
+        check('[窄屏] 点关闭能收起成就面板', panel.hidden);
+      }
+    }
+
     frame.remove();
   }
 
