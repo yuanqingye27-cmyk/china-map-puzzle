@@ -98,13 +98,25 @@ if (fs.existsSync('/tmp/menu.json')) {
     const byDepth = {};
     Object.values(flat).forEach((n) => { byDepth[n.depth] = (byDepth[n.depth] || 0) + 1; });
     const doneAd = new Set(maps.map((m) => m.adcode));
+    /* "有下级"的判定：有任何一个节点的 parentAdcode 指向它。
+     * 【为什么要这一条】官方树里有 7 个"没有下级"的地级单位
+     * （东莞/中山/儋州/嘉峪关 + 甘肃 3 个保护区）—— 它们按项目规则
+     * **不单独建地图**，而是作为上级地图里的一块碎片存在。
+     * 如果照"adcode 没出现过就算待接入"来数，这 7 个会永远挂着，
+     * 让人以为还有活没干完（这个误报我自己看了两天才反应过来）。 */
+    const hasChild = new Set();
+    Object.values(flat).forEach((n) => {
+      if (n.parentAdcode) hasChild.add(n.parentAdcode);
+    });
     const cities = Object.values(flat).filter((n) => n.adcode % 100 === 0 && n.adcode % 10000 !== 0);
+    const notDone = cities.filter((n) => !doneAd.has(n.adcode));
     scope = {
       total: Object.keys(flat).length,
       province: byDepth[2] || 0,
       city: byDepth[3] || 0,
       county: byDepth[4] || 0,
-      cityLeft: cities.filter((n) => !doneAd.has(n.adcode)).length,
+      cityLeft: notDone.filter((n) => hasChild.has(n.adcode)).length,
+      cityNoChild: notDone.filter((n) => !hasChild.has(n.adcode)).length,
     };
   } catch (e) { scope = null; }
 }
@@ -142,14 +154,17 @@ if (manifest) {
 if (scope) {
   console.log('');
   line('官方树节点', scope.total + '（省 ' + scope.province + ' / 地级 ' + scope.city + ' / 县级 ' + scope.county + '）');
-  line('地级待接入', scope.cityLeft + ' 个');
+  line('地级待接入', scope.cityLeft + ' 个' +
+    (scope.cityNoChild
+      ? '（另有 ' + scope.cityNoChild + ' 个地级单位官方树里没有下级，按规则并入上级地图，不算待接入）'
+      : ''));
 } else {
   console.log('');
   line('剩余规模', '（缓存 /tmp/menu.json 不在，跑一次 tianditu-download 就有了）');
 }
 console.log('');
 console.log('══════════ 下一步（选一条） ══════════');
-console.log('  基线自检      node tools/e2e-test.js 2>&1 | tail -6        （应为 884 通过 / 0 失败）');
+console.log('  基线自检      node tools/e2e-test.js --only-suite=offline 2>&1 | tail -12   （应为 2053 通过 / 0 失败）');
 console.log('  地图包自检    node tools/test-maps.js 2>&1 | tail -4');
 console.log('  P0 补资料卡   面积：node tools/area-from-geo.js --parent=<省 adcode> --write');
 console.log('                文字：编辑 js/maps/china/sichuan/<市>.data.js 的 landmark/tagline/funFact');

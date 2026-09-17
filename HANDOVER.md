@@ -90,9 +90,12 @@ node tools/facts-verify.js --map=<市> --in=out/verify-<市>.json --apply
 **下次开工前先跑这几条**（约 20 秒，确认没坏）：
 
 ```bash
+node tools/e2e-test.js --only-suite=offline 2>&1 | tail -12   # 离线全套（2053 项，秒级）
 node tools/test-maps.js 2>&1 | tail -2          # 地图包自洽（1822 项）
 node tools/test-area-pick.js 2>&1 | tail -2     # 面积抽取器回归（21 项）
 node tools/test-facts-verify.js 2>&1 | tail -2  # 防编造守门人自测（20 项）
+node tools/test-contribute.js 2>&1 | tail -2    # 众包纠错文案与链接（33 项）
+node tools/test-bundle.js 2>&1 | tail -2        # 单文件离线打包（33 项）
 node tools/area-from-geo.js --check 2>&1 | tail -2
 ```
 
@@ -108,13 +111,25 @@ node tools/e2e-test.js --only-suite=offline        # 只跑离线检查（秒级
 - **东莞/中山/儋州/嘉峪关 + 甘肃 3 个保护区**：没有下级，按规则不单独建地图，
   它们是**上级地图的碎片**
 
+**两条"零成本"线（2026-09-17 建成，以后不要再另起炉灶）**：
+
+| 问题 | 解法 | 落点 | 关键不变量 |
+| --- | --- | --- | --- |
+| 3200+ 个区县一个人查不完 | **众包纠错**：资料卡底部一个按钮，把那张卡拼成结构化文本，走 GitHub / 邮件 / 剪贴板 | `js/contribute.js`（纯函数）+ `js/game.js` 的 `showReportPanel` + `.github/ISSUE_TEMPLATE/` | 没配 repo 时**必须**降级成复制，**不许给死链**；报告里必须有 adcode 和「来源」一节 |
+| 部署要域名要备案、国内访问不稳 | **单文件离线包**：整站内联成一个 `.html`，双击即玩 | `tools/bundle.js` | 内联的 registry 必须**裁剪**；parent 指向包外时置 `null`（否则切地图是死路） |
+
+> 已联网核实并写进 `docs/可持续性与内容生产.md` §六：GitHub Pages 在国内属"半墙"、
+> **Gitee Pages 已下线**、Cloudflare Pages 免费但速度一般。
+> 所以顺序是"先发文件、再谈部署"，别反过来。
+
 ---
 
 ## 2. 3 条命令自举（输出都压到 20 行内）
 
 ```bash
 node tools/status.js                          # 现状：地图数/资料缺口/数据源/下一步
-node tools/e2e-test.js 2>&1 | tail -6         # 基线：925 通过 / 0 失败
+node tools/e2e-test.js 2>&1 | tail -16        # 基线：16145 项全绿（约 9 分钟，冒烟自动分批 60 张/批）
+node tools/e2e-test.js --only-suite=offline 2>&1 | tail -12   # 只想确认没坏：秒级，看这 2053 项
 node tools/test-maps.js 2>&1 | tail -4        # 地图包自洽（adcode/关卡/资料/来源）
 ```
 
@@ -238,7 +253,7 @@ node tools/test-maps.js 2>&1 | tail -4        # 地图包自洽（adcode/关卡/
 
 ```bash
 node tools/status.js                                   # 现状（资料卡按"条"统计）
-node tools/e2e-test.js 2>&1 | tail -6                  # 全部测试（925）
+node tools/e2e-test.js 2>&1 | tail -12                 # 全部测试（离线 2053 + 冒烟）
 node tools/test-maps.js 2>&1 | tail -4                 # 地图包自洽
 node tools/soften-placeholders.js [--check]            # 占位文案 → 共建口径
 node tools/area-from-geo.js --only=<id> [--write]      # 从官方边界几何算面积（默认预览）
@@ -247,6 +262,12 @@ node tools/batch-add-maps.js --parent=<省 adcode>      # 批量接入一个省
 node tools/tianditu-download.js [--only=<adcode>]      # 抓官方数据到 data/tianditu-official/
 node tools/replace-geo-source.js --source=file --dir=data/tianditu-official [--only=<id>|--parent=<adcode>]
 node tools/shot.js --map=<id> [--drag=1] [--level=N] [--fit=all] --out=/tmp/x.png   # 截图
+node tools/shot.js --page=out/xxx.html --out=/tmp/x.png                        # 截任意页面
+# —— 零成本传播 / 众包（2026-09-17 新增）——
+node tools/bundle.js --province=sichuan                # 单文件离线包（1.3MB，22 张，发微信就能玩）
+node tools/bundle.js --maps=chengdu --out=/tmp/a.html  # 只打一张地图（约 300KB）
+#   想看"玩家反馈了什么"：资料卡底部 / 导航条的纠错入口 → 面板里就是可粘贴的结构化文本
+#   想真的收 Issue：把 index.html 里的 MAP_PUZZLE_CONTRIB.repo 填成自己的仓库（留空则降级成复制）
 open index.html                                        # 双击即玩（零依赖）
 ```
 

@@ -72,6 +72,46 @@ python3 -m http.server 8000
 
 **进度会自动保存**：拼到哪、花了多久、试了几次、用了几个提示，全都记着。刷新、关标签页、甚至关掉浏览器再打开，都能接着上次继续。
 
+## 发现资料写错了？
+
+每个区县的介绍卡底部都有一个「发现写错了 / 想补充这条」按钮，导航条上也有一条地图级入口。
+点开以后会把你看到的**那一张卡**拼成一段结构化文本：
+
+```
+### 位置
+- 地图：乐山市（`leshan`）
+- 区县：五通桥区（`511112`）
+
+### 应该是          ← 你只需要写这一节
+### 来源            ← 以及这一节
+```
+
+然后走你自己已有的通道发出去，**GitHub Issue / 邮件 / 复制粘贴**三选一 ——
+这个网站没有后端，也不会为了收一条反馈去搭一个。
+
+> **为什么「来源」是必填的**：没有来源的修改我们不敢合。
+> 一个热心人说"我们县面积是 1200 平方公里"，如果直接信了，
+> 就把一条**看起来权威的错误数据**写进了站里 —— 那比留空更糟，因为留空至少是诚实的。
+
+想真的收 Issue，把 `index.html` 顶部的 `MAP_PUZZLE_CONTRIB.repo` 换成你的仓库就行
+（留空时会自动降级成"复制到剪贴板"，不会给出死链接）。
+
+## 发一个文件就能让人玩到（零成本传播）
+
+```
+node tools/bundle.js --province=sichuan     # → out/地图拼图-四川省.html（1.3MB，22 张地图）
+node tools/bundle.js --maps=chengdu         # → 单张地图，约 300KB
+```
+
+产物是**一个自包含的 HTML**：样式、脚本、地图数据全部内联，
+没有 `<script src>`，没有 `<link rel=stylesheet>`。双击就能玩，不需要网络、不需要服务器。
+
+> 为什么不先部署：GitHub Pages 在国内属"半墙"、**Gitee Pages 已下线**、
+> Cloudflare Pages 免费但速度一般。对一个还没人知道的网站来说，
+> "有链接"不等于"有人打开"，而"发一个文件给同学、他双击就能玩"是**必然成功**的。
+> 顺序是「先发文件验证有没有人想玩 → 有了再谈部署」，
+> 详见 `docs/可持续性与内容生产.md` §六。
+
 ## 关卡
 
 按离市中心的距离（成都人说的"圈层"）分成三关，5 + 7 + 8 = 20 个区县：
@@ -93,9 +133,15 @@ css/style.css                 全部样式与动画 + 设计令牌 + 地图导�
 
 js/engine.js                  通用拼图引擎（拖拽、判定、进度、信息卡、存档）—— 不含任何地图数据
 js/geomap.js                  墨卡托投影 + path/bbox/质心计算（Polygon / MultiPolygon 都支持）
-js/game.js                    启动器 + 地图导航 UI（面包屑 / 选择器，宿主层）
+js/game.js                    启动器 + 地图导航 UI（面包屑 / 选择器 / 纠错面板，宿主层）
+js/progress.js                跨地图进度与成就账本（纯逻辑，不碰 DOM）
+js/score.js                   计分与连击规则（纯函数，可单测）
+js/share.js                   分享卡片：文案是纯函数，绘制用 Canvas
+js/contribute.js              众包纠错：把资料卡拼成结构化文本 + Issue 预填链接（纯函数）
 
-js/maps/                      地图工厂：目录层级 = 地图层级（当前 23 张）
+.github/ISSUE_TEMPLATE/       三份表单：资料纠错 / 资料补充 / 问题反馈（都强制填来源）
+
+js/maps/                      地图工厂：目录层级 = 地图层级（当前 363 张）
   registry.js                 总登记册【自动生成】—— 谁是谁的父级、脚本在哪
   loader.js                   运行时按需注入脚本（首屏只载 75KB，地图数据用到才下载）
   china.js                    中国（根地图，34 个省级行政区）
@@ -134,10 +180,25 @@ tools/status.js               一行命令看现状（地图数 / 面积覆盖 /
 tools/lib/map-tree.js         公共库：目录规则 / 包元信息扫描 / registry 生成
 tools/build-data.js           只重刷成都边界的薄封装（新地图请用 add-map）
 
-tools/e2e-test.js             测试驱动（一次跑三套 + CSS 静态检查 + 汇总）
+tools/bundle.js               单文件离线打包（整站内联成一个 .html，微信发文件就能玩）
+tools/test-bundle.js          打包器自测（33 项 · 只打成都，秒级）
+
+tools/test-contribute.js      众包纠错自测（33 项 · 文案/编码/降级不许出死链）
+tools/test-progress.js        进度账本自测（56 项）
+tools/test-share.js           分享文案自测（27 项）
+tools/test-score.js           计分平衡自测（28 项）
+tools/mca-check.js            拉民政部官方区划树（type 字段）并核对我们的名字
+tools/lib/mca-tree.json       官方区划树快照（3213 节点，关卡分组按它分类）
+tools/regroup-levels.js       只重排关卡分组（断言 LEVELS 之外字节完全一致）
+tools/repair-map-names.js     只修 <id>.js 里的中文显示名（不动 .data.js）
+tools/gen-name-map.js         adcode → 官方中文名（3254 条），修拼音名的兜底数据
+tools/prune-empty-maps.js     删掉没有下级的退化地图
+tools/todo-report.js          按市/按字段列资料缺口（--write 出 docs/资料缺口清单.md）
+
+tools/e2e-test.js             测试驱动（跑三套浏览器套件 + 九项离线检查 + 汇总）
 tools/selftest.html           城市回归套件（89 项 · 成都真实数据 + UI/动画）
 tools/engine-test.html        引擎功能套件（77 项 · 虚构 tiny-city）
-tools/map-smoke.html          多地图冒烟套件（585 项 · 23 张地图逐张真拖一块 + 导航 + 窄屏）
+tools/map-smoke.html          多地图冒烟套件（每张地图 38 项 · 真拖一块 + 导航 + 纠错面板 + 窄屏）
 tools/engine-host.html        引擎测试用的瘦宿主页（被上面那套装进 iframe）
 tools/fixtures/tiny-city.js   虚构测试城市：3 个假区县 + 2 关
 tools/shot.js                 截图工具（生成 docs/ 里的界面配图）
@@ -416,19 +477,45 @@ body.scrollWidth   468   ← 整页横向溢出，右侧按钮被推出屏幕
 
 ## 测试
 
-项目带**三套端到端测试 + 两项离线检查，共 882 项断言**，全部在真实浏览器里模拟真人操作：
+项目带**九项离线检查（秒级，不启浏览器）+ 三套真实浏览器端到端测试，共 16145 项断言**。
 
 ```bash
-node tools/e2e-test.js
+node tools/e2e-test.js --only-suite=offline 2>&1 | tail -12   # 秒级：只想确认"没坏"就跑这个（2053 项）
+node tools/e2e-test.js 2>&1 | tail -20                        # 全量：16145 项，约 9 分钟
 ```
+
+冒烟套件默认**分批跑**（每批 60 张地图、一个独立 Chrome）：363 张地图在同一个 Chrome 里连开
+363 个 iframe 之后，实测会从 1.5 s/张 退化到 5 s/张、最后撞上超时；分批之后每批稳定
+88.5 s，而且真的卡死时只丢一批的结果，不会把前面一万多条断言全丢掉。
+
+**离线检查**（合计 2053 项）—— 不需要浏览器，纯逻辑层全在这里：
+
+| 检查 | 项数 | 钉住的是什么 |
+| --- | --- | --- |
+| 地图包自洽 `test-maps.js` | 1822 | adcode 层级、关卡覆盖、资料字段、来源标注（踩过的坑都在这） |
+| WKT → GeoJSON `test-wkt.js` | 13 | 天地图返回的 WKT 解析 |
+| 子代理产出校验器 `test-facts-verify.js` | 20 | 防编造守门人（该拦的必须拦住） |
+| 面积抽取器回归 `test-area-pick.js` | 21 | 从正文里挑"本级面积"的那条规则 |
+| 进度与成就账本 `test-progress.js` | 56 | 跨地图进度算错不会崩，只会给出错误数字 |
+| 分享图文案 `test-share.js` | 27 | 卡片上写什么 |
+| 计分规则 `test-score.js` | 28 | 游戏平衡（改一个常量就会改变玩家行为） |
+| 众包纠错 `test-contribute.js` | 33 | 没配仓库时**不许给死链**；报告里必须有 adcode |
+| 单文件离线打包 `test-bundle.js` | 33 | 内联的登记册必须真的**裁过**（不然切地图是死路） |
+
+**浏览器端到端套件**—— 全部在真实 Chrome 里派发 `PointerEvent` 模拟真人操作：
 
 | 套件 | 被测页面 | 数据 | 覆盖内容 |
 | --- | --- | --- | --- |
 | **城市回归** · 89 项 | `index.html` | 成都真实 GeoJSON | 正确/错误放置、点击模式、通关解锁、关卡切换、提示、重开，以及地图方位、解锁门槛、三套主题切换、开场动画、结算画面、进度持久化、音效开关、键盘操作、布局完整性 |
 | **引擎功能** · 77 项 | `tools/engine-host.html` | 虚构 tiny-city（3 个假区县） | 放置与拒绝、逐关解锁、提示、持久化，以及配色 / 主题 / 存储 key 是否**真的由配置驱动** —— 断言里不含任何真实城市的数据 |
-| **多地图冒烟** · 585 项 | `index.html?map=<id>` | **登记册里每一张地图**（当前 23 张） | 每张地图都真的打开、数据自洽、**真的拖一块进去**、导航（面包屑/选择器/点选切换）正确、刷新后进度还在；外加 390×844 窄屏专项 |
+| **多地图冒烟** · 每张地图 38 项 | `index.html?map=<id>` | **登记册里每一张地图**（当前 363 张） | 每张地图都真的打开、数据自洽、**真的拖一块进去**、导航（面包屑/选择器/点选切换）正确、纠错面板打得开且带得上 adcode、刷新后进度还在；外加 390×844 窄屏专项 |
 
 三套测试各起一个独立的 headless Chrome（独立 profile），因此互相不干扰，也不会读到对方的存档。
+
+> **排查单张地图时不要跑全量**（冒烟约 9 分钟）：
+> `node tools/e2e-test.js --only-maps=chengdu,leshan --only-suite=smoke`
+> 通过的日志默认不打印（1.3 万条 ✔ 会把要看的东西挤出 tail 的窗口）；
+> 要全看就加 `--verbose`。
 
 它的做法是：起一个本地 HTTP 服务，把测试载体页丢进 headless Chrome，载体页把被测页面装进 iframe，在里面派发 `PointerEvent` 模拟拖拽，跑完用隐表单 POST 把结果回传。
 

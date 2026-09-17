@@ -43,12 +43,16 @@ const DEFAULT_TIMEOUT_MS = 90000;
 const SUITES = [
   { name: '城市回归 · 成都（真实数据 + UI/动画）', page: 'selftest.html' },
   { name: '引擎功能 · 虚构 tiny-city（通用逻辑）', page: 'engine-test.html' },
-  /* 冒烟套件的超时随地图数增长：
-   * 每张地图要真的在浏览器里拖一块（含等推近动画稳定），实测约 1.3 s/张。
-   * 363 张地图 ≈ 470 s，已经贴着旧的 600 s 上限 —— 再多几张就会误报"超时"。
-   * 超时本来是给"卡死"兜底的，不该变成"地图多了就红"，所以放宽到 30 分钟。
-   * 想看进度/排查单张用 --only-maps=<ids>，别每次都跑全量。 */
-  { name: '多地图冒烟 · 登记册里的每一张地图', page: 'map-smoke.html', timeoutMs: 1800000 },
+  /* 冒烟套件默认**分批跑**（见 SMOKE_BATCH），每批一个独立的 Chrome。
+   *
+   * 【为什么必须分批】363 张地图在同一个 Chrome 里连开 363 个 iframe 之后，
+   * 实测会从 1.5 s/张 退化到 5 s/张以上，最后撞上超时 ——
+   * 而超时是给"卡死"兜底的，不该变成"地图多了就红"。
+   * 分批顺带解决两件事：① 每批有独立进度输出，不再等 10 分钟才知道跑到哪；
+   * ② 真的卡死时只丢一批的结果，不是全丢。
+   * 超时按"批"算，一批 60 张 ≈ 90 s，给 5 分钟余量足够。 */
+  { name: '多地图冒烟 · 登记册里的每一张地图', page: 'map-smoke.html', timeoutMs: 300000,
+    batchable: true },
 ];
 
 /* ---------- 命令行开关（诊断用）----------
@@ -57,7 +61,9 @@ const SUITES = [
  *   --only-maps=beijing,dongcheng   只跑这几张地图（透传给 map-smoke.html 的 ?maps=）
  *   --only-suite=smoke              只跑冒烟套件（跳过成都回归/引擎套件）
  *   --only-suite=offline            只跑离线检查（不启浏览器，秒级）
- * 详细日志本来就会打印（页面回传的 log 字段），排查时不要用 tail 截断它。 */
+ *   --smoke-batch=60                冒烟每批多少张地图（默认 60；给 0 以外的小值方便调试）
+ *   --verbose                       把通过的日志也全打出来（默认只打失败套件的日志）
+ * 排查单张地图时用 --only-maps，别每次都跑全量（全量约 9 分钟）。 */
 const argv = process.argv.slice(2);
 const argOf = (k) => {
   const hit = argv.find((a) => a.startsWith('--' + k + '='));
@@ -65,6 +71,12 @@ const argOf = (k) => {
 };
 const ONLY_MAPS = argOf('only-maps');
 const ONLY_SUITE = argOf('only-suite');
+/* 冒烟分批大小：太大 → 单批太久、退化和"卡死全丢"的老问题回来；
+ * 太小 → 反复起 Chrome 的开销（约 1 s/次）占比升高。60 张 ≈ 90 s，是实测的平衡点。 */
+const SMOKE_BATCH = Math.max(1, Number(argOf('smoke-batch')) || 60);
+/* 默认只打印失败套件的详细日志。全量冒烟有 1.3 万条"✔"，
+ * 全打出来既刷屏又让 --tail 之后什么都看不见（这是踩过的坑）。 */
+const VERBOSE = argv.includes('--verbose');
 
 /** 当前正在跑的套件；页面回传结果时用它把 Promise 收尾 */
 let active = null;
@@ -141,11 +153,12 @@ function checkMobilePerfCss() {
  *
  * @returns {Promise<{passed?:number, failed?:number, failures?:string[], crashed?:boolean}>}
  */
-function runSuite(suite) {
+function runSuite(suite, mapsArg) {
   const timeoutMs = suite.timeoutMs || DEFAULT_TIMEOUT_MS;
+  const maps = mapsArg !== undefined ? mapsArg : (suite.page === 'map-smoke.html' ? ONLY_MAPS : null);
   return new Promise((resolve) => {
     const url = 'file://' + path.resolve(__dirname, suite.page) + '?port=' + HTTP_PORT
-      + (suite.page === 'map-smoke.html' && ONLY_MAPS ? '&maps=' + encodeURIComponent(ONLY_MAPS) : '');
+      + (maps ? '&maps=' + encodeURIComponent(maps) : '');
     const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'map-puzzle-e2e-'));
 
     const chrome = spawn(
@@ -194,6 +207,62 @@ function runSuite(suite) {
       }
     }, 250);
   });
+}
+
+/**
+ * 分批跑一个"遍历全部地图"的套件：每批一个独立 Chrome + 独立超时。
+ *
+ * 【为什么不是简单地把 timeout 调大】调大只能让"全跑完"这件事晚点失败，
+ * 但解决不了三件事：
+ *   1. 单浏览器跑完全程会退化（实测 1.5 s/张 → 5 s/张），时间随张数超线性增长
+ *   2. 卡在其中一张时，前面几千条断言的结果**全丢**（页面只在最后回传一次）
+ *   3. 跑 10 分钟没有任何输出，看起来就像"卡住了"
+ *
+ * @param {object} suite SUITES 里的一项（需要 batchable:true）
+ * @returns {Promise<{passed:number, failed:number, failures:string[], crashed?:boolean}>}
+ */
+async function runBatchedSuite(suite) {
+  const all = loadMapIds();
+  const batches = [];
+  for (let i = 0; i < all.length; i += SMOKE_BATCH) {
+    batches.push(all.slice(i, i + SMOKE_BATCH));
+  }
+  console.log(`  分成 ${batches.length} 批，每批最多 ${SMOKE_BATCH} 张（每批一个独立 Chrome）`);
+
+  const sum = { passed: 0, failed: 0, failures: [], crashed: false };
+  for (let i = 0; i < batches.length; i++) {
+    const ids = batches[i];
+    if (batches.length > 1) {
+      console.log(`\n  ── 第 ${i + 1}/${batches.length} 批（${ids.length} 张：` +
+        `${ids[0]} … ${ids[ids.length - 1]}）──`);
+    }
+    const t = Date.now();
+    const r = await runSuite(suite, ids.join(','));
+    sum.passed += r.passed || 0;
+    sum.failed += r.failed || 0;
+    if (r.failures && r.failures.length) sum.failures = sum.failures.concat(r.failures);
+    if (r.crashed) {
+      sum.crashed = true;
+      /* 一批崩了不能直接放弃剩下的：可能是这张地图的问题，
+       * 也可能只是浏览器偶发。继续跑，最后一起报。 */
+      console.error(`  ✘ 这一批没有回传结果（${ids.length} 张），继续跑后面的批次`);
+      sum.failures.push('批 ' + (i + 1) + ' 未回传结果：' + ids.join(','));
+    }
+    console.log(`  第 ${i + 1} 批完成（${((Date.now() - t) / 1000).toFixed(1)}s）：` +
+      `${r.passed || 0} 通过 / ${r.failed || 0} 失败`);
+  }
+  return sum;
+}
+
+/** 从 registry 读全部地图 id（顺序固定，分批才可复现） */
+function loadMapIds() {
+  if (ONLY_MAPS) return ONLY_MAPS.split(',').map((s) => s.trim()).filter(Boolean);
+  const vm = require('vm');
+  const src = fs.readFileSync(path.join(__dirname, '..', 'js', 'maps', 'registry.js'), 'utf8');
+  const sandbox = {};
+  vm.runInNewContext(src, { window: sandbox });
+  const maps = (sandbox.MAP_REGISTRY && sandbox.MAP_REGISTRY.maps) || {};
+  return Object.keys(maps).sort();
 }
 
 async function main() {
@@ -301,8 +370,12 @@ async function main() {
       return;
     }
 
-    console.log(data.log);
-    console.log('──────────────────────────────────────────────');
+    /* 日志只在"有失败"或显式 --verbose 时打印：
+     * 全量冒烟 1.3 万条 ✔ 会把真正要看的东西挤出 tail 的窗口。 */
+    if (data.failed || VERBOSE) {
+      console.log(data.log);
+      console.log('──────────────────────────────────────────────');
+    }
     console.log(`  → ${data.passed} 通过 / ${data.failed} 失败`);
     if (data.failed) console.log('  失败项：' + (data.failures || []).join('、'));
 
@@ -330,7 +403,9 @@ async function main() {
     }
     console.log('\n══════════════ 浏览器端测试：' + suite.name + ' ══════════════');
     const t0 = Date.now();
-    const result = await runSuite(suite);
+    const result = suite.batchable
+      ? await runBatchedSuite(suite)
+      : await runSuite(suite);
     result.elapsedMs = Date.now() - t0;
     results.push({ suite, result });
   }
