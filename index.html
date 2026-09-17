@@ -310,6 +310,9 @@ try {
       <!-- 每日一图：日期做种子、全国同题、当天锁定（见 js/progress.js 的 pickDaily）。
            放在关卡那一行之上 —— 它是"今天玩什么"的入口，层级高于"这一关怎么打"。 -->
       <button class="daily-chip" id="dailyChip" type="button" hidden></button>
+      <!-- 我的家乡：一个有情感动机的直达入口（逻辑见 js/progress.js 的 setHometown）。
+           点一下去家乡；按住 Shift 点可以重新选。 -->
+      <button class="hometown-chip" id="hometownChip" type="button" hidden></button>
       <!-- 第二行：这张图的关卡。
            为什么从顶栏搬到这里：关卡是"当前地图内"的导航，和面包屑同类；
            挤在顶栏右侧会跟品牌/音效/主题抢位置 —— 关卡一多（10+）就装不下。
@@ -411,6 +414,11 @@ try {
      只在"整张图拼完"出现 —— 每关都弹会烦人，而玩家最想分享的是"我拼完了成都"。 -->
 <div class="share-panel" id="sharePanel" role="dialog" aria-modal="true"
      aria-label="分享成绩" hidden></div>
+
+<!-- ==================== 家乡选择面板 ====================
+     带搜索：输入省/市/县的名字，列出匹配项（逻辑见 js/progress.js 的 searchPlaces）。 -->
+<div class="hometown-panel" id="hometownPanel" role="dialog" aria-modal="true"
+     aria-label="选择我的家乡" hidden></div>
 
 <!-- ==================== 开场欢迎动画 ====================
      覆盖整屏，展示五个成都元素（熊猫 / 竹子 / 银杏 / 脸谱 / 盖碗茶），

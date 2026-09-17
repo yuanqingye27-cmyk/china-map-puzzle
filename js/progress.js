@@ -113,8 +113,51 @@
     return !!(doc && doc.daily && doc.daily.checkedDay === dayKey(now));
   }
 
+  /* ---------------- 我的家乡 ----------------
+   * 【机制】玩家选一次自己的家乡（省/市/县都行），界面上就有一个直达入口，
+   *   拼完那张图时分享卡会带家乡的名字。
+   * 【为什么值得做】地域认同是最廉价的分享理由 ——
+   *   人会为"我是宜春人"转发，不会为"我玩了个游戏"转发。
+   * 【纯逻辑部分】设置/读取/匹配（搜索）都在这里，UI 只负责画。
+   * ============================================ */
+
+  /** 设置家乡（把 mapId 记进文档）。传 null 表示清除 */
+  function setHometown(doc, mapId) {
+    if (!doc) return doc;
+    doc.hometown = mapId ? { mapId: mapId, at: Date.now() } : null;
+    return doc;
+  }
+
+  function getHometown(doc) {
+    return (doc && doc.hometown && doc.hometown.mapId) || null;
+  }
+
+  /** 这张图是不是我的家乡 */
+  function isHometown(doc, mapId) {
+    return getHometown(doc) === mapId;
+  }
+
+  /**
+   * 按关键词搜索家乡候选（纯函数：输入地图清单与关键词，输出匹配项）。
+   * 匹配规则刻意做得宽松（包含即可），因为玩家会输入"宜春""江西""袁州"各种写法。
+   * @param {Array<{id,name,parentName}>} maps  全部候选（由宿主层组装）
+   * @param {string} kw
+   */
+  function searchPlaces(maps, kw) {
+    const q = String(kw || '').trim();
+    if (!q) return [];
+    const out = [];
+    for (let i = 0; i < maps.length; i++) {
+      const m = maps[i];
+      if (!m || !m.name) continue;
+      if (m.name.indexOf(q) >= 0 || (m.parentName && m.parentName.indexOf(q) >= 0)) out.push(m);
+      if (out.length >= 12) break;      // 够用了，不做分页
+    }
+    return out;
+  }
+
   function emptyDoc() {
-    return { v: SCHEMA_VERSION, maps: {}, badges: [], daily: null, updatedAt: 0 };
+    return { v: SCHEMA_VERSION, maps: {}, badges: [], daily: null, hometown: null, updatedAt: 0 };
   }
 
   function load(storage) {
@@ -292,5 +335,10 @@
     pickDaily,
     checkIn,
     checkedInToday,
+    /* 我的家乡 */
+    setHometown,
+    getHometown,
+    isHometown,
+    searchPlaces,
   };
 })(typeof window !== 'undefined' ? window : globalThis);

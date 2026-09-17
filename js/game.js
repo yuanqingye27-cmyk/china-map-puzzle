@@ -341,6 +341,7 @@
     P.save(doc);
     renderProgressBar();
     renderDaily();
+    renderHometown();
     if (fresh.length) showBadgeToast(fresh);
   }
 
@@ -565,6 +566,107 @@
     }
   }
 
+  /* ==================== 我的家乡 ====================
+   * 纯逻辑在 js/progress.js（setHometown / getHometown / searchPlaces）。
+   * 这里只负责：一个直达入口 + 一个带搜索的选择面板。
+   * 【为什么值得】地域认同是最廉价的分享理由 —— 人会为"我是宜春人"转发。
+   * ============================================== */
+
+  /** 把 registry 组装成搜索用的候选清单（带上级名，便于"按省搜"） */
+  function placeCandidates() {
+    const reg = (global.MAP_REGISTRY || {}).maps || {};
+    const out = [];
+    Object.keys(reg).forEach((id) => {
+      const e = reg[id];
+      if (!e) return;
+      const parent = e.parent ? reg[e.parent] : null;
+      out.push({ id: id, name: e.name, parentName: parent ? parent.name : '', n: e.n || 0 });
+    });
+    return out;
+  }
+
+  function renderHometown() {
+    const el = document.getElementById('hometownChip');
+    if (!el) return;
+    const P = global.MapProgress;
+    if (!P) { el.hidden = true; return; }
+    const doc = P.load();
+    const home = P.getHometown(doc);
+    const entry = home ? global.MapLoader.entry(home) : null;
+    el.hidden = false;
+    el.innerHTML = '<span class="ht-label">我的家乡</span>'
+      + '<span class="ht-name">' + (entry ? entry.name : '点这里选') + '</span>'
+      + (entry && home === CURRENT_ID ? '<span class="ht-here">正在拼</span>' : '');
+    el.dataset.target = home || '';
+    if (!el.dataset.bound) {
+      el.dataset.bound = '1';
+      el.addEventListener('click', (ev) => {
+        const doc2 = P.load();
+        const h = P.getHometown(doc2);
+        // 已经设过：点一下直接去家乡；再按住 Shift 点可以重新选（不给普通玩家添负担）
+        if (h && !ev.shiftKey) {
+          if (h !== CURRENT_ID) global.location.href = urlForMap(h);
+          return;
+        }
+        openHometownPicker();
+      });
+    }
+  }
+
+  /** 家乡选择面板：输入关键词 → 列出匹配 → 点选 */
+  function openHometownPicker() {
+    const P = global.MapProgress;
+    const panel = document.getElementById('hometownPanel');
+    if (!P || !panel) return;
+    const cands = placeCandidates();
+    panel.hidden = false;
+    panel.innerHTML =
+      '<div class="hp-head"><h2>选我的家乡</h2>'
+      + '<button type="button" class="hp-close" aria-label="关闭">✕</button></div>'
+      + '<p class="hp-tip">输入省 / 市 / 县的名字，例如"江西""宜春""袁州"</p>'
+      + '<input class="hp-input" id="hometownInput" type="search" placeholder="搜索地名…" autocomplete="off">'
+      + '<ul class="hp-list" id="hometownList"></ul>';
+
+    const input = panel.querySelector('#hometownInput');
+    const list = panel.querySelector('#hometownList');
+
+    const paint = () => {
+      const hits = P.searchPlaces(cands, input.value);
+      if (!input.value.trim()) {
+        list.innerHTML = '<li class="hp-empty">试试输入你家乡的名字</li>';
+        return;
+      }
+      if (!hits.length) {
+        list.innerHTML = '<li class="hp-empty">没找到，换个写法试试（可以只输入省名）</li>';
+        return;
+      }
+      list.innerHTML = hits.map((h) => (
+        '<li><button type="button" data-id="' + h.id + '">'
+        + '<b>' + h.name + '</b><em>' + (h.parentName || '') + '</em></button></li>'
+      )).join('');
+    };
+    paint();
+
+    input.addEventListener('input', paint);
+    list.addEventListener('click', (ev) => {
+      const btn = ev.target.closest('button[data-id]');
+      if (!btn) return;
+      const doc = P.load();
+      P.setHometown(doc, btn.getAttribute('data-id'));
+      P.save(doc);
+      panel.hidden = true;
+      renderHometown();
+      // 选定后直接送他去拼家乡（这才符合"我想拼我的家乡"的意图）
+      const target = btn.getAttribute('data-id');
+      if (target !== CURRENT_ID) global.location.href = urlForMap(target);
+    });
+
+    const close = panel.querySelector('.hp-close');
+    if (close) close.addEventListener('click', () => { panel.hidden = true; });
+    panel.addEventListener('click', (ev) => { if (ev.target === panel) panel.hidden = true; });
+    try { input.focus(); } catch (e) { /* 移动端可能不给焦点，忽略 */ }
+  }
+
   global.MapLoader.load(id)
       .then((config) => {
         /* 通关整张地图时记账 + 发成就。
@@ -599,6 +701,7 @@
         renderNav(id);
         renderProgressBar();
         renderDaily();
+        renderHometown();
         bindProgressChip();
 
         markReady(id);

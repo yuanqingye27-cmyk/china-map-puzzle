@@ -184,5 +184,42 @@ console.log('══════════ 进度与成就 · 离线自测 ═�
   check('  但最佳连续天数被保留（best>=1）', gap.daily.best >= 1, String(gap.daily.best));
 }
 
+/* ---------- ⑩ 我的家乡 ---------- */
+{
+  const doc = P.emptyDoc();
+  check('初始没有家乡', P.getHometown(doc) === null, String(P.getHometown(doc)));
+
+  P.setHometown(doc, 'yichun');
+  check('设置后能读回', P.getHometown(doc) === 'yichun', String(P.getHometown(doc)));
+  check('isHometown 命中', P.isHometown(doc, 'yichun') === true);
+  check('isHometown 不误报', P.isHometown(doc, 'chengdu') === false);
+  check('设置会记录时间戳', doc.hometown && typeof doc.hometown.at === 'number');
+
+  P.setHometown(doc, null);
+  check('传 null 可清除家乡', P.getHometown(doc) === null, String(P.getHometown(doc)));
+
+  /* 搜索：按市名、按省名都能搜到；空关键词返回空；结果有上限。
+   * 【注意语义】搜"宜春"会同时命中「宜春市」和它下辖的「袁州区」——
+   * 这是**有意的**：玩家的家乡可能是个区/县，只给他一个市级选项不够用。 */
+  const maps = [
+    { id: 'yichun', name: '宜春市', parentName: '江西省' },
+    { id: 'nanchang', name: '南昌市', parentName: '江西省' },
+    { id: 'chengdu', name: '成都市', parentName: '四川省' },
+    { id: 'yuanzhou', name: '袁州区', parentName: '宜春市' },
+  ];
+  {
+    const hit = P.searchPlaces(maps, '宜春').map((m) => m.id).sort();
+    check('按市名搜到该市及其下辖区县', hit.join() === 'yichun,yuanzhou', JSON.stringify(hit));
+  }
+  check('按省名搜到全省的市', P.searchPlaces(maps, '江西').length === 2, JSON.stringify(P.searchPlaces(maps, '江西').map((m) => m.id)));
+  check('按区名搜到', P.searchPlaces(maps, '袁州').map((m) => m.id).join() === 'yuanzhou');
+  check('空关键词 → 空结果（不返回全部）', P.searchPlaces(maps, '').length === 0);
+  check('纯空格关键词 → 空结果', P.searchPlaces(maps, '   ').length === 0);
+  check('搜不到 → 空数组', P.searchPlaces(maps, '不存在的地名').length === 0);
+  check('结果有上限（<=12）',
+    P.searchPlaces(new Array(50).fill(0).map((_, i) => ({ id: 'm' + i, name: '测试市' + i })), '测试').length <= 12);
+  check('输入 undefined 不崩', P.searchPlaces(maps, undefined).length === 0);
+}
+
 console.log('\n  → ' + passed + ' 通过 / ' + failed + ' 失败');
 process.exitCode = failed ? 1 : 0;
