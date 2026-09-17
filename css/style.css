@@ -1512,14 +1512,38 @@ body.intro-open { overflow: hidden; }
  * 它是 .topbar 的一个 flex 子项，靠 flex-basis:100% 自己换到第二行 ——
  * 这样就不必去动 .app 那条 grid-template-rows（改动面最小）。
  * ===================================================================== */
+/* mapbar = 顶栏下面那条"地图导航"区，两行：
+ *   第一行：面包屑（我在哪）+ 切换地图
+ *   第二行：关卡标签（这张图内的关卡）
+ * 【为什么关卡要单独一行】原先它挤在顶栏右侧，和品牌/音效/主题抢位置；
+ * 关卡一多（10+）或窄屏时就装不下。独立成行后，关卡再多也只影响这一行
+ * （可横向滚动），不会挤坏别的东西。 */
 .mapbar {
   flex-basis: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  min-width: 0;
+}
+
+.mapbar-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   min-width: 0;
   flex-wrap: wrap;
+}
+
+.mapbar-levels { justify-content: flex-start; gap: 10px; }
+
+/* "关卡"这个小标签：给这一行一个主语，让人一眼知道这排按钮是干什么的 */
+.mapbar-label {
+  font-size: 12px;
+  color: var(--text-dim);
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
 }
 
 /* --- 面包屑：中国 › 四川省 › 自贡市 --- */
@@ -1650,6 +1674,21 @@ body.intro-open { overflow: hidden; }
   .breadcrumb li + li::before { margin: 0 4px; }
   .crumb-link,
   .crumb.is-current { padding: 2px 6px; }
+
+  /* 关卡那一行：窄屏时横向滚动，不要换行把地图挤下去。
+   * 【为什么必须有 min-width:0】flex 子项默认 min-width:auto，
+   * 内容撑多宽它就多宽 —— 会把整行顶出屏幕（这个坑在顶栏时代踩过一次）。 */
+  .mapbar-levels { flex-wrap: nowrap; overflow: hidden; }
+  .mapbar-levels .level-tabs {
+    flex: 1 1 auto;
+    min-width: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .mapbar-levels .level-tabs::-webkit-scrollbar { display: none; }
+  .mapbar-levels .level-tab { flex-shrink: 0; }
 }
 
 /* =====================================================================

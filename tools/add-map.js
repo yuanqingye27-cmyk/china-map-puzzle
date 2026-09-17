@@ -195,21 +195,135 @@ function hslToHex(h, s, l) {
   return '#' + [f(0), f(8), f(4)].map((v) => v.toString(16).padStart(2, '0')).join('');
 }
 
-/** 关卡占位：按 adcode 升序每 LEVEL_SIZE 个一关（只收真正的行政区，见下） */
+/**
+ * 把 levels 数组渲染成 .data.js 里的源码片段。
+ * 抽成函数是为了让 tools/regroup-levels.js 能**复用同一份渲染逻辑** ——
+ * 复刻一份会立刻产生"两处不一致"的风险（改了生成器忘了改脚本）。
+ */
+function renderLevelsSource(levels) {
+  return levels
+    .map((l) => (
+      '    {\n' +
+      '      id: \'' + l.id + '\',\n' +
+      '      name: \'' + l.name + '\',\n' +
+      '      short: \'' + l.short + '\',\n' +
+      '      color: \'' + l.color + '\',\n' +
+      '      blurb: \'' + l.blurb + '\',\n' +
+      '      adcodes: [' + l.adcodes.join(', ') + '],\n' +
+      '    },'
+    ))
+    .join('\n');
+}
+
+/**
+ * 关卡分组：**按行政类型**（市辖区 / 县级市 / 县）。
+ *
+ * 【为什么不再"每 8 个一组"】
+ * 旧做法是纯机械切分，第 1 关和第 2 关之间没有任何地理或文化含义 ——
+ * 玩家拼完一关不知道自己刚拼的是哪一片。而"市辖区 / 县级市 / 县"是
+ * **行政区划里真实存在的分类**，用它分组：
+ *   · 有实际含义：第 1 关就是"这个市的城区"，第 2 关是"它的县级市"…
+ *   · 完全可自动推导（看名字后缀即可），不需要人工逐市编写
+ *   · 每组大小天然合理：实测成都 市辖区12 / 县级市5 / 县3，
+ *     邢台 市辖区4 / 县12 / 县级市2，乐山 市辖区4 / 县6 / 县级市1
+ *
+ * 【仍然建议人工重排】这只是一个**有意义的默认值**，不是最终答案。
+ * 真正好玩的分组还要考虑地理相邻、文化圈（如"沿江城市带"），
+ * 那部分只能靠人 —— 所以 blurb 里会写清"这是按行政类型的自动分组，欢迎重排"。
+ */
 function autoLevels(features, adcode) {
-  const adcodes = features.map((f) => f.properties.adcode);
-  const groups = [];
-  for (let i = 0; i < adcodes.length; i += LEVEL_SIZE) {
-    groups.push(adcodes.slice(i, i + LEVEL_SIZE));
+  /* 类型判断要看 **adcode 的层级**，不能只看名字后缀：
+   *   · 地级市（xx00）与县级市（xxxx）都以"市"结尾，光看后缀会把它们混为一谈
+   *     —— 实测安徽省地图（下辖 21 个地级市）会被全归进"其他"。
+   *   · 自治州/地区/盟也是"一整片"，与市同级，归到"其他"更合适。 */
+  const typeOf = (f) => {
+    const n = String(f.properties.name || '');
+    const a = Number(f.properties.adcode);
+    const isPrefecture = a % 100 === 0;   // 地级（xx00）
+    if (isPrefecture) {
+      if (/自治州$/.test(n)) return 'prefecture';
+      if (/(地区|盟)$/.test(n)) return 'prefecture';
+      return 'city';                      // 地级市
+    }
+    if (/区$/.test(n)) return 'district';
+    if (/市$/.test(n)) return 'countyCity';
+    if (/县$/.test(n)) return 'county';
+    return 'other';
+  };
+  const LABEL = {
+    district: { name: '市辖区', blurb: '这个市的城区部分（市辖区）' },
+    countyCity: { name: '县级市', blurb: '代管的县级市' },
+    county: { name: '县', blurb: '下辖的县与自治县' },
+    city: { name: '地级市', blurb: '省内的各地级市' },
+    prefecture: { name: '自治州与地区', blurb: '自治州 / 地区 / 盟' },
+    other: { name: '其他', blurb: '其余下级行政区' },
+  };
+  const ORDER = ['district', 'countyCity', 'county', 'city', 'prefecture', 'other'];
+
+  // 按类型归组，组内保持 adcode 升序（与官方区划顺序一致）
+  const buckets = {};
+  features.forEach((f) => {
+    /* 【必须自己过滤】不能假设调用方已经筛过：
+     *   · 全国数据里混着"南海诸岛及海上界线"（adcode "100000_JD"，非数字）
+     *     —— 它不是一块可拼的行政区，进关卡会立刻报错（实测踩过）
+     *   · 地图自己（adcode === 本图 adcode）也不该成为自己的一块
+     * add-map.js 在写 .geo.js 时已经处理过，但 autoLevels 是**纯函数**，
+     * 也可能被别的脚本用原始 features 调用（tools/regroup-levels.js 就是）。
+     */
+    const raw = f.properties && f.properties.adcode;
+    const n = Number(raw);
+    if (!raw || !isFinite(n) || String(raw).indexOf('_') >= 0) return;   // 非行政区
+    if (Number(adcode) && n === Number(adcode)) return;                  // 地图自己
+    const t = typeOf(f);
+    (buckets[t] = buckets[t] || []).push(n);
+  });
+  const groups = ORDER.filter((t) => buckets[t] && buckets[t].length)
+    .map((t) => ({ type: t, adcodes: buckets[t] }));
+
+  if (!groups.length) return [];
+
+  /* 【过滤退化的"一关只有 1 个"】并把它并入相邻组。
+   * 为什么必须做：引擎会把"本关只有 1 块"当成白送的一块直接放好
+   * （否则玩家无从下手）。于是会同时出现两个坏结果：
+   *   · 玩家看到地图上已经拼好一块，任务显示"1/18" —— 像 bug
+   *   · 关卡的难度分布也被打乱
+   * 实测踩过：甘孜的"县级市"只有康定市 1 个 → 生成 2 关（县级市1 + 县17），
+   * 第 1 关被白送，冒烟测试的"刷新后进度还在"因此稳定失败。
+   * 处理：把只有 1 个的组并进**成员最多的那一组**，保证每关至少 2 块。 */
+  const merged = groups.filter((g) => g.adcodes.length >= 2);
+  const lonely = groups.filter((g) => g.adcodes.length < 2);
+  if (lonely.length && merged.length) {
+    const target = merged.reduce((a, b) => (b.adcodes.length > a.adcodes.length ? b : a));
+    lonely.forEach((g) => { target.adcodes = target.adcodes.concat(g.adcodes).sort((a, b) => a - b); });
+  } else if (lonely.length && !merged.length) {
+    // 全部都是单元素组（极罕见）→ 合成一关，别摆出一堆"白送关"
+    merged.push({ type: 'other', adcodes: lonely.reduce((a, g) => a.concat(g.adcodes), []).sort((a, b) => a - b) });
   }
-  return groups.map((group, i) => ({
-    id: 'l' + (i + 1),
-    name: cnLevel(i),
-    short: cnLevel(i),
-    color: hslToHex(hueFor(adcode, i), 62, 52),
-    blurb: '【待补充：' + cnLevel(i) + '的分组依据，例如"中心城区"或"沿江城市带"】',
-    adcodes: group,
-  }));
+
+  /* 【命名】单类型时也用**类型名**，不要退回"第一关"。
+   * 理由：类型名本身就是信息 —— 北京地图的 16 项全是"市辖区"，
+   * 安徽地图的 16 项全是"地级市"。写"第一关"等于什么都没说，
+   * 写类型名玩家一眼就知道这一关在拼什么。
+   * 只有真的判不出类型（other）时才退回"第一关"。 */
+  const single = merged.length === 1;
+
+  return merged.map((g, i) => {
+    const label = LABEL[g.type];
+    const named = g.type !== 'other';
+    const name = named ? label.name : cnLevel(0);
+    return {
+      id: 'l' + (i + 1),
+      name: name,
+      short: name,
+      color: hslToHex(hueFor(adcode, i), 62, 52),
+      blurb: single
+        ? ('本图的下级行政区全部是' + label.blurb + '（' + g.adcodes.length + ' 个）。' +
+           '想按地理相邻或主题重排关卡，直接改这个文件里的 levels。')
+        : ('按行政类型自动分组：' + label.blurb + '（' + g.adcodes.length + ' 个）。' +
+           '想把相邻的区县编成一关，或凑成"中心城区""沿江城市带"这类主题，直接改这个文件里的 levels。'),
+      adcodes: g.adcodes,
+    };
+  });
 }
 
 /**
@@ -252,20 +366,7 @@ function renderDataModule(planItem, features, label, levels, generator) {
     })
     .join('\n');
 
-  const levelLines = levels
-    .map((l) => {
-      return (
-        '    {\n' +
-        '      id: \'' + l.id + '\',\n' +
-        '      name: \'' + l.name + '\',\n' +
-        '      short: \'' + l.short + '\',\n' +
-        '      color: \'' + l.color + '\',\n' +
-        '      blurb: \'' + l.blurb + '\',\n' +
-        '      adcodes: [' + l.adcodes.join(', ') + '],\n' +
-        '    },'
-      );
-    })
-    .join('\n');
+  const levelLines = renderLevelsSource(levels);
 
   return (
     '/* =====================================================================\n' +
@@ -282,8 +383,8 @@ function renderDataModule(planItem, features, label, levels, generator) {
     ' *   2. landmark  地标\n' +
     ' *   3. tagline   一句话介绍\n' +
     ' *   4. funFact   冷知识\n' +
-    ' * 关卡（levels）现在只是"每 ' + LEVEL_SIZE + ' 个一组"的机械切分，\n' +
-    ' * 真正好玩的关卡应当按地理/文化逻辑重新分组，并补上 blurb。\n' +
+    ' * 关卡（levels）按**行政类型**自动分组（市辖区 / 县级市 / 县），\n' +
+    ' * 这是一个"有含义的默认值"：想按地理相邻或文化圈重排，直接改 levels 即可。\n' +
     ' * ===================================================================== */\n' +
     '\n' +
     "(function (global) {\n" +
@@ -750,4 +851,8 @@ module.exports = {
   validateArgs,
   LEVEL_SIZE,
   slugForAdcode: slugs.slugForAdcode,
+  /* 导出给"只重排关卡、不动资料"的脚本复用（tools/regroup-levels.js）。
+   * 复刻一份分组逻辑会立刻产生"两处不一致"的风险，所以这里直接复用。 */
+  autoLevels,
+  renderLevelsSource,
 };

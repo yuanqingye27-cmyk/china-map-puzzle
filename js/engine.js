@@ -326,6 +326,16 @@
       const saved = readSave();
       if (!saved) return;
 
+      /* 【关卡结构指纹】关卡分组变了（例如从"每 8 个一组"改成"按行政类型分组"），
+       * 旧存档必须**作废**，不能硬套 —— 实测踩过：
+       * 甘孜旧档是 3 关、unlocked=2；新分组只有 1 关（18 个县全在第 1 关），
+       * 于是第 1 关被判成"未解锁"，玩家点进去**拼图直接不能玩**。
+       * 指纹变了就从第一关重来（只保留"看过开场动画"这类无关进度的标记）。 */
+      const fingerprint = LEVELS.map((l) => l.id + ':' + l.adcodes.length).join('|');
+      if (saved.levelFingerprint && saved.levelFingerprint !== fingerprint) {
+        return;   // 关卡结构已变 → 旧进度不适用
+      }
+
       state.unlocked = clamp(Number(saved.unlocked) || 1, 1, LEVELS.length);
       state.finishedLevels = new Set(
         (saved.finished || []).filter((id) => LEVELS.some((l) => l.id === id))
@@ -342,6 +352,8 @@
           SAVE_KEY,
           JSON.stringify({
             v: SAVE_VERSION,
+            /* 关卡结构指纹：改关卡分组后旧存档要能自动作废（见 loadProgress） */
+            levelFingerprint: LEVELS.map((l) => l.id + ':' + l.adcodes.length).join('|'),
             unlocked: state.unlocked,
             finished: [...state.finishedLevels],
             // 已通关的关卡不再存"这一关拼到哪了"，而是把指针挪到下一关，

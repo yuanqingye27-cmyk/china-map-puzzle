@@ -264,8 +264,7 @@ try {
       </div>
     </div>
     <div class="topbar-right">
-      <nav class="level-tabs" id="levelTabs" aria-label="关卡选择"></nav>
-
+      <!-- 关卡标签已搬到 mapbar 的独立一行（见下方），这里只留音效与主题 -->
       <!-- 音效开关：两个图标叠在同一格，由 aria-pressed 决定显示哪个 -->
       <button class="sound-btn" id="soundBtn" type="button"
               aria-label="音效开关" aria-pressed="true">
@@ -295,11 +294,22 @@ try {
          .app 是 grid-template-rows: auto minmax(0,1fr)，加行要动那条被测试盯着的规则；
          而 .topbar 自带 flex-wrap，让这一条自己换行，布局风险最小。 -->
     <nav class="mapbar" id="mapbar" aria-label="地图导航" hidden>
-      <ol class="breadcrumb" id="breadcrumb"></ol>
-      <label class="map-picker">
-        <span class="map-picker-text">切换地图</span>
-        <select class="map-select" id="mapSelect" aria-label="选择地图"></select>
-      </label>
+      <!-- 第一行：我在哪（面包屑）+ 换地图 -->
+      <div class="mapbar-row">
+        <ol class="breadcrumb" id="breadcrumb"></ol>
+        <label class="map-picker">
+          <span class="map-picker-text">切换地图</span>
+          <select class="map-select" id="mapSelect" aria-label="选择地图"></select>
+        </label>
+      </div>
+      <!-- 第二行：这张图的关卡。
+           为什么从顶栏搬到这里：关卡是"当前地图内"的导航，和面包屑同类；
+           挤在顶栏右侧会跟品牌/音效/主题抢位置 —— 关卡一多（10+）就装不下。
+           独立一行后，关卡数再多也只是这一行滚动或换行，不会挤坏别的东西。 -->
+      <div class="mapbar-row mapbar-levels">
+        <span class="mapbar-label">关卡</span>
+        <nav class="level-tabs" id="levelTabs" aria-label="关卡选择"></nav>
+      </div>
       <!-- 数据来源与审图号声明（合规要求，必须始终可见）。
            文案由 js/game.js 按【当前地图数据自己的来源】渲染 —— 见 MAP_GEO_META。
            为什么不写死：数据是 DataV 却标天地图的审图号，是伪造合规声明，比不写更糟。 -->
