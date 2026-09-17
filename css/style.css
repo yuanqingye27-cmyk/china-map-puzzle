@@ -2070,3 +2070,51 @@ body.intro-open { overflow: hidden; }
   .hometown-chip { padding: 6px 10px; gap: 7px; }
   .hometown-chip .ht-name { font-size: 12.5px; }
 }
+
+/* =====================================================================
+ * 连击与得分（引擎内计分，见 js/engine.js 的 commitPlace）
+ * ---------------------------------------------------------------------
+ * 设计意图：给"别急着乱放"一个即时理由 —— 放错连击清零。
+ * 得分不参与解锁，纯粹是"玩得好不好"的反馈，所以视觉上做轻。
+ * ===================================================================== */
+.score-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+.score-row .score {
+  display: flex; align-items: baseline; gap: 6px;
+}
+.score-row .score-k { font-size: 11.5px; color: var(--text-dim); }
+.score-row .score-v {
+  font-size: 20px; font-weight: 700; color: var(--jade);
+  font-variant-numeric: tabular-nums;
+  transition: color 200ms ease;
+}
+/* 连击徽标：>=2 才出现；>=5 变"热"（颜色转暖），让高连击有存在感 */
+.score-row .combo {
+  display: flex; align-items: baseline; gap: 3px;
+  padding: 3px 9px; border-radius: 999px;
+  border: 1px solid rgb(var(--c-jade) / 0.4);
+  background: rgb(var(--c-jade) / 0.1);
+  animation: comboPop 260ms ease both;
+}
+.score-row .combo[hidden] { display: none; }
+.score-row .combo.is-hot {
+  border-color: rgb(240 160 75 / 0.6);
+  background: rgb(240 160 75 / 0.14);
+}
+.score-row .combo-x { font-size: 11px; color: var(--text-dim); }
+.score-row .combo b { font-size: 15px; color: var(--jade); font-variant-numeric: tabular-nums; }
+.score-row .combo.is-hot b { color: #f0a04b; }
+.score-row .combo-label { font-size: 11px; color: var(--text-dim); }
+@keyframes comboPop {
+  from { transform: scale(0.82); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+@media (max-width: 620px) {
+  .score-row .score-v { font-size: 17px; }
+  .score-row .combo b { font-size: 13px; }
+}

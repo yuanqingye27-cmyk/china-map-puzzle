@@ -378,6 +378,14 @@ try {
           <span class="progress-value"><b id="statDone">0</b><i>/</i><span id="statTotal">5</span></span>
         </div>
         <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <!-- 得分与连击：连击给"别急着乱放"一个理由（放错就清零）。
+             得分不参与解锁，纯粹是"玩得好不好"的即时反馈。 -->
+        <div class="score-row">
+          <div class="score"><span class="score-k">得分</span><b class="score-v" id="statScore">0</b></div>
+          <div class="combo" id="comboChip" hidden>
+            <span class="combo-x">×</span><b id="statCombo">1</b><span class="combo-label">连击</span>
+          </div>
+        </div>
         <div class="stat-row">
           <div class="stat"><span class="stat-k">用时</span><span class="stat-v" id="statTime">00:00</span></div>
           <div class="stat"><span class="stat-k">尝试</span><span class="stat-v" id="statTries">0</span></div>
@@ -472,6 +480,8 @@ try {
 <script src="js/progress.js"></script>
 <!-- 分享成绩图：文案逻辑是纯函数、绘制依赖 Canvas（见 js/share.js 的说明） -->
 <script src="js/share.js"></script>
+<!-- 计分规则：纯函数，可单测（见 js/score.js 的平衡说明） -->
+<script src="js/score.js"></script>
 <script src="js/engine.js"></script>
 <script src="js/game.js"></script>
 </body>

@@ -111,6 +111,12 @@
       selected: null,           // 点击选中的碎片（点击模式用）
       tries: 0,
       hints: 0,
+      /* 连击与得分：放错清零、放对递增。
+       * 得分不参与解锁，纯粹是'玩得好不好'的即时反馈 ——
+       * 连击存在的意义是给'别急着乱放'一个理由。 */
+      combo: 0,
+      score: 0,
+      bestCombo: 0,
       startedAt: 0,
       elapsed: 0,
       timer: null,
@@ -132,6 +138,9 @@
         selected: state.selected,
         tries: state.tries,
         hints: state.hints,
+        combo: state.combo,
+        score: state.score,
+        bestCombo: state.bestCombo,
         elapsed: state.elapsed,
         solved: state.solved,
         unlocked: state.unlocked,
@@ -400,6 +409,9 @@
       el.statTime = document.getElementById('statTime');
       el.statTries = document.getElementById('statTries');
       el.statHints = document.getElementById('statHints');
+      el.statScore = document.getElementById('statScore');
+      el.comboChip = document.getElementById('comboChip');
+      el.statCombo = document.getElementById('statCombo');
       el.progressFill = document.getElementById('progressFill');
       el.btnHint = document.getElementById('btnHint');
       el.btnRestart = document.getElementById('btnRestart');
@@ -714,6 +726,9 @@
       state.selected = null;
       state.tries = 0;
       state.hints = 0;
+      state.combo = 0;      // 连击每关重置（跨关累积会让"断了"没有痛感）
+      state.score = 0;
+      state.bestCombo = 0;
       state.solved = false;
       state.elapsed = 0;
       state.startedAt = Date.now();
@@ -1033,7 +1048,13 @@
         }
         const rightName = shapes.get(draggedAdcode).name;
         const wrongName = shapes.get(hit.adcode).name;
-        showToast(`这里是${wrongName}，${rightName}还在别处`, 'bad');
+        // 连击断了要明确告诉玩家，否则'清零'是静默的、没有惩罚感
+        if (state.combo >= 2) {
+          showToast(`连击中断（${state.combo} 连）· 这里是${wrongName}，${rightName}还在别处`, 'bad');
+        } else {
+          showToast(`这里是${wrongName}，${rightName}还在别处`, 'bad');
+        }
+        state.combo = 0;
         SFX.bad();
         updateStats();
         if (ghost) {
@@ -1056,6 +1077,18 @@
     function commitPlace(adcode, ghost, pieceEl, pos) {
       const shape = shapes.get(adcode);
       const target = bboxToScreen(shape.bbox);
+
+      /* 计分：放对一次 = 100 × 连击倍率（上限 ×5）。
+       * 为什么封顶：不封顶会让"最后几块"变成刷分游戏，
+       * 而封顶后"保持不断"才是重点 —— 这正好是想要的行为。 */
+      state.combo++;
+      state.bestCombo = Math.max(state.bestCombo, state.combo);
+      /* 计分公式来自 js/score.js（纯函数、可单测）。
+       * 兜底 100×min(连击,5) 是刻意的：引擎要能**单独**被引擎测试页加载
+       * （tools/engine-test.html 只引 engine.js），不能硬依赖别的模块。 */
+      const MS = global.MapScore;
+      state.score += MS ? MS.forPlacement(state.combo) : 100 * Math.min(state.combo, 5);
+      updateStats();
 
       if (ghost && target) {
         // 幽灵从"托盘尺寸"平滑过渡到"地图上的真实尺寸"。
@@ -1268,6 +1301,15 @@
     function finishLevel() {
       state.solved = true;
       stopTimer();
+      /* 通关奖励：剩余时间的加成。
+       * 上限 2000 —— 刻意控制在"连击奖励量级"之下：
+       * 想拿高分主要靠**不乱放**，而不是靠手速。 */
+      const MS2 = global.MapScore;
+      const timeBonus = MS2
+        ? MS2.timeBonus(state.elapsed, currentLevel().adcodes.length)
+        : Math.max(0, 2000 - Math.floor(state.elapsed / 1000) * 10);
+      state.score += timeBonus;
+      updateStats();
       SFX.levelUp();
       state.finishedLevels.add(currentLevel().id);
       state.unlocked = Math.min(
@@ -1317,9 +1359,13 @@
 
         // 统计数字从 0 滚上去，比直接蹦出来生动
         el.modalStats.innerHTML = `
+          <div class="stat"><span class="stat-k">得分</span><span class="stat-v" id="mvScore">0</span></div>
+          <div class="stat"><span class="stat-k">最高连击</span><span class="stat-v" id="mvCombo">0</span></div>
           <div class="stat"><span class="stat-k">用时</span><span class="stat-v" id="mvTime">00:00</span></div>
           <div class="stat"><span class="stat-k">尝试</span><span class="stat-v" id="mvTries">0</span></div>
           <div class="stat"><span class="stat-k">提示</span><span class="stat-v" id="mvHints">0</span></div>`;
+        countUp(el.modalStats.querySelector('#mvScore'), state.score, 900, String);
+        countUp(el.modalStats.querySelector('#mvCombo'), state.bestCombo, 700, String);
         countUp(el.modalStats.querySelector('#mvTime'), state.elapsed, 700, formatTime);
         countUp(el.modalStats.querySelector('#mvTries'), state.tries, 700, String);
         countUp(el.modalStats.querySelector('#mvHints'), state.hints, 700, String);
@@ -1495,6 +1541,17 @@
       el.statTotal.textContent = total;
       el.statTries.textContent = state.tries;
       el.statHints.textContent = state.hints;
+      if (el.statScore) el.statScore.textContent = state.score;
+      if (el.comboChip) {
+        // 连击 >= 2 才显示：1 连没有信息量，常驻反而干扰
+        if (state.combo >= 2) {
+          el.comboChip.hidden = false;
+          if (el.statCombo) el.statCombo.textContent = state.combo;
+          el.comboChip.classList.toggle('is-hot', state.combo >= 5);
+        } else {
+          el.comboChip.hidden = true;
+        }
+      }
       el.progressFill.style.width = `${(done / total) * 100}%`;
       el.trayCount.textContent = state.slots.size ? `还剩 ${state.slots.size} 块` : '全部拼完';
 

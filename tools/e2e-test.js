@@ -222,6 +222,9 @@ async function main() {
   /* 分享图的**文案逻辑**自测：绘制只能在浏览器里看，
    * 但"卡片上写什么"是纯函数，可以在 Node 里测透（写错了用户一眼就看出来）。 */
   const shareResult = runOfflineTest('test-share.js');
+  /* 计分规则自测：它是"游戏平衡"的落点，改一个常量就会改变玩家行为，
+   * 抽成纯函数后可以被断言钉住（并且它已经抓出过一个真实平衡问题）。 */
+  const scoreResult = runOfflineTest('test-score.js');
   console.log('  ' + (wktResult.failed ? '✘' : '✔') +
     ' WKT → GeoJSON 转换（' + wktResult.passed + ' 通过 / ' + wktResult.failed + ' 失败）' +
     (wktResult.failed ? '：' + wktResult.failures.join('、') : ''));
@@ -251,6 +254,11 @@ async function main() {
     ' 分享图文案：' + shareResult.passed + ' 通过 / ' + shareResult.failed + ' 失败' +
     (shareResult.failed ? '：' + shareResult.failures.join('、') : ''));
   if (shareResult.failed) process.exitCode = 1;
+
+  console.log('  ' + (scoreResult.failed ? '✘' : '✔') +
+    ' 计分规则（平衡）：' + scoreResult.passed + ' 通过 / ' + scoreResult.failed + ' 失败' +
+    (scoreResult.failed ? '：' + scoreResult.failures.join('、') : ''));
+  if (scoreResult.failed) process.exitCode = 1;
   console.log('');
 
   const server = http.createServer((req, res) => {
@@ -325,9 +333,9 @@ async function main() {
 
   // ---- 汇总 ----
   const totalPassed = results.reduce((n, r) => n + (r.result.passed || 0), 0) +
-    wktResult.passed + mapsResult.passed + verifyResult.passed + areaPickResult.passed + progressResult.passed + shareResult.passed;
+    wktResult.passed + mapsResult.passed + verifyResult.passed + areaPickResult.passed + progressResult.passed + shareResult.passed + scoreResult.passed;
   const totalFailed = results.reduce((n, r) => n + (r.result.failed || 0), 0) +
-    wktResult.failed + mapsResult.failed + verifyResult.failed + areaPickResult.failed + progressResult.failed + shareResult.failed;
+    wktResult.failed + mapsResult.failed + verifyResult.failed + areaPickResult.failed + progressResult.failed + shareResult.failed + scoreResult.failed;
   const broken = results.filter((r) => r.result.crashed).map((r) => r.suite.name);
 
   console.log('\n══════════════ 汇总 ══════════════');
@@ -337,6 +345,7 @@ async function main() {
   console.log(`  ${areaPickResult.failed ? '✘' : '✔'} 离线检查 · 面积抽取器回归：${areaPickResult.passed} 通过 / ${areaPickResult.failed} 失败`);
   console.log(`  ${progressResult.failed ? '✘' : '✔'} 离线检查 · 进度与成就账本：${progressResult.passed} 通过 / ${progressResult.failed} 失败`);
   console.log(`  ${shareResult.failed ? '✘' : '✔'} 离线检查 · 分享图文案：${shareResult.passed} 通过 / ${shareResult.failed} 失败`);
+  console.log(`  ${scoreResult.failed ? '✘' : '✔'} 离线检查 · 计分规则（平衡）：${scoreResult.passed} 通过 / ${scoreResult.failed} 失败`);
   results.forEach(({ suite, result }) => {
     const mark = result.crashed ? '✘ 未收到结果' : (result.failed ? '✘' : '✔');
     const secs = result.elapsedMs ? `（${(result.elapsedMs / 1000).toFixed(1)}s）` : '';
