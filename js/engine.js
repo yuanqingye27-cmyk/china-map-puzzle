@@ -1294,7 +1294,25 @@
             <span class="fun-badge">冷知识</span>
             <p>${meta.funFact || ''}</p>
           </div>
+          ${meta.src
+            ? `<p class="info-src">资料来源：${meta.src}</p>`
+            : '<p class="info-src is-missing">资料来源待补 —— 补一条也算帮忙</p>'}
+          <button type="button" class="info-report" data-adcode="${adcode}">
+            发现写错了 / 想补充这条
+          </button>
         </div>`;
+
+      /* 纠错入口：引擎不认识"众包通道"，只把"想报告的区县"抛给宿主页。
+       * 宿主页没接 onReportIssue 时按钮直接移除 —— 引擎仍能独立跑测试。 */
+      const reportBtn = el.infoCard.querySelector('.info-report');
+      if (reportBtn && typeof CONFIG.onReportIssue === 'function') {
+        reportBtn.addEventListener('click', () => {
+          CONFIG.onReportIssue({ adcode: adcode, name: shape.name, meta: meta });
+        });
+      } else if (reportBtn) {
+        /* 宿主页没接这个回调 → 直接摘掉按钮，不留一个点了没反应的控件 */
+        reportBtn.remove();
+      }
     }
 
     /* ============================ 通关 ============================ */

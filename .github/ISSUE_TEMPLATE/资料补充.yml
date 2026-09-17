@@ -1,0 +1,57 @@
+name: 补一条资料
+description: 某个区县的资料还是"📖 资料收录中"，我知道其中一项
+title: "[资料补充] "
+labels: ["资料", "众包"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        全国 3200+ 个区县，靠一个人查是查不完的。
+        你知道**任意一项**都可以单独补，剩下的继续留空 —— 留空比编造好。
+
+        不知道怎么写的话，先看一条已经写好的做参考：
+        点开 `js/maps/china/sichuan/leshan.data.js`。
+
+  - type: input
+    id: where
+    attributes:
+      label: 哪一张图的哪个区县
+      description: 例如：乐山市 · 五通桥区（511112）
+      placeholder: 城市 · 区县（6 位行政区划代码）
+    validations:
+      required: true
+
+  - type: textarea
+    id: content
+    attributes:
+      label: 我知道的内容
+      description: |
+        按"字段：内容"的格式写，知道几项写几项：
+        - 面积：465（km²，只写数字）
+        - 地标：五通桥古镇、小西湖
+        - 一句话介绍：因盐而兴的老工业区，也是远近闻名的水乡。
+        - 冷知识：五通桥因盐业兴盛，当地把穿城而过的水面称作"小西湖"。
+      placeholder: |
+        面积：
+        地标：
+        一句话介绍：
+        冷知识：
+    validations:
+      required: true
+
+  - type: textarea
+    id: source
+    attributes:
+      label: 来源
+      description: 官方页面 / 政府网站 / 统计年鉴 / 书名 + 页码，贴链接最好
+      placeholder: https://www.leshan.gov.cn/...
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: 确认
+      options:
+        - label: 我核对过来源，不是凭印象填的
+          required: true

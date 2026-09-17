@@ -2142,3 +2142,83 @@ body.intro-open { overflow: hidden; }
 .badge-panel .bp-prov-num { text-align: right; color: var(--text-dim); font-variant-numeric: tabular-nums; }
 .badge-panel .bp-provinces li.is-done .bp-prov-num { color: var(--jade); }
 .badge-panel .bp-empty { padding: 12px 4px; text-align: center; color: var(--text-dim); font-size: 12.5px; }
+
+/* =====================================================================
+ * 纠错 / 补资料（对应 js/contribute.js）
+ * ---------------------------------------------------------------------
+ * 面板本身复用 .sp-* 那套头部/按钮/提示的排版习惯，
+ * 只有"位置说明 + 可复制的报告文本"是这一段独有的。
+ * ===================================================================== */
+.report-panel {
+  position: fixed; inset: 0; z-index: 80;
+  display: grid; place-items: center;
+  background: rgb(4 12 10 / 0.78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 16px; overflow: auto;
+}
+.report-panel[hidden] { display: none; }
+.report-panel > * { width: 100%; max-width: 420px; }
+.report-panel .sp-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.report-panel h2 { margin: 0; font-size: 17px; }
+.report-panel .sp-close {
+  border: 1px solid var(--line); background: transparent; color: var(--text-dim);
+  width: 30px; height: 30px; border-radius: 9px; cursor: pointer;
+}
+.report-panel .sp-close:hover { color: var(--text); border-color: rgb(var(--c-jade) / 0.5); }
+.report-panel .rp-where {
+  margin: 0 0 6px; font-size: 13px; color: var(--text);
+}
+.report-panel .rp-where code {
+  font-size: 11.5px; padding: 1px 5px; border-radius: 5px;
+  background: rgb(255 255 255 / 0.07); color: var(--text-dim);
+}
+.report-panel .rp-tip {
+  margin: 0 0 10px; font-size: 12px; color: var(--text-dim); line-height: 1.6;
+}
+/* 报告文本是可复制的成品，等宽字体让"字段：值"对得齐 */
+.report-panel .rp-text {
+  width: 100%; box-sizing: border-box; resize: vertical;
+  padding: 10px 12px; border-radius: 12px;
+  border: 1px solid var(--line); background: rgb(0 0 0 / 0.28);
+  color: var(--text); font-size: 12px; line-height: 1.7;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.report-panel .sp-actions {
+  display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap;
+}
+.report-panel .sp-actions .btn { flex: 1; min-width: 120px; text-align: center; text-decoration: none; }
+.report-panel .sp-tip {
+  margin: 10px 0 0; font-size: 12px; color: var(--text-dim);
+  text-align: center; line-height: 1.6;
+}
+
+/* 资料卡里的来源脚注 + 纠错按钮（由 js/engine.js 渲染，只有引擎接住回调时才出现） */
+.info-body .info-src {
+  margin: 0; font-size: 11.5px; line-height: 1.6; color: var(--text-dim);
+  padding-left: 9px; border-left: 2px solid rgb(var(--c-jade) / 0.35);
+}
+/* 缺来源时弱化，但不藏 —— "待补"本身就是要让人看见的信息 */
+.info-body .info-src.is-missing { border-left-color: var(--line); opacity: 0.75; }
+.info-body .info-report {
+  margin-top: 0; width: 100%;
+  padding: 7px 10px; border-radius: 9px; cursor: pointer;
+  border: 1px dashed var(--line); background: transparent;
+  color: var(--text-dim); font-size: 12px;
+}
+.info-body .info-report:hover {
+  color: var(--text); border-color: rgb(var(--c-jade) / 0.5);
+  background: rgb(var(--c-jade) / 0.08);
+}
+
+/* 地图级纠错入口：常驻但极轻，只在看数据来源声明时顺便被看见 */
+.report-chip {
+  margin-top: 6px; padding: 4px 10px; border-radius: 999px; cursor: pointer;
+  border: 1px dashed var(--line); background: transparent;
+  color: var(--text-dim); font-size: 11.5px;
+}
+.report-chip:hover { color: var(--text); border-color: rgb(var(--c-jade) / 0.5); }
+

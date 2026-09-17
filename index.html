@@ -325,6 +325,11 @@ try {
            文案由 js/game.js 按【当前地图数据自己的来源】渲染 —— 见 MAP_GEO_META。
            为什么不写死：数据是 DataV 却标天地图的审图号，是伪造合规声明，比不写更糟。 -->
       <p class="map-source" id="mapSource" role="note"></p>
+      <!-- 众包入口（地图级）：不知道该点哪个区县时，直接反馈整张图的问题。
+           全国 3200+ 个区县，靠一个人查资料查不完 —— 让看到的人顺手报错是唯一的零成本解法。 -->
+      <button class="report-chip" id="reportChip" type="button">
+        发现资料写错了 / 想补一条
+      </button>
     </nav>
   </header>
 
@@ -428,6 +433,14 @@ try {
 <div class="hometown-panel" id="hometownPanel" role="dialog" aria-modal="true"
      aria-label="选择我的家乡" hidden></div>
 
+<!-- ==================== 纠错 / 补资料面板 ====================
+     项目没有服务器，也不会为了收一条反馈去搭一个。
+     这里把用户看到的那张资料卡整理成一段结构化文本，
+     再借用用户已有的通道（GitHub Issue / 邮件 / 剪贴板）发出去。
+     逻辑全在 js/contribute.js（纯函数，有单测）。 -->
+<div class="report-panel" id="reportPanel" role="dialog" aria-modal="true"
+     aria-label="纠错与补资料" hidden></div>
+
 <!-- ==================== 开场欢迎动画 ====================
      覆盖整屏，展示五个成都元素（熊猫 / 竹子 / 银杏 / 脸谱 / 盖碗茶），
      依次弹入后浮出标题与「开始探索」。同一次会话内不会重复出现。 -->
@@ -482,6 +495,17 @@ try {
 <script src="js/share.js"></script>
 <!-- 计分规则：纯函数，可单测（见 js/score.js 的平衡说明） -->
 <script src="js/score.js"></script>
+<!-- 众包纠错：把资料卡拼成结构化文本，交给用户已有的通道发出去（纯函数，有单测）。
+     repo / email 留空也能跑 —— 按钮自动降级成"复制到剪贴板"，不会给出死链。
+     填法：把下面两个字段换成自己的仓库和邮箱，一行代码都不用改。 -->
+<script>
+  window.MAP_PUZZLE_CONTRIB = {
+    repo: '',   // 例：'yourname/map-puzzle'
+    email: '',  // 例：'you@example.com'
+    site: ''    // 部署后的网址，例：'https://xxx.pages.dev/'
+  };
+</script>
+<script src="js/contribute.js"></script>
 <script src="js/engine.js"></script>
 <script src="js/game.js"></script>
 </body>

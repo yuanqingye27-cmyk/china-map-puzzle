@@ -275,6 +275,7 @@
 
     const id = pickMapId();
     CURRENT_ID = id;
+    bindReportChip();
 
   /* ==================== 跨地图进度与成就 ====================
    * 账本逻辑全在 js/progress.js（纯函数，可移植、可单测）；
@@ -561,6 +562,113 @@
     if (!ok && tip) tip.textContent = '卡片绘制失败（浏览器不支持 Canvas 2D）';
   }
 
+  /* ====================== 纠错 / 补资料（众包通道） ======================
+   * 项目没有服务器，也永远不会为了"收一条反馈"去搭一个。
+   * 这里只把用户手上的信息整理成一段可复制的结构化文本，
+   * 再借用用户已经有的通道（GitHub / 邮箱 / 剪贴板）发出去。
+   * 详见 js/contribute.js 顶部的设计说明。
+   * ==================================================================== */
+  function showReportPanel(ctx) {
+    const C = global.MapContribute;
+    const panel = document.getElementById('reportPanel');
+    if (!C || !panel) return;
+
+    /* 补上"这是第几关"，维护者才知道用户当时在看哪一批区县 */
+    const eng = global.__ENGINE__;
+    const st = eng && eng.getState ? eng.getState() : {};
+    const full = Object.assign({}, ctx, {
+      levelIndex: typeof st.levelIndex === 'number' ? st.levelIndex : -1,
+      levelName: st.levelName || '',
+    });
+
+    const issue = C.issueUrl(full);
+    const mail = C.mailtoUrl(full);
+    const text = C.clipboardText(full);
+    const missing = C.missingFields(full);
+
+    panel.hidden = false;
+    panel.innerHTML =
+      '<div class="sp-head"><h2>纠错 / 补资料</h2>'
+      + '<button type="button" class="sp-close" aria-label="关闭">✕</button></div>'
+      + '<p class="rp-where">'
+      + '<b>' + esc(full.mapName) + '</b> · ' + esc(full.districtName)
+      + ' <code>' + esc(String(full.adcode)) + '</code></p>'
+      + '<p class="rp-tip">'
+      + (missing.length
+        ? '这条资料还缺 <b>' + missing.length + '</b> 项。知道其中任意一项都可以单独补，不用全填。'
+        : '这一条已经有内容了。如果发现哪里写错了，直接改在下面就好。')
+      + '</p>'
+      + '<textarea class="rp-text" id="reportText" readonly rows="9"></textarea>'
+      + '<div class="sp-actions">'
+      + (issue
+        ? '<a class="btn btn-primary" id="reportIssue" target="_blank" rel="noopener noreferrer">去 GitHub 提交</a>'
+        : '')
+      + (mail ? '<a class="btn btn-ghost" id="reportMail">用邮件发</a>' : '')
+      + '<button type="button" class="btn btn-ghost" id="reportCopy">复制全部</button>'
+      + '</div>'
+      + '<p class="sp-tip" id="reportTip">'
+      + (issue
+        ? '会打开 GitHub 的新建 Issue 页面，内容已填好，看一眼就能提交（需要一个免费账号）。'
+        : '这台站点还没配提交地址，复制下面这段发给作者就行。')
+      + '</p>';
+
+    const area = panel.querySelector('#reportText');
+    if (area) area.value = text;
+
+    const tip = panel.querySelector('#reportTip');
+    const close = panel.querySelector('.sp-close');
+    if (close) close.addEventListener('click', () => { panel.hidden = true; });
+
+    const issueBtn = panel.querySelector('#reportIssue');
+    if (issueBtn) issueBtn.setAttribute('href', issue);
+
+    const mailBtn = panel.querySelector('#reportMail');
+    if (mailBtn) mailBtn.setAttribute('href', mail);
+
+    const copy = panel.querySelector('#reportCopy');
+    if (copy) {
+      copy.addEventListener('click', () => {
+        const done = () => { if (tip) tip.textContent = '已复制，粘到任意聊天窗口发给我就行'; };
+        const fail = () => {
+          if (area) { area.removeAttribute('readonly'); area.select(); }
+          if (tip) tip.textContent = '浏览器不让自动复制，已经帮你选中了，按 Ctrl/⌘+C';
+        };
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(done, fail);
+            return;
+          }
+        } catch (e) { /* 落到 fail */ }
+        fail();
+      });
+    }
+  }
+
+  /** 极简转义：这里拼的都是来自地图包的自有字符串，
+   *  仍然转义一次，免得将来有人把外部文本塞进 name 字段 */
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    })[c]);
+  }
+
+  /** 地图级纠错入口：不知道（或懒得点）具体哪个区县时的总入口 */
+  function bindReportChip() {
+    const chip = document.getElementById('reportChip');
+    if (!chip || chip.dataset.bound) return;
+    chip.dataset.bound = '1';
+    chip.addEventListener('click', () => {
+      const entry = global.MapLoader.entry(CURRENT_ID) || {};
+      showReportPanel({
+        mapId: CURRENT_ID,
+        mapName: entry.name || CURRENT_ID,
+        adcode: entry.adcode || '',
+        districtName: '（整张地图）',
+        current: {},
+      });
+    });
+  }
+
   /** 每日一图的候选：只挑"一关就能玩完"的小地图，保证每天几分钟能完成 */
   function dailyCandidates() {
     const reg = (global.MAP_REGISTRY || {}).maps || {};
@@ -736,6 +844,18 @@
 
         // 配置缺失时引擎内部会兜底并提示（不会抛）
         // 注意 start() 不返回任何东西，实例要先接住再启动
+        /* 纠错通道：引擎只管把"用户点了哪条资料"抛出来，
+         * 具体怎么提交（Issue / 邮件 / 剪贴板）是宿主层的自由。
+         * 这样引擎不依赖 js/contribute.js，将来挪到别的站点也能用。 */
+        config.onReportIssue = (target) => {
+          showReportPanel({
+            mapId: id,
+            mapName: (config.name) || id,
+            adcode: target.adcode,
+            districtName: target.name,
+            current: target.meta || {},
+          });
+        };
         const engine = global.MapPuzzleEngine.create(config);
         engine.start();
         // 暴露实例给测试和调试用（getState() 是引擎的公开接口，不是内部状态）

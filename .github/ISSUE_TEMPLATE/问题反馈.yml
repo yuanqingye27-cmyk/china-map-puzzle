@@ -1,0 +1,51 @@
+name: 问题反馈
+description: 玩法、界面、地图拖不进去、手机上打不开之类的
+title: "[反馈] "
+labels: ["反馈"]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: 是哪一类问题
+      options:
+        - 碎片拖不进地图（位置判定不对）
+        - 地图画错了 / 少了一块 / 多了一块
+        - 手机 / 平板上排版乱了
+        - 存档、进度、成就丢了
+        - 玩法建议
+        - 其他
+    validations:
+      required: true
+
+  - type: input
+    id: where
+    attributes:
+      label: 在哪张地图、哪一关
+      placeholder: 乐山市 · 第二关
+    validations:
+      required: false
+
+  - type: textarea
+    id: what
+    attributes:
+      label: 发生了什么
+      description: 说清楚"我点了什么 → 期望看到什么 → 实际看到什么"
+    validations:
+      required: true
+
+  - type: input
+    id: env
+    attributes:
+      label: 浏览器和设备
+      description: 例如：微信内置浏览器 / iPhone 13；或 Chrome 131 / Windows 11
+      placeholder: 微信内置浏览器 · iPhone 13
+    validations:
+      required: false
+
+  - type: textarea
+    id: shot
+    attributes:
+      label: 截图
+      description: 直接把截图拖进这个框里就能上传
+    validations:
+      required: false

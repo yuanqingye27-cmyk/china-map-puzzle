@@ -1,0 +1,69 @@
+name: 资料纠错
+description: 页面上某条区县资料写错了（面积 / 地标 / 介绍 / 冷知识）
+title: "[资料纠错] "
+labels: ["资料", "纠错"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        页面里的「发现写错了 / 想补充这条」按钮会自动把这段内容填好，
+        你也可以在这里手填。**只改一项也可以，不用把下面全填满。**
+
+  - type: input
+    id: where
+    attributes:
+      label: 哪一张图的哪个区县
+      description: 例如：乐山市 · 五通桥区（511112）
+      placeholder: 城市 · 区县（6 位行政区划代码）
+    validations:
+      required: true
+
+  - type: dropdown
+    id: field
+    attributes:
+      label: 哪个字段有问题
+      options:
+        - 面积
+        - 地标
+        - 一句话介绍
+        - 冷知识
+        - 区县名字 / 层级归错了
+        - 其他（在下面说明）
+    validations:
+      required: true
+
+  - type: textarea
+    id: current
+    attributes:
+      label: 现在页面上写的是什么
+      description: 照抄页面上的原文就行，方便我们精确定位
+      placeholder: 面积：465 km²
+    validations:
+      required: false
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 应该是
+      placeholder: 面积：474 km²
+    validations:
+      required: true
+
+  - type: input
+    id: source
+    attributes:
+      label: 来源
+      description: |
+        官方页面 / 政府网站 / 统计年鉴 / 书名 + 页码，贴一个链接最好。
+        **没有来源的修改我们不敢直接改** —— 这个项目宁可留空也不编造。
+      placeholder: https://www.leshan.gov.cn/...
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: 确认
+      options:
+        - label: 我核对过来源，不是凭印象填的
+          required: true

@@ -380,6 +380,58 @@
         (D.querySelector('.info-name') || {}).textContent === config.geo.features
           .find((f) => f.properties.adcode === adcode).properties.name,
         (D.querySelector('.info-name') || {}).textContent);
+
+      /* 5b) 众包纠错入口：这是"内容不靠一个人硬查"的唯一通道，
+       *     全程纯前端（无后端），所以必须真的点得开、带得上 adcode。
+       *     引擎只负责把"点了哪条资料"抛给宿主页，面板由 js/game.js 拼。 */
+      const reportBtn = D.querySelector('.info-body .info-report');
+      check('[' + id + '] 资料卡上有纠错入口', !!reportBtn);
+      check('[' + id + '] 资料卡上有来源脚注（没有就写"待补"，不许藏）',
+        !!D.querySelector('.info-body .info-src'),
+        '没找到 .info-src');
+
+      if (reportBtn) {
+        reportBtn.click();
+        await sleep(60);
+        const panel = D.getElementById('reportPanel');
+        check('[' + id + '] 点纠错能打开面板（无后端也能反馈）',
+          !!panel && !panel.hidden, panel ? 'panel.hidden=' + panel.hidden : '没有 #reportPanel');
+        if (panel) {
+          const ta = panel.querySelector('#reportText');
+          const text = ta ? ta.value : '';
+          check('[' + id + '] 反馈文本里带上了 adcode（唯一能对回数据的钥匙）',
+            text.indexOf(String(adcode)) >= 0, text.slice(0, 120));
+          check('[' + id + '] 反馈文本里有"来源"一节（不许无来源改数据）',
+            text.indexOf('### 来源') >= 0, text.slice(0, 200));
+          /* 没配 GitHub 仓库时必须降级成"复制"，不许出现 404 的死链 */
+          const issueLink = panel.querySelector('#reportIssue');
+          check('[' + id + '] 未配置仓库时不给死链（按钮降级为复制）',
+            !issueLink || /^https:\/\/github\.com\/[^/]+\/[^/]+\/issues\/new\?/.test(issueLink.getAttribute('href') || ''),
+            issueLink ? issueLink.getAttribute('href') : '没有 issue 链接（正确降级）');
+
+          const close = panel.querySelector('.sp-close');
+          if (close) close.click();
+          await sleep(40);
+          check('[' + id + '] 纠错面板能正常关掉', panel.hidden);
+        }
+      }
+
+      const chip = D.getElementById('reportChip');
+      check('[' + id + '] 导航条上有地图级纠错入口', !!chip);
+      if (chip) {
+        chip.click();
+        await sleep(60);
+        const panel2 = D.getElementById('reportPanel');
+        check('[' + id + '] 地图级入口也能打开面板', !!panel2 && !panel2.hidden);
+        if (panel2 && !panel2.hidden) {
+          const ta2 = panel2.querySelector('#reportText');
+          check('[' + id + '] 地图级反馈文本里带上了这张地图的 id',
+            !!ta2 && ta2.value.indexOf('`' + id + '`') >= 0,
+            ta2 ? ta2.value.slice(0, 120) : '没有 textarea');
+          const close2 = panel2.querySelector('.sp-close');
+          if (close2) close2.click();
+        }
+      }
     }
 
     // 6) 地图导航（宿主层 UI：面包屑 + 选择器）
