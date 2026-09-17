@@ -1,0 +1,113 @@
+/* =====================================================================
+ * 地图包 · pingdingshan · 资料与关卡【占位骨架，等待人工补全】
+ * ---------------------------------------------------------------------
+ * 路径：js/maps/china/henan/pingdingshan.data.js
+ * 生成：node tools/add-map.js --adcode=410400 --name=pingdingshan --parent=henan
+ *
+ * ⚠️ 这是脚本生成的占位内容，自动化流程**不会**再覆盖本文件：
+ *    重新跑 add-map.js 只会刷新 .geo.js，你在这里写的文字是安全的。
+ *
+ * 待补清单（10 个下级行政区 × 4 项）：
+ *   1. area      面积（km²，数字；缺失时信息卡显示"—"）
+ *   2. landmark  地标
+ *   3. tagline   一句话介绍
+ *   4. funFact   冷知识
+ * 关卡（levels）现在只是"每 8 个一组"的机械切分，
+ * 真正好玩的关卡应当按地理/文化逻辑重新分组，并补上 blurb。
+ * [area-from-geo] 面积口径：本文件 area 由 tools/area-from-geo.js 从
+ * 《pingdingshan.geo.js》的官方边界几何计算得出（球面多边形面积，与 d3.geoArea 同公式），
+ * 与拼图所用边界严格同源、可复现；属"几何计算值"，不等于官方公布的统计口径面积。
+ * 重新生成：node tools/area-from-geo.js --only=pingdingshan --write
+
+ * ===================================================================== */
+
+(function (global) {
+  'use strict';
+
+  /** 下级行政区资料，key 是国家行政区划代码（adcode） */
+  const DISTRICTS = {
+    "410402": {
+      area: 131,  // [geo-area] 依官方边界几何计算（km²）
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
+    }, // 新华区
+    "410403": {
+      area: 106,  // [geo-area] 依官方边界几何计算（km²）
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
+    }, // 卫东区
+    "410404": {
+      area: 35.7,  // [geo-area] 依官方边界几何计算（km²）
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
+    }, // 石龙区
+    "410411": {
+      area: 183,  // [geo-area] 依官方边界几何计算（km²）
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
+    }, // 湛河区
+    "410421": {
+      area: 728,  // [geo-area] 依官方边界几何计算（km²）
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
+    }, // 宝丰县
+    "410422": {
+      area: 1392,  // [geo-area] 依官方边界几何计算（km²）
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
+    }, // 叶县
+    "410423": {
+      area: 2408,  // [geo-area] 依官方边界几何计算（km²）
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
+    }, // 鲁山县
+    "410425": {
+      area: 725,  // [geo-area] 依官方边界几何计算（km²）
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
+    }, // 郏县
+    "410481": {
+      area: 628,  // [geo-area] 依官方边界几何计算（km²）
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
+    }, // 舞钢市
+    "410482": {
+      area: 1575,  // [geo-area] 依官方边界几何计算（km²）
+      landmark: '📖 资料收录中，欢迎参与共建',
+      tagline: '📖 资料收录中，欢迎参与共建',
+      funFact: '📖 资料收录中，欢迎参与共建',
+    }, // 汝州市
+  };
+
+  /** 关卡：自动切分的占位版本，请按地理逻辑重排 */
+  const LEVELS = [
+    {
+      id: 'l1',
+      name: '第一关',
+      short: '第一关',
+      color: '#d03939',
+      blurb: '📖 本关资料收录中，欢迎参与共建',
+      adcodes: [410402, 410403, 410404, 410411, 410421, 410422, 410423, 410425],
+    },
+    {
+      id: 'l2',
+      name: '第二关',
+      short: '第二关',
+      color: '#d0bc39',
+      blurb: '📖 本关资料收录中，欢迎参与共建',
+      adcodes: [410481, 410482],
+    },
+  ];
+
+  const MAP_DATA = (global.MAP_DATA = global.MAP_DATA || {});
+  MAP_DATA['pingdingshan'] = { districts: DISTRICTS, levels: LEVELS };
+})(window);
