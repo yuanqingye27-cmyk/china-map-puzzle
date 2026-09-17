@@ -9,3 +9,10 @@ tools/tianditu.config.json
 # 抓取缓存与中间产物（不入库：缓存是本地加速，out/ 是可重建的素材）
 .cache/
 out/
+
+# 部署产物：由根目录的源文件复制而来，可随时重建，不入库
+# （重建方式见 deploy/README-部署到Cloudflare.md）
+deploy/
+
+# 临时下载的二进制（例如隧道工具），不入库
+tools/bin/
