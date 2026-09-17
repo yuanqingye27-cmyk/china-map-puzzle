@@ -43,7 +43,12 @@ const DEFAULT_TIMEOUT_MS = 90000;
 const SUITES = [
   { name: '城市回归 · 成都（真实数据 + UI/动画）', page: 'selftest.html' },
   { name: '引擎功能 · 虚构 tiny-city（通用逻辑）', page: 'engine-test.html' },
-  { name: '多地图冒烟 · 登记册里的每一张地图', page: 'map-smoke.html', timeoutMs: 600000 },
+  /* 冒烟套件的超时随地图数增长：
+   * 每张地图要真的在浏览器里拖一块（含等推近动画稳定），实测约 1.3 s/张。
+   * 363 张地图 ≈ 470 s，已经贴着旧的 600 s 上限 —— 再多几张就会误报"超时"。
+   * 超时本来是给"卡死"兜底的，不该变成"地图多了就红"，所以放宽到 30 分钟。
+   * 想看进度/排查单张用 --only-maps=<ids>，别每次都跑全量。 */
+  { name: '多地图冒烟 · 登记册里的每一张地图', page: 'map-smoke.html', timeoutMs: 1800000 },
 ];
 
 /* ---------- 命令行开关（诊断用）----------
