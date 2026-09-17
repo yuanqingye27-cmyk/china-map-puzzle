@@ -25,23 +25,35 @@ const run = (cmd) => {
 const scan = tree.scanMaps();
 const maps = Object.values(scan.maps).sort((a, b) => (a.adcode || 0) - (b.adcode || 0));
 
-/* 资料卡缺口：直接走注册表拿文件列表（**不要用 shell 的 `**`**，
- * /bin/sh 下它等价于 `*`，会漏掉 20 个文件 —— 这个 bug 实测踩过）。 */
+/* 资料卡缺口：**按"条"统计，而不是按"文件"**
+ * 早期版本把"含共建文案的文件"整份算成占位、其余算成真实，
+ * 于是**混合文件（同一个市里有的区县补了、有的没补）会被两边都漏掉**，
+ * 已补的条目数被低估。现在改成逐条判断：
+ *   每条资料卡 = 一个 adcode 键；每条 3 个文案字段（landmark/tagline/funFact）
+ *   占位条数 = 共建文案出现次数 / 3；真实条数 = 总条数 − 占位条数。
+ * （注意：找文件列表时**不要用 shell 的 `**`** —— /bin/sh 下它等价于 `*`，
+ *   会漏掉 20 个子目录里的文件，这个 bug 实测踩过。） */
 const dataRel = maps
   .map((m) => (m.dir ? m.dir + '/' : '') + m.id + '.data.js')
   .filter((f) => fs.existsSync(path.join(tree.MAPS_DIR, f)));
 
-const realFiles = [];
-let placeholderFiles = 0;
+const BUILD_TEXT = '📖 资料收录中，欢迎参与共建';
 let placeholderEntries = 0;
+let placeholderFiles = 0;
+let realEntries = 0;
+const realFiles = [];
+const mixedFiles = [];
 dataRel.forEach((f) => {
   const t = fs.readFileSync(path.join(tree.MAPS_DIR, f), 'utf8');
-  if (t.includes('欢迎参与共建')) {
-    placeholderFiles++;
-    placeholderEntries += (t.match(/^\s*"\d{6}":/gm) || []).length; // 每条资料卡 = 一个 adcode 键
-  } else {
-    realFiles.push(f);
-  }
+  const blocks = (t.match(/^\s*(?:"\d{6}"|\d{6}):\s*\{/gm) || []).length;
+  if (!blocks) return;
+  const hits = t.split(BUILD_TEXT).length - 1;
+  const ph = Math.min(blocks, Math.round(hits / 3));
+  placeholderEntries += ph;
+  realEntries += blocks - ph;
+  if (ph === 0) realFiles.push(f);
+  else if (ph < blocks) mixedFiles.push(f + '（' + (blocks - ph) + '/' + blocks + '）');
+  else placeholderFiles++;
 });
 
 /* 数据源与合规 */
@@ -79,9 +91,11 @@ line('已接入地图', maps.length + ' 张');
 line('层级', '中国（34 省级）→ 四川省（21 市州）→ 各自区县');
 line('地图清单', maps.map((m) => m.id).join(', '));
 console.log('');
-line('真实资料卡', realFiles.length + ' 个文件：' + (realFiles.map((f) => path.basename(f, '.data.js')).join(', ') || '无'));
-line('待补资料卡', placeholderEntries + ' 条（分布在 ' + placeholderFiles + ' 个文件）');
-line('资料缺口怎么看', "node tools/soften-placeholders.js --check");
+line('真实资料卡', realEntries + ' 条 / 共 ' + (realEntries + placeholderEntries) + ' 条'
+  + (realFiles.length ? '；整份完成的文件：' + realFiles.map((f) => path.basename(f, '.data.js')).join(', ') : ''));
+if (mixedFiles.length) line('部分完成', mixedFiles.join(', '));
+line('待补资料卡', placeholderEntries + ' 条（整份未动的文件 ' + placeholderFiles + ' 个）');
+line('资料缺口怎么看', 'node tools/status.js —— 或用 tools/area-from-geo.js 批量补面积');
 console.log('');
 if (manifest) {
   line('数据源', manifest.providerLabel);
