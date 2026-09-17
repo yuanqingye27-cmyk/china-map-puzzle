@@ -116,7 +116,7 @@ node tools/e2e-test.js --only-suite=offline        # 只跑离线检查（秒级
 | 问题 | 解法 | 落点 | 关键不变量 |
 | --- | --- | --- | --- |
 | 3200+ 个区县一个人查不完 | **众包纠错**：资料卡底部一个按钮，把那张卡拼成结构化文本，走 GitHub / 邮件 / 剪贴板 | `js/contribute.js`（纯函数）+ `js/game.js` 的 `showReportPanel` + `.github/ISSUE_TEMPLATE/` | 没配 repo 时**必须**降级成复制，**不许给死链**；报告里必须有 adcode 和「来源」一节 |
-| 部署要域名要备案、国内访问不稳 | **单文件离线包**：整站内联成一个 `.html`，双击即玩 | `tools/bundle.js` | 内联的 registry 必须**裁剪**；parent 指向包外时置 `null`（否则切地图是死路） |
+| 部署要域名要备案、国内访问不稳 | **局域网链接**（`tools/serve.js`，零摩擦）/ **单文件离线包**（`tools/bundle.js`，整站内联成一个 `.html`） | `tools/serve.js`、`tools/bundle.js` | 内联的 registry 必须**裁剪**；parent 指向包外时置 `null`（否则切地图是死路）。**微信不预览 `.html`**，手机端优先用局域网链接 |
 
 > 已联网核实并写进 `docs/可持续性与内容生产.md` §六：GitHub Pages 在国内属"半墙"、
 > **Gitee Pages 已下线**、Cloudflare Pages 免费但速度一般。
@@ -264,7 +264,8 @@ node tools/replace-geo-source.js --source=file --dir=data/tianditu-official [--o
 node tools/shot.js --map=<id> [--drag=1] [--level=N] [--fit=all] --out=/tmp/x.png   # 截图
 node tools/shot.js --page=out/xxx.html --out=/tmp/x.png                        # 截任意页面
 # —— 零成本传播 / 众包（2026-09-17 新增）——
-node tools/bundle.js --province=sichuan                # 单文件离线包（1.3MB，22 张，发微信就能玩）
+node tools/serve.js --map=sichuan                      # 局域网演示：同学点链接就玩（首选传播通道）
+node tools/bundle.js --province=sichuan                # 单文件离线包（1.3MB，22 张，适合发电脑用户）
 node tools/bundle.js --maps=chengdu --out=/tmp/a.html  # 只打一张地图（约 300KB）
 #   想看"玩家反馈了什么"：资料卡底部 / 导航条的纠错入口 → 面板里就是可粘贴的结构化文本
 #   想真的收 Issue：把 index.html 里的 MAP_PUZZLE_CONTRIB.repo 填成自己的仓库（留空则降级成复制）
