@@ -132,5 +132,57 @@ console.log('══════════ 进度与成就 · 离线自测 ═�
   check('save 失败返回 false 而不抛', P.save(doc, { setItem() { throw new Error('x'); } }) === false);
 }
 
+/* ---------- ⑨ 每日一图：日期种子 + 锁定 + 打卡 ---------- */
+{
+  // dayKey：本地日期，格式 YYYYMMDD
+  const k = P.dayKey(new Date(2026, 8, 17).getTime());   // 月份 0-based → 9 月 17 日
+  check('dayKey 格式为 YYYYMMDD', /^\d{8}$/.test(k), k);
+  check('dayKey 与本地日期一致', k === '20260917', k);
+
+  // hashString：同输入同输出、不同输入基本不同
+  check('hashString 稳定', P.hashString('20260917') === P.hashString('20260917'));
+  check('hashString 非负整数', P.hashString('x') >= 0 && Number.isInteger(P.hashString('x')));
+
+  // pickDaily：候选顺序不影响结果（先排序再算）
+  const ids = ['a', 'b', 'c', 'd', 'e', 'f', 'g'];
+  const t = new Date(2026, 8, 17).getTime();
+  const d1 = P.emptyDoc();
+  const pick1 = P.pickDaily(d1, ids, t);
+  const d2 = P.emptyDoc();
+  const pick2 = P.pickDaily(d2, ids.slice().reverse(), t);
+  check('pickDaily 结果与候选顺序无关', pick1 === pick2, pick1 + ' vs ' + pick2);
+  check('pickDaily 选出的确实在候选里', ids.indexOf(pick1) >= 0, pick1);
+
+  // 锁定：当天再调用（甚至清单变了）也还是同一张
+  const same = P.pickDaily(d1, ids.concat(['newmap']), t);
+  check('当天已选定 → 清单变化也不换题', same === pick1, same + ' vs ' + pick1);
+
+  // 换一天会换题（至少不是永远同一张）
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const dd = P.emptyDoc();
+    days.push(P.pickDaily(dd, ids, new Date(2026, 8, 17 + i).getTime()));
+  }
+  check('不同日期会抽到不同地图（7 天里不止 1 种）', new Set(days).size > 1, days.join(','));
+
+  // 连续打卡
+  const doc = P.emptyDoc();
+  const day1 = new Date(2026, 8, 17).getTime();
+  const day2 = new Date(2026, 8, 18).getTime();
+  const day3 = new Date(2026, 8, 19).getTime();
+  check('首次打卡 streak=1', P.checkIn(doc, day1) === 1, String(P.checkIn(doc, day1)));
+  check('  同一天重复打卡不加数', P.checkIn(doc, day1) === 1, String(doc.daily.streak));
+  check('  次日打卡 streak=2', P.checkIn(doc, day2) === 2, String(doc.daily.streak));
+  check('  今日已打卡标记正确', P.checkedInToday(doc, day2) === true);
+  check('  昨天不算今天已打卡', P.checkedInToday(doc, day3) === false);
+
+  // 断签：隔一天再打，重新从 1 开始
+  const gap = P.emptyDoc();
+  P.checkIn(gap, day1);
+  const after = P.checkIn(gap, day3);   // 跳过 day2
+  check('断签后重新从 1 开始', after === 1, String(after));
+  check('  但最佳连续天数被保留（best>=1）', gap.daily.best >= 1, String(gap.daily.best));
+}
+
 console.log('\n  → ' + passed + ' 通过 / ' + failed + ' 失败');
 process.exitCode = failed ? 1 : 0;

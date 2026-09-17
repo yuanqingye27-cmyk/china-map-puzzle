@@ -116,6 +116,21 @@ function absOf(relFromMaps) {
 }
 
 /**
+ * 数一张地图有多少个下级行政区（= .data.js 里有多少个 adcode 键）。
+ * 只用正则数 key，不求值文件 —— 构建 363 张地图时求值会慢很多。
+ * 两种 key 写法都要认：自动生成的是 `"511102": {`，手写的（成都）可能是 `510104: {`。
+ */
+function countDistricts(map) {
+  const base = map.dir ? path.join(MAPS_DIR, map.dir, map.id) : path.join(MAPS_DIR, map.id);
+  const file = base + DATA_SUFFIX;
+  if (!fs.existsSync(file)) return 0;
+  try {
+    const t = fs.readFileSync(file, 'utf8');
+    return (t.match(/^\s*"?\d{6}"?\s*:\s*\{/gm) || []).length;
+  } catch (e) { return 0; }
+}
+
+/**
  * 扫描 js/maps/，读出全部地图包的元信息，并做一致性体检。
  *
  * @returns {{maps:Object, problems:Array<{level:string,message:string}>}}
@@ -252,6 +267,12 @@ function buildRegistryModel(scan) {
       adcode: m.adcode,
       children,
       dir: m.dir,
+      /* 下级行政区数量（短字段名 `n`：registry 是首屏文件，字节要省）。
+       * 【为什么值得占这几个字节】"每日一图"要按规模筛候选
+       * （太小玩不过瘾、太大每天做不完），而这个数原先只能靠
+       * 加载每张地图的配置才知道——一天要读 300 多个文件，不可接受。
+       * 构建期顺手记下来最便宜。0 表示没有下级（叶子地图）。 */
+      n: countDistricts(m),
       /* 【为什么不写 scripts】
        * 它是 `dir + id + ('.geo.js' | '.data.js' | '.js')` 的纯推导结果，
        * 每个条目要花约 96 字节，而 registry.js 是**首屏就要下载**的文件。

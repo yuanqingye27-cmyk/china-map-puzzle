@@ -307,6 +307,9 @@ try {
           <select class="map-select" id="mapSelect" aria-label="选择地图"></select>
         </label>
       </div>
+      <!-- 每日一图：日期做种子、全国同题、当天锁定（见 js/progress.js 的 pickDaily）。
+           放在关卡那一行之上 —— 它是"今天玩什么"的入口，层级高于"这一关怎么打"。 -->
+      <button class="daily-chip" id="dailyChip" type="button" hidden></button>
       <!-- 第二行：这张图的关卡。
            为什么从顶栏搬到这里：关卡是"当前地图内"的导航，和面包屑同类；
            挤在顶栏右侧会跟品牌/音效/主题抢位置 —— 关卡一多（10+）就装不下。

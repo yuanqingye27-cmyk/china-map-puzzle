@@ -35,8 +35,86 @@
     return null;
   }
 
+  /* ---------------- 每日一图 ----------------
+   * 【机制】用**当天日期**当种子，从全部地图里选一张，所有人同一天抽到同一张。
+   *   为什么有效：不需要内容团队、不需要服务端，天然制造"大家都玩过"的话题；
+   *   连续打卡（streak）是回访的最强钩子之一，而且不靠推送施压 —— 玩家自己惦记。
+   * 【关键设计】当天选定后**锁定**（写进存档的 daily.mapId）。
+   *   否则地图清单一变（接了一个新省）当天的题就换了，玩家会觉得在耍他。
+   * ============================================ */
+
+  /** 当天日期键（YYYYMMDD）。做成纯函数便于单测；按本地时间算，符合"今天"的直觉 */
+  function dayKey(now) {
+    const d = now instanceof Date ? now : new Date(now == null ? Date.now() : now);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return String(y) + m + day;
+  }
+
+  /** 把字符串稳定地散列成一个非负整数（同样的输入永远同样的输出） */
+  function hashString(s) {
+    let h = 2166136261;                     // FNV-1a：短字符串上分布够好，且实现只有几行
+    for (let i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return (h >>> 0);
+  }
+
+  /**
+   * 今天该玩哪张地图。
+   * @param {object} doc       进度文档（会被写入 daily 字段；传 null 则只计算不记录）
+   * @param {string[]} mapIds  候选地图（只放"适合单独玩"的，由调用方筛）
+   * @param {number} now       时间戳（测试用）
+   * @returns {string|null}
+   */
+  function pickDaily(doc, mapIds, now) {
+    if (!Array.isArray(mapIds) || !mapIds.length) return null;
+    // 候选要先排序，保证"同一份清单"在任何机器上算出同样的结果
+    const sorted = mapIds.slice().sort();
+    const key = dayKey(now);
+
+    // 已有当天的记录就直接用（锁定）；但如果那张图已不在候选里（被删/改了），重抽
+    if (doc && doc.daily && doc.daily.day === key && sorted.indexOf(doc.daily.mapId) >= 0) {
+      return doc.daily.mapId;
+    }
+    const idx = hashString(key) % sorted.length;
+    const mapId = sorted[idx];
+    if (doc) {
+      doc.daily = { day: key, mapId: mapId, count: (doc.daily && doc.daily.count) || 0 };
+    }
+    return mapId;
+  }
+
+  /** 每日打卡：当天拼完了就记一次，返回连续天数 */
+  function checkIn(doc, now) {
+    if (!doc) return 0;
+    const key = dayKey(now);
+    if (doc.daily && doc.daily.checkedDay === key) {
+      return doc.daily.streak || 1;          // 今天已经打过卡
+    }
+    // 昨天打过 → streak+1；否则从 1 重新开始
+    const y = new Date(now == null ? Date.now() : now);
+    y.setDate(y.getDate() - 1);
+    const yKey = dayKey(y.getTime());
+    const prevStreak = (doc.daily && doc.daily.checkedDay === yKey) ? (doc.daily.streak || 0) : 0;
+
+    doc.daily = Object.assign({}, doc.daily, {
+      checkedDay: key,
+      streak: prevStreak + 1,
+      best: Math.max((doc.daily && doc.daily.best) || 0, prevStreak + 1),
+    });
+    return doc.daily.streak;
+  }
+
+  /** 今天是否已打卡（界面用） */
+  function checkedInToday(doc, now) {
+    return !!(doc && doc.daily && doc.daily.checkedDay === dayKey(now));
+  }
+
   function emptyDoc() {
-    return { v: SCHEMA_VERSION, maps: {}, badges: [], updatedAt: 0 };
+    return { v: SCHEMA_VERSION, maps: {}, badges: [], daily: null, updatedAt: 0 };
   }
 
   function load(storage) {
@@ -208,5 +286,11 @@
     claimBadges,
     badgeList,
     emptyDoc,
+    /* 每日一图 */
+    dayKey,
+    hashString,
+    pickDaily,
+    checkIn,
+    checkedInToday,
   };
 })(typeof window !== 'undefined' ? window : globalThis);

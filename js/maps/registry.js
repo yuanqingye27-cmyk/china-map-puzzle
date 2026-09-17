@@ -88,7 +88,8 @@
           "taiwan",
           "hongkong"
         ],
-        "dir": ""
+        "dir": "",
+        "n": 34
       },
       "beijing": {
         "id": "beijing",
@@ -96,7 +97,8 @@
         "parent": "china",
         "adcode": 110000,
         "children": [],
-        "dir": "china"
+        "dir": "china",
+        "n": 16
       },
       "tianjin": {
         "id": "tianjin",
@@ -104,7 +106,8 @@
         "parent": "china",
         "adcode": 120000,
         "children": [],
-        "dir": "china"
+        "dir": "china",
+        "n": 16
       },
       "hebei": {
         "id": "hebei",
@@ -124,7 +127,8 @@
           "langfang",
           "hengshui"
         ],
-        "dir": "china"
+        "dir": "china",
+        "n": 11
       },
       "shijiazhuang": {
         "id": "shijiazhuang",
@@ -132,7 +136,8 @@
         "parent": "hebei",
         "adcode": 130100,
         "children": [],
-        "dir": "china/hebei"
+        "dir": "china/hebei",
+        "n": 22
       },
       "tangshan": {
         "id": "tangshan",
@@ -140,7 +145,8 @@
         "parent": "hebei",
         "adcode": 130200,
         "children": [],
-        "dir": "china/hebei"
+        "dir": "china/hebei",
+        "n": 14
       },
       "qinhuangdao": {
         "id": "qinhuangdao",
@@ -148,7 +154,8 @@
         "parent": "hebei",
         "adcode": 130300,
         "children": [],
-        "dir": "china/hebei"
+        "dir": "china/hebei",
+        "n": 7
       },
       "handan": {
         "id": "handan",
@@ -156,7 +163,8 @@
         "parent": "hebei",
         "adcode": 130400,
         "children": [],
-        "dir": "china/hebei"
+        "dir": "china/hebei",
+        "n": 18
       },
       "xingtai": {
         "id": "xingtai",
@@ -164,7 +172,8 @@
         "parent": "hebei",
         "adcode": 130500,
         "children": [],
-        "dir": "china/hebei"
+        "dir": "china/hebei",
+        "n": 18
       },
       "baoding": {
         "id": "baoding",
@@ -172,7 +181,8 @@
         "parent": "hebei",
         "adcode": 130600,
         "children": [],
-        "dir": "china/hebei"
+        "dir": "china/hebei",
+        "n": 24
       },
       "zhangjiakou": {
         "id": "zhangjiakou",
@@ -180,7 +190,8 @@
         "parent": "hebei",
         "adcode": 130700,
         "children": [],
-        "dir": "china/hebei"
+        "dir": "china/hebei",
+        "n": 16
       },
       "chengde": {
         "id": "chengde",
@@ -188,7 +199,8 @@
         "parent": "hebei",
         "adcode": 130800,
         "children": [],
-        "dir": "china/hebei"
+        "dir": "china/hebei",
+        "n": 11
       },
       "cangzhou": {
         "id": "cangzhou",
@@ -196,7 +208,8 @@
         "parent": "hebei",
         "adcode": 130900,
         "children": [],
-        "dir": "china/hebei"
+        "dir": "china/hebei",
+        "n": 16
       },
       "langfang": {
         "id": "langfang",
@@ -204,7 +217,8 @@
         "parent": "hebei",
         "adcode": 131000,
         "children": [],
-        "dir": "china/hebei"
+        "dir": "china/hebei",
+        "n": 10
       },
       "hengshui": {
         "id": "hengshui",
@@ -212,7 +226,8 @@
         "parent": "hebei",
         "adcode": 131100,
         "children": [],
-        "dir": "china/hebei"
+        "dir": "china/hebei",
+        "n": 11
       },
       "shanxi": {
         "id": "shanxi",
@@ -232,7 +247,8 @@
           "linfen",
           "lliang"
         ],
-        "dir": "china"
+        "dir": "china",
+        "n": 11
       },
       "taiyuan": {
         "id": "taiyuan",
@@ -240,7 +256,8 @@
         "parent": "shanxi",
         "adcode": 140100,
         "children": [],
-        "dir": "china/shanxi"
+        "dir": "china/shanxi",
+        "n": 10
       },
       "datong": {
         "id": "datong",
@@ -248,7 +265,8 @@
         "parent": "shanxi",
         "adcode": 140200,
         "children": [],
-        "dir": "china/shanxi"
+        "dir": "china/shanxi",
+        "n": 10
       },
       "yangquan": {
         "id": "yangquan",
@@ -256,7 +274,8 @@
         "parent": "shanxi",
         "adcode": 140300,
         "children": [],
-        "dir": "china/shanxi"
+        "dir": "china/shanxi",
+        "n": 5
       },
       "changzhi": {
         "id": "changzhi",
@@ -264,7 +283,8 @@
         "parent": "shanxi",
         "adcode": 140400,
         "children": [],
-        "dir": "china/shanxi"
+        "dir": "china/shanxi",
+        "n": 12
       },
       "jincheng": {
         "id": "jincheng",
@@ -272,7 +292,8 @@
         "parent": "shanxi",
         "adcode": 140500,
         "children": [],
-        "dir": "china/shanxi"
+        "dir": "china/shanxi",
+        "n": 6
       },
       "shuozhou": {
         "id": "shuozhou",
@@ -280,7 +301,8 @@
         "parent": "shanxi",
         "adcode": 140600,
         "children": [],
-        "dir": "china/shanxi"
+        "dir": "china/shanxi",
+        "n": 6
       },
       "jinzhong": {
         "id": "jinzhong",
@@ -288,7 +310,8 @@
         "parent": "shanxi",
         "adcode": 140700,
         "children": [],
-        "dir": "china/shanxi"
+        "dir": "china/shanxi",
+        "n": 11
       },
       "yuncheng": {
         "id": "yuncheng",
@@ -296,7 +319,8 @@
         "parent": "shanxi",
         "adcode": 140800,
         "children": [],
-        "dir": "china/shanxi"
+        "dir": "china/shanxi",
+        "n": 13
       },
       "xinzhou": {
         "id": "xinzhou",
@@ -304,7 +328,8 @@
         "parent": "shanxi",
         "adcode": 140900,
         "children": [],
-        "dir": "china/shanxi"
+        "dir": "china/shanxi",
+        "n": 14
       },
       "linfen": {
         "id": "linfen",
@@ -312,7 +337,8 @@
         "parent": "shanxi",
         "adcode": 141000,
         "children": [],
-        "dir": "china/shanxi"
+        "dir": "china/shanxi",
+        "n": 17
       },
       "lliang": {
         "id": "lliang",
@@ -320,7 +346,8 @@
         "parent": "shanxi",
         "adcode": 141100,
         "children": [],
-        "dir": "china/shanxi"
+        "dir": "china/shanxi",
+        "n": 13
       },
       "neimenggu": {
         "id": "neimenggu",
@@ -341,7 +368,8 @@
           "xilinguole",
           "alashan"
         ],
-        "dir": "china"
+        "dir": "china",
+        "n": 12
       },
       "huhehaote": {
         "id": "huhehaote",
@@ -349,7 +377,8 @@
         "parent": "neimenggu",
         "adcode": 150100,
         "children": [],
-        "dir": "china/neimenggu"
+        "dir": "china/neimenggu",
+        "n": 9
       },
       "baotou": {
         "id": "baotou",
@@ -357,7 +386,8 @@
         "parent": "neimenggu",
         "adcode": 150200,
         "children": [],
-        "dir": "china/neimenggu"
+        "dir": "china/neimenggu",
+        "n": 9
       },
       "wuhai": {
         "id": "wuhai",
@@ -365,7 +395,8 @@
         "parent": "neimenggu",
         "adcode": 150300,
         "children": [],
-        "dir": "china/neimenggu"
+        "dir": "china/neimenggu",
+        "n": 3
       },
       "chifeng": {
         "id": "chifeng",
@@ -373,7 +404,8 @@
         "parent": "neimenggu",
         "adcode": 150400,
         "children": [],
-        "dir": "china/neimenggu"
+        "dir": "china/neimenggu",
+        "n": 12
       },
       "tongliao": {
         "id": "tongliao",
@@ -381,7 +413,8 @@
         "parent": "neimenggu",
         "adcode": 150500,
         "children": [],
-        "dir": "china/neimenggu"
+        "dir": "china/neimenggu",
+        "n": 8
       },
       "eerduosi": {
         "id": "eerduosi",
@@ -389,7 +422,8 @@
         "parent": "neimenggu",
         "adcode": 150600,
         "children": [],
-        "dir": "china/neimenggu"
+        "dir": "china/neimenggu",
+        "n": 9
       },
       "hulunbeier": {
         "id": "hulunbeier",
@@ -397,7 +431,8 @@
         "parent": "neimenggu",
         "adcode": 150700,
         "children": [],
-        "dir": "china/neimenggu"
+        "dir": "china/neimenggu",
+        "n": 14
       },
       "bayannaoer": {
         "id": "bayannaoer",
@@ -405,7 +440,8 @@
         "parent": "neimenggu",
         "adcode": 150800,
         "children": [],
-        "dir": "china/neimenggu"
+        "dir": "china/neimenggu",
+        "n": 7
       },
       "wulanchabu": {
         "id": "wulanchabu",
@@ -413,7 +449,8 @@
         "parent": "neimenggu",
         "adcode": 150900,
         "children": [],
-        "dir": "china/neimenggu"
+        "dir": "china/neimenggu",
+        "n": 11
       },
       "xingan": {
         "id": "xingan",
@@ -421,7 +458,8 @@
         "parent": "neimenggu",
         "adcode": 152200,
         "children": [],
-        "dir": "china/neimenggu"
+        "dir": "china/neimenggu",
+        "n": 6
       },
       "xilinguole": {
         "id": "xilinguole",
@@ -429,7 +467,8 @@
         "parent": "neimenggu",
         "adcode": 152500,
         "children": [],
-        "dir": "china/neimenggu"
+        "dir": "china/neimenggu",
+        "n": 12
       },
       "alashan": {
         "id": "alashan",
@@ -437,7 +476,8 @@
         "parent": "neimenggu",
         "adcode": 152900,
         "children": [],
-        "dir": "china/neimenggu"
+        "dir": "china/neimenggu",
+        "n": 3
       },
       "liaoning": {
         "id": "liaoning",
@@ -460,7 +500,8 @@
           "chaoyangshi",
           "huludao"
         ],
-        "dir": "china"
+        "dir": "china",
+        "n": 14
       },
       "shenyang": {
         "id": "shenyang",
@@ -468,7 +509,8 @@
         "parent": "liaoning",
         "adcode": 210100,
         "children": [],
-        "dir": "china/liaoning"
+        "dir": "china/liaoning",
+        "n": 13
       },
       "dalian": {
         "id": "dalian",
@@ -476,7 +518,8 @@
         "parent": "liaoning",
         "adcode": 210200,
         "children": [],
-        "dir": "china/liaoning"
+        "dir": "china/liaoning",
+        "n": 10
       },
       "anshan": {
         "id": "anshan",
@@ -484,7 +527,8 @@
         "parent": "liaoning",
         "adcode": 210300,
         "children": [],
-        "dir": "china/liaoning"
+        "dir": "china/liaoning",
+        "n": 7
       },
       "fushun": {
         "id": "fushun",
@@ -492,7 +536,8 @@
         "parent": "liaoning",
         "adcode": 210400,
         "children": [],
-        "dir": "china/liaoning"
+        "dir": "china/liaoning",
+        "n": 7
       },
       "benxi": {
         "id": "benxi",
@@ -500,7 +545,8 @@
         "parent": "liaoning",
         "adcode": 210500,
         "children": [],
-        "dir": "china/liaoning"
+        "dir": "china/liaoning",
+        "n": 6
       },
       "dandong": {
         "id": "dandong",
@@ -508,7 +554,8 @@
         "parent": "liaoning",
         "adcode": 210600,
         "children": [],
-        "dir": "china/liaoning"
+        "dir": "china/liaoning",
+        "n": 6
       },
       "jinzhou": {
         "id": "jinzhou",
@@ -516,7 +563,8 @@
         "parent": "liaoning",
         "adcode": 210700,
         "children": [],
-        "dir": "china/liaoning"
+        "dir": "china/liaoning",
+        "n": 7
       },
       "yingkou": {
         "id": "yingkou",
@@ -524,7 +572,8 @@
         "parent": "liaoning",
         "adcode": 210800,
         "children": [],
-        "dir": "china/liaoning"
+        "dir": "china/liaoning",
+        "n": 6
       },
       "fuxin": {
         "id": "fuxin",
@@ -532,7 +581,8 @@
         "parent": "liaoning",
         "adcode": 210900,
         "children": [],
-        "dir": "china/liaoning"
+        "dir": "china/liaoning",
+        "n": 7
       },
       "liaoyang": {
         "id": "liaoyang",
@@ -540,7 +590,8 @@
         "parent": "liaoning",
         "adcode": 211000,
         "children": [],
-        "dir": "china/liaoning"
+        "dir": "china/liaoning",
+        "n": 7
       },
       "panjin": {
         "id": "panjin",
@@ -548,7 +599,8 @@
         "parent": "liaoning",
         "adcode": 211100,
         "children": [],
-        "dir": "china/liaoning"
+        "dir": "china/liaoning",
+        "n": 4
       },
       "tieling": {
         "id": "tieling",
@@ -556,7 +608,8 @@
         "parent": "liaoning",
         "adcode": 211200,
         "children": [],
-        "dir": "china/liaoning"
+        "dir": "china/liaoning",
+        "n": 7
       },
       "chaoyangshi": {
         "id": "chaoyangshi",
@@ -564,7 +617,8 @@
         "parent": "liaoning",
         "adcode": 211300,
         "children": [],
-        "dir": "china/liaoning"
+        "dir": "china/liaoning",
+        "n": 7
       },
       "huludao": {
         "id": "huludao",
@@ -572,7 +626,8 @@
         "parent": "liaoning",
         "adcode": 211400,
         "children": [],
-        "dir": "china/liaoning"
+        "dir": "china/liaoning",
+        "n": 6
       },
       "jilin": {
         "id": "jilin",
@@ -590,7 +645,8 @@
           "baicheng",
           "yanbian"
         ],
-        "dir": "china"
+        "dir": "china",
+        "n": 9
       },
       "changchun": {
         "id": "changchun",
@@ -598,7 +654,8 @@
         "parent": "jilin",
         "adcode": 220100,
         "children": [],
-        "dir": "china/jilin"
+        "dir": "china/jilin",
+        "n": 11
       },
       "jilinshi": {
         "id": "jilinshi",
@@ -606,7 +663,8 @@
         "parent": "jilin",
         "adcode": 220200,
         "children": [],
-        "dir": "china/jilin"
+        "dir": "china/jilin",
+        "n": 9
       },
       "siping": {
         "id": "siping",
@@ -614,7 +672,8 @@
         "parent": "jilin",
         "adcode": 220300,
         "children": [],
-        "dir": "china/jilin"
+        "dir": "china/jilin",
+        "n": 5
       },
       "liaoyuan": {
         "id": "liaoyuan",
@@ -622,7 +681,8 @@
         "parent": "jilin",
         "adcode": 220400,
         "children": [],
-        "dir": "china/jilin"
+        "dir": "china/jilin",
+        "n": 4
       },
       "tonghua": {
         "id": "tonghua",
@@ -630,7 +690,8 @@
         "parent": "jilin",
         "adcode": 220500,
         "children": [],
-        "dir": "china/jilin"
+        "dir": "china/jilin",
+        "n": 7
       },
       "baishan": {
         "id": "baishan",
@@ -638,7 +699,8 @@
         "parent": "jilin",
         "adcode": 220600,
         "children": [],
-        "dir": "china/jilin"
+        "dir": "china/jilin",
+        "n": 6
       },
       "songyuan": {
         "id": "songyuan",
@@ -646,7 +708,8 @@
         "parent": "jilin",
         "adcode": 220700,
         "children": [],
-        "dir": "china/jilin"
+        "dir": "china/jilin",
+        "n": 5
       },
       "baicheng": {
         "id": "baicheng",
@@ -654,7 +717,8 @@
         "parent": "jilin",
         "adcode": 220800,
         "children": [],
-        "dir": "china/jilin"
+        "dir": "china/jilin",
+        "n": 5
       },
       "yanbian": {
         "id": "yanbian",
@@ -662,7 +726,8 @@
         "parent": "jilin",
         "adcode": 222400,
         "children": [],
-        "dir": "china/jilin"
+        "dir": "china/jilin",
+        "n": 8
       },
       "heilongjiang": {
         "id": "heilongjiang",
@@ -684,7 +749,8 @@
           "suihua",
           "daxinganling"
         ],
-        "dir": "china"
+        "dir": "china",
+        "n": 13
       },
       "haerbin": {
         "id": "haerbin",
@@ -692,7 +758,8 @@
         "parent": "heilongjiang",
         "adcode": 230100,
         "children": [],
-        "dir": "china/heilongjiang"
+        "dir": "china/heilongjiang",
+        "n": 18
       },
       "qiqihaer": {
         "id": "qiqihaer",
@@ -700,7 +767,8 @@
         "parent": "heilongjiang",
         "adcode": 230200,
         "children": [],
-        "dir": "china/heilongjiang"
+        "dir": "china/heilongjiang",
+        "n": 16
       },
       "jixi": {
         "id": "jixi",
@@ -708,7 +776,8 @@
         "parent": "heilongjiang",
         "adcode": 230300,
         "children": [],
-        "dir": "china/heilongjiang"
+        "dir": "china/heilongjiang",
+        "n": 9
       },
       "hegang": {
         "id": "hegang",
@@ -716,7 +785,8 @@
         "parent": "heilongjiang",
         "adcode": 230400,
         "children": [],
-        "dir": "china/heilongjiang"
+        "dir": "china/heilongjiang",
+        "n": 8
       },
       "shuangyashan": {
         "id": "shuangyashan",
@@ -724,7 +794,8 @@
         "parent": "heilongjiang",
         "adcode": 230500,
         "children": [],
-        "dir": "china/heilongjiang"
+        "dir": "china/heilongjiang",
+        "n": 8
       },
       "daqing": {
         "id": "daqing",
@@ -732,7 +803,8 @@
         "parent": "heilongjiang",
         "adcode": 230600,
         "children": [],
-        "dir": "china/heilongjiang"
+        "dir": "china/heilongjiang",
+        "n": 9
       },
       "yichun": {
         "id": "yichun",
@@ -740,7 +812,8 @@
         "parent": "heilongjiang",
         "adcode": 230700,
         "children": [],
-        "dir": "china/heilongjiang"
+        "dir": "china/heilongjiang",
+        "n": 10
       },
       "jiamusi": {
         "id": "jiamusi",
@@ -748,7 +821,8 @@
         "parent": "heilongjiang",
         "adcode": 230800,
         "children": [],
-        "dir": "china/heilongjiang"
+        "dir": "china/heilongjiang",
+        "n": 10
       },
       "qitaihe": {
         "id": "qitaihe",
@@ -756,7 +830,8 @@
         "parent": "heilongjiang",
         "adcode": 230900,
         "children": [],
-        "dir": "china/heilongjiang"
+        "dir": "china/heilongjiang",
+        "n": 4
       },
       "mudanjiang": {
         "id": "mudanjiang",
@@ -764,7 +839,8 @@
         "parent": "heilongjiang",
         "adcode": 231000,
         "children": [],
-        "dir": "china/heilongjiang"
+        "dir": "china/heilongjiang",
+        "n": 10
       },
       "heihe": {
         "id": "heihe",
@@ -772,7 +848,8 @@
         "parent": "heilongjiang",
         "adcode": 231100,
         "children": [],
-        "dir": "china/heilongjiang"
+        "dir": "china/heilongjiang",
+        "n": 6
       },
       "suihua": {
         "id": "suihua",
@@ -780,7 +857,8 @@
         "parent": "heilongjiang",
         "adcode": 231200,
         "children": [],
-        "dir": "china/heilongjiang"
+        "dir": "china/heilongjiang",
+        "n": 10
       },
       "daxinganling": {
         "id": "daxinganling",
@@ -788,7 +866,8 @@
         "parent": "heilongjiang",
         "adcode": 232700,
         "children": [],
-        "dir": "china/heilongjiang"
+        "dir": "china/heilongjiang",
+        "n": 3
       },
       "shanghai": {
         "id": "shanghai",
@@ -796,7 +875,8 @@
         "parent": "china",
         "adcode": 310000,
         "children": [],
-        "dir": "china"
+        "dir": "china",
+        "n": 16
       },
       "jiangsu": {
         "id": "jiangsu",
@@ -818,7 +898,8 @@
           "taizhou",
           "suqian"
         ],
-        "dir": "china"
+        "dir": "china",
+        "n": 13
       },
       "nanjing": {
         "id": "nanjing",
@@ -826,7 +907,8 @@
         "parent": "jiangsu",
         "adcode": 320100,
         "children": [],
-        "dir": "china/jiangsu"
+        "dir": "china/jiangsu",
+        "n": 11
       },
       "wuxi": {
         "id": "wuxi",
@@ -834,7 +916,8 @@
         "parent": "jiangsu",
         "adcode": 320200,
         "children": [],
-        "dir": "china/jiangsu"
+        "dir": "china/jiangsu",
+        "n": 7
       },
       "xuzhou": {
         "id": "xuzhou",
@@ -842,7 +925,8 @@
         "parent": "jiangsu",
         "adcode": 320300,
         "children": [],
-        "dir": "china/jiangsu"
+        "dir": "china/jiangsu",
+        "n": 10
       },
       "changzhou": {
         "id": "changzhou",
@@ -850,7 +934,8 @@
         "parent": "jiangsu",
         "adcode": 320400,
         "children": [],
-        "dir": "china/jiangsu"
+        "dir": "china/jiangsu",
+        "n": 6
       },
       "suzhou": {
         "id": "suzhou",
@@ -858,7 +943,8 @@
         "parent": "jiangsu",
         "adcode": 320500,
         "children": [],
-        "dir": "china/jiangsu"
+        "dir": "china/jiangsu",
+        "n": 9
       },
       "nantong": {
         "id": "nantong",
@@ -866,7 +952,8 @@
         "parent": "jiangsu",
         "adcode": 320600,
         "children": [],
-        "dir": "china/jiangsu"
+        "dir": "china/jiangsu",
+        "n": 7
       },
       "lianyungang": {
         "id": "lianyungang",
@@ -874,7 +961,8 @@
         "parent": "jiangsu",
         "adcode": 320700,
         "children": [],
-        "dir": "china/jiangsu"
+        "dir": "china/jiangsu",
+        "n": 6
       },
       "huaian": {
         "id": "huaian",
@@ -882,7 +970,8 @@
         "parent": "jiangsu",
         "adcode": 320800,
         "children": [],
-        "dir": "china/jiangsu"
+        "dir": "china/jiangsu",
+        "n": 7
       },
       "yancheng": {
         "id": "yancheng",
@@ -890,7 +979,8 @@
         "parent": "jiangsu",
         "adcode": 320900,
         "children": [],
-        "dir": "china/jiangsu"
+        "dir": "china/jiangsu",
+        "n": 9
       },
       "yangzhou": {
         "id": "yangzhou",
@@ -898,7 +988,8 @@
         "parent": "jiangsu",
         "adcode": 321000,
         "children": [],
-        "dir": "china/jiangsu"
+        "dir": "china/jiangsu",
+        "n": 6
       },
       "zhenjiang": {
         "id": "zhenjiang",
@@ -906,7 +997,8 @@
         "parent": "jiangsu",
         "adcode": 321100,
         "children": [],
-        "dir": "china/jiangsu"
+        "dir": "china/jiangsu",
+        "n": 6
       },
       "taizhou": {
         "id": "taizhou",
@@ -914,7 +1006,8 @@
         "parent": "jiangsu",
         "adcode": 321200,
         "children": [],
-        "dir": "china/jiangsu"
+        "dir": "china/jiangsu",
+        "n": 6
       },
       "suqian": {
         "id": "suqian",
@@ -922,7 +1015,8 @@
         "parent": "jiangsu",
         "adcode": 321300,
         "children": [],
-        "dir": "china/jiangsu"
+        "dir": "china/jiangsu",
+        "n": 5
       },
       "zhejiang": {
         "id": "zhejiang",
@@ -942,7 +1036,8 @@
           "taizhoushi",
           "lishui"
         ],
-        "dir": "china"
+        "dir": "china",
+        "n": 11
       },
       "hangzhou": {
         "id": "hangzhou",
@@ -950,7 +1045,8 @@
         "parent": "zhejiang",
         "adcode": 330100,
         "children": [],
-        "dir": "china/zhejiang"
+        "dir": "china/zhejiang",
+        "n": 13
       },
       "ningbo": {
         "id": "ningbo",
@@ -958,7 +1054,8 @@
         "parent": "zhejiang",
         "adcode": 330200,
         "children": [],
-        "dir": "china/zhejiang"
+        "dir": "china/zhejiang",
+        "n": 10
       },
       "wenzhou": {
         "id": "wenzhou",
@@ -966,7 +1063,8 @@
         "parent": "zhejiang",
         "adcode": 330300,
         "children": [],
-        "dir": "china/zhejiang"
+        "dir": "china/zhejiang",
+        "n": 12
       },
       "jiaxing": {
         "id": "jiaxing",
@@ -974,7 +1072,8 @@
         "parent": "zhejiang",
         "adcode": 330400,
         "children": [],
-        "dir": "china/zhejiang"
+        "dir": "china/zhejiang",
+        "n": 7
       },
       "huzhou": {
         "id": "huzhou",
@@ -982,7 +1081,8 @@
         "parent": "zhejiang",
         "adcode": 330500,
         "children": [],
-        "dir": "china/zhejiang"
+        "dir": "china/zhejiang",
+        "n": 5
       },
       "shaoxing": {
         "id": "shaoxing",
@@ -990,7 +1090,8 @@
         "parent": "zhejiang",
         "adcode": 330600,
         "children": [],
-        "dir": "china/zhejiang"
+        "dir": "china/zhejiang",
+        "n": 6
       },
       "jinhua": {
         "id": "jinhua",
@@ -998,7 +1099,8 @@
         "parent": "zhejiang",
         "adcode": 330700,
         "children": [],
-        "dir": "china/zhejiang"
+        "dir": "china/zhejiang",
+        "n": 9
       },
       "quzhou": {
         "id": "quzhou",
@@ -1006,7 +1108,8 @@
         "parent": "zhejiang",
         "adcode": 330800,
         "children": [],
-        "dir": "china/zhejiang"
+        "dir": "china/zhejiang",
+        "n": 6
       },
       "zhoushan": {
         "id": "zhoushan",
@@ -1014,7 +1117,8 @@
         "parent": "zhejiang",
         "adcode": 330900,
         "children": [],
-        "dir": "china/zhejiang"
+        "dir": "china/zhejiang",
+        "n": 4
       },
       "taizhoushi": {
         "id": "taizhoushi",
@@ -1022,7 +1126,8 @@
         "parent": "zhejiang",
         "adcode": 331000,
         "children": [],
-        "dir": "china/zhejiang"
+        "dir": "china/zhejiang",
+        "n": 9
       },
       "lishui": {
         "id": "lishui",
@@ -1030,7 +1135,8 @@
         "parent": "zhejiang",
         "adcode": 331100,
         "children": [],
-        "dir": "china/zhejiang"
+        "dir": "china/zhejiang",
+        "n": 9
       },
       "anhui": {
         "id": "anhui",
@@ -1055,7 +1161,8 @@
           "chizhou",
           "xuancheng"
         ],
-        "dir": "china"
+        "dir": "china",
+        "n": 16
       },
       "hefei": {
         "id": "hefei",
@@ -1063,7 +1170,8 @@
         "parent": "anhui",
         "adcode": 340100,
         "children": [],
-        "dir": "china/anhui"
+        "dir": "china/anhui",
+        "n": 9
       },
       "wuhu": {
         "id": "wuhu",
@@ -1071,7 +1179,8 @@
         "parent": "anhui",
         "adcode": 340200,
         "children": [],
-        "dir": "china/anhui"
+        "dir": "china/anhui",
+        "n": 7
       },
       "bengbu": {
         "id": "bengbu",
@@ -1079,7 +1188,8 @@
         "parent": "anhui",
         "adcode": 340300,
         "children": [],
-        "dir": "china/anhui"
+        "dir": "china/anhui",
+        "n": 7
       },
       "huainan": {
         "id": "huainan",
@@ -1087,7 +1197,8 @@
         "parent": "anhui",
         "adcode": 340400,
         "children": [],
-        "dir": "china/anhui"
+        "dir": "china/anhui",
+        "n": 7
       },
       "maanshan": {
         "id": "maanshan",
@@ -1095,7 +1206,8 @@
         "parent": "anhui",
         "adcode": 340500,
         "children": [],
-        "dir": "china/anhui"
+        "dir": "china/anhui",
+        "n": 6
       },
       "huaibei": {
         "id": "huaibei",
@@ -1103,7 +1215,8 @@
         "parent": "anhui",
         "adcode": 340600,
         "children": [],
-        "dir": "china/anhui"
+        "dir": "china/anhui",
+        "n": 4
       },
       "tongling": {
         "id": "tongling",
@@ -1111,7 +1224,8 @@
         "parent": "anhui",
         "adcode": 340700,
         "children": [],
-        "dir": "china/anhui"
+        "dir": "china/anhui",
+        "n": 4
       },
       "anqing": {
         "id": "anqing",
@@ -1119,7 +1233,8 @@
         "parent": "anhui",
         "adcode": 340800,
         "children": [],
-        "dir": "china/anhui"
+        "dir": "china/anhui",
+        "n": 10
       },
       "huangshan": {
         "id": "huangshan",
@@ -1127,7 +1242,8 @@
         "parent": "anhui",
         "adcode": 341000,
         "children": [],
-        "dir": "china/anhui"
+        "dir": "china/anhui",
+        "n": 7
       },
       "chuzhou": {
         "id": "chuzhou",
@@ -1135,7 +1251,8 @@
         "parent": "anhui",
         "adcode": 341100,
         "children": [],
-        "dir": "china/anhui"
+        "dir": "china/anhui",
+        "n": 8
       },
       "fuyang": {
         "id": "fuyang",
@@ -1143,7 +1260,8 @@
         "parent": "anhui",
         "adcode": 341200,
         "children": [],
-        "dir": "china/anhui"
+        "dir": "china/anhui",
+        "n": 8
       },
       "suzhoushi": {
         "id": "suzhoushi",
@@ -1151,7 +1269,8 @@
         "parent": "anhui",
         "adcode": 341300,
         "children": [],
-        "dir": "china/anhui"
+        "dir": "china/anhui",
+        "n": 5
       },
       "luan": {
         "id": "luan",
@@ -1159,7 +1278,8 @@
         "parent": "anhui",
         "adcode": 341500,
         "children": [],
-        "dir": "china/anhui"
+        "dir": "china/anhui",
+        "n": 7
       },
       "bozhou": {
         "id": "bozhou",
@@ -1167,7 +1287,8 @@
         "parent": "anhui",
         "adcode": 341600,
         "children": [],
-        "dir": "china/anhui"
+        "dir": "china/anhui",
+        "n": 4
       },
       "chizhou": {
         "id": "chizhou",
@@ -1175,7 +1296,8 @@
         "parent": "anhui",
         "adcode": 341700,
         "children": [],
-        "dir": "china/anhui"
+        "dir": "china/anhui",
+        "n": 4
       },
       "xuancheng": {
         "id": "xuancheng",
@@ -1183,7 +1305,8 @@
         "parent": "anhui",
         "adcode": 341800,
         "children": [],
-        "dir": "china/anhui"
+        "dir": "china/anhui",
+        "n": 7
       },
       "fujian": {
         "id": "fujian",
@@ -1201,7 +1324,8 @@
           "longyan",
           "ningde"
         ],
-        "dir": "china"
+        "dir": "china",
+        "n": 9
       },
       "fuzhou": {
         "id": "fuzhou",
@@ -1209,7 +1333,8 @@
         "parent": "fujian",
         "adcode": 350100,
         "children": [],
-        "dir": "china/fujian"
+        "dir": "china/fujian",
+        "n": 13
       },
       "xiamen": {
         "id": "xiamen",
@@ -1217,7 +1342,8 @@
         "parent": "fujian",
         "adcode": 350200,
         "children": [],
-        "dir": "china/fujian"
+        "dir": "china/fujian",
+        "n": 6
       },
       "putian": {
         "id": "putian",
@@ -1225,7 +1351,8 @@
         "parent": "fujian",
         "adcode": 350300,
         "children": [],
-        "dir": "china/fujian"
+        "dir": "china/fujian",
+        "n": 5
       },
       "sanming": {
         "id": "sanming",
@@ -1233,7 +1360,8 @@
         "parent": "fujian",
         "adcode": 350400,
         "children": [],
-        "dir": "china/fujian"
+        "dir": "china/fujian",
+        "n": 11
       },
       "quanzhou": {
         "id": "quanzhou",
@@ -1241,7 +1369,8 @@
         "parent": "fujian",
         "adcode": 350500,
         "children": [],
-        "dir": "china/fujian"
+        "dir": "china/fujian",
+        "n": 12
       },
       "zhangzhou": {
         "id": "zhangzhou",
@@ -1249,7 +1378,8 @@
         "parent": "fujian",
         "adcode": 350600,
         "children": [],
-        "dir": "china/fujian"
+        "dir": "china/fujian",
+        "n": 11
       },
       "nanping": {
         "id": "nanping",
@@ -1257,7 +1387,8 @@
         "parent": "fujian",
         "adcode": 350700,
         "children": [],
-        "dir": "china/fujian"
+        "dir": "china/fujian",
+        "n": 10
       },
       "longyan": {
         "id": "longyan",
@@ -1265,7 +1396,8 @@
         "parent": "fujian",
         "adcode": 350800,
         "children": [],
-        "dir": "china/fujian"
+        "dir": "china/fujian",
+        "n": 7
       },
       "ningde": {
         "id": "ningde",
@@ -1273,7 +1405,8 @@
         "parent": "fujian",
         "adcode": 350900,
         "children": [],
-        "dir": "china/fujian"
+        "dir": "china/fujian",
+        "n": 9
       },
       "jiangxi": {
         "id": "jiangxi",
@@ -1293,7 +1426,8 @@
           "fuzhoushi",
           "shangrao"
         ],
-        "dir": "china"
+        "dir": "china",
+        "n": 11
       },
       "nanchang": {
         "id": "nanchang",
@@ -1301,7 +1435,8 @@
         "parent": "jiangxi",
         "adcode": 360100,
         "children": [],
-        "dir": "china/jiangxi"
+        "dir": "china/jiangxi",
+        "n": 9
       },
       "jingdezhen": {
         "id": "jingdezhen",
@@ -1309,7 +1444,8 @@
         "parent": "jiangxi",
         "adcode": 360200,
         "children": [],
-        "dir": "china/jiangxi"
+        "dir": "china/jiangxi",
+        "n": 4
       },
       "pingxiang": {
         "id": "pingxiang",
@@ -1317,7 +1453,8 @@
         "parent": "jiangxi",
         "adcode": 360300,
         "children": [],
-        "dir": "china/jiangxi"
+        "dir": "china/jiangxi",
+        "n": 5
       },
       "jiujiang": {
         "id": "jiujiang",
@@ -1325,7 +1462,8 @@
         "parent": "jiangxi",
         "adcode": 360400,
         "children": [],
-        "dir": "china/jiangxi"
+        "dir": "china/jiangxi",
+        "n": 13
       },
       "xinyu": {
         "id": "xinyu",
@@ -1333,7 +1471,8 @@
         "parent": "jiangxi",
         "adcode": 360500,
         "children": [],
-        "dir": "china/jiangxi"
+        "dir": "china/jiangxi",
+        "n": 2
       },
       "yingtan": {
         "id": "yingtan",
@@ -1341,7 +1480,8 @@
         "parent": "jiangxi",
         "adcode": 360600,
         "children": [],
-        "dir": "china/jiangxi"
+        "dir": "china/jiangxi",
+        "n": 3
       },
       "ganzhou": {
         "id": "ganzhou",
@@ -1349,7 +1489,8 @@
         "parent": "jiangxi",
         "adcode": 360700,
         "children": [],
-        "dir": "china/jiangxi"
+        "dir": "china/jiangxi",
+        "n": 18
       },
       "jian": {
         "id": "jian",
@@ -1357,7 +1498,8 @@
         "parent": "jiangxi",
         "adcode": 360800,
         "children": [],
-        "dir": "china/jiangxi"
+        "dir": "china/jiangxi",
+        "n": 13
       },
       "yichunshi": {
         "id": "yichunshi",
@@ -1365,7 +1507,8 @@
         "parent": "jiangxi",
         "adcode": 360900,
         "children": [],
-        "dir": "china/jiangxi"
+        "dir": "china/jiangxi",
+        "n": 10
       },
       "fuzhoushi": {
         "id": "fuzhoushi",
@@ -1373,7 +1516,8 @@
         "parent": "jiangxi",
         "adcode": 361000,
         "children": [],
-        "dir": "china/jiangxi"
+        "dir": "china/jiangxi",
+        "n": 11
       },
       "shangrao": {
         "id": "shangrao",
@@ -1381,7 +1525,8 @@
         "parent": "jiangxi",
         "adcode": 361100,
         "children": [],
-        "dir": "china/jiangxi"
+        "dir": "china/jiangxi",
+        "n": 12
       },
       "shandong": {
         "id": "shandong",
@@ -1406,7 +1551,8 @@
           "binzhou",
           "heze"
         ],
-        "dir": "china"
+        "dir": "china",
+        "n": 16
       },
       "jinan": {
         "id": "jinan",
@@ -1414,7 +1560,8 @@
         "parent": "shandong",
         "adcode": 370100,
         "children": [],
-        "dir": "china/shandong"
+        "dir": "china/shandong",
+        "n": 12
       },
       "qingdao": {
         "id": "qingdao",
@@ -1422,7 +1569,8 @@
         "parent": "shandong",
         "adcode": 370200,
         "children": [],
-        "dir": "china/shandong"
+        "dir": "china/shandong",
+        "n": 10
       },
       "zibo": {
         "id": "zibo",
@@ -1430,7 +1578,8 @@
         "parent": "shandong",
         "adcode": 370300,
         "children": [],
-        "dir": "china/shandong"
+        "dir": "china/shandong",
+        "n": 8
       },
       "zaozhuang": {
         "id": "zaozhuang",
@@ -1438,7 +1587,8 @@
         "parent": "shandong",
         "adcode": 370400,
         "children": [],
-        "dir": "china/shandong"
+        "dir": "china/shandong",
+        "n": 6
       },
       "dongying": {
         "id": "dongying",
@@ -1446,7 +1596,8 @@
         "parent": "shandong",
         "adcode": 370500,
         "children": [],
-        "dir": "china/shandong"
+        "dir": "china/shandong",
+        "n": 5
       },
       "yantai": {
         "id": "yantai",
@@ -1454,7 +1605,8 @@
         "parent": "shandong",
         "adcode": 370600,
         "children": [],
-        "dir": "china/shandong"
+        "dir": "china/shandong",
+        "n": 11
       },
       "weifang": {
         "id": "weifang",
@@ -1462,7 +1614,8 @@
         "parent": "shandong",
         "adcode": 370700,
         "children": [],
-        "dir": "china/shandong"
+        "dir": "china/shandong",
+        "n": 12
       },
       "jining": {
         "id": "jining",
@@ -1470,7 +1623,8 @@
         "parent": "shandong",
         "adcode": 370800,
         "children": [],
-        "dir": "china/shandong"
+        "dir": "china/shandong",
+        "n": 11
       },
       "taian": {
         "id": "taian",
@@ -1478,7 +1632,8 @@
         "parent": "shandong",
         "adcode": 370900,
         "children": [],
-        "dir": "china/shandong"
+        "dir": "china/shandong",
+        "n": 6
       },
       "weihai": {
         "id": "weihai",
@@ -1486,7 +1641,8 @@
         "parent": "shandong",
         "adcode": 371000,
         "children": [],
-        "dir": "china/shandong"
+        "dir": "china/shandong",
+        "n": 4
       },
       "rizhao": {
         "id": "rizhao",
@@ -1494,7 +1650,8 @@
         "parent": "shandong",
         "adcode": 371100,
         "children": [],
-        "dir": "china/shandong"
+        "dir": "china/shandong",
+        "n": 4
       },
       "linyi": {
         "id": "linyi",
@@ -1502,7 +1659,8 @@
         "parent": "shandong",
         "adcode": 371300,
         "children": [],
-        "dir": "china/shandong"
+        "dir": "china/shandong",
+        "n": 12
       },
       "dezhou": {
         "id": "dezhou",
@@ -1510,7 +1668,8 @@
         "parent": "shandong",
         "adcode": 371400,
         "children": [],
-        "dir": "china/shandong"
+        "dir": "china/shandong",
+        "n": 11
       },
       "liaocheng": {
         "id": "liaocheng",
@@ -1518,7 +1677,8 @@
         "parent": "shandong",
         "adcode": 371500,
         "children": [],
-        "dir": "china/shandong"
+        "dir": "china/shandong",
+        "n": 8
       },
       "binzhou": {
         "id": "binzhou",
@@ -1526,7 +1686,8 @@
         "parent": "shandong",
         "adcode": 371600,
         "children": [],
-        "dir": "china/shandong"
+        "dir": "china/shandong",
+        "n": 7
       },
       "heze": {
         "id": "heze",
@@ -1534,7 +1695,8 @@
         "parent": "shandong",
         "adcode": 371700,
         "children": [],
-        "dir": "china/shandong"
+        "dir": "china/shandong",
+        "n": 9
       },
       "henan": {
         "id": "henan",
@@ -1560,7 +1722,8 @@
           "zhoukou",
           "zhumadian"
         ],
-        "dir": "china"
+        "dir": "china",
+        "n": 17
       },
       "zhengzhou": {
         "id": "zhengzhou",
@@ -1568,7 +1731,8 @@
         "parent": "henan",
         "adcode": 410100,
         "children": [],
-        "dir": "china/henan"
+        "dir": "china/henan",
+        "n": 12
       },
       "kaifeng": {
         "id": "kaifeng",
@@ -1576,7 +1740,8 @@
         "parent": "henan",
         "adcode": 410200,
         "children": [],
-        "dir": "china/henan"
+        "dir": "china/henan",
+        "n": 9
       },
       "luoyang": {
         "id": "luoyang",
@@ -1584,7 +1749,8 @@
         "parent": "henan",
         "adcode": 410300,
         "children": [],
-        "dir": "china/henan"
+        "dir": "china/henan",
+        "n": 14
       },
       "pingdingshan": {
         "id": "pingdingshan",
@@ -1592,7 +1758,8 @@
         "parent": "henan",
         "adcode": 410400,
         "children": [],
-        "dir": "china/henan"
+        "dir": "china/henan",
+        "n": 10
       },
       "anyang": {
         "id": "anyang",
@@ -1600,7 +1767,8 @@
         "parent": "henan",
         "adcode": 410500,
         "children": [],
-        "dir": "china/henan"
+        "dir": "china/henan",
+        "n": 9
       },
       "hebi": {
         "id": "hebi",
@@ -1608,7 +1776,8 @@
         "parent": "henan",
         "adcode": 410600,
         "children": [],
-        "dir": "china/henan"
+        "dir": "china/henan",
+        "n": 5
       },
       "xinxiang": {
         "id": "xinxiang",
@@ -1616,7 +1785,8 @@
         "parent": "henan",
         "adcode": 410700,
         "children": [],
-        "dir": "china/henan"
+        "dir": "china/henan",
+        "n": 12
       },
       "jiaozuo": {
         "id": "jiaozuo",
@@ -1624,7 +1794,8 @@
         "parent": "henan",
         "adcode": 410800,
         "children": [],
-        "dir": "china/henan"
+        "dir": "china/henan",
+        "n": 10
       },
       "puyang": {
         "id": "puyang",
@@ -1632,7 +1803,8 @@
         "parent": "henan",
         "adcode": 410900,
         "children": [],
-        "dir": "china/henan"
+        "dir": "china/henan",
+        "n": 6
       },
       "xuchang": {
         "id": "xuchang",
@@ -1640,7 +1812,8 @@
         "parent": "henan",
         "adcode": 411000,
         "children": [],
-        "dir": "china/henan"
+        "dir": "china/henan",
+        "n": 6
       },
       "luohe": {
         "id": "luohe",
@@ -1648,7 +1821,8 @@
         "parent": "henan",
         "adcode": 411100,
         "children": [],
-        "dir": "china/henan"
+        "dir": "china/henan",
+        "n": 5
       },
       "sanmenxia": {
         "id": "sanmenxia",
@@ -1656,7 +1830,8 @@
         "parent": "henan",
         "adcode": 411200,
         "children": [],
-        "dir": "china/henan"
+        "dir": "china/henan",
+        "n": 6
       },
       "nanyang": {
         "id": "nanyang",
@@ -1664,7 +1839,8 @@
         "parent": "henan",
         "adcode": 411300,
         "children": [],
-        "dir": "china/henan"
+        "dir": "china/henan",
+        "n": 13
       },
       "shangqiu": {
         "id": "shangqiu",
@@ -1672,7 +1848,8 @@
         "parent": "henan",
         "adcode": 411400,
         "children": [],
-        "dir": "china/henan"
+        "dir": "china/henan",
+        "n": 9
       },
       "xinyang": {
         "id": "xinyang",
@@ -1680,7 +1857,8 @@
         "parent": "henan",
         "adcode": 411500,
         "children": [],
-        "dir": "china/henan"
+        "dir": "china/henan",
+        "n": 10
       },
       "zhoukou": {
         "id": "zhoukou",
@@ -1688,7 +1866,8 @@
         "parent": "henan",
         "adcode": 411600,
         "children": [],
-        "dir": "china/henan"
+        "dir": "china/henan",
+        "n": 10
       },
       "zhumadian": {
         "id": "zhumadian",
@@ -1696,7 +1875,8 @@
         "parent": "henan",
         "adcode": 411700,
         "children": [],
-        "dir": "china/henan"
+        "dir": "china/henan",
+        "n": 10
       },
       "hubei": {
         "id": "hubei",
@@ -1718,7 +1898,8 @@
           "suizhou",
           "enshi"
         ],
-        "dir": "china"
+        "dir": "china",
+        "n": 13
       },
       "wuhan": {
         "id": "wuhan",
@@ -1726,7 +1907,8 @@
         "parent": "hubei",
         "adcode": 420100,
         "children": [],
-        "dir": "china/hubei"
+        "dir": "china/hubei",
+        "n": 13
       },
       "huangshi": {
         "id": "huangshi",
@@ -1734,7 +1916,8 @@
         "parent": "hubei",
         "adcode": 420200,
         "children": [],
-        "dir": "china/hubei"
+        "dir": "china/hubei",
+        "n": 6
       },
       "shiyan": {
         "id": "shiyan",
@@ -1742,7 +1925,8 @@
         "parent": "hubei",
         "adcode": 420300,
         "children": [],
-        "dir": "china/hubei"
+        "dir": "china/hubei",
+        "n": 8
       },
       "yichang": {
         "id": "yichang",
@@ -1750,7 +1934,8 @@
         "parent": "hubei",
         "adcode": 420500,
         "children": [],
-        "dir": "china/hubei"
+        "dir": "china/hubei",
+        "n": 13
       },
       "xiangyang": {
         "id": "xiangyang",
@@ -1758,7 +1943,8 @@
         "parent": "hubei",
         "adcode": 420600,
         "children": [],
-        "dir": "china/hubei"
+        "dir": "china/hubei",
+        "n": 9
       },
       "ezhou": {
         "id": "ezhou",
@@ -1766,7 +1952,8 @@
         "parent": "hubei",
         "adcode": 420700,
         "children": [],
-        "dir": "china/hubei"
+        "dir": "china/hubei",
+        "n": 3
       },
       "jingmen": {
         "id": "jingmen",
@@ -1774,7 +1961,8 @@
         "parent": "hubei",
         "adcode": 420800,
         "children": [],
-        "dir": "china/hubei"
+        "dir": "china/hubei",
+        "n": 5
       },
       "xiaogan": {
         "id": "xiaogan",
@@ -1782,7 +1970,8 @@
         "parent": "hubei",
         "adcode": 420900,
         "children": [],
-        "dir": "china/hubei"
+        "dir": "china/hubei",
+        "n": 7
       },
       "jingzhou": {
         "id": "jingzhou",
@@ -1790,7 +1979,8 @@
         "parent": "hubei",
         "adcode": 421000,
         "children": [],
-        "dir": "china/hubei"
+        "dir": "china/hubei",
+        "n": 8
       },
       "huanggang": {
         "id": "huanggang",
@@ -1798,7 +1988,8 @@
         "parent": "hubei",
         "adcode": 421100,
         "children": [],
-        "dir": "china/hubei"
+        "dir": "china/hubei",
+        "n": 10
       },
       "xianning": {
         "id": "xianning",
@@ -1806,7 +1997,8 @@
         "parent": "hubei",
         "adcode": 421200,
         "children": [],
-        "dir": "china/hubei"
+        "dir": "china/hubei",
+        "n": 6
       },
       "suizhou": {
         "id": "suizhou",
@@ -1814,7 +2006,8 @@
         "parent": "hubei",
         "adcode": 421300,
         "children": [],
-        "dir": "china/hubei"
+        "dir": "china/hubei",
+        "n": 3
       },
       "enshi": {
         "id": "enshi",
@@ -1822,7 +2015,8 @@
         "parent": "hubei",
         "adcode": 422800,
         "children": [],
-        "dir": "china/hubei"
+        "dir": "china/hubei",
+        "n": 8
       },
       "hunan": {
         "id": "hunan",
@@ -1845,7 +2039,8 @@
           "loudi",
           "xiangxi"
         ],
-        "dir": "china"
+        "dir": "china",
+        "n": 14
       },
       "changsha": {
         "id": "changsha",
@@ -1853,7 +2048,8 @@
         "parent": "hunan",
         "adcode": 430100,
         "children": [],
-        "dir": "china/hunan"
+        "dir": "china/hunan",
+        "n": 9
       },
       "zhuzhou": {
         "id": "zhuzhou",
@@ -1861,7 +2057,8 @@
         "parent": "hunan",
         "adcode": 430200,
         "children": [],
-        "dir": "china/hunan"
+        "dir": "china/hunan",
+        "n": 9
       },
       "xiangtan": {
         "id": "xiangtan",
@@ -1869,7 +2066,8 @@
         "parent": "hunan",
         "adcode": 430300,
         "children": [],
-        "dir": "china/hunan"
+        "dir": "china/hunan",
+        "n": 5
       },
       "hengyang": {
         "id": "hengyang",
@@ -1877,7 +2075,8 @@
         "parent": "hunan",
         "adcode": 430400,
         "children": [],
-        "dir": "china/hunan"
+        "dir": "china/hunan",
+        "n": 12
       },
       "shaoyang": {
         "id": "shaoyang",
@@ -1885,7 +2084,8 @@
         "parent": "hunan",
         "adcode": 430500,
         "children": [],
-        "dir": "china/hunan"
+        "dir": "china/hunan",
+        "n": 12
       },
       "yueyang": {
         "id": "yueyang",
@@ -1893,7 +2093,8 @@
         "parent": "hunan",
         "adcode": 430600,
         "children": [],
-        "dir": "china/hunan"
+        "dir": "china/hunan",
+        "n": 9
       },
       "changde": {
         "id": "changde",
@@ -1901,7 +2102,8 @@
         "parent": "hunan",
         "adcode": 430700,
         "children": [],
-        "dir": "china/hunan"
+        "dir": "china/hunan",
+        "n": 9
       },
       "zhangjiajie": {
         "id": "zhangjiajie",
@@ -1909,7 +2111,8 @@
         "parent": "hunan",
         "adcode": 430800,
         "children": [],
-        "dir": "china/hunan"
+        "dir": "china/hunan",
+        "n": 4
       },
       "yiyang": {
         "id": "yiyang",
@@ -1917,7 +2120,8 @@
         "parent": "hunan",
         "adcode": 430900,
         "children": [],
-        "dir": "china/hunan"
+        "dir": "china/hunan",
+        "n": 6
       },
       "chenzhou": {
         "id": "chenzhou",
@@ -1925,7 +2129,8 @@
         "parent": "hunan",
         "adcode": 431000,
         "children": [],
-        "dir": "china/hunan"
+        "dir": "china/hunan",
+        "n": 11
       },
       "yongzhou": {
         "id": "yongzhou",
@@ -1933,7 +2138,8 @@
         "parent": "hunan",
         "adcode": 431100,
         "children": [],
-        "dir": "china/hunan"
+        "dir": "china/hunan",
+        "n": 11
       },
       "huaihua": {
         "id": "huaihua",
@@ -1941,7 +2147,8 @@
         "parent": "hunan",
         "adcode": 431200,
         "children": [],
-        "dir": "china/hunan"
+        "dir": "china/hunan",
+        "n": 12
       },
       "loudi": {
         "id": "loudi",
@@ -1949,7 +2156,8 @@
         "parent": "hunan",
         "adcode": 431300,
         "children": [],
-        "dir": "china/hunan"
+        "dir": "china/hunan",
+        "n": 5
       },
       "xiangxi": {
         "id": "xiangxi",
@@ -1957,7 +2165,8 @@
         "parent": "hunan",
         "adcode": 433100,
         "children": [],
-        "dir": "china/hunan"
+        "dir": "china/hunan",
+        "n": 8
       },
       "guangdong": {
         "id": "guangdong",
@@ -1985,7 +2194,8 @@
           "jieyang",
           "yunfu"
         ],
-        "dir": "china"
+        "dir": "china",
+        "n": 19
       },
       "guangzhou": {
         "id": "guangzhou",
@@ -1993,7 +2203,8 @@
         "parent": "guangdong",
         "adcode": 440100,
         "children": [],
-        "dir": "china/guangdong"
+        "dir": "china/guangdong",
+        "n": 11
       },
       "shaoguan": {
         "id": "shaoguan",
@@ -2001,7 +2212,8 @@
         "parent": "guangdong",
         "adcode": 440200,
         "children": [],
-        "dir": "china/guangdong"
+        "dir": "china/guangdong",
+        "n": 10
       },
       "shenzhen": {
         "id": "shenzhen",
@@ -2009,7 +2221,8 @@
         "parent": "guangdong",
         "adcode": 440300,
         "children": [],
-        "dir": "china/guangdong"
+        "dir": "china/guangdong",
+        "n": 9
       },
       "zhuhai": {
         "id": "zhuhai",
@@ -2017,7 +2230,8 @@
         "parent": "guangdong",
         "adcode": 440400,
         "children": [],
-        "dir": "china/guangdong"
+        "dir": "china/guangdong",
+        "n": 3
       },
       "shantou": {
         "id": "shantou",
@@ -2025,7 +2239,8 @@
         "parent": "guangdong",
         "adcode": 440500,
         "children": [],
-        "dir": "china/guangdong"
+        "dir": "china/guangdong",
+        "n": 7
       },
       "foshan": {
         "id": "foshan",
@@ -2033,7 +2248,8 @@
         "parent": "guangdong",
         "adcode": 440600,
         "children": [],
-        "dir": "china/guangdong"
+        "dir": "china/guangdong",
+        "n": 5
       },
       "jiangmen": {
         "id": "jiangmen",
@@ -2041,7 +2257,8 @@
         "parent": "guangdong",
         "adcode": 440700,
         "children": [],
-        "dir": "china/guangdong"
+        "dir": "china/guangdong",
+        "n": 7
       },
       "zhanjiang": {
         "id": "zhanjiang",
@@ -2049,7 +2266,8 @@
         "parent": "guangdong",
         "adcode": 440800,
         "children": [],
-        "dir": "china/guangdong"
+        "dir": "china/guangdong",
+        "n": 9
       },
       "maoming": {
         "id": "maoming",
@@ -2057,7 +2275,8 @@
         "parent": "guangdong",
         "adcode": 440900,
         "children": [],
-        "dir": "china/guangdong"
+        "dir": "china/guangdong",
+        "n": 5
       },
       "zhaoqing": {
         "id": "zhaoqing",
@@ -2065,7 +2284,8 @@
         "parent": "guangdong",
         "adcode": 441200,
         "children": [],
-        "dir": "china/guangdong"
+        "dir": "china/guangdong",
+        "n": 8
       },
       "huizhou": {
         "id": "huizhou",
@@ -2073,7 +2293,8 @@
         "parent": "guangdong",
         "adcode": 441300,
         "children": [],
-        "dir": "china/guangdong"
+        "dir": "china/guangdong",
+        "n": 5
       },
       "meizhou": {
         "id": "meizhou",
@@ -2081,7 +2302,8 @@
         "parent": "guangdong",
         "adcode": 441400,
         "children": [],
-        "dir": "china/guangdong"
+        "dir": "china/guangdong",
+        "n": 8
       },
       "shanwei": {
         "id": "shanwei",
@@ -2089,7 +2311,8 @@
         "parent": "guangdong",
         "adcode": 441500,
         "children": [],
-        "dir": "china/guangdong"
+        "dir": "china/guangdong",
+        "n": 4
       },
       "heyuan": {
         "id": "heyuan",
@@ -2097,7 +2320,8 @@
         "parent": "guangdong",
         "adcode": 441600,
         "children": [],
-        "dir": "china/guangdong"
+        "dir": "china/guangdong",
+        "n": 6
       },
       "yangjiang": {
         "id": "yangjiang",
@@ -2105,7 +2329,8 @@
         "parent": "guangdong",
         "adcode": 441700,
         "children": [],
-        "dir": "china/guangdong"
+        "dir": "china/guangdong",
+        "n": 4
       },
       "qingyuan": {
         "id": "qingyuan",
@@ -2113,7 +2338,8 @@
         "parent": "guangdong",
         "adcode": 441800,
         "children": [],
-        "dir": "china/guangdong"
+        "dir": "china/guangdong",
+        "n": 8
       },
       "chaozhou": {
         "id": "chaozhou",
@@ -2121,7 +2347,8 @@
         "parent": "guangdong",
         "adcode": 445100,
         "children": [],
-        "dir": "china/guangdong"
+        "dir": "china/guangdong",
+        "n": 3
       },
       "jieyang": {
         "id": "jieyang",
@@ -2129,7 +2356,8 @@
         "parent": "guangdong",
         "adcode": 445200,
         "children": [],
-        "dir": "china/guangdong"
+        "dir": "china/guangdong",
+        "n": 5
       },
       "yunfu": {
         "id": "yunfu",
@@ -2137,7 +2365,8 @@
         "parent": "guangdong",
         "adcode": 445300,
         "children": [],
-        "dir": "china/guangdong"
+        "dir": "china/guangdong",
+        "n": 5
       },
       "guangxi": {
         "id": "guangxi",
@@ -2160,7 +2389,8 @@
           "laibin",
           "chongzuo"
         ],
-        "dir": "china"
+        "dir": "china",
+        "n": 14
       },
       "nanning": {
         "id": "nanning",
@@ -2168,7 +2398,8 @@
         "parent": "guangxi",
         "adcode": 450100,
         "children": [],
-        "dir": "china/guangxi"
+        "dir": "china/guangxi",
+        "n": 12
       },
       "liuzhou": {
         "id": "liuzhou",
@@ -2176,7 +2407,8 @@
         "parent": "guangxi",
         "adcode": 450200,
         "children": [],
-        "dir": "china/guangxi"
+        "dir": "china/guangxi",
+        "n": 10
       },
       "guilin": {
         "id": "guilin",
@@ -2184,7 +2416,8 @@
         "parent": "guangxi",
         "adcode": 450300,
         "children": [],
-        "dir": "china/guangxi"
+        "dir": "china/guangxi",
+        "n": 17
       },
       "wuzhou": {
         "id": "wuzhou",
@@ -2192,7 +2425,8 @@
         "parent": "guangxi",
         "adcode": 450400,
         "children": [],
-        "dir": "china/guangxi"
+        "dir": "china/guangxi",
+        "n": 7
       },
       "beihai": {
         "id": "beihai",
@@ -2200,7 +2434,8 @@
         "parent": "guangxi",
         "adcode": 450500,
         "children": [],
-        "dir": "china/guangxi"
+        "dir": "china/guangxi",
+        "n": 4
       },
       "fangchenggang": {
         "id": "fangchenggang",
@@ -2208,7 +2443,8 @@
         "parent": "guangxi",
         "adcode": 450600,
         "children": [],
-        "dir": "china/guangxi"
+        "dir": "china/guangxi",
+        "n": 4
       },
       "qinzhou": {
         "id": "qinzhou",
@@ -2216,7 +2452,8 @@
         "parent": "guangxi",
         "adcode": 450700,
         "children": [],
-        "dir": "china/guangxi"
+        "dir": "china/guangxi",
+        "n": 4
       },
       "guigang": {
         "id": "guigang",
@@ -2224,7 +2461,8 @@
         "parent": "guangxi",
         "adcode": 450800,
         "children": [],
-        "dir": "china/guangxi"
+        "dir": "china/guangxi",
+        "n": 5
       },
       "yulin": {
         "id": "yulin",
@@ -2232,7 +2470,8 @@
         "parent": "guangxi",
         "adcode": 450900,
         "children": [],
-        "dir": "china/guangxi"
+        "dir": "china/guangxi",
+        "n": 7
       },
       "baise": {
         "id": "baise",
@@ -2240,7 +2479,8 @@
         "parent": "guangxi",
         "adcode": 451000,
         "children": [],
-        "dir": "china/guangxi"
+        "dir": "china/guangxi",
+        "n": 12
       },
       "hezhou": {
         "id": "hezhou",
@@ -2248,7 +2488,8 @@
         "parent": "guangxi",
         "adcode": 451100,
         "children": [],
-        "dir": "china/guangxi"
+        "dir": "china/guangxi",
+        "n": 5
       },
       "hechi": {
         "id": "hechi",
@@ -2256,7 +2497,8 @@
         "parent": "guangxi",
         "adcode": 451200,
         "children": [],
-        "dir": "china/guangxi"
+        "dir": "china/guangxi",
+        "n": 11
       },
       "laibin": {
         "id": "laibin",
@@ -2264,7 +2506,8 @@
         "parent": "guangxi",
         "adcode": 451300,
         "children": [],
-        "dir": "china/guangxi"
+        "dir": "china/guangxi",
+        "n": 6
       },
       "chongzuo": {
         "id": "chongzuo",
@@ -2272,7 +2515,8 @@
         "parent": "guangxi",
         "adcode": 451400,
         "children": [],
-        "dir": "china/guangxi"
+        "dir": "china/guangxi",
+        "n": 7
       },
       "hainan": {
         "id": "hainan",
@@ -2284,7 +2528,8 @@
           "sanya",
           "sansha"
         ],
-        "dir": "china"
+        "dir": "china",
+        "n": 3
       },
       "haikou": {
         "id": "haikou",
@@ -2292,7 +2537,8 @@
         "parent": "hainan",
         "adcode": 460100,
         "children": [],
-        "dir": "china/hainan"
+        "dir": "china/hainan",
+        "n": 4
       },
       "sanya": {
         "id": "sanya",
@@ -2300,7 +2546,8 @@
         "parent": "hainan",
         "adcode": 460200,
         "children": [],
-        "dir": "china/hainan"
+        "dir": "china/hainan",
+        "n": 4
       },
       "sansha": {
         "id": "sansha",
@@ -2308,7 +2555,8 @@
         "parent": "hainan",
         "adcode": 460300,
         "children": [],
-        "dir": "china/hainan"
+        "dir": "china/hainan",
+        "n": 2
       },
       "chongqing": {
         "id": "chongqing",
@@ -2316,7 +2564,8 @@
         "parent": "china",
         "adcode": 500000,
         "children": [],
-        "dir": "china"
+        "dir": "china",
+        "n": 38
       },
       "sichuan": {
         "id": "sichuan",
@@ -2346,7 +2595,8 @@
           "ganzi",
           "liangshan"
         ],
-        "dir": "china"
+        "dir": "china",
+        "n": 21
       },
       "chengdu": {
         "id": "chengdu",
@@ -2354,7 +2604,8 @@
         "parent": "sichuan",
         "adcode": 510100,
         "children": [],
-        "dir": "china/sichuan"
+        "dir": "china/sichuan",
+        "n": 20
       },
       "zigong": {
         "id": "zigong",
@@ -2362,7 +2613,8 @@
         "parent": "sichuan",
         "adcode": 510300,
         "children": [],
-        "dir": "china/sichuan"
+        "dir": "china/sichuan",
+        "n": 6
       },
       "panzhihua": {
         "id": "panzhihua",
@@ -2370,7 +2622,8 @@
         "parent": "sichuan",
         "adcode": 510400,
         "children": [],
-        "dir": "china/sichuan"
+        "dir": "china/sichuan",
+        "n": 5
       },
       "luzhou": {
         "id": "luzhou",
@@ -2378,7 +2631,8 @@
         "parent": "sichuan",
         "adcode": 510500,
         "children": [],
-        "dir": "china/sichuan"
+        "dir": "china/sichuan",
+        "n": 7
       },
       "deyang": {
         "id": "deyang",
@@ -2386,7 +2640,8 @@
         "parent": "sichuan",
         "adcode": 510600,
         "children": [],
-        "dir": "china/sichuan"
+        "dir": "china/sichuan",
+        "n": 6
       },
       "mianyang": {
         "id": "mianyang",
@@ -2394,7 +2649,8 @@
         "parent": "sichuan",
         "adcode": 510700,
         "children": [],
-        "dir": "china/sichuan"
+        "dir": "china/sichuan",
+        "n": 9
       },
       "guangyuan": {
         "id": "guangyuan",
@@ -2402,7 +2658,8 @@
         "parent": "sichuan",
         "adcode": 510800,
         "children": [],
-        "dir": "china/sichuan"
+        "dir": "china/sichuan",
+        "n": 7
       },
       "suining": {
         "id": "suining",
@@ -2410,7 +2667,8 @@
         "parent": "sichuan",
         "adcode": 510900,
         "children": [],
-        "dir": "china/sichuan"
+        "dir": "china/sichuan",
+        "n": 5
       },
       "neijiang": {
         "id": "neijiang",
@@ -2418,7 +2676,8 @@
         "parent": "sichuan",
         "adcode": 511000,
         "children": [],
-        "dir": "china/sichuan"
+        "dir": "china/sichuan",
+        "n": 5
       },
       "leshan": {
         "id": "leshan",
@@ -2426,7 +2685,8 @@
         "parent": "sichuan",
         "adcode": 511100,
         "children": [],
-        "dir": "china/sichuan"
+        "dir": "china/sichuan",
+        "n": 11
       },
       "nanchong": {
         "id": "nanchong",
@@ -2434,7 +2694,8 @@
         "parent": "sichuan",
         "adcode": 511300,
         "children": [],
-        "dir": "china/sichuan"
+        "dir": "china/sichuan",
+        "n": 9
       },
       "meishan": {
         "id": "meishan",
@@ -2442,7 +2703,8 @@
         "parent": "sichuan",
         "adcode": 511400,
         "children": [],
-        "dir": "china/sichuan"
+        "dir": "china/sichuan",
+        "n": 6
       },
       "yibin": {
         "id": "yibin",
@@ -2450,7 +2712,8 @@
         "parent": "sichuan",
         "adcode": 511500,
         "children": [],
-        "dir": "china/sichuan"
+        "dir": "china/sichuan",
+        "n": 10
       },
       "guangan": {
         "id": "guangan",
@@ -2458,7 +2721,8 @@
         "parent": "sichuan",
         "adcode": 511600,
         "children": [],
-        "dir": "china/sichuan"
+        "dir": "china/sichuan",
+        "n": 6
       },
       "dazhou": {
         "id": "dazhou",
@@ -2466,7 +2730,8 @@
         "parent": "sichuan",
         "adcode": 511700,
         "children": [],
-        "dir": "china/sichuan"
+        "dir": "china/sichuan",
+        "n": 7
       },
       "yaan": {
         "id": "yaan",
@@ -2474,7 +2739,8 @@
         "parent": "sichuan",
         "adcode": 511800,
         "children": [],
-        "dir": "china/sichuan"
+        "dir": "china/sichuan",
+        "n": 8
       },
       "bazhong": {
         "id": "bazhong",
@@ -2482,7 +2748,8 @@
         "parent": "sichuan",
         "adcode": 511900,
         "children": [],
-        "dir": "china/sichuan"
+        "dir": "china/sichuan",
+        "n": 5
       },
       "ziyang": {
         "id": "ziyang",
@@ -2490,7 +2757,8 @@
         "parent": "sichuan",
         "adcode": 512000,
         "children": [],
-        "dir": "china/sichuan"
+        "dir": "china/sichuan",
+        "n": 3
       },
       "aba": {
         "id": "aba",
@@ -2498,7 +2766,8 @@
         "parent": "sichuan",
         "adcode": 513200,
         "children": [],
-        "dir": "china/sichuan"
+        "dir": "china/sichuan",
+        "n": 13
       },
       "ganzi": {
         "id": "ganzi",
@@ -2506,7 +2775,8 @@
         "parent": "sichuan",
         "adcode": 513300,
         "children": [],
-        "dir": "china/sichuan"
+        "dir": "china/sichuan",
+        "n": 18
       },
       "liangshan": {
         "id": "liangshan",
@@ -2514,7 +2784,8 @@
         "parent": "sichuan",
         "adcode": 513400,
         "children": [],
-        "dir": "china/sichuan"
+        "dir": "china/sichuan",
+        "n": 17
       },
       "guizhou": {
         "id": "guizhou",
@@ -2532,7 +2803,8 @@
           "qiandongnan",
           "qiannan"
         ],
-        "dir": "china"
+        "dir": "china",
+        "n": 9
       },
       "guiyang": {
         "id": "guiyang",
@@ -2540,7 +2812,8 @@
         "parent": "guizhou",
         "adcode": 520100,
         "children": [],
-        "dir": "china/guizhou"
+        "dir": "china/guizhou",
+        "n": 10
       },
       "liupanshui": {
         "id": "liupanshui",
@@ -2548,7 +2821,8 @@
         "parent": "guizhou",
         "adcode": 520200,
         "children": [],
-        "dir": "china/guizhou"
+        "dir": "china/guizhou",
+        "n": 4
       },
       "zunyi": {
         "id": "zunyi",
@@ -2556,7 +2830,8 @@
         "parent": "guizhou",
         "adcode": 520300,
         "children": [],
-        "dir": "china/guizhou"
+        "dir": "china/guizhou",
+        "n": 14
       },
       "anshun": {
         "id": "anshun",
@@ -2564,7 +2839,8 @@
         "parent": "guizhou",
         "adcode": 520400,
         "children": [],
-        "dir": "china/guizhou"
+        "dir": "china/guizhou",
+        "n": 6
       },
       "bijie": {
         "id": "bijie",
@@ -2572,7 +2848,8 @@
         "parent": "guizhou",
         "adcode": 520500,
         "children": [],
-        "dir": "china/guizhou"
+        "dir": "china/guizhou",
+        "n": 8
       },
       "tongren": {
         "id": "tongren",
@@ -2580,7 +2857,8 @@
         "parent": "guizhou",
         "adcode": 520600,
         "children": [],
-        "dir": "china/guizhou"
+        "dir": "china/guizhou",
+        "n": 10
       },
       "qianxinan": {
         "id": "qianxinan",
@@ -2588,7 +2866,8 @@
         "parent": "guizhou",
         "adcode": 522300,
         "children": [],
-        "dir": "china/guizhou"
+        "dir": "china/guizhou",
+        "n": 8
       },
       "qiandongnan": {
         "id": "qiandongnan",
@@ -2596,7 +2875,8 @@
         "parent": "guizhou",
         "adcode": 522600,
         "children": [],
-        "dir": "china/guizhou"
+        "dir": "china/guizhou",
+        "n": 16
       },
       "qiannan": {
         "id": "qiannan",
@@ -2604,7 +2884,8 @@
         "parent": "guizhou",
         "adcode": 522700,
         "children": [],
-        "dir": "china/guizhou"
+        "dir": "china/guizhou",
+        "n": 12
       },
       "yunnan": {
         "id": "yunnan",
@@ -2629,7 +2910,8 @@
           "nujiang",
           "diqing"
         ],
-        "dir": "china"
+        "dir": "china",
+        "n": 16
       },
       "kunming": {
         "id": "kunming",
@@ -2637,7 +2919,8 @@
         "parent": "yunnan",
         "adcode": 530100,
         "children": [],
-        "dir": "china/yunnan"
+        "dir": "china/yunnan",
+        "n": 14
       },
       "qujing": {
         "id": "qujing",
@@ -2645,7 +2928,8 @@
         "parent": "yunnan",
         "adcode": 530300,
         "children": [],
-        "dir": "china/yunnan"
+        "dir": "china/yunnan",
+        "n": 9
       },
       "yuxi": {
         "id": "yuxi",
@@ -2653,7 +2937,8 @@
         "parent": "yunnan",
         "adcode": 530400,
         "children": [],
-        "dir": "china/yunnan"
+        "dir": "china/yunnan",
+        "n": 9
       },
       "baoshanshi": {
         "id": "baoshanshi",
@@ -2661,7 +2946,8 @@
         "parent": "yunnan",
         "adcode": 530500,
         "children": [],
-        "dir": "china/yunnan"
+        "dir": "china/yunnan",
+        "n": 5
       },
       "zhaotong": {
         "id": "zhaotong",
@@ -2669,7 +2955,8 @@
         "parent": "yunnan",
         "adcode": 530600,
         "children": [],
-        "dir": "china/yunnan"
+        "dir": "china/yunnan",
+        "n": 11
       },
       "lijiang": {
         "id": "lijiang",
@@ -2677,7 +2964,8 @@
         "parent": "yunnan",
         "adcode": 530700,
         "children": [],
-        "dir": "china/yunnan"
+        "dir": "china/yunnan",
+        "n": 5
       },
       "puer": {
         "id": "puer",
@@ -2685,7 +2973,8 @@
         "parent": "yunnan",
         "adcode": 530800,
         "children": [],
-        "dir": "china/yunnan"
+        "dir": "china/yunnan",
+        "n": 10
       },
       "lincang": {
         "id": "lincang",
@@ -2693,7 +2982,8 @@
         "parent": "yunnan",
         "adcode": 530900,
         "children": [],
-        "dir": "china/yunnan"
+        "dir": "china/yunnan",
+        "n": 8
       },
       "chuxiong": {
         "id": "chuxiong",
@@ -2701,7 +2991,8 @@
         "parent": "yunnan",
         "adcode": 532300,
         "children": [],
-        "dir": "china/yunnan"
+        "dir": "china/yunnan",
+        "n": 10
       },
       "honghe": {
         "id": "honghe",
@@ -2709,7 +3000,8 @@
         "parent": "yunnan",
         "adcode": 532500,
         "children": [],
-        "dir": "china/yunnan"
+        "dir": "china/yunnan",
+        "n": 13
       },
       "wenshan": {
         "id": "wenshan",
@@ -2717,7 +3009,8 @@
         "parent": "yunnan",
         "adcode": 532600,
         "children": [],
-        "dir": "china/yunnan"
+        "dir": "china/yunnan",
+        "n": 8
       },
       "xishuangbanna": {
         "id": "xishuangbanna",
@@ -2725,7 +3018,8 @@
         "parent": "yunnan",
         "adcode": 532800,
         "children": [],
-        "dir": "china/yunnan"
+        "dir": "china/yunnan",
+        "n": 3
       },
       "dali": {
         "id": "dali",
@@ -2733,7 +3027,8 @@
         "parent": "yunnan",
         "adcode": 532900,
         "children": [],
-        "dir": "china/yunnan"
+        "dir": "china/yunnan",
+        "n": 12
       },
       "dehong": {
         "id": "dehong",
@@ -2741,7 +3036,8 @@
         "parent": "yunnan",
         "adcode": 533100,
         "children": [],
-        "dir": "china/yunnan"
+        "dir": "china/yunnan",
+        "n": 5
       },
       "nujiang": {
         "id": "nujiang",
@@ -2749,7 +3045,8 @@
         "parent": "yunnan",
         "adcode": 533300,
         "children": [],
-        "dir": "china/yunnan"
+        "dir": "china/yunnan",
+        "n": 4
       },
       "diqing": {
         "id": "diqing",
@@ -2757,7 +3054,8 @@
         "parent": "yunnan",
         "adcode": 533400,
         "children": [],
-        "dir": "china/yunnan"
+        "dir": "china/yunnan",
+        "n": 3
       },
       "xizang": {
         "id": "xizang",
@@ -2773,7 +3071,8 @@
           "naqu",
           "ali"
         ],
-        "dir": "china"
+        "dir": "china",
+        "n": 7
       },
       "lasa": {
         "id": "lasa",
@@ -2781,7 +3080,8 @@
         "parent": "xizang",
         "adcode": 540100,
         "children": [],
-        "dir": "china/xizang"
+        "dir": "china/xizang",
+        "n": 8
       },
       "rikaze": {
         "id": "rikaze",
@@ -2789,7 +3089,8 @@
         "parent": "xizang",
         "adcode": 540200,
         "children": [],
-        "dir": "china/xizang"
+        "dir": "china/xizang",
+        "n": 18
       },
       "changdou": {
         "id": "changdou",
@@ -2797,7 +3098,8 @@
         "parent": "xizang",
         "adcode": 540300,
         "children": [],
-        "dir": "china/xizang"
+        "dir": "china/xizang",
+        "n": 11
       },
       "linzhi": {
         "id": "linzhi",
@@ -2805,7 +3107,8 @@
         "parent": "xizang",
         "adcode": 540400,
         "children": [],
-        "dir": "china/xizang"
+        "dir": "china/xizang",
+        "n": 7
       },
       "shannan": {
         "id": "shannan",
@@ -2813,7 +3116,8 @@
         "parent": "xizang",
         "adcode": 540500,
         "children": [],
-        "dir": "china/xizang"
+        "dir": "china/xizang",
+        "n": 12
       },
       "naqu": {
         "id": "naqu",
@@ -2821,7 +3125,8 @@
         "parent": "xizang",
         "adcode": 540600,
         "children": [],
-        "dir": "china/xizang"
+        "dir": "china/xizang",
+        "n": 11
       },
       "ali": {
         "id": "ali",
@@ -2829,7 +3134,8 @@
         "parent": "xizang",
         "adcode": 542500,
         "children": [],
-        "dir": "china/xizang"
+        "dir": "china/xizang",
+        "n": 7
       },
       "shaanxi": {
         "id": "shaanxi",
@@ -2848,7 +3154,8 @@
           "ankang",
           "shangluo"
         ],
-        "dir": "china"
+        "dir": "china",
+        "n": 10
       },
       "xian": {
         "id": "xian",
@@ -2856,7 +3163,8 @@
         "parent": "shaanxi",
         "adcode": 610100,
         "children": [],
-        "dir": "china/shaanxi"
+        "dir": "china/shaanxi",
+        "n": 13
       },
       "tongchuan": {
         "id": "tongchuan",
@@ -2864,7 +3172,8 @@
         "parent": "shaanxi",
         "adcode": 610200,
         "children": [],
-        "dir": "china/shaanxi"
+        "dir": "china/shaanxi",
+        "n": 4
       },
       "baoji": {
         "id": "baoji",
@@ -2872,7 +3181,8 @@
         "parent": "shaanxi",
         "adcode": 610300,
         "children": [],
-        "dir": "china/shaanxi"
+        "dir": "china/shaanxi",
+        "n": 12
       },
       "xianyang": {
         "id": "xianyang",
@@ -2880,7 +3190,8 @@
         "parent": "shaanxi",
         "adcode": 610400,
         "children": [],
-        "dir": "china/shaanxi"
+        "dir": "china/shaanxi",
+        "n": 14
       },
       "weinan": {
         "id": "weinan",
@@ -2888,7 +3199,8 @@
         "parent": "shaanxi",
         "adcode": 610500,
         "children": [],
-        "dir": "china/shaanxi"
+        "dir": "china/shaanxi",
+        "n": 11
       },
       "yanan": {
         "id": "yanan",
@@ -2896,7 +3208,8 @@
         "parent": "shaanxi",
         "adcode": 610600,
         "children": [],
-        "dir": "china/shaanxi"
+        "dir": "china/shaanxi",
+        "n": 13
       },
       "hanzhong": {
         "id": "hanzhong",
@@ -2904,7 +3217,8 @@
         "parent": "shaanxi",
         "adcode": 610700,
         "children": [],
-        "dir": "china/shaanxi"
+        "dir": "china/shaanxi",
+        "n": 11
       },
       "yulinshi": {
         "id": "yulinshi",
@@ -2912,7 +3226,8 @@
         "parent": "shaanxi",
         "adcode": 610800,
         "children": [],
-        "dir": "china/shaanxi"
+        "dir": "china/shaanxi",
+        "n": 12
       },
       "ankang": {
         "id": "ankang",
@@ -2920,7 +3235,8 @@
         "parent": "shaanxi",
         "adcode": 610900,
         "children": [],
-        "dir": "china/shaanxi"
+        "dir": "china/shaanxi",
+        "n": 10
       },
       "shangluo": {
         "id": "shangluo",
@@ -2928,7 +3244,8 @@
         "parent": "shaanxi",
         "adcode": 611000,
         "children": [],
-        "dir": "china/shaanxi"
+        "dir": "china/shaanxi",
+        "n": 7
       },
       "gansu": {
         "id": "gansu",
@@ -2950,7 +3267,8 @@
           "linxia",
           "gannan"
         ],
-        "dir": "china"
+        "dir": "china",
+        "n": 13
       },
       "lanzhou": {
         "id": "lanzhou",
@@ -2958,7 +3276,8 @@
         "parent": "gansu",
         "adcode": 620100,
         "children": [],
-        "dir": "china/gansu"
+        "dir": "china/gansu",
+        "n": 8
       },
       "jinchang": {
         "id": "jinchang",
@@ -2966,7 +3285,8 @@
         "parent": "gansu",
         "adcode": 620300,
         "children": [],
-        "dir": "china/gansu"
+        "dir": "china/gansu",
+        "n": 2
       },
       "baiyin": {
         "id": "baiyin",
@@ -2974,7 +3294,8 @@
         "parent": "gansu",
         "adcode": 620400,
         "children": [],
-        "dir": "china/gansu"
+        "dir": "china/gansu",
+        "n": 5
       },
       "tianshui": {
         "id": "tianshui",
@@ -2982,7 +3303,8 @@
         "parent": "gansu",
         "adcode": 620500,
         "children": [],
-        "dir": "china/gansu"
+        "dir": "china/gansu",
+        "n": 7
       },
       "wuwei": {
         "id": "wuwei",
@@ -2990,7 +3312,8 @@
         "parent": "gansu",
         "adcode": 620600,
         "children": [],
-        "dir": "china/gansu"
+        "dir": "china/gansu",
+        "n": 4
       },
       "zhangye": {
         "id": "zhangye",
@@ -2998,7 +3321,8 @@
         "parent": "gansu",
         "adcode": 620700,
         "children": [],
-        "dir": "china/gansu"
+        "dir": "china/gansu",
+        "n": 6
       },
       "pingliang": {
         "id": "pingliang",
@@ -3006,7 +3330,8 @@
         "parent": "gansu",
         "adcode": 620800,
         "children": [],
-        "dir": "china/gansu"
+        "dir": "china/gansu",
+        "n": 7
       },
       "jiuquan": {
         "id": "jiuquan",
@@ -3014,7 +3339,8 @@
         "parent": "gansu",
         "adcode": 620900,
         "children": [],
-        "dir": "china/gansu"
+        "dir": "china/gansu",
+        "n": 7
       },
       "qingyang": {
         "id": "qingyang",
@@ -3022,7 +3348,8 @@
         "parent": "gansu",
         "adcode": 621000,
         "children": [],
-        "dir": "china/gansu"
+        "dir": "china/gansu",
+        "n": 8
       },
       "dingxi": {
         "id": "dingxi",
@@ -3030,7 +3357,8 @@
         "parent": "gansu",
         "adcode": 621100,
         "children": [],
-        "dir": "china/gansu"
+        "dir": "china/gansu",
+        "n": 7
       },
       "longnan": {
         "id": "longnan",
@@ -3038,7 +3366,8 @@
         "parent": "gansu",
         "adcode": 621200,
         "children": [],
-        "dir": "china/gansu"
+        "dir": "china/gansu",
+        "n": 9
       },
       "linxia": {
         "id": "linxia",
@@ -3046,7 +3375,8 @@
         "parent": "gansu",
         "adcode": 622900,
         "children": [],
-        "dir": "china/gansu"
+        "dir": "china/gansu",
+        "n": 8
       },
       "gannan": {
         "id": "gannan",
@@ -3054,7 +3384,8 @@
         "parent": "gansu",
         "adcode": 623000,
         "children": [],
-        "dir": "china/gansu"
+        "dir": "china/gansu",
+        "n": 8
       },
       "qinghai": {
         "id": "qinghai",
@@ -3071,7 +3402,8 @@
           "yushu",
           "haixi"
         ],
-        "dir": "china"
+        "dir": "china",
+        "n": 8
       },
       "xining": {
         "id": "xining",
@@ -3079,7 +3411,8 @@
         "parent": "qinghai",
         "adcode": 630100,
         "children": [],
-        "dir": "china/qinghai"
+        "dir": "china/qinghai",
+        "n": 7
       },
       "haidong": {
         "id": "haidong",
@@ -3087,7 +3420,8 @@
         "parent": "qinghai",
         "adcode": 630200,
         "children": [],
-        "dir": "china/qinghai"
+        "dir": "china/qinghai",
+        "n": 6
       },
       "haibei": {
         "id": "haibei",
@@ -3095,7 +3429,8 @@
         "parent": "qinghai",
         "adcode": 632200,
         "children": [],
-        "dir": "china/qinghai"
+        "dir": "china/qinghai",
+        "n": 4
       },
       "huangnan": {
         "id": "huangnan",
@@ -3103,7 +3438,8 @@
         "parent": "qinghai",
         "adcode": 632300,
         "children": [],
-        "dir": "china/qinghai"
+        "dir": "china/qinghai",
+        "n": 4
       },
       "hainanzhou": {
         "id": "hainanzhou",
@@ -3111,7 +3447,8 @@
         "parent": "qinghai",
         "adcode": 632500,
         "children": [],
-        "dir": "china/qinghai"
+        "dir": "china/qinghai",
+        "n": 5
       },
       "guoluo": {
         "id": "guoluo",
@@ -3119,7 +3456,8 @@
         "parent": "qinghai",
         "adcode": 632600,
         "children": [],
-        "dir": "china/qinghai"
+        "dir": "china/qinghai",
+        "n": 6
       },
       "yushu": {
         "id": "yushu",
@@ -3127,7 +3465,8 @@
         "parent": "qinghai",
         "adcode": 632700,
         "children": [],
-        "dir": "china/qinghai"
+        "dir": "china/qinghai",
+        "n": 6
       },
       "haixi": {
         "id": "haixi",
@@ -3135,7 +3474,8 @@
         "parent": "qinghai",
         "adcode": 632800,
         "children": [],
-        "dir": "china/qinghai"
+        "dir": "china/qinghai",
+        "n": 7
       },
       "ningxia": {
         "id": "ningxia",
@@ -3149,7 +3489,8 @@
           "guyuan",
           "zhongwei"
         ],
-        "dir": "china"
+        "dir": "china",
+        "n": 5
       },
       "yinchuan": {
         "id": "yinchuan",
@@ -3157,7 +3498,8 @@
         "parent": "ningxia",
         "adcode": 640100,
         "children": [],
-        "dir": "china/ningxia"
+        "dir": "china/ningxia",
+        "n": 6
       },
       "shizuishan": {
         "id": "shizuishan",
@@ -3165,7 +3507,8 @@
         "parent": "ningxia",
         "adcode": 640200,
         "children": [],
-        "dir": "china/ningxia"
+        "dir": "china/ningxia",
+        "n": 3
       },
       "wuzhong": {
         "id": "wuzhong",
@@ -3173,7 +3516,8 @@
         "parent": "ningxia",
         "adcode": 640300,
         "children": [],
-        "dir": "china/ningxia"
+        "dir": "china/ningxia",
+        "n": 5
       },
       "guyuan": {
         "id": "guyuan",
@@ -3181,7 +3525,8 @@
         "parent": "ningxia",
         "adcode": 640400,
         "children": [],
-        "dir": "china/ningxia"
+        "dir": "china/ningxia",
+        "n": 5
       },
       "zhongwei": {
         "id": "zhongwei",
@@ -3189,7 +3534,8 @@
         "parent": "ningxia",
         "adcode": 640500,
         "children": [],
-        "dir": "china/ningxia"
+        "dir": "china/ningxia",
+        "n": 3
       },
       "xinjiang": {
         "id": "xinjiang",
@@ -3212,7 +3558,8 @@
           "tacheng",
           "aletai"
         ],
-        "dir": "china"
+        "dir": "china",
+        "n": 14
       },
       "wulumuqi": {
         "id": "wulumuqi",
@@ -3220,7 +3567,8 @@
         "parent": "xinjiang",
         "adcode": 650100,
         "children": [],
-        "dir": "china/xinjiang"
+        "dir": "china/xinjiang",
+        "n": 8
       },
       "kelamayi": {
         "id": "kelamayi",
@@ -3228,7 +3576,8 @@
         "parent": "xinjiang",
         "adcode": 650200,
         "children": [],
-        "dir": "china/xinjiang"
+        "dir": "china/xinjiang",
+        "n": 4
       },
       "tulufan": {
         "id": "tulufan",
@@ -3236,7 +3585,8 @@
         "parent": "xinjiang",
         "adcode": 650400,
         "children": [],
-        "dir": "china/xinjiang"
+        "dir": "china/xinjiang",
+        "n": 3
       },
       "hami": {
         "id": "hami",
@@ -3244,7 +3594,8 @@
         "parent": "xinjiang",
         "adcode": 650500,
         "children": [],
-        "dir": "china/xinjiang"
+        "dir": "china/xinjiang",
+        "n": 3
       },
       "changji": {
         "id": "changji",
@@ -3252,7 +3603,8 @@
         "parent": "xinjiang",
         "adcode": 652300,
         "children": [],
-        "dir": "china/xinjiang"
+        "dir": "china/xinjiang",
+        "n": 7
       },
       "boertala": {
         "id": "boertala",
@@ -3260,7 +3612,8 @@
         "parent": "xinjiang",
         "adcode": 652700,
         "children": [],
-        "dir": "china/xinjiang"
+        "dir": "china/xinjiang",
+        "n": 4
       },
       "bayinguoleng": {
         "id": "bayinguoleng",
@@ -3268,7 +3621,8 @@
         "parent": "xinjiang",
         "adcode": 652800,
         "children": [],
-        "dir": "china/xinjiang"
+        "dir": "china/xinjiang",
+        "n": 9
       },
       "akesu": {
         "id": "akesu",
@@ -3276,7 +3630,8 @@
         "parent": "xinjiang",
         "adcode": 652900,
         "children": [],
-        "dir": "china/xinjiang"
+        "dir": "china/xinjiang",
+        "n": 9
       },
       "kezilesukeerkezi": {
         "id": "kezilesukeerkezi",
@@ -3284,7 +3639,8 @@
         "parent": "xinjiang",
         "adcode": 653000,
         "children": [],
-        "dir": "china/xinjiang"
+        "dir": "china/xinjiang",
+        "n": 4
       },
       "kashen": {
         "id": "kashen",
@@ -3292,7 +3648,8 @@
         "parent": "xinjiang",
         "adcode": 653100,
         "children": [],
-        "dir": "china/xinjiang"
+        "dir": "china/xinjiang",
+        "n": 12
       },
       "hetian": {
         "id": "hetian",
@@ -3300,7 +3657,8 @@
         "parent": "xinjiang",
         "adcode": 653200,
         "children": [],
-        "dir": "china/xinjiang"
+        "dir": "china/xinjiang",
+        "n": 8
       },
       "yilihasake": {
         "id": "yilihasake",
@@ -3308,7 +3666,8 @@
         "parent": "xinjiang",
         "adcode": 654000,
         "children": [],
-        "dir": "china/xinjiang"
+        "dir": "china/xinjiang",
+        "n": 11
       },
       "tacheng": {
         "id": "tacheng",
@@ -3316,7 +3675,8 @@
         "parent": "xinjiang",
         "adcode": 654200,
         "children": [],
-        "dir": "china/xinjiang"
+        "dir": "china/xinjiang",
+        "n": 7
       },
       "aletai": {
         "id": "aletai",
@@ -3324,7 +3684,8 @@
         "parent": "xinjiang",
         "adcode": 654300,
         "children": [],
-        "dir": "china/xinjiang"
+        "dir": "china/xinjiang",
+        "n": 7
       },
       "taiwan": {
         "id": "taiwan",
@@ -3332,7 +3693,8 @@
         "parent": "china",
         "adcode": 710000,
         "children": [],
-        "dir": "china"
+        "dir": "china",
+        "n": 20
       },
       "hongkong": {
         "id": "hongkong",
@@ -3340,7 +3702,8 @@
         "parent": "china",
         "adcode": 810000,
         "children": [],
-        "dir": "china"
+        "dir": "china",
+        "n": 18
       }
     }
   };

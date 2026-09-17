@@ -318,8 +318,29 @@
     });
     const s = P.summary(doc, Object.keys((global.MAP_REGISTRY || {}).maps || {}));
     const fresh = P.claimBadges(doc, s);
+
+    /* 每日一图打卡：只有"今天这张图"拼完才算打卡。
+     * 放在宿主层而不是引擎里 —— 引擎不知道"今天该玩哪张"，那是宿主的事。 */
+    const daily = doc.daily && doc.daily.mapId;
+    if (daily && daily === id) {
+      const streak = P.checkIn(doc);
+      if (streak > 0) {
+        setTimeout(() => {
+          const box = document.getElementById('badgeToast');
+          if (!box) return;
+          box.innerHTML = '<div class="bt-title">📅 每日一图完成</div>'
+            + '<div class="bt-item"><b>连续 ' + streak + ' 天</b>'
+            + '<span>明天还有一张新的</span></div>';
+          box.hidden = false;
+          clearTimeout(showBadgeToast._t);
+          showBadgeToast._t = setTimeout(() => { box.hidden = true; }, 5200);
+        }, 900);
+      }
+    }
+
     P.save(doc);
     renderProgressBar();
+    renderDaily();
     if (fresh.length) showBadgeToast(fresh);
   }
 
@@ -494,6 +515,56 @@
     if (!ok && tip) tip.textContent = '卡片绘制失败（浏览器不支持 Canvas 2D）';
   }
 
+  /** 每日一图的候选：只挑"一关就能玩完"的小地图，保证每天几分钟能完成 */
+  function dailyCandidates() {
+    const reg = (global.MAP_REGISTRY || {}).maps || {};
+    const out = [];
+    Object.keys(reg).forEach((id) => {
+      const e = reg[id];
+      if (!e) return;
+      /* 规模用登记册里的 `n`（下级行政区数）判断：
+       * 3~12 个 = 一次玩得完又不太无聊；叶子地图（没有更下一级）才适合当"一天一图"。
+       * 省级地图（如"四川省"）虽然 n 也在这个区间，但它下面是市，玩起来是另一回事，
+       * 所以用 children.length === 0 排除掉。 */
+      const n = e.n || 0;
+      if (n >= 3 && n <= 12 && (e.children || []).length === 0) out.push(id);
+    });
+    return out;
+  }
+
+  /** 渲染每日一图入口（顶栏地图导航那一行） */
+  function renderDaily() {
+    const el = document.getElementById('dailyChip');
+    if (!el) return;
+    const P = global.MapProgress;
+    if (!P) { el.hidden = true; return; }
+    const doc = P.load();
+    const cands = dailyCandidates();
+    const today = P.pickDaily(doc, cands);
+    P.save(doc);   // 把"今天抽到谁"落盘（锁定，避免中途换题）
+    if (!today) { el.hidden = true; return; }
+
+    const entry = global.MapLoader.entry(today);
+    const done = P.checkedInToday(doc);
+    const streak = (doc.daily && doc.daily.streak) || 0;
+    el.hidden = false;
+    el.innerHTML = '<span class="dc-label">每日一图</span>'
+      + '<span class="dc-name">' + ((entry && entry.name) || today) + '</span>'
+      + (done
+        ? '<span class="dc-state is-done">✓ 今日已完成' + (streak > 1 ? ' · 连续 ' + streak + ' 天' : '') + '</span>'
+        : '<span class="dc-state">' + (streak > 0 ? '连续 ' + streak + ' 天' : '今天还没玩') + '</span>');
+    // 点它就去今天这张图（已经在的话不重复跳转）
+    el.dataset.target = today;
+    if (!el.dataset.bound) {
+      el.dataset.bound = '1';
+      el.addEventListener('click', () => {
+        if (el.dataset.target && el.dataset.target !== CURRENT_ID) {
+          global.location.href = urlForMap(el.dataset.target);
+        }
+      });
+    }
+  }
+
   global.MapLoader.load(id)
       .then((config) => {
         /* 通关整张地图时记账 + 发成就。
@@ -527,6 +598,7 @@
         updateBrand(config, id);
         renderNav(id);
         renderProgressBar();
+        renderDaily();
         bindProgressChip();
 
         markReady(id);
