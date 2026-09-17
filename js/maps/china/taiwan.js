@@ -2,7 +2,7 @@
  * 地图包 · taiwan（配置）
  * ---------------------------------------------------------------------
  * 路径：js/maps/china/taiwan.js
- * 生成：node tools/add-map.js --adcode=710000 --name=taiwan
+ * 生成：node tools/add-map.js --adcode=710000 --name=taiwan --parent=china
  *
  * 【层级】parent = 'china'　adcode = 710000
  *   children 不在这里写 —— 它由 registry 根据子地图的 parent 反向推导，
@@ -62,7 +62,7 @@
 
     texts: {
       cityName: 'taiwan',
-      districtCount: 21,
+      districtCount: 20,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/taiwan.geo.js 存在且没有被浏览器拦截。',
     },

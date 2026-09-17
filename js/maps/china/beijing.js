@@ -2,7 +2,7 @@
  * 地图包 · beijing（配置）
  * ---------------------------------------------------------------------
  * 路径：js/maps/china/beijing.js
- * 生成：node tools/add-map.js --adcode=110000 --name=beijing
+ * 生成：node tools/add-map.js --adcode=110000 --name=beijing --parent=china
  *
  * 【层级】parent = 'china'　adcode = 110000
  *   children 不在这里写 —— 它由 registry 根据子地图的 parent 反向推导，
@@ -39,7 +39,6 @@
       hueByLevel: {
       l1: 200,
       l2: 252,
-      l3: 304,
       },
       fallbackHue: 200,
       saturation: 62,
@@ -62,7 +61,7 @@
 
     texts: {
       cityName: 'beijing',
-      districtCount: 17,
+      districtCount: 16,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/beijing.geo.js 存在且没有被浏览器拦截。',
     },

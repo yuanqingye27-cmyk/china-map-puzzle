@@ -2,7 +2,7 @@
  * 地图包 · zhejiang（配置）
  * ---------------------------------------------------------------------
  * 路径：js/maps/china/zhejiang.js
- * 生成：node tools/add-map.js --adcode=330000 --name=zhejiang
+ * 生成：node tools/add-map.js --adcode=330000 --name=zhejiang --parent=china
  *
  * 【层级】parent = 'china'　adcode = 330000
  *   children 不在这里写 —— 它由 registry 根据子地图的 parent 反向推导，

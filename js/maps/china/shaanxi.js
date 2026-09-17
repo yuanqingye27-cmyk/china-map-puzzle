@@ -2,7 +2,7 @@
  * 地图包 · shaanxi（配置）
  * ---------------------------------------------------------------------
  * 路径：js/maps/china/shaanxi.js
- * 生成：node tools/add-map.js --adcode=610000 --name=shaanxi
+ * 生成：node tools/add-map.js --adcode=610000 --name=shaanxi --parent=china
  *
  * 【层级】parent = 'china'　adcode = 610000
  *   children 不在这里写 —— 它由 registry 根据子地图的 parent 反向推导，

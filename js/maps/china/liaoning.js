@@ -2,7 +2,7 @@
  * 地图包 · liaoning（配置）
  * ---------------------------------------------------------------------
  * 路径：js/maps/china/liaoning.js
- * 生成：node tools/add-map.js --adcode=210000 --name=liaoning
+ * 生成：node tools/add-map.js --adcode=210000 --name=liaoning --parent=china
  *
  * 【层级】parent = 'china'　adcode = 210000
  *   children 不在这里写 —— 它由 registry 根据子地图的 parent 反向推导，

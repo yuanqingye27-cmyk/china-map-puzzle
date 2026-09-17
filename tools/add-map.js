@@ -205,12 +205,25 @@ function autoLevels(features, adcode) {
 
 /**
  * 只挑出"能当拼图块"的 feature。
- * DataV 的全国数据里混着非行政区 feature（南海九段线，adcode `"100000_JD"`）：
- * 它要留在 GeoJSON 里画底图，但**不能进关卡和资料卡** —— 它不是一块可拼的行政区，
- * 而且它的 adcode 不是数字，当成对象 key 写出来会变成非法 JS（真实踩过）。
+ *
+ * 过滤掉两类：
+ *  ① 非行政区 feature —— DataV 的全国数据里混着南海九段线（adcode `"100000_JD"`）：
+ *     它要留在 GeoJSON 里画底图，但**不能进关卡和资料卡**（不是可拼的块，
+ *     而且 adcode 不是数字，当成对象 key 写出来会变成非法 JS —— 真实踩过）。
+ *  ② **地图自己** —— 天地图对**省级**地图返回的 `_full.json` 里，
+ *     第一条 feature 就是它自己（如北京市 110000 混在东城区 110101…里）。
+ *     地级市的数据不带这一条，所以这个坑只在省级地图上出现。
+ *     后果很隐蔽：关卡里多了一个"上级自己的 adcode"，拼图多一块，
+ *     拖拽落点判定随之错乱（实测北京/天津/上海/重庆/台湾/香港 6 张地图
+ *     的冒烟测试全挂在"拖不进去、飘字说 XX 还在别处"）。
  */
-function adminFeatures(features) {
-  return features.filter((f) => geoLib.isAdminAdcode(f.properties.adcode));
+function adminFeatures(features, selfAdcode) {
+  return features.filter((f) => {
+    const ad = f.properties.adcode;
+    if (!geoLib.isAdminAdcode(ad)) return false;
+    if (selfAdcode !== undefined && Number(ad) === Number(selfAdcode)) return false;
+    return true;
+  });
 }
 
 function renderDataModule(planItem, features, label, levels, generator) {
@@ -492,6 +505,32 @@ async function addMap(opts) {
     });
     const geo = fetched.geo;
     const url = fetched.url;
+
+    /* 【关键】剔除"地图自己"那个 feature。
+     * 天地图对**省级**地图返回的 _full.json 里，第一条就是它自己
+     * （如 110000 北京市混在 110101 东城区…里）；地级市的数据不带这一条。
+     * 为什么必须在这里、而不是只在资料层过滤：
+     *   引擎会把 geo 里**每个** feature 渲染成一块拼图。
+     *   留着它 → 拼图多一块永远放不对的"省自己" → 拖拽判定错乱
+     *   （实测北京/天津/上海/重庆/台湾/香港 6 张省级地图全部拖不进去）。
+     *   所以 geo、关卡、资料卡三处必须用同一份"下级列表"。
+     * 注意 geo.features 与 features 是同一个数组引用，splice 会同步生效。 */
+    const selfIdx = geo.features.findIndex(
+      (f) => f.properties && Number(f.properties.adcode) === Number(item.adcode)
+    );
+    if (selfIdx >= 0) {
+      if (geo.features.length > 1) {
+        geo.features.splice(selfIdx, 1);
+        log('  ℹ 已剔除 geo 里"地图自己"的 feature（adcode ' + item.adcode +
+          '）—— 它属于上级视角，不该是这块拼图的一块');
+      } else {
+        /* 只剩它自己（如澳门：下级就只有一条"澳门"）—— 剔了就什么都没有了。
+         * 这种情况保留它：虽然是一块 1 块碎片的拼图，但地图能正常显示与游玩，
+         * 好过一张空白地图。 */
+        log('  ℹ geo 里只有"地图自己"这一个 feature，保留它（否则地图会是空的）');
+      }
+    }
+
     const features = geo.features;
     // child=1 却没拿到下级时给出提示（天地图接口可能只返回自己）
     const hasChildren = features.length > 1;
@@ -530,9 +569,12 @@ async function addMap(opts) {
 
     // 4) 写 .data.js（人工资料，默认不覆盖）
     //    只有真正的行政区才是"拼图块"；非行政区 feature（如九段线）留在 geo 里画底图
-    const blocks = adminFeatures(features);
+    const blocks = adminFeatures(features, item.adcode);
     const skipped = features
-      .filter((f) => !geoLib.isAdminAdcode(f.properties.adcode))
+      .filter((f) => {
+        const ad = f.properties.adcode;
+        return !geoLib.isAdminAdcode(ad) || Number(ad) === Number(item.adcode);
+      })
       .map((f) => ({ adcode: String(f.properties.adcode), name: f.properties.name || '' }));
     if (skipped.length) {
       log('  ℹ 跳过 ' + skipped.length + ' 个非行政区 feature（' +

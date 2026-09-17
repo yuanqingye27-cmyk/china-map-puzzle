@@ -86,8 +86,7 @@
           "ningxia",
           "xinjiang",
           "taiwan",
-          "hongkong",
-          "macau"
+          "hongkong"
         ],
         "dir": ""
       },
@@ -2312,7 +2311,7 @@
       },
       "sichuan": {
         "id": "sichuan",
-        "name": "四川省",
+        "name": "sichuan",
         "parent": "china",
         "adcode": 510000,
         "children": [
@@ -3322,14 +3321,6 @@
         "name": "hongkong",
         "parent": "china",
         "adcode": 810000,
-        "children": [],
-        "dir": "china"
-      },
-      "macau": {
-        "id": "macau",
-        "name": "macau",
-        "parent": "china",
-        "adcode": 820000,
         "children": [],
         "dir": "china"
       }

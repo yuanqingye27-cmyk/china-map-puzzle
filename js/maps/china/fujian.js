@@ -2,7 +2,7 @@
  * 地图包 · fujian（配置）
  * ---------------------------------------------------------------------
  * 路径：js/maps/china/fujian.js
- * 生成：node tools/add-map.js --adcode=350000 --name=fujian
+ * 生成：node tools/add-map.js --adcode=350000 --name=fujian --parent=china
  *
  * 【层级】parent = 'china'　adcode = 350000
  *   children 不在这里写 —— 它由 registry 根据子地图的 parent 反向推导，

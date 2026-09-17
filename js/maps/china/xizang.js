@@ -2,7 +2,7 @@
  * 地图包 · xizang（配置）
  * ---------------------------------------------------------------------
  * 路径：js/maps/china/xizang.js
- * 生成：node tools/add-map.js --adcode=540000 --name=xizang
+ * 生成：node tools/add-map.js --adcode=540000 --name=xizang --parent=china
  *
  * 【层级】parent = 'china'　adcode = 540000
  *   children 不在这里写 —— 它由 registry 根据子地图的 parent 反向推导，

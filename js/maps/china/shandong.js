@@ -2,7 +2,7 @@
  * 地图包 · shandong（配置）
  * ---------------------------------------------------------------------
  * 路径：js/maps/china/shandong.js
- * 生成：node tools/add-map.js --adcode=370000 --name=shandong
+ * 生成：node tools/add-map.js --adcode=370000 --name=shandong --parent=china
  *
  * 【层级】parent = 'china'　adcode = 370000
  *   children 不在这里写 —— 它由 registry 根据子地图的 parent 反向推导，

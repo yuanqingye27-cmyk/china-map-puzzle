@@ -2,7 +2,7 @@
  * 地图包 · jiangsu（配置）
  * ---------------------------------------------------------------------
  * 路径：js/maps/china/jiangsu.js
- * 生成：node tools/add-map.js --adcode=320000 --name=jiangsu
+ * 生成：node tools/add-map.js --adcode=320000 --name=jiangsu --parent=china
  *
  * 【层级】parent = 'china'　adcode = 320000
  *   children 不在这里写 —— 它由 registry 根据子地图的 parent 反向推导，

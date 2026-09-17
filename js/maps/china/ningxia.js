@@ -2,7 +2,7 @@
  * 地图包 · ningxia（配置）
  * ---------------------------------------------------------------------
  * 路径：js/maps/china/ningxia.js
- * 生成：node tools/add-map.js --adcode=640000 --name=ningxia
+ * 生成：node tools/add-map.js --adcode=640000 --name=ningxia --parent=china
  *
  * 【层级】parent = 'china'　adcode = 640000
  *   children 不在这里写 —— 它由 registry 根据子地图的 parent 反向推导，

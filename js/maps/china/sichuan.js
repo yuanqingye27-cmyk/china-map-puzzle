@@ -1,8 +1,8 @@
 /* =====================================================================
- * 地图包 · 四川省（配置）
+ * 地图包 · sichuan（配置）
  * ---------------------------------------------------------------------
  * 路径：js/maps/china/sichuan.js
- * 生成：node tools/add-map.js --adcode=510000 --name=sichuan
+ * 生成：node tools/add-map.js --adcode=510000 --name=sichuan --parent=china
  *
  * 【层级】parent = 'china'　adcode = 510000
  *   children 不在这里写 —— 它由 registry 根据子地图的 parent 反向推导，
@@ -23,7 +23,7 @@
 
   const CONFIG = {
     id: 'sichuan',
-    name: '四川省',
+    name: 'sichuan',
     parent: 'china',
     adcode: 510000,
 
@@ -61,7 +61,7 @@
     themes: { list: ['jade', 'ginkgo', 'shu'], fallback: 'jade' },
 
     texts: {
-      cityName: '四川省',
+      cityName: 'sichuan',
       districtCount: 21,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/sichuan.geo.js 存在且没有被浏览器拦截。',

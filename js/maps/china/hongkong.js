@@ -2,7 +2,7 @@
  * 地图包 · hongkong（配置）
  * ---------------------------------------------------------------------
  * 路径：js/maps/china/hongkong.js
- * 生成：node tools/add-map.js --adcode=810000 --name=hongkong
+ * 生成：node tools/add-map.js --adcode=810000 --name=hongkong --parent=china
  *
  * 【层级】parent = 'china'　adcode = 810000
  *   children 不在这里写 —— 它由 registry 根据子地图的 parent 反向推导，
@@ -62,7 +62,7 @@
 
     texts: {
       cityName: 'hongkong',
-      districtCount: 19,
+      districtCount: 18,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/hongkong.geo.js 存在且没有被浏览器拦截。',
     },

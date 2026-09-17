@@ -2,7 +2,7 @@
  * 地图包 · zhejiang · 资料与关卡【占位骨架，等待人工补全】
  * ---------------------------------------------------------------------
  * 路径：js/maps/china/zhejiang.data.js
- * 生成：node tools/add-map.js --adcode=330000 --name=zhejiang
+ * 生成：node tools/add-map.js --adcode=330000 --name=zhejiang --parent=china
  *
  * ⚠️ 这是脚本生成的占位内容，自动化流程**不会**再覆盖本文件：
  *    重新跑 add-map.js 只会刷新 .geo.js，你在这里写的文字是安全的。

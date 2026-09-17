@@ -2,7 +2,7 @@
  * 地图包 · tianjin（配置）
  * ---------------------------------------------------------------------
  * 路径：js/maps/china/tianjin.js
- * 生成：node tools/add-map.js --adcode=120000 --name=tianjin
+ * 生成：node tools/add-map.js --adcode=120000 --name=tianjin --parent=china
  *
  * 【层级】parent = 'china'　adcode = 120000
  *   children 不在这里写 —— 它由 registry 根据子地图的 parent 反向推导，
@@ -39,7 +39,6 @@
       hueByLevel: {
       l1: 120,
       l2: 172,
-      l3: 224,
       },
       fallbackHue: 120,
       saturation: 62,
@@ -62,7 +61,7 @@
 
     texts: {
       cityName: 'tianjin',
-      districtCount: 17,
+      districtCount: 16,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/tianjin.geo.js 存在且没有被浏览器拦截。',
     },

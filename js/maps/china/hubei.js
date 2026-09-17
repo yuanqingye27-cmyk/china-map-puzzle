@@ -2,7 +2,7 @@
  * 地图包 · hubei（配置）
  * ---------------------------------------------------------------------
  * 路径：js/maps/china/hubei.js
- * 生成：node tools/add-map.js --adcode=420000 --name=hubei
+ * 生成：node tools/add-map.js --adcode=420000 --name=hubei --parent=china
  *
  * 【层级】parent = 'china'　adcode = 420000
  *   children 不在这里写 —— 它由 registry 根据子地图的 parent 反向推导，

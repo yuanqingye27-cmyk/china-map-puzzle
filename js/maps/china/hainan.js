@@ -2,7 +2,7 @@
  * 地图包 · hainan（配置）
  * ---------------------------------------------------------------------
  * 路径：js/maps/china/hainan.js
- * 生成：node tools/add-map.js --adcode=460000 --name=hainan
+ * 生成：node tools/add-map.js --adcode=460000 --name=hainan --parent=china
  *
  * 【层级】parent = 'china'　adcode = 460000
  *   children 不在这里写 —— 它由 registry 根据子地图的 parent 反向推导，

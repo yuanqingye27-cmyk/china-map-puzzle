@@ -2,7 +2,7 @@
  * 地图包 · guangxi（配置）
  * ---------------------------------------------------------------------
  * 路径：js/maps/china/guangxi.js
- * 生成：node tools/add-map.js --adcode=450000 --name=guangxi
+ * 生成：node tools/add-map.js --adcode=450000 --name=guangxi --parent=china
  *
  * 【层级】parent = 'china'　adcode = 450000
  *   children 不在这里写 —— 它由 registry 根据子地图的 parent 反向推导，

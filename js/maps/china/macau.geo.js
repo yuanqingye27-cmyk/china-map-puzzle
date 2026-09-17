@@ -1,5 +1,0 @@
-/* 自动生成，请勿手改。重新生成：node tools/add-map.js --adcode=820000 --name=macau */
-/* 数据来源：国家地理信息公共服务平台（天地图）· 服务中心行政区划 macau（adcode 820000）行政区划边界 */
-/* 审图号：GS(2024)0650号 */
-(window.MAP_GEO = window.MAP_GEO || {}).macau = {"type":"FeatureCollection","features":[{"type":"Feature","properties":{"adcode":820000,"name":"澳门特别行政区","center":[113.538095,22.189786]},"geometry":{"type":"MultiPolygon","coordinates":[[[[113.570039,22.118534],[113.550137,22.112289],[113.552,22.144685],[113.541852,22.163241],[113.573922,22.167167],[113.589531,22.147451],[113.570039,22.118534]]],[[[113.558312,22.187113],[113.533296,22.179406],[113.534653,22.207367],[113.534944,22.213525],[113.551304,22.215623],[113.558312,22.187113]]]]}}]};
-(window.MAP_GEO_META = window.MAP_GEO_META || {}).macau = {"provider":"tianditu-portal","providerLabel":"国家地理信息公共服务平台（天地图）· 服务中心行政区划","approval":"GS(2024)0650号","note":"官方行政区划服务（无需 Key/登录）；边界为官方打包二进制，经 tools/lib/tianditu-portal.js 解码","adcode":820000,"mapName":"macau","sourceUrl":"https://cloudcenter.tianditu.gov.cn/api/portal/region/map?gb=156820000&level=2","fetchedAt":"2026-09-17"};

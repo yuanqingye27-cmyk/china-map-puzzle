@@ -34,12 +34,21 @@ const tree = require('./lib/map-tree');
 
 const doWrite = process.argv.includes('--write');
 
-/** 空地图判定：两个数据容器都是空的 */
-function isEmptyData(absData) {
+/** 退化地图判定：没有可拼的下级行政区
+ *  - DISTRICTS 与 LEVELS 同时为空（完全没内容）
+ *  - 或只有 1 个下级（做不成拼图：一块碎片没有"拼"的过程）
+ * 后者的现实例子：**澳门**——天地图官方数据里澳门没有下级区划
+ * （没有 820000_full.json），整个澳门就是一个 feature。 */
+function isDegenerateData(absData) {
   const t = fs.readFileSync(absData, 'utf8');
   const emptyDistricts = /const DISTRICTS = \{\s*\}\s*;/.test(t);
   const emptyLevels = /const LEVELS = \[\s*\]\s*;/.test(t);
-  return emptyDistricts && emptyLevels;
+  if (emptyDistricts && emptyLevels) return '无任何下级行政区';
+  // 数一数 DISTRICTS 里有多少个 adcode key
+  const n = (t.match(/^\s*"\d{6}"\s*:\s*\{/gm) || []).length
+    + (t.match(/^\s*\d{6}\s*:\s*\{/gm) || []).length;
+  if (n <= 1) return '只有 ' + n + ' 个下级行政区（做不成拼图）';
+  return null;
 }
 
 const scan = tree.scanMaps();
@@ -50,12 +59,14 @@ Object.keys(scan.maps).sort().forEach((id) => {
   const base = m.dir ? path.join(tree.MAPS_DIR, m.dir, id) : path.join(tree.MAPS_DIR, id);
   const dataFile = base + '.data.js';
   if (!fs.existsSync(dataFile)) return;
-  if (!isEmptyData(dataFile)) return;
+  const reason = isDegenerateData(dataFile);
+  if (!reason) return;
   empties.push({
     id,
     name: m.name,
     dir: m.dir,
     parent: m.parent,
+    reason,
     files: [base + '.js', base + '.geo.js', base + '.data.js'].filter((f) => fs.existsSync(f)),
   });
 });
@@ -63,9 +74,9 @@ Object.keys(scan.maps).sort().forEach((id) => {
 console.log('══════════ 空地图清理 ══════════');
 if (!empties.length) { console.log('  没有空地图（很好）。'); process.exit(0); }
 
-console.log('  发现 ' + empties.length + ' 张（无下级行政区 → LEVELS 为空 → 引擎会抛 adcodes 错误）\n');
+console.log('  发现 ' + empties.length + ' 张退化地图（做不成拼图）\n');
 const byParent = {};
-empties.forEach((e) => { (byParent[e.parent] = byParent[e.parent] || []).push(e.name); });
+empties.forEach((e) => { (byParent[e.parent] = byParent[e.parent] || []).push(e.name + '（' + e.reason + '）'); });
 Object.entries(byParent).forEach(([p, names]) => {
   console.log('  ' + p + '（' + names.length + '）: ' + names.slice(0, 8).join(' ') + (names.length > 8 ? ' …' : ''));
 });

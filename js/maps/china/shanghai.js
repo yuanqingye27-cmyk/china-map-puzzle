@@ -2,7 +2,7 @@
  * 地图包 · shanghai（配置）
  * ---------------------------------------------------------------------
  * 路径：js/maps/china/shanghai.js
- * 生成：node tools/add-map.js --adcode=310000 --name=shanghai
+ * 生成：node tools/add-map.js --adcode=310000 --name=shanghai --parent=china
  *
  * 【层级】parent = 'china'　adcode = 310000
  *   children 不在这里写 —— 它由 registry 根据子地图的 parent 反向推导，
@@ -39,7 +39,6 @@
       hueByLevel: {
       l1: 40,
       l2: 92,
-      l3: 144,
       },
       fallbackHue: 40,
       saturation: 62,
@@ -62,7 +61,7 @@
 
     texts: {
       cityName: 'shanghai',
-      districtCount: 17,
+      districtCount: 16,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/shanghai.geo.js 存在且没有被浏览器拦截。',
     },

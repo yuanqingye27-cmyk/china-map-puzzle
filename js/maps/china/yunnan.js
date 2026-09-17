@@ -2,7 +2,7 @@
  * 地图包 · yunnan（配置）
  * ---------------------------------------------------------------------
  * 路径：js/maps/china/yunnan.js
- * 生成：node tools/add-map.js --adcode=530000 --name=yunnan
+ * 生成：node tools/add-map.js --adcode=530000 --name=yunnan --parent=china
  *
  * 【层级】parent = 'china'　adcode = 530000
  *   children 不在这里写 —— 它由 registry 根据子地图的 parent 反向推导，

@@ -2,7 +2,7 @@
  * 地图包 · chongqing（配置）
  * ---------------------------------------------------------------------
  * 路径：js/maps/china/chongqing.js
- * 生成：node tools/add-map.js --adcode=500000 --name=chongqing
+ * 生成：node tools/add-map.js --adcode=500000 --name=chongqing --parent=china
  *
  * 【层级】parent = 'china'　adcode = 500000
  *   children 不在这里写 —— 它由 registry 根据子地图的 parent 反向推导，
@@ -64,7 +64,7 @@
 
     texts: {
       cityName: 'chongqing',
-      districtCount: 39,
+      districtCount: 38,
       missingDataHint:
         '地图数据没加载出来，请确认 js/maps/china/chongqing.geo.js 存在且没有被浏览器拦截。',
     },
