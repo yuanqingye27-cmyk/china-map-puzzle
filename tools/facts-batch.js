@@ -142,17 +142,51 @@ async function fetchSequential(items, delayMs, fn, onProgress) {
   results.forEach((r) => { r.check = crossCheckArea(r); });
   const ms = Date.now() - t0;
 
+  fs.mkdirSync(OUT_DIR, { recursive: true });
+  const outFile = path.join(OUT_DIR, 'facts-' + slug + '.json');
+
+  /* ---------- 增量合并（不是覆盖）----------
+   * 【为什么】抓取会被限流（坑 #31/#37），所以一个市常常要分几小批抓。
+   * 早期版本每次直接覆盖 out/facts-<市>.json，于是第二批把第一批的结果冲掉了 ——
+   * 缓存里明明有页面，产物却丢了。现在改成按 adcode 合并：
+   * 新的结果覆盖同 adcode 的旧结果，其余保留。 */
+  let merged = results;
+  let mergedFrom = 0;
+  if (fs.existsSync(outFile) && !args.flags.has('fresh')) {
+    try {
+      const prev = JSON.parse(fs.readFileSync(outFile, 'utf8'));
+      const byAd = new Map();
+      (prev.districts || []).forEach((d) => { if (d && d.adcode) byAd.set(String(d.adcode), d); });
+      /* 新结果里"抓取失败"的条目如果旧结果里是成功的，保留旧的成功结果
+       * （限流是暂时的，不该因为一次重抓失败就把已拿到的内容丢掉） */
+      results.forEach((r) => {
+        const ad = String(r.adcode);
+        const old = byAd.get(ad);
+        if (old && old.ok && !r.ok) { byAd.set(ad, old); return; }
+        byAd.set(ad, r);
+      });
+      mergedFrom = prev.districts ? prev.districts.length : 0;
+      // 按 geo 的顺序排列（与区划顺序一致，便于阅读）
+      merged = districts
+        .map((d) => byAd.get(String(d.adcode)))
+        .filter(Boolean);
+      // 若有 geo 里没有的历史条目，也一并保留
+      byAd.forEach((v, k) => {
+        if (!districts.some((d) => String(d.adcode) === k)) merged.push(v);
+      });
+    } catch { merged = results; }
+  }
+
   const payload = {
     map: slug,
     mapName,
     adcode,
     generatedAt: new Date().toISOString().slice(0, 10),
     source: 'm.baike.com（百科镜像）· 由 tools/facts-batch.js 抽取，仅供人工核实',
-    districts: results,
+    mergedFrom: mergedFrom || undefined,
+    districts: merged,
   };
 
-  fs.mkdirSync(OUT_DIR, { recursive: true });
-  const outFile = path.join(OUT_DIR, 'facts-' + slug + '.json');
   fs.writeFileSync(outFile, JSON.stringify(payload, null, 2), 'utf8');
 
   /* 摘要：默认只打印"每个区县几行"，把原文留在 JSON 里 */
@@ -177,6 +211,10 @@ async function fetchSequential(items, delayMs, fn, onProgress) {
   });
 
   console.log('\n  产物：' + path.relative(tree.ROOT, outFile) + '（' + (fs.statSync(outFile).size / 1024).toFixed(0) + ' KB，原文不进上下文）');
+  if (mergedFrom) {
+    const okAll = merged.filter((r) => r.ok).length;
+    console.log('  累计：' + okAll + '/' + merged.length + ' 个区县已有素材（本次新增/更新 ' + results.length + ' 个）');
+  }
   console.log('  耗时：' + (ms / 1000).toFixed(1) + 's　成功 ' + (results.length - failed.length) + '/' + results.length
     + (failed.length ? '（失败 ' + failed.length + '，其中限流 ' + throttled.length + '）' : ''));
 

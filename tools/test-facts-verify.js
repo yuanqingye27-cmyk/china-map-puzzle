@@ -98,7 +98,12 @@ const r3 = runVerify(badArea);
 check('面积与几何不一致 → 拦下（exit 1）', r3.code === 1);
 check('  且指出不一致', /与几何面积/.test(r3.out));
 
-/* ---------- 用例 4：撞车条目写进正文 → 必须拦下 ---------- */
+/* ---------- 用例 4：collision 是弱信号 → 只提醒，不再拦 ----------
+ * 【为什么规则改了】实测误报：凉山的西昌市/会理市/会东县/喜德县，
+ * 条目正文里压根没写"凉山"二字（很多条目不写上级市名），但面积与几何一致、地名也对。
+ * 按旧规则这 4 条会被整条拒掉 —— 而真正的撞车由**面积比值**抓得住
+ * （内江市市中区 0.05 倍那种）。所以 collision 降级为提醒。
+ * 这条用例锁住"降级后不会静默通过、仍会给出提醒"。 */
 const collided = JSON.parse(JSON.stringify(good));
 collided.districts.push({
   adcode: 510399, name: '市中区', area: 840,
@@ -106,8 +111,20 @@ collided.districts.push({
   evidence: { landmark: '市中区有黄鹤湖旅游区。' },
 });
 const r4 = runVerify(collided);
-check('撞车条目进正文 → 拦下（exit 1）', r4.code === 1, '实际 exit=' + r4.code);
-check('  且提示应进 rejected', /rejected/.test(r4.out));
+check('collision（弱信号）不拦下', r4.code === 0, '实际 exit=' + r4.code);
+check('  但会给出提醒', /所属市名/.test(r4.out));
+
+/* ---------- 用例 4b：真正的撞车靠面积比值拦（素材 mismatch）---------- */
+/* 夹具里 510304 大安区的 check.status 是 mismatch —— 把它写进正文必须被拦。 */
+const realCollision = JSON.parse(JSON.stringify(good));
+realCollision.districts.push({
+  adcode: 510304, name: '大安区', area: 401,
+  landmark: '燊海井',
+  evidence: { landmark: '大安区有燊海井。' },
+});
+const r4b = runVerify(realCollision);
+check('面积 mismatch 的条目进正文 → 拦下（exit 1）', r4b.code === 1, '实际 exit=' + r4b.code);
+check('  且指出面积对不上', /面积与几何对不上/.test(r4b.out));
 
 /* ---------- 用例 5：素材抓取失败的条目写进正文 → 必须拦下 ---------- */
 const throttledInBody = JSON.parse(JSON.stringify(good));
