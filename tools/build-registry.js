@@ -45,7 +45,8 @@ function main() {
         ' adcode=' + m.adcode +
         ' children=[' + m.children.join(', ') + ']'
       );
-      console.log('      ' + m.scripts.join('\n      '));
+      // 脚本路径由 dir + id 推导（registry 里不再存 scripts 字段，省首屏体积）
+      console.log('      ' + tree.scriptsOf(m).join('\n      '));
     });
   }
 

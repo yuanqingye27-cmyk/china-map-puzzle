@@ -12,9 +12,11 @@
  *   file:// 下浏览器会拦 fetch 本地 .json（CORS），但普通 <script> 不受影响，
  *   "零依赖、双击即玩"这条底线就是这么保住的。
  *
- * 【路径约定】registry 里 scripts 的路径都**相对 js/maps/**，
- *   本文件用自己 <script src> 的地址推算基准目录，
- *   所以宿主页放在哪一层都不会错。
+ * 【路径约定】地图包的三个脚本路径由 `dir + id` 现算：
+ *   `<dir>/<id>.geo.js`、`<dir>/<id>.data.js`、`<dir>/<id>.js`（根地图 dir 为空）。
+ *   **registry 里不再存 scripts 字段** —— 它是纯推导结果，而 registry 是首屏要下载的文件；
+ *   接满全国 494 张地图时，省掉这个字段能少约三分之一体积。
+ *   本文件用自己 <script src> 的地址推算基准目录，所以宿主页放在哪一层都不会错。
  * ===================================================================== */
 
 (function (global) {
@@ -26,6 +28,13 @@
     if (cur && cur.src) return cur.src.replace(/[?#].*$/, '').replace(/[^/]*$/, '');
     return 'js/maps/'; // 兜底（理论上用不到）
   })();
+
+  /** 由一个 registry 条目推出它要注入的三个脚本（顺序不能改：
+   *  .geo.js 与 .data.js 都是往全局登记，最后 .js 才组装出地图包） */
+  function scriptsOfEntry(e) {
+    const base = e.dir ? e.dir + '/' : '';
+    return [base + e.id + '.geo.js', base + e.id + '.data.js', base + e.id + '.js'];
+  }
 
   /** 正在加载中的地图：id → Promise，避免同一张图被并发加载两次 */
   const inflight = {};
@@ -71,8 +80,9 @@
     }
 
     inflight[id] = (async () => {
-      for (let i = 0; i < e.scripts.length; i++) {
-        await inject(BASE + e.scripts[i]);
+      const scripts = scriptsOfEntry(e);
+      for (let i = 0; i < scripts.length; i++) {
+        await inject(BASE + scripts[i]);
       }
       const pkg = global.MAP_PACKAGES && global.MAP_PACKAGES[id];
       if (!pkg) {

@@ -252,7 +252,12 @@ function buildRegistryModel(scan) {
       adcode: m.adcode,
       children,
       dir: m.dir,
-      scripts: scriptsOf(m),
+      /* 【为什么不写 scripts】
+       * 它是 `dir + id + ('.geo.js' | '.data.js' | '.js')` 的纯推导结果，
+       * 每个条目要花约 96 字节，而 registry.js 是**首屏就要下载**的文件。
+       * 23 张地图时无所谓；接满全国 494 张时，这个字段能占到 registry 的三分之一。
+       * loader.js 改成用 scriptsOf() 现算（只有一处用），语义完全等价。
+       * 这条不变量由 test-maps.js 的断言钉住，避免以后有人想"顺手加回来"。 */
     };
   });
 

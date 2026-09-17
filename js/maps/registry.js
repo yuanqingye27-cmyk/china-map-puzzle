@@ -56,12 +56,7 @@
         "children": [
           "sichuan"
         ],
-        "dir": "",
-        "scripts": [
-          "china.geo.js",
-          "china.data.js",
-          "china.js"
-        ]
+        "dir": ""
       },
       "sichuan": {
         "id": "sichuan",
@@ -91,12 +86,7 @@
           "ganzi",
           "liangshan"
         ],
-        "dir": "china",
-        "scripts": [
-          "china/sichuan.geo.js",
-          "china/sichuan.data.js",
-          "china/sichuan.js"
-        ]
+        "dir": "china"
       },
       "chengdu": {
         "id": "chengdu",
@@ -104,12 +94,7 @@
         "parent": "sichuan",
         "adcode": 510100,
         "children": [],
-        "dir": "china/sichuan",
-        "scripts": [
-          "china/sichuan/chengdu.geo.js",
-          "china/sichuan/chengdu.data.js",
-          "china/sichuan/chengdu.js"
-        ]
+        "dir": "china/sichuan"
       },
       "zigong": {
         "id": "zigong",
@@ -117,12 +102,7 @@
         "parent": "sichuan",
         "adcode": 510300,
         "children": [],
-        "dir": "china/sichuan",
-        "scripts": [
-          "china/sichuan/zigong.geo.js",
-          "china/sichuan/zigong.data.js",
-          "china/sichuan/zigong.js"
-        ]
+        "dir": "china/sichuan"
       },
       "panzhihua": {
         "id": "panzhihua",
@@ -130,12 +110,7 @@
         "parent": "sichuan",
         "adcode": 510400,
         "children": [],
-        "dir": "china/sichuan",
-        "scripts": [
-          "china/sichuan/panzhihua.geo.js",
-          "china/sichuan/panzhihua.data.js",
-          "china/sichuan/panzhihua.js"
-        ]
+        "dir": "china/sichuan"
       },
       "luzhou": {
         "id": "luzhou",
@@ -143,12 +118,7 @@
         "parent": "sichuan",
         "adcode": 510500,
         "children": [],
-        "dir": "china/sichuan",
-        "scripts": [
-          "china/sichuan/luzhou.geo.js",
-          "china/sichuan/luzhou.data.js",
-          "china/sichuan/luzhou.js"
-        ]
+        "dir": "china/sichuan"
       },
       "deyang": {
         "id": "deyang",
@@ -156,12 +126,7 @@
         "parent": "sichuan",
         "adcode": 510600,
         "children": [],
-        "dir": "china/sichuan",
-        "scripts": [
-          "china/sichuan/deyang.geo.js",
-          "china/sichuan/deyang.data.js",
-          "china/sichuan/deyang.js"
-        ]
+        "dir": "china/sichuan"
       },
       "mianyang": {
         "id": "mianyang",
@@ -169,12 +134,7 @@
         "parent": "sichuan",
         "adcode": 510700,
         "children": [],
-        "dir": "china/sichuan",
-        "scripts": [
-          "china/sichuan/mianyang.geo.js",
-          "china/sichuan/mianyang.data.js",
-          "china/sichuan/mianyang.js"
-        ]
+        "dir": "china/sichuan"
       },
       "guangyuan": {
         "id": "guangyuan",
@@ -182,12 +142,7 @@
         "parent": "sichuan",
         "adcode": 510800,
         "children": [],
-        "dir": "china/sichuan",
-        "scripts": [
-          "china/sichuan/guangyuan.geo.js",
-          "china/sichuan/guangyuan.data.js",
-          "china/sichuan/guangyuan.js"
-        ]
+        "dir": "china/sichuan"
       },
       "suining": {
         "id": "suining",
@@ -195,12 +150,7 @@
         "parent": "sichuan",
         "adcode": 510900,
         "children": [],
-        "dir": "china/sichuan",
-        "scripts": [
-          "china/sichuan/suining.geo.js",
-          "china/sichuan/suining.data.js",
-          "china/sichuan/suining.js"
-        ]
+        "dir": "china/sichuan"
       },
       "neijiang": {
         "id": "neijiang",
@@ -208,12 +158,7 @@
         "parent": "sichuan",
         "adcode": 511000,
         "children": [],
-        "dir": "china/sichuan",
-        "scripts": [
-          "china/sichuan/neijiang.geo.js",
-          "china/sichuan/neijiang.data.js",
-          "china/sichuan/neijiang.js"
-        ]
+        "dir": "china/sichuan"
       },
       "leshan": {
         "id": "leshan",
@@ -221,12 +166,7 @@
         "parent": "sichuan",
         "adcode": 511100,
         "children": [],
-        "dir": "china/sichuan",
-        "scripts": [
-          "china/sichuan/leshan.geo.js",
-          "china/sichuan/leshan.data.js",
-          "china/sichuan/leshan.js"
-        ]
+        "dir": "china/sichuan"
       },
       "nanchong": {
         "id": "nanchong",
@@ -234,12 +174,7 @@
         "parent": "sichuan",
         "adcode": 511300,
         "children": [],
-        "dir": "china/sichuan",
-        "scripts": [
-          "china/sichuan/nanchong.geo.js",
-          "china/sichuan/nanchong.data.js",
-          "china/sichuan/nanchong.js"
-        ]
+        "dir": "china/sichuan"
       },
       "meishan": {
         "id": "meishan",
@@ -247,12 +182,7 @@
         "parent": "sichuan",
         "adcode": 511400,
         "children": [],
-        "dir": "china/sichuan",
-        "scripts": [
-          "china/sichuan/meishan.geo.js",
-          "china/sichuan/meishan.data.js",
-          "china/sichuan/meishan.js"
-        ]
+        "dir": "china/sichuan"
       },
       "yibin": {
         "id": "yibin",
@@ -260,12 +190,7 @@
         "parent": "sichuan",
         "adcode": 511500,
         "children": [],
-        "dir": "china/sichuan",
-        "scripts": [
-          "china/sichuan/yibin.geo.js",
-          "china/sichuan/yibin.data.js",
-          "china/sichuan/yibin.js"
-        ]
+        "dir": "china/sichuan"
       },
       "guangan": {
         "id": "guangan",
@@ -273,12 +198,7 @@
         "parent": "sichuan",
         "adcode": 511600,
         "children": [],
-        "dir": "china/sichuan",
-        "scripts": [
-          "china/sichuan/guangan.geo.js",
-          "china/sichuan/guangan.data.js",
-          "china/sichuan/guangan.js"
-        ]
+        "dir": "china/sichuan"
       },
       "dazhou": {
         "id": "dazhou",
@@ -286,12 +206,7 @@
         "parent": "sichuan",
         "adcode": 511700,
         "children": [],
-        "dir": "china/sichuan",
-        "scripts": [
-          "china/sichuan/dazhou.geo.js",
-          "china/sichuan/dazhou.data.js",
-          "china/sichuan/dazhou.js"
-        ]
+        "dir": "china/sichuan"
       },
       "yaan": {
         "id": "yaan",
@@ -299,12 +214,7 @@
         "parent": "sichuan",
         "adcode": 511800,
         "children": [],
-        "dir": "china/sichuan",
-        "scripts": [
-          "china/sichuan/yaan.geo.js",
-          "china/sichuan/yaan.data.js",
-          "china/sichuan/yaan.js"
-        ]
+        "dir": "china/sichuan"
       },
       "bazhong": {
         "id": "bazhong",
@@ -312,12 +222,7 @@
         "parent": "sichuan",
         "adcode": 511900,
         "children": [],
-        "dir": "china/sichuan",
-        "scripts": [
-          "china/sichuan/bazhong.geo.js",
-          "china/sichuan/bazhong.data.js",
-          "china/sichuan/bazhong.js"
-        ]
+        "dir": "china/sichuan"
       },
       "ziyang": {
         "id": "ziyang",
@@ -325,12 +230,7 @@
         "parent": "sichuan",
         "adcode": 512000,
         "children": [],
-        "dir": "china/sichuan",
-        "scripts": [
-          "china/sichuan/ziyang.geo.js",
-          "china/sichuan/ziyang.data.js",
-          "china/sichuan/ziyang.js"
-        ]
+        "dir": "china/sichuan"
       },
       "aba": {
         "id": "aba",
@@ -338,12 +238,7 @@
         "parent": "sichuan",
         "adcode": 513200,
         "children": [],
-        "dir": "china/sichuan",
-        "scripts": [
-          "china/sichuan/aba.geo.js",
-          "china/sichuan/aba.data.js",
-          "china/sichuan/aba.js"
-        ]
+        "dir": "china/sichuan"
       },
       "ganzi": {
         "id": "ganzi",
@@ -351,12 +246,7 @@
         "parent": "sichuan",
         "adcode": 513300,
         "children": [],
-        "dir": "china/sichuan",
-        "scripts": [
-          "china/sichuan/ganzi.geo.js",
-          "china/sichuan/ganzi.data.js",
-          "china/sichuan/ganzi.js"
-        ]
+        "dir": "china/sichuan"
       },
       "liangshan": {
         "id": "liangshan",
@@ -364,12 +254,7 @@
         "parent": "sichuan",
         "adcode": 513400,
         "children": [],
-        "dir": "china/sichuan",
-        "scripts": [
-          "china/sichuan/liangshan.geo.js",
-          "china/sichuan/liangshan.data.js",
-          "china/sichuan/liangshan.js"
-        ]
+        "dir": "china/sichuan"
       }
     }
   };

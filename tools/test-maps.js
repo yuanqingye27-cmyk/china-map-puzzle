@@ -175,6 +175,33 @@ slugs.forEach((slug) => {
   }
 })();
 
+/* ------------------------------------------------------------------ *
+ * 登记册体积不变量
+ * ------------------------------------------------------------------ *
+ * registry.js 是**首屏就要下载**的文件，SOP 3.5.5 的承诺是
+ * "地图数量再多，首屏也不变重"。这条承诺靠"条目里只放必要字段"维持。
+ * 曾经踩过：每条带一个 `scripts` 数组（三个脚本路径），约 96 字节/条 ——
+ * 纯冗余（能由 dir + id 推导），23 张时看不出，接满 494 张就是三分之一体积。
+ * 下面这条断言把"不存可推导字段"钉住，防止以后有人顺手加回来。
+ */
+(function () {
+  const regFile = path.join(tree.MAPS_DIR, 'registry.js');
+  if (!fs.existsSync(regFile)) { check('registry.js 存在', false); return; }
+  const src = fs.readFileSync(regFile, 'utf8');
+  const bytes = Buffer.byteLength(src, 'utf8');
+  const mapCount = (src.match(/"adcode":/g) || []).length;
+
+  check('registry.js 不存可推导的 scripts 字段（首屏体积）',
+    !/"scripts"\s*:/.test(src),
+    '发现了 scripts 字段：它是 dir + id 的推导结果，不该进 registry');
+
+  // 每条平均超过 600 字节就说明又塞了冗余字段（当前约 300 字节/条）
+  const per = mapCount ? bytes / mapCount : 0;
+  check('registry.js 单条体积合理（当前 ' + Math.round(per) + ' 字节/条）',
+    per < 600,
+    '单条 ' + Math.round(per) + ' 字节，偏大 —— 检查是否塞了可推导字段');
+})();
+
 console.log('\n  → ' + passed + ' 通过 / ' + failed + ' 失败');
 if (failed) console.log('  失败项：' + failures.join('、'));
 if (broken) console.log('  ⚠ 其中有 ' + broken + ' 张地图存在"会让引擎崩"的问题');
