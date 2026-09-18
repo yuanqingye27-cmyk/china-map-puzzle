@@ -34,16 +34,23 @@
     map: { width: 1000, padding: 14 },
     piece: { max: 62, minSide: 15, pieces: [[420, 40], [620, 48], [900, 56]] },
 
-    /* 主色相由 adcode 派生（见 tools/add-map.js 的 hueFor），每关错开 52° */
+    /* 主色相由 adcode 派生（见 tools/add-map.js 的 hueFor），每关错开约 51°。
+     * 键名必须与 china.data.js 里 LEVELS 的 id 一一对应。
+     * 【为什么是语义 id 而不是 l1/l2】中国图这 7 关是按**地理分区**手写的
+     * （东北/华北/华东/华中/华南/西南/西北），不是按行政类型自动分的。
+     * tools/regroup-levels.js 有一条守卫：只要关卡 id 不是 `l\d+` 形式，
+     * 就认定这份关卡是人工编排的、整体跳过不重排 —— 用语义 id 才能保住它。 */
     palette: {
       hueByLevel: {
-      l1: 280,
-      l2: 332,
-      l3: 24,
-      l4: 76,
-      l5: 128,
+        dongbei: 200,
+        huabei: 251,
+        huadong: 302,
+        huazhong: 353,
+        huanan: 44,
+        xinan: 95,
+        xibei: 146,
       },
-      fallbackHue: 280,
+      fallbackHue: 200,
       saturation: 62,
       lightBase: 48,
       lightStep: 7,

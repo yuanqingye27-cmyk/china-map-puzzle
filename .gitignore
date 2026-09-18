@@ -11,7 +11,7 @@ tools/tianditu.config.json
 out/
 
 # 部署产物：由根目录的源文件复制而来，可随时重建，不入库
-# （重建方式见 deploy/README-部署到Cloudflare.md）
+# （重建方式见 docs/部署到Cloudflare.md）
 deploy/
 deploy-sichuan/
 

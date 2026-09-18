@@ -3,8 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>成都地图拼图 · 认识 20 个区县</title>
-<meta name="description" content="用拼图游戏认识成都的 20 个区县：拖动碎片放到地图上的正确位置，拼对后查看每个区县的面积、地标和冷知识。">
+<!-- 首屏文案刻意保持「中性」：
+     地图是按需加载的，在包加载完之前 JS 还没跑，页面显示的就是这几行静态文字。
+     以前这里硬编码「成都」，于是进河北、进中国都会先闪一下"成都地图拼图"——
+     实测确认过这个问题。真正的文案由 js/game.js 的 updateBrand() 在地图就绪后覆盖。 -->
+<title>地图拼图 · 认识中国的省市区县</title>
+<meta name="description" content="一个中国行政区划拼图游戏：拖动碎片放回地图上正确的位置，拼对后查看这个省/市/区县的面积、地标和冷知识。">
 <link rel="stylesheet" href="css/style.css">
 <script>
 /* 在首屏渲染之前就把主题定下来。
@@ -16,6 +20,21 @@ try {
 </script>
 </head>
 <body>
+
+<!-- ==================== 骨架屏（加载占位） ====================
+     地图包是按需加载的（首屏只载 226KB 通用代码，具体某张图的几何数据用到才下载），
+     所以从 HTML 解析完到地图画出来之间有一段空白。以前这段时间屏幕上什么都没有，
+     看起来像"卡住了"。这里给一个极简占位：只在真实内容就绪前显示。
+     移除时机见 js/game.js —— 就绪时 markReady() 摘掉、出错时 showFatal() 也摘掉，
+     所以它不会挡住任何东西，也不会永远留在屏幕上。 -->
+<div class="boot-skeleton" id="bootSkeleton" role="status" aria-live="polite">
+  <div class="bs-mark" aria-hidden="true">
+    <svg viewBox="0 0 80 80"><use href="#i-ginkgo"/></svg>
+  </div>
+  <p class="bs-title">正在加载地图…</p>
+  <p class="bs-sub">第一次打开会稍慢一点，之后就快了</p>
+  <div class="bs-bar" aria-hidden="true"><i></i></div>
+</div>
 
 <!-- =====================================================================
      SVG 图案库（手绘 · 全部由本文件内的矢量路径绘制，无任何外链图片）
@@ -259,8 +278,8 @@ try {
         <svg viewBox="0 0 64 64" aria-hidden="true"><use href="#i-panda"/></svg>
       </div>
       <div class="brand-text">
-        <h1 id="brandTitle">成都地图拼图</h1>
-        <p id="brandSub">拖动碎片，拼出成都的 20 个区县</p>
+        <h1 id="brandTitle">地图拼图</h1>
+        <p id="brandSub">正在加载地图…</p>
       </div>
     </div>
     <div class="topbar-right">
@@ -341,7 +360,7 @@ try {
 
       <div class="board" id="board">
         <svg class="map" id="map" preserveAspectRatio="xMidYMid meet" role="img"
-             aria-label="成都市行政区划拼图板">
+             aria-label="行政区划拼图板">
           <defs id="mapDefs"></defs>
           <!-- 底图：全部区县的浅色轮廓，给玩家一个"地图纸"的参照 -->
           <g class="layer layer-base" id="layerBase"></g>
@@ -500,9 +519,9 @@ try {
      填法：把下面两个字段换成自己的仓库和邮箱，一行代码都不用改。 -->
 <script>
   window.MAP_PUZZLE_CONTRIB = {
-    repo: '',   // 例：'yourname/map-puzzle'
-    email: '',  // 例：'you@example.com'
-    site: ''    // 部署后的网址，例：'https://xxx.pages.dev/'
+    repo: 'Michael-YE666/map-puzzle',  // 众包纠错提交到这里（私有仓库也收得到 Issue）
+    email: '',                          // 留空则隐藏"用邮件发"按钮
+    site: 'https://map-puzzle-89v.pages.dev/'  // 报告里会带上"我是在哪看到的"深链
   };
 </script>
 <script src="js/contribute.js"></script>

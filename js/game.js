@@ -29,6 +29,8 @@
   let CURRENT_ID = DEFAULT_MAP;
 
   function showFatal(message) {
+    /* 出错时也要把骨架屏摘掉，否则它会盖住错误提示 */
+    try { hideBootSkeleton(); } catch (e) { /* 骨架屏还没解析出来就算了 */ }
     document.body.innerHTML =
       '<p style="padding:40px;color:#e7f2ec;font-family:sans-serif">' + message + '</p>';
   }
@@ -53,7 +55,20 @@
   }
 
   /** 宣布"这张地图已经就绪"：给宿主页和测试一个确定的信号 */
+  /** 摘掉加载骨架屏。
+   *  两个时机都要摘：地图就绪（markReady）、以及**出错**（showFatal）——
+   *  只摘成功的那个，出错时骨架屏会一直转下去，比没有骨架屏更糟。 */
+  function hideBootSkeleton() {
+    const el = document.getElementById('bootSkeleton');
+    if (!el || el.hidden) return;
+    el.classList.add('is-gone');
+    /* 先淡出再 hidden：直接 hidden 会"啪"地消失。
+     * 用 setTimeout 而不是 transitionend —— 动画被系统设置禁用时不会有 transitionend 事件。 */
+    setTimeout(() => { el.hidden = true; }, 260);
+  }
+
   function markReady(id) {
+    hideBootSkeleton();
     document.documentElement.setAttribute('data-map-ready', id);
     try {
       document.dispatchEvent(new global.CustomEvent('map-ready', { detail: { id } }));
@@ -276,6 +291,22 @@
     const id = pickMapId();
     CURRENT_ID = id;
     bindReportChip();
+
+    /* 先把"这是哪张图"显示出来 —— 名字在 registry 里就有，不必等 geo 下载完。
+     * 【为什么值得单独做】地图包是按需加载的，中国图的 geo 有 1.6MB；
+     * 在它下载完之前，标题栏原本一直写着上一个占位文案（以前硬编码是"成都"）。
+     * 这里先用 registry 的名字把标题/文档标题填上，等地图就绪后 updateBrand()
+     * 再补上"多少块"这类只有拿到 geo 才知道的信息。 */
+    {
+      const e = global.MapLoader.entry && global.MapLoader.entry(id);
+      if (e && e.name) {
+        const t = document.getElementById('brandTitle');
+        const sub = document.getElementById('brandSub');
+        if (t) t.textContent = e.name + '地图拼图';
+        if (sub) sub.textContent = '正在加载 ' + e.name + ' 的边界数据…';
+        document.title = e.name + '地图拼图';
+      }
+    }
 
   /* ==================== 跨地图进度与成就 ====================
    * 账本逻辑全在 js/progress.js（纯函数，可移植、可单测）；

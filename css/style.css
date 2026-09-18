@@ -2222,3 +2222,62 @@ body.intro-open { overflow: hidden; }
 }
 .report-chip:hover { color: var(--text); border-color: rgb(var(--c-jade) / 0.5); }
 
+/* =====================================================================
+ * 骨架屏（加载占位，对应 index.html 的 #bootSkeleton）
+ * ---------------------------------------------------------------------
+ * 存在意义：地图包按需加载，从 HTML 解析完到地图画出来之间有一段空白，
+ * 以前屏幕上什么都没有，看起来像"卡住了"。
+ * 设计上刻意做得很轻（一个标记 + 两行字 + 一条不确定进度条）：
+ * 加载完就摘掉，不需要假装真实内容，也不该抢视觉。
+ * 移除时机在 js/game.js：就绪(markReady)或出错(showFatal)都会摘掉。
+ * ===================================================================== */
+.boot-skeleton {
+  position: fixed; inset: 0; z-index: 60;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 10px;
+  background: var(--bg);
+  color: var(--text-dim);
+  text-align: center; padding: 24px;
+  /* 摘掉时淡出，别"啪"地一下消失 */
+  animation: bs-in 0.25s var(--ease-out) both;
+}
+.boot-skeleton[hidden] { display: none; }
+.boot-skeleton.is-gone { opacity: 0; transition: opacity 0.25s var(--ease-out); }
+@keyframes bs-in { from { opacity: 0 } to { opacity: 1 } }
+.boot-skeleton .bs-mark svg {
+  width: 46px; height: 46px; color: var(--jade);
+  opacity: 0.5;
+  animation: bs-sway 2.4s ease-in-out infinite;
+}
+/* 银杏叶轻轻摆动：给"在加载"一个活的信号，但不吵闹 */
+@keyframes bs-sway {
+  0%, 100% { transform: rotate(-6deg) translateY(0) }
+  50%      { transform: rotate(6deg) translateY(-4px) }
+}
+.boot-skeleton .bs-title { margin: 0; font-size: 15px; color: var(--text); }
+.boot-skeleton .bs-sub { margin: 0; font-size: 12px; }
+.boot-skeleton .bs-bar {
+  width: min(220px, 60vw); height: 3px; margin-top: 6px;
+  border-radius: 999px; overflow: hidden;
+  background: rgb(var(--c-line) / 0.25);
+}
+.boot-skeleton .bs-bar i {
+  display: block; width: 40%; height: 100%; border-radius: 999px;
+  background: var(--jade);
+  animation: bs-slide 1.2s ease-in-out infinite;
+}
+@keyframes bs-slide {
+  0%   { transform: translateX(-110%) }
+  100% { transform: translateX(280%) }
+}
+/* 手机端性能降级：关掉动画（和项目里其他 620px 断点保持同一套做法） */
+@media (max-width: 620px) {
+  .boot-skeleton .bs-mark svg,
+  .boot-skeleton .bs-bar i { animation: none; }
+  .boot-skeleton .bs-bar i { transform: none; width: 100%; opacity: 0.55; }
+}
+/* 尊重"减少动态效果"的系统设置 */
+@media (prefers-reduced-motion: reduce) {
+  .boot-skeleton .bs-mark svg,
+  .boot-skeleton .bs-bar i { animation: none; }
+}
