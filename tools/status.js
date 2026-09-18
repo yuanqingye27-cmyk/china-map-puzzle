@@ -123,8 +123,10 @@ if (fs.existsSync('/tmp/menu.json')) {
 
 const line = (k, v) => console.log('  ' + k.padEnd(18) + v);
 
-console.log('══════════ 项目状态 · 地图拼图 v1.0.0 ══════════');
-line('版本', run("git describe --tags --always 2>/dev/null") || '（未打 tag）');
+/* 版本从 git tag 读，不写死 —— 写死的版本号必然会过期（这份横幅就过期过一次） */
+console.log('══════════ 项目状态 · 地图拼图 ' +
+  (run("git describe --tags --abbrev=0 2>/dev/null") || '（未打 tag）') + ' ══════════');
+line('版本', run("git describe --tags --abbrev=0 2>/dev/null") || '（未打 tag）');
 line('工作区', (run('git status --porcelain') === '' ? '干净 ✅' : '⚠ 有未提交改动'));
 console.log('');
 line('已接入地图', maps.length + ' 张');
