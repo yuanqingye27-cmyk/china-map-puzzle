@@ -10,7 +10,8 @@
  * （sandbox 会 SIGTRAP、iframe 要能读 file://），别自己另发明一套。
  *
  * 用法：
- *   node tools/exp-run.js --page=exp-tiny-drag.html --map=china --targets=820000,810000,710000
+ *   node tools/exp-run.js --page=tiny-drag-test.html --map=china
+ *   node tools/exp-run.js --page=exp-coord.html --map=china
  */
 
 const http = require('http');
@@ -29,7 +30,7 @@ const argOf = (k, d) => {
   return hit ? hit.split('=').slice(1).join('=') : d;
 };
 
-const PAGE = argOf('page', 'exp-tiny-drag.html');
+const PAGE = argOf('page', 'exp-coord.html');
 const MAP = argOf('map', 'china');
 const LEVEL = argOf('level', '1');
 const TARGETS = argOf('targets', '820000,810000,710000');
@@ -87,8 +88,20 @@ server.listen(HTTP_PORT, '127.0.0.1', () => {
     '--allow-file-access-from-files',   // 载体页要读 iframe 里的被测页
     '--user-data-dir=' + userDataDir,
     '--window-size=1700,1200',
+    /* 把被测页的 console 转出来：排查"静默失败"时这是唯一的现场 */
+    '--enable-logging=stderr',
+    '--v=0',
     pageUrl,
-  ], { stdio: 'ignore' });
+  ], { stdio: ['ignore', 'ignore', 'pipe'] });
+
+  /* 只挑被测页自己的 console 行，Chrome 的噪音丢掉 */
+  chrome.stderr.on('data', (b) => {
+    String(b).split('\n').forEach((ln) => {
+      if (/DBG_|CONSOLE|Uncaught|SecurityError|TypeError/.test(ln)) {
+        console.log('[chrome] ' + ln.trim());
+      }
+    });
+  });
 
   setTimeout(() => {
     console.error('✘ 超时（' + Math.round(TIMEOUT_MS / 1000) + 's），没收到回传。');

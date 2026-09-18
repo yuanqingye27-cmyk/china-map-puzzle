@@ -66,39 +66,68 @@
     const DRAG_THRESHOLD = 5;      // 移动超过这个距离才算"拖拽"，否则算"点击"
     const SNAP_MS = 300;           // 吸附动画时长，要和 CSS 里的 transition 对上
 
-    /* ---------- 拖拽手感：极小碎片的可见性与容错 ----------
+    /* ---------- 拖拽手感：极小碎片的可见性 ----------
      * 【要解决的问题】托盘碎片有"短边下限"归一化（见 pieceSize），而地图上的空位
-     * 是**真实比例**。中国图第 5 关实测：澳门那块碎片在托盘里 47×78px，
-     * 而地图上的空位只有 **0.8×1.6px** —— 相差 59 倍。手指/鼠标往那儿一放，
-     * 空位被碎片完全盖住（遮挡率 100%），玩家根本看不见该往哪放。
+     * 是**真实比例**。实测（1600×1000 画布）：
+     *   中国图第 5 关 · 澳门空位 0.8×1.6px / 香港 7.9×6.1px
+     *   四川  第 1 关 · 最小空位 34×42px
+     *   成都  第 1 关 · 最小空位 107×138px（舒服）
+     * 可见这不是"中国图独有"，而是"一关块数多 + 区域本身小"的通病。
      *
-     * 三层配合，缺一层都不够：
-     *   ① 幽灵偏移：碎片不再正压着抓取点，往左上让开，露出下方的空位
-     *   ② 触屏校准：判定点相对触点再上移一点（手指遮在触点下方、视线在触点上方）
-     *   ③ 放大镜：空位小到"偏移也露不出来"时（澳门的 0.8px 就是），
-     *      在屏幕角落放大指针附近，把看不见的目标变成看得见
+     * 【为什么用"镜头推近"而不是把答案显示在别处】第一版做的是屏幕角落的放大镜，
+     * 但它是**外挂**：玩家视线要在"手指/碎片"和"角落圆盘"之间来回跳，而且圆盘里
+     * 看到的东西跟地图不在同一个位置，认知负担高。它只是在补偿"看不见"，
+     * 而不是让目标看得见。推近镜头则直接把目标本身变大 —— 不需要第二块视野。
      *
-     * 这些都是**通用体验参数**，不含任何具体地图数据，也不含模式分支。 */
+     * 这些是**通用体验参数**，不含任何具体地图数据，也不含模式分支。 */
     const DRAGF = withDefaults(CONFIG.drag, {
-      /* 幽灵让位：屏幕上"碎片的短边"超过空位短边这么多倍才启动。
-       * 小于这个倍数时碎片本来就不怎么挡，硬让位反而显得"碎片乱跑"。 */
-      revealRatio: 2.2,
-      /* 启动后的让位量（屏幕像素）：往左上各让这么多，上限不超过碎片短边的一半 */
-      revealMin: 14,
-      revealMax: 64,
-      /* 触屏：判定点相对视觉触点再上移这么多（负值 = 往上） */
+      /* 触屏：判定点相对视觉触点再上移这么多（负值 = 往上）。
+       * 手指接触面有大小，玩家瞄准的是手指**上方**的落点。 */
       touchLift: 8,
-      /* 放大镜触发：空位短边的屏幕像素数小于这个值就启动 */
-      lensBelowPx: 30,
-      lensScale: 3,
-      lensSize: 132,
-      lensOffset: 26,   // 镜心相对触点的位移（左上），避开手指
+
+      /* 镜头推近：空位最小边的屏幕像素小于这个值就推近 */
+      zoomBelowPx: 56,
+      /* 推近后让空位最小边达到这么大。
+       *
+       * 【这个数决定"推多猛"】曾经是 104（= 舒适点击目标 44px 的 2 倍多），
+       * 实机反馈是"幅度太大、太猛、像卡顿"。降到 76：仍然远大于 44px 的
+       * 可点击下限，但镜头不用贴那么近，缩放倍数和视觉位移都明显变小，
+       * 观感从"怼到脸上"回到"看清目标"。
+       * 澳门这种极端小目标因此要 ~77 倍（此前 ~128 倍）。 */
+      zoomFitPx: 76,
+      /* 倍率上限。这不是"手感偏好"而是防呆：真正的边界由 zoomedViewBox
+       * 把镜头夹在底图范围内保证（空位必定在底图里，夹住就不会露白）。
+       *
+       * 【为什么必须定得高】实测澳门的地图坐标 bbox 是 0.9×1.8 单位，
+       * 在第 5 关视野下只有 0.81×1.63px —— 要让它达到 zoomFitPx 需要几十倍。
+       * 我第一版凭直觉设成 8，结果推近后澳门只有 6.5px，等于没推。
+       * 教训：这个数字要用真实数据算出来，不能拍脑袋。 */
+      zoomMax: 200,
+      /* 推近（收）与退回全景（放）的时长。
+       *
+       * 【为什么要 460ms 而不是 320ms】320ms 在实机上"像卡顿"——
+       * 它太短了，一帧的变化量太大，肉眼看到的是"跳"而不是"移动"。
+       * 450~500ms 配更缓的曲线（见 animateViewBox 的 easing）才是丝滑的区间：
+       * 苹果官网那类过渡也大多落在这个量级。
+       * 退回全景更慢（700ms）是因为它的位移更大，需要更多时间让人跟上方位。 */
+      zoomInMs: 460,
+      zoomOutMs: 700,
+      /* 放下一块之后，隔多久把镜头缓缓退回全景。
+       * 【为什么需要它】刚放下时不该立刻拉走（玩家还在看"我放对了"），
+       * 但**不能一直停在近景** —— 实机反馈：接着拖下一块时地图还是放大的，
+       * 大碎片显示不全、也找不到自己的位置，等于玩不下去。
+       * 900ms 是"看清结果"与"别让人等"之间的折中：再长显得迟钝
+       * （玩家已经想去拖下一块了），再短则看不完信息卡的反馈。 */
+      resetAfterPlaceMs: 900,
     });
 
     /* 判断"这次拖拽是不是触屏/触控笔"。用 pointerType 而不是 UA sniffing：
      * UA 会被魔改系统骗，而事件里的 pointerType 是浏览器自己填的事实。 */
     const isTouchPointer = (ev) =>
       !!ev && (ev.pointerType === 'touch' || ev.pointerType === 'pen');
+
+    /* 本关的"全景"viewBox：退回全景、以及推近时限制不越界都要用它 */
+    let levelViewBox = null;
 
     /* 配色：主色调由城市决定 —— 这就是"不同城市不同主色调"的入口 */
     const PALETTE = withDefaults(CONFIG.palette, {
@@ -302,6 +331,7 @@
       if (!ctm) return null;
       return new DOMPoint(clientX, clientY).matrixTransform(ctm.inverse());
     }
+
 
     /** 地图 viewBox 里的 bbox → 视口像素矩形（用来对齐幽灵和真实区块） */
     function bboxToScreen(bbox) {
@@ -636,6 +666,7 @@
     /* ============================ 构建地图 ============================ */
     let shapes = new Map(); // adcode -> 几何数据（d / bbox / center）
     let viewRaf = null;     // viewBox 过渡动画的句柄
+    let viewSettle = null;  // 该动画的 resolve（镜头停稳时兑现，见 animateViewBox）
     let hasRenderedOnce = false;
 
     function buildMap() {
@@ -710,32 +741,65 @@
       el.map.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
     }
 
+    /** 视图过渡的缓动曲线：easeInOutCubic。
+     *
+     *  【为什么不用 easeOutCubic】原来用的是 `1-(1-t)³` —— 起步就冲满速度、
+     *  然后一路减速。实机反馈"推得猛、像卡顿"，问题就出在这里：
+     *  开头那一帧的位移量太大，肉眼看到的是"跳"而不是"移动"。
+     *  easeInOutCubic 起止速度都是 0，中段均匀加速再均匀减速，
+     *  首尾两帧几乎不动 —— 那才是"丝滑"给人的直接来源。
+     *  苹果官网那类页面过渡用的也是同一类曲线（两端缓入缓出）。 */
+    const easeView = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+
+    /** 平滑推近/拉远视图。
+     *
+     *  【为什么返回 Promise】镜头在动的时候，同一个屏幕点对应的地图位置一直在变。
+     *  自动放大之后这一点变得很要命：澳门的空位只有 0.8px，几十倍的镜头会把
+     *  几个像素的差放大成地图里上百个单位的偏差，于是"看对了却放到了隔壁省"。
+     *  所以调用方需要"镜头已经停稳"的信号，而不是猜一个 sleep 时长。
+     *
+     *  【为什么 transform 而不是给 SVG 加 CSS transition】viewBox 不是可动画的
+     *  CSS 属性，只能用 rAF 逐帧插值。这是 SVG 缩放的固有做法。 */
     function animateViewBox(target, duration) {
       if (viewRaf) {
         cancelAnimationFrame(viewRaf);
         viewRaf = null;
       }
+      if (viewSettle) {
+        const done = viewSettle;
+        viewSettle = null;
+        done();
+      }
 
       if (prefersReducedMotion() || duration <= 0) {
         applyViewBox(target);
-        return;
+        return Promise.resolve();
       }
 
       const from = { ...currentVB };
       const t0 = performance.now();
 
-      const step = (now) => {
-        const t = Math.min(1, (now - t0) / duration);
-        const e = 1 - Math.pow(1 - t, 3); // easeOutCubic
-        applyViewBox({
-          x: from.x + (target.x - from.x) * e,
-          y: from.y + (target.y - from.y) * e,
-          w: from.w + (target.w - from.w) * e,
-          h: from.h + (target.h - from.h) * e,
-        });
-        viewRaf = t < 1 ? requestAnimationFrame(step) : null;
-      };
-      viewRaf = requestAnimationFrame(step);
+      return new Promise((resolve) => {
+        viewSettle = resolve;
+        const step = (now) => {
+          const t = Math.min(1, (now - t0) / duration);
+          const e = easeView(t);
+          applyViewBox({
+            x: from.x + (target.x - from.x) * e,
+            y: from.y + (target.y - from.y) * e,
+            w: from.w + (target.w - from.w) * e,
+            h: from.h + (target.h - from.h) * e,
+          });
+          if (t < 1) {
+            viewRaf = requestAnimationFrame(step);
+          } else {
+            viewRaf = null;
+            viewSettle = null;
+            resolve();
+          }
+        };
+        viewRaf = requestAnimationFrame(step);
+      });
     }
 
     /* ============================ 关卡 ============================ */
@@ -773,6 +837,9 @@
      * @param {object} [resume] 从存档恢复时传入的快照（已拼碎片 / 用时 / 计数）
      */
     function startLevel(index, resume) {
+      /* 换关时把待执行的"退回全景"取消掉：那是上一关排的队，
+       * 落到新关卡上会把刚定位好的视图又拉走。 */
+      cancelScheduledZoomOut();
       state.levelIndex = clamp(index, 0, LEVELS.length - 1);
       state.placed = new Set();
       state.slots = new Map();
@@ -800,6 +867,7 @@
 
       // 视图聚焦到本关范围（首次进入直接定位，之后切关卡才做推近动画）
       const vb = computeLevelViewBox(level.adcodes);
+      levelViewBox = vb;   // 记住"本关全景"，自动放大要退回这里
       animateViewBox(vb, hasRenderedOnce ? 640 : 0);
       hasRenderedOnce = true;
 
@@ -944,7 +1012,18 @@
       const rawX = ev.clientX;
       const rawY = ev.clientY;
 
-      // 指针相对碎片中心的偏移：拖动时保持它，碎片就不会"跳"到指针中心
+      /* 【模型：判定点与镜头解耦，全部在屏幕空间里算】
+       * offX/offY = 触点相对碎片中心的屏幕像素偏移。拖动时"碎片中心 = 指针 - 该偏移"，
+       * 于是碎片老老实实跟着手指走 —— 这部分与镜头怎么动完全无关。
+       *
+       * 【为什么不需要"内容坐标"那一套】解析落点时屏幕坐标会被 getScreenCTM()
+       * 换算进地图坐标，而 getScreenCTM 读的是**当前** viewBox。
+       * 也就是说自动放大推近镜头后，同一个屏幕点自然对应到新镜头下的正确地图位置，
+       * 落点本来就跟着镜头走，不需要把指针另存成一个坐标再还原。
+       * （我一度为此加了一层内容坐标换算，反而引入了偏移与叠加推近，已删除。）
+       *
+       * 【触屏校准只施加一次】按原始触点记偏移，校正在算判定点时统一减一次。
+       * 两处都减会让落点整块偏移 —— 实测澳门因此偏出 13px，落到隔壁广东上。 */
       drag = {
         adcode,
         pieceEl,
@@ -959,45 +1038,38 @@
         hitAdcode: null,
         lastX: rawX,
         lastY: rawY,
-        /* 是否触屏：决定要不要做触点校准（见下面 CALIB_* 的推导） */
         touch,
-        /* 抓取时的原始触点（未校准）。校准量一旦定下就不再随移动改变，
-         * 否则玩家会感觉"判定点在自己跑"。 */
-        rawStartX: rawX,
-        rawStartY: rawY,
-        /* 幽灵让位量（屏幕像素，正数 = 往左上让）。spawnGhost 时按碎片/空位
-         * 尺寸比算一次并锁定 —— 拖动中不变，避免视觉上"忽大忽小"。 */
-        shiftX: 0,
-        shiftY: 0,
-        /* 放大镜：只在空位小到偏移也露不出来时才创建 */
-        lens: null,
-        lensScale: 1,
       };
 
       document.addEventListener('pointermove', onPointerMove);
       document.addEventListener('pointerup', onPointerUp);
       document.addEventListener('pointercancel', onPointerUp);
+
+      /* 按下就为极小碎片推近镜头。
+       * 【为什么放在这里】此刻玩家还没开始移动，镜头能在操作前就停稳；
+       * 放在"越过拖拽阈值"那一刻会变成一边推镜头一边拖，目标持续跑位。 */
+      zoomForTinyPiece(adcode);
     }
 
-    /** 这次拖拽的判定点（真实落点）。
-     *  与"幽灵画在哪"分开：幽灵要让位、放大镜要看它附近，
-     *  但判定点绝不能跟着让位漂，否则会判定错位。
-     *
-     *  触屏额外做一次"上抬校准"：手指的接触面有大小，玩家瞄准的是**手指上方**
-     *  的落点而不是接触点本身；实测手指遮挡永远在触点下方。抬起量一旦定下就
-     *  不再随移动改变，否则会感觉"判定点在自己跑"。 */
-    function dragHitPoint() {
-      const lift = drag.touch ? DRAGF.touchLift : 0;
+    /** 触屏校准：判定点/幽灵相对指针整体上移 DRAGF.touchLift。
+     *  手指遮在触点的**下方**、视线在触点上方，所以瞄准的是抬高后的那一点。
+     *  这是**唯一**施加校准的地方 —— 在别处再减一次会让落点整块偏移。 */
+    function touchLiftPx(ctx) {
+      return ctx && ctx.touch ? DRAGF.touchLift : 0;
+    }
+
+    /** 这次拖拽的判定点（真实落点，屏幕坐标）= 指针位置 - 抓取偏移 - 触屏校准。
+     *  offX/offY 与校准都在 pointerdown 时按原始触点定好，这里只照着用，
+     *  所以无论镜头怎么动，碎片中心始终贴着指针。 */
+    function hitPointOf(ctx) {
       return {
-        x: drag.lastX - drag.offX,
-        y: drag.lastY - drag.offY - lift,
+        x: ctx.lastX - ctx.offX,
+        y: ctx.lastY - ctx.offY - touchLiftPx(ctx),
       };
     }
 
-    /** 幽灵要画在哪（= 判定点再往左上让开 shift） */
-    function dragGhostCenter() {
-      const p = dragHitPoint();
-      return { x: p.x - drag.shiftX, y: p.y - drag.shiftY };
+    function dragHitPoint() {
+      return hitPointOf(drag);
     }
 
     /** 某个空位在屏幕上的尺寸（像素）。CTM 无旋转/镜像时，"地图坐标长度 ×
@@ -1023,6 +1095,11 @@
         const dist = Math.hypot(ev.clientX - drag.startX, ev.clientY - drag.startY);
         if (dist < DRAG_THRESHOLD) return;
         drag.moved = true;
+        /* 【先把推近落定，再生成幽灵】玩家已经确实在拖了，镜头必须从这一刻起
+         * 就是静止的 —— 否则他可能在这 320ms 动画跑完之前就松手，
+         * 落点判定会打在"正在变化中的镜头"上，直接放到隔壁。
+         * 全量冒烟实测过：淮北被判成宿州，150 项断言失败。 */
+        settleZoomNow();
         spawnGhost();
       }
 
@@ -1032,19 +1109,18 @@
       requestAnimationFrame(() => {
         if (!drag) return;
         drag.rafPending = false;
-        /* 【每帧只解析一次落点】"幽灵画哪 / 哪个空位是候选 / 放大镜框哪"三件事
-         * 都要用到同一个命中结果。第一版各自算了一次，于是每帧要把全部空位
-         * 遍历三遍、还各做一轮 isPointInFill —— 中国图第一关有 34 个空位，
-         * 这是白白多出来的两倍开销。算一次传下去，行为完全一致。 */
-        const hit = resolveDrop(drag.lastX - drag.offX, drag.lastY - drag.offY);
-        applyGhostTransform(hit);
+        /* 【每帧只解析一次落点】"幽灵画哪 / 哪个空位是候选"都要用到同一个命中结果。
+         * 第一版各自算了一次，于是每帧要把全部空位遍历三遍、还各做一轮
+         * isPointInFill —— 中国图第一关有 34 个空位，这是白白多出来的开销。 */
+        const p = dragHitPoint();
+        const hit = resolveDrop(p.x, p.y);
+        applyGhostTransform(p);
         updateCandidate(hit);
-        updateMagnifier(hit);
       });
     }
 
     /** 拖动开始时，把所有"还没放上"的空位标记成 is-open。
-     *  目的：给每个空位加一圈可见光晕，让极小目标（澳门 0.8×1.6px）也看得见。
+     *  目的：给每个空位加一圈可见光晕，让目标不再"悄悄藏在地图里"。
      *  拖动结束统一 clearOpenSlots 摘掉。 */
     function markOpenSlots() {
       state.slots.forEach((slot) => slot.g.classList.add('is-open'));
@@ -1070,153 +1146,134 @@
       drag.ghost = ghost;
 
       drag.pieceEl.classList.add('is-taken');
-      /* 空位光晕：让"能不能看见目标"这件事不再取决于形状大小 */
+      /* 空位光晕：让"有没有目标、目标在哪"这件事不再取决于区域大小 */
       markOpenSlots();
-      /* 放大镜值不值得开，在抓起来那一刻就定下来（= 这块碎片是不是"极小"），
-       * 拖动中不再反复判断，避免镜头忽有忽无。 */
-      drag.lensWanted = isTinyPiece(drag.adcode);
-      applyGhostTransform();
+      applyGhostTransform(dragHitPoint());
     }
 
-    /** 这块碎片的空位是不是小到"偏移也露不出来"。
-     *  判据用**空位的屏幕尺寸**而不是碎片面积：玩家看不见的东西是空位，
-     *  不是碎片 —— 碎片在手里，多大都看得见。 */
-    function isTinyPiece(adcode) {
+    /* ---------- 自动放大：把"小到看不见的目标"直接变大 ----------
+     *
+     * 【方案：按下就推近，等镜头停稳再让玩家操作】
+     *   推近挂在 pointerdown（按下那一刻），而不是"越过拖拽阈值"。
+     *   于是无论玩家是"点一下选中再点空位"还是"按住直接拖"，
+     *   镜头都在他真正开始移动之前就已经推到位了。
+     *
+     * 【为什么不挂在"越过拖拽阈值"】试过，不行：那一刻玩家已经在移动了，
+     *   镜头一边推、手指一边走，目标在屏幕上的位置持续变化，玩家必须停下来重新瞄准。
+     *   澳门实测要做到可瞄准需要约 90 倍 —— 在那个倍率下，屏幕上几像素的差
+     *   就是地图里上百单位的偏差，于是"看着放对了却落到隔壁省"。
+     *   把推近提前到按下那一刻，镜头在操作开始前就停稳，这类问题从根上消失。
+     *
+     * 【为什么一次拖拽只推一次】判定要用当前 viewBox 把屏幕坐标换算进地图坐标。
+     *   镜头在操作过程中持续变化的话，手指没动、地图却在缩放，落点会持续漂。
+     *   推近一次后定住，整段操作的映射关系就是稳定的。
+     *
+     * 【为什么不需要"另存一套坐标"来重新锚定】判定点全程用屏幕坐标表达
+     *   （指针 - 抓取偏移），屏幕坐标不受 viewBox 影响；viewBox 只参与最后
+     *   resolveDrop 那一步的换算，而那一步本来就读当前值。 */
+
+    /* 当前镜头是为哪块碎片推近的（null = 处于本关全景）。
+     * 用来避免重复推近、以及"点空白取消选中时拉回全景"。 */
+    let zoomedFor = null;
+    let zoomPromise = Promise.resolve();
+    /* 正在动画中的推近目标。玩家一旦真的开始拖动就立刻落定到它 —— 见 settleZoomNow。 */
+    let zoomTarget = null;
+
+    /** 空位太小就推近镜头。推不动（本来就够大）就什么都不做。
+     *  @returns {Promise<void>} 镜头停稳时兑现（没推近则立即兑现） */
+    function zoomForTinyPiece(adcode) {
+      if (!levelViewBox) return Promise.resolve();        // 还没定位过本关视图
+      if (prefersReducedMotion()) return Promise.resolve(); // 系统要求少动效
+      if (zoomedFor === adcode) return zoomPromise;       // 已经为这块推过了
+
       const size = slotScreenSize(adcode);
-      if (!size) return false;
-      return Math.min(size.w, size.h) < DRAGF.lensBelowPx;
+      if (!size) return Promise.resolve();
+      const shortSide = Math.min(size.w, size.h);
+      if (shortSide >= DRAGF.zoomBelowPx) return Promise.resolve();  // 本来就看得清
+
+      /* 倍率 = 目标尺寸 / 当前尺寸。用**几何平均**而不是最小边：
+       * 形状常有长短边（澳门 1:2、台湾狭长），按最小边算会把长边推得过大，
+       * 几何平均对两个方向都照顾到。 */
+      const geoMean = Math.sqrt(Math.max(size.w, 1e-6) * Math.max(size.h, 1e-6));
+      let factor = DRAGF.zoomFitPx / geoMean;
+      factor = Math.min(factor, DRAGF.zoomMax);
+      factor = Math.max(factor, 1);                       // 只推近，不拉远
+      const target = zoomedViewBox(adcode, factor);
+      if (!target) return Promise.resolve();
+
+      zoomedFor = adcode;
+      zoomTarget = target;
+      zoomPromise = animateViewBox(target, DRAGF.zoomInMs).then(() => { zoomTarget = null; });
+      return zoomPromise;
     }
 
-    /** 让位量：碎片比空位大得越多，让得越多。
-     *  【为什么要按"碎片短边 vs 空位短边"的比值】托盘碎片有短边下限归一化，
-     *  小空位对应的碎片会被放大得最厉害 —— 比值正好量化了"这块碎片会挡住多少"。 */
-    function revealShiftFor(adcode) {
-      const size = slotScreenSize(adcode);
-      if (!size) return { x: 0, y: 0 };
-      const pieceShort = Math.min(drag.w, drag.h);
-      const slotShort = Math.max(1, Math.min(size.w, size.h));
-      const ratio = pieceShort / slotShort;
-      if (ratio < DRAGF.revealRatio) return { x: 0, y: 0 };
-      const s = Math.min(DRAGF.revealMax, Math.max(DRAGF.revealMin, pieceShort * 0.45));
-      // 往左上让：手指/鼠标在右下，让开后空位落在触点的左上方视野里
-      return { x: s, y: s };
+    /** 推近立刻落定，跳过剩余动画。
+     *
+     *  【为什么必须有这个】推近挂在 pointerdown，动画 320ms；但玩家可能按下就飞快拖、
+     *  100 多毫秒就松手。那一瞬间镜头还在动，"同一个屏幕点对应地图哪儿"正在变 ——
+     *  落点判定就会打到隔壁（全量冒烟实测：淮北被判成宿州，150 项断言失败）。
+     *
+     *  解法不是让判定去追动画，而是**在玩家真正开始拖动时把镜头一次落定**：
+     *  此后整段拖拽镜头纹丝不动，映射关系稳定，落点必然正确。
+     *  视觉上就是"一拖起来，镜头立刻到位" —— 比"一边拖一边推"更符合预期，
+     *  因为拖动期间画面自己缩放本来就很晕。 */
+    function settleZoomNow() {
+      if (!zoomTarget) return;
+      const target = zoomTarget;
+      zoomTarget = null;
+      animateViewBox(target, 0);   // 立即生效，并取消进行中的动画
     }
 
-    /** 幽灵中心 = 判定点 - 让位量。拖动中每帧更新让位量：
-     *  没靠近任何空位时不让位（碎片老实跟着手指），靠近了才让开露出目标。
-     *  @param {{adcode:(string|number)}|null} hit 本帧解析到的目标空位（由调用方算好） */
-    function applyGhostTransform(hit) {
-      if (!drag || !drag.ghost) return;
-      let shift = { x: 0, y: 0 };
-      if (hit) {
-        const cand = revealShiftFor(hit.adcode);
-        /* 只在"让位确实会让更多空位露出来"时让 —— 否则碎片本来就没挡住什么，
-         * 让位反而像是碎片不跟手。 */
-        if (cand.x > 0) shift = cand;
+    /** 回到本关全景。deselectOnly 时不做动画 —— 用于"紧接着还要推近到另一块"，
+     *  否则两次动画会互相打断，看起来像镜头在抖。 */
+    function resetZoom(animateIt) {
+      if (zoomedFor === null && !animateIt) return Promise.resolve();
+      zoomedFor = null;
+      zoomTarget = null;
+      if (!levelViewBox) return Promise.resolve();
+      if (!animateIt) {
+        applyViewBox(levelViewBox);
+        zoomPromise = Promise.resolve();
+        return zoomPromise;
       }
-      drag.shiftX = shift.x;
-      drag.shiftY = shift.y;
+      zoomPromise = animateViewBox(levelViewBox, DRAGF.zoomOutMs);
+      return zoomPromise;
+    }
 
-      const g = dragGhostCenter();
+    /** 以某个空位为中心、按倍率收窄本关全景，并夹住四边不越界。 */
+    function zoomedViewBox(adcode, factor) {
+      const shape = shapes.get(adcode);
+      if (!shape || !levelViewBox) return null;
+      const base = levelViewBox;
+      let w = base.w / factor;
+      let h = base.h / factor;
+
+      /* 保持画布宽高比，否则 preserveAspectRatio 会再套一层缩放、
+       * 算出来的"目标尺寸"就对不上了。 */
+      const rect = el.board.getBoundingClientRect();
+      const aspect = rect.width > 0 && rect.height > 0 ? rect.width / rect.height : 1.2;
+      if (w / h < aspect) w = h * aspect;
+      else h = w / aspect;
+
+      const cx = (shape.bbox.x + shape.bbox.x + shape.bbox.w) / 2;
+      const cy = (shape.bbox.y + shape.bbox.y + shape.bbox.h) / 2;
+      let x = cx - w / 2;
+      let y = cy - h / 2;
+
+      /* 夹在本关全景之内，保证"附近有邻居"这个定位参照不会跑丢 */
+      x = clamp(x, base.x, base.x + base.w - w);
+      y = clamp(y, base.y, base.y + base.h - h);
+      return { x, y, w, h };
+    }
+
+    /** 幽灵画在哪：判定点（屏幕坐标）减去碎片半个尺寸。
+     *  判定点已经包含了抓取偏移与触屏校准，所以幽灵中心正好落在指针那儿。 */
+    function applyGhostTransform(p) {
+      if (!drag || !drag.ghost) return;
       drag.ghost.style.transform =
-        `translate3d(${(g.x - drag.w / 2).toFixed(1)}px, ${(g.y - drag.h / 2).toFixed(1)}px, 0)`;
+        `translate3d(${(p.x - drag.w / 2).toFixed(1)}px, ${(p.y - drag.h / 2).toFixed(1)}px, 0)`;
     }
 
-    /* ---------- 放大镜：把"小到看不见的目标"变成看得见 ---------- */
-
-    /** 屏幕角落的镜片：内容 = 空位层几何 + 拖动中碎片轮廓。
-     *  【为什么不用 foreignObject 去镜像页面】那会触发一次布局并克隆整棵 SVG，
-     *  拖动中每帧做一次必然掉帧。这里只把"空位 + 碎片轮廓"两组 path 画进镜片，
-     *  它们都是静态几何，很便宜 —— 而且看得更清楚（没有底图的干扰）。 */
-    function ensureMagnifier() {
-      if (drag.lens) return drag.lens;
-      const size = DRAGF.lensSize;
-      const outer = document.createElement('div');
-      outer.className = 'drag-lens';
-      outer.setAttribute('aria-hidden', 'true');
-      outer.style.width = `${size}px`;
-      outer.style.height = `${size}px`;
-
-      const NS = 'http://www.w3.org/2000/svg';
-      const svg = document.createElementNS(NS, 'svg');
-      svg.setAttribute('width', String(size));
-      svg.setAttribute('height', String(size));
-      svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
-
-      const gAll = document.createElementNS(NS, 'g');
-      /* 1) 当前关卡的所有空位（浅色填充 + 描边，和地图上同一套语义） */
-      for (const [adcode, slot] of state.slots) {
-        const shape = shapes.get(adcode);
-        if (!shape) continue;
-        const p = document.createElementNS(NS, 'path');
-        p.setAttribute('d', shape.d);
-        p.setAttribute('class', 'lens-slot');
-        p.dataset.adcode = String(adcode);
-        gAll.appendChild(p);
-      }
-      /* 2) 正在拖的这块碎片的轮廓（虚线），方便肉眼比对形状 */
-      const carried = document.createElementNS(NS, 'path');
-      carried.setAttribute('d', shapes.get(drag.adcode).d);
-      carried.setAttribute('class', 'lens-carried');
-      gAll.appendChild(carried);
-
-      svg.appendChild(gAll);
-      outer.appendChild(svg);
-      document.body.appendChild(outer);
-
-      drag.lens = outer;
-      drag.lensSvg = svg;
-      drag.lensGroup = gAll;
-      return outer;
-    }
-
-    /** 镜片内容 = "地图真实比例"的一块窗口，以判定点为中心。
-     *  【关键】镜片用的是**屏幕坐标系**的 viewBox，也就是把地图外层容器上
-     *  那个 getScreenCTM 原样搬过来当 viewBox —— 于是镜片里的图形与地图上
-     *  同一位置逐像素对应，不需要任何换算，也不会和动画中的 viewBox 抢节奏。
-     *  @param {{adcode:(string|number)}|null} hit 本帧解析到的目标空位 */
-    function updateMagnifier(hit) {
-      if (!drag || !drag.ghost) return;
-      const tiny = drag.lensWanted && isTinyPiece(drag.adcode);
-      if (!tiny) {
-        if (drag.lens) drag.lens.classList.remove('is-on');
-        return;
-      }
-      const outer = ensureMagnifier();
-      const p = dragHitPoint();
-      const size = DRAGF.lensSize;
-      const scale = DRAGF.lensScale;
-      /* 镜片中心落在触点的左上方（避开手指和碎片本体） */
-      const lensCx = drag.lastX - DRAGF.lensOffset - size / 2;
-      const lensCy = drag.lastY - DRAGF.lensOffset - size / 2;
-      outer.style.transform = `translate3d(${lensCx.toFixed(1)}px, ${lensCy.toFixed(1)}px, 0)`;
-      /* 显示区域：以判定点为中心、边长 = 镜片边长 / 倍率 */
-      const span = size / scale;
-      drag.lensSvg.setAttribute('viewBox',
-        `${(p.x - span / 2).toFixed(2)} ${(p.y - span / 2).toFixed(2)} ${span.toFixed(2)} ${span.toFixed(2)}`);
-      outer.classList.add('is-on');
-      /* 镜片内高亮当前会被命中的那个空位，和地图上的 is-candidate 呼应 */
-      const want = hit ? String(hit.adcode) : null;
-      if (want !== drag.lensHit) {
-        drag.lensHit = want;
-        const marked = drag.lensGroup.querySelectorAll('.lens-slot.is-hit');
-        for (let i = 0; i < marked.length; i++) marked[i].classList.remove('is-hit');
-        if (want !== null) {
-          const el = drag.lensGroup.querySelector('.lens-slot[data-adcode="' + want + '"]');
-          if (el) el.classList.add('is-hit');
-        }
-      }
-    }
-
-    /** 摘掉镜片。传 ctx 而不是读 drag —— onPointerUp 里 drag 已经置空了。 */
-    function removeMagnifier(ctx) {
-      if (!ctx || !ctx.lens) return;
-      if (ctx.lens.parentNode) ctx.lens.parentNode.removeChild(ctx.lens);
-      ctx.lens = null;
-      ctx.lensSvg = null;
-      ctx.lensGroup = null;
-      ctx.lensHit = null;
-    }
 
     /** 拖动过程中点亮"可能的目标"凹槽。
      *  @param {{adcode:(string|number)}|null} hit 本帧解析到的目标空位（由调用方算好） */
@@ -1244,7 +1301,6 @@
 
       const ctx = drag;
       drag = null;
-      removeMagnifier(ctx);
 
       // 没越过阈值 → 视为"点击"，切换选中状态（点击模式的入口）
       if (!ctx.moved) {
@@ -1256,9 +1312,11 @@
       /* 空位光晕与候选高亮统一在这里摘掉（clearOpenSlots 同时清掉两个类） */
       clearOpenSlots();
 
-      const cx = ctx.lastX - ctx.offX;
-      const cy = ctx.lastY - ctx.offY - (ctx.touch ? DRAGF.touchLift : 0);
-      tryPlace(ctx.adcode, resolveDrop(cx, cy), ctx.ghost, ctx.pieceEl, { cx, cy });
+      /* 落点用屏幕公式算一次。resolveDrop 内部按**当前** viewBox 换算 ——
+       * 拖动开始时可能刚为极小碎片推近过镜头而动画尚未跑完，
+       * 用当前值正是我们要的：落点落在镜头此刻对应的那块地方。 */
+      const p = hitPointOf(ctx);
+      tryPlace(ctx.adcode, resolveDrop(p.x, p.y), ctx.ghost, ctx.pieceEl, { cx: p.x, cy: p.y });
     }
 
     /**
@@ -1339,6 +1397,11 @@
         state.combo = 0;
         SFX.bad();
         updateStats();
+        /* 放错时把镜头缓缓退回本关全景。两个用意：
+         *   ① 给挫败一个缓冲 —— 抖一下然后镜头拉开，比原地卡在局部舒服；
+         *   ② 顺手提醒"它在整张图的哪儿"，对"认识地图"这件事是正面的。
+         * 用 1100ms，和拼完整图时拉远是同一个节奏，风格统一。 */
+        resetZoom(true);
         /* 宿主页回调：回合切换 / 错题集 / 正确率 都靠这一条。
          * 引擎不知道宿主拿它做什么，所以这里只报"发生了什么"。 */
         if (ON_PLACEMENT) {
@@ -1417,6 +1480,41 @@
         // 点击模式：没有幽灵，直接出现
         if (ghost) ghost.remove();
         revealDistrict(adcode, true);
+      }
+
+      /* 【放下一块之后要把镜头送回全景】否则会一直停在近景：
+       * 实机反馈——接着拖下一块时地图还是放大的，大碎片显示不全、
+       * 也看不出自己该放哪儿，等于玩不下去。
+       * 但也不能立刻拉走（玩家还在看"我放对了"），所以延后一点再缓缓退回。 */
+      scheduleZoomOut();
+    }
+
+    /** 延时把镜头缓缓退回本关全景。放下一块之后调用。
+     *  用 setTimeout 而不是立刻做：先让玩家看清"这块放对了"（配合信息卡），
+     *  再退回全景，为下一块做准备。
+     *
+     *  【为什么先判断 zoomedFor】第一版无条件排程 + 取消旧定时器，
+     *  结果**后一次调用取消了前一次有效的排程**：香港那轮排程之后，
+     *  紧接着又来一次（那次 zoomedFor 已经是 null），把定时器清掉，
+     *  于是它再也没触发，镜头永远停在近景 ——
+     *  这正是"放完一块后地图回不到全局"的根因。
+     *  现在只在"确实处于近景"时才排程；已经在全景就直接不做，
+     *  也就不会误杀有效的排程。 */
+    let zoomOutTimer = null;
+    function scheduleZoomOut() {
+      if (zoomedFor === null) return;
+      if (zoomOutTimer) clearTimeout(zoomOutTimer);
+      zoomOutTimer = setTimeout(() => {
+        zoomOutTimer = null;
+        resetZoom(true);
+      }, DRAGF.resetAfterPlaceMs);
+    }
+
+    /** 取消待执行的退回（换关/重开时用，避免旧的定时器打到新的关卡上） */
+    function cancelScheduledZoomOut() {
+      if (zoomOutTimer) {
+        clearTimeout(zoomOutTimer);
+        zoomOutTimer = null;
       }
     }
 
@@ -1502,19 +1600,30 @@
     /* ============================ 点击选中模式 ============================ */
     function toggleSelect(adcode) {
       if (state.selected === adcode) {
+        // 再点一次 = 取消选中，镜头回到本关全景
         clearSelection();
+        resetZoom(true);
         return;
       }
-      clearSelection();
+      /* 【为什么这里传 true】clearSelection 默认会把镜头拉回全景，
+       * 但紧接着就要推近到新选的这块 —— 两次动画会互相打断（看起来像镜头在抖）。
+       * 所以这里"不做动画地"清掉上一次的推近状态，再干净地推近到新目标。 */
+      clearSelection(true);
       state.selected = adcode;
       const pieceEl = state.pieces.get(adcode);
       if (pieceEl) pieceEl.classList.add('is-selected');
       el.trayHint.textContent = '已选中碎片，点地图上的虚线位置放下';
       updateSlotFocusability();
       SFX.pick();
+      /* 选中极小碎片时推近镜头，让玩家在稳定的近景上找空位。
+       * 推近发生在"拖拽之前"，动画有充裕时间跑完 —— 这是方案 A 的核心。 */
+      zoomForTinyPiece(adcode);
     }
 
-    function clearSelection() {
+    /** 清除选中。
+     *  @param {boolean} keepZoom 调用方马上要推近到别的目标时传 true：
+     *         不做任何镜头动作，避免两次推近动画互相打断。 */
+    function clearSelection(keepZoom) {
       if (state.selected !== null) {
         const prev = state.pieces.get(state.selected);
         if (prev) prev.classList.remove('is-selected');
@@ -1522,6 +1631,7 @@
       state.selected = null;
       el.trayHint.textContent = '拖动碎片到地图上的虚线位置';
       updateSlotFocusability();
+      if (!keepZoom) resetZoom(false);
     }
 
     /** 点击地图：如果有选中的碎片，就尝试放在这个位置 */
@@ -1997,12 +2107,31 @@
     }
 
     /* ============================ 对外接口 ============================
-     * 只暴露这两个入口，内部状态一律不直接给出，免得宿主页面改坏引擎。
+     * 只暴露这三个入口，内部状态一律不直接给出，免得宿主页面改坏引擎。
      * 注意：引擎并不自动启动 —— 由宿主页面（js/game.js）决定何时 init()。
-     * ============================================================== */
+     *
+     * 【为什么没有暴露"镜头停稳"的承诺】一度加过 whenViewSettled，想让测试
+     * 等推近动画跑完再判定落点。但那个承诺只在"某一次动画"上兑现，而镜头
+     * 会被复位、会被下一次推近打断，追踪一个 Promise 反而比直接观察
+     * "viewBox 不再变化"更脆。改成让玩家真正拖动时**立刻落定镜头**之后，
+     * 这条需求也消失了 —— 于是删掉这个没有消费者的接口，不留无法被验证的 API。 */
     return {
       start: init,
       getState: snapshotState,
+      /* 本关全景的 viewBox（自动放大用它当基准）。宿主/测试需要判断
+       * "镜头现在是不是在全景"时，应当用这个权威值，
+       * 而不是自己拿当前空位去反推 —— 拼到后面空位越来越少，
+       * 反推出来的"全景"会越来越小，结论就完全错了。 */
+      getLevelViewBox: () => (levelViewBox ? { ...levelViewBox } : null),
+      /* 立刻把镜头放回本关全景（不做动画），并取消排队中的退回。
+       * 给宿主/测试用的"复位"入口：直接改 SVG 的 viewBox 属性是不行的 ——
+       * 引擎内部的 currentVB 不知道你改了，进行中的动画会立刻把它覆盖回去。 */
+      resetView: () => {
+        cancelScheduledZoomOut();
+        zoomedFor = null;
+        zoomTarget = null;
+        if (levelViewBox) applyViewBox(levelViewBox);
+      },
     };
   }
 

@@ -455,6 +455,7 @@
       const piecesBefore = stats().pieces;
       const pieceB1 = D.querySelector(pieceSel(B1));
       const fromB1 = centerOf(pieceSel(B1));   // centerOf 收的是选择器，不是元素
+      const vbBeforeDrag = D.getElementById('map').getAttribute('viewBox');
 
       fire(pieceB1, 'pointerdown', fromB1.x, fromB1.y);
       for (let i = 1; i <= 6; i++) {
@@ -481,17 +482,19 @@
         ? Math.hypot(ghostRect.left + ghostRect.width / 2 - targetB1.x,
                      ghostRect.top + ghostRect.height / 2 - targetB1.y)
         : NaN;
-      check('大空位不该触发让位（幽灵仍跟着触点）', ghostShift < 2,
-        '让位量 ' + (isFinite(ghostShift) ? ghostShift.toFixed(1) : '?') + 'px');
-      const lensEl = D.querySelector('.drag-lens');
-      check('大空位不该弹放大镜（阈值没被误触发）',
-        !lensEl || !lensEl.classList.contains('is-on'));
+      check('大空位不该触发推近（镜头没动）', ghostShift < 2,
+        '幽灵中心与落点偏差 ' + (isFinite(ghostShift) ? ghostShift.toFixed(1) : '?') + 'px');
+      /* 丙县在屏上接近满屏，远大于推近阈值 → 镜头必须原地不动。
+       * 这条守着"普通拼图不该莫名其妙被推来推去"。 */
+      const vbDuring = D.getElementById('map').getAttribute('viewBox');
+      check('大空位的 viewBox 在拖拽前后不变', vbDuring === vbBeforeDrag,
+        '拖前 ' + vbBeforeDrag + ' → 拖中 ' + vbDuring);
 
       fire(D, 'pointerup', targetB1.x, targetB1.y);
       await sleep(1000);
 
       const after = stats();
-      check('★ 让位/校准没有导致判定错位：碎片照常落在丙县',
+      check('★ 校准没有导致判定错位：碎片照常落在丙县',
         after.pieces === piecesBefore - 1,
         '托盘 ' + piecesBefore + ' → ' + after.pieces);
       check('落位后空位不再是 is-open',
@@ -499,8 +502,6 @@
         String(D.querySelectorAll('.slot.is-open').length));
       check('落位后没有残留候选高亮',
         D.querySelectorAll('.slot.is-candidate').length === 0);
-      check('落位后没有残留放大镜',
-        D.querySelectorAll('.drag-lens').length === 0);
       check('落位后没有残留幽灵',
         D.querySelectorAll('.drag-ghost').length === 0);
     }

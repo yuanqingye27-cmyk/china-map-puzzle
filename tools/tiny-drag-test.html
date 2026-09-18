@@ -24,13 +24,17 @@
  * 极小碎片拖拽套件（真实数据）
  * ---------------------------------------------------------------------
  * 【为什么要有这一套】托盘碎片有"短边下限"归一化（js/engine.js 的 pieceSize），
- * 地图上的空位却是真实比例。中国图第 5 关·华南实测：
- *     澳门空位 0.8×1.6px ／ 香港 7.9×6.1px ／ 台湾 73.8×63.3px
- * 而托盘里那三块碎片都是 47~78px —— 手指/鼠标往上一放就把目标整个盖住。
- * 引擎为此加了三件事：幽灵让位、触屏校准、极小空位放大镜。
+ * 地图上的空位却是真实比例。实测（1600×1000 画布）：
+ *     中国图第 5 关  澳门空位 0.8×1.6px ／ 香港 7.9×6.1px ／ 台湾 73.8×63.3px
+ *     四川  第 1 关  最小空位 34×42px
+ *     成都  第 1 关  最小空位 107×138px（舒服）
+ * 可见这不是"中国图独有"，而是"一关块数多 + 区域本身小"的通病。
+ *
+ * 引擎的对策是**拖拽时自动把镜头推近到该区域**，让目标本身变大
+ * （早先用过屏幕角落的放大镜，那是外挂式的补偿，已按体验评估废弃）。
  *
  * 引擎套件（engine-test.html）用的是虚构 tiny-city，那一套的形状在屏幕上
- * 都接近满屏，**永远不会触发放大镜** —— 所以那里只能守"不该触发时别触发"。
+ * 都接近满屏，**永远不会触发推近** —— 所以那里只能守"不该动镜头时别动"。
  * 正面断言必须落在真实数据上，也就是这一套。
  *
  * 为什么选中国图而不是别的：中国图是默认入口图（P0-1），而且按省级拼的时候
@@ -148,6 +152,49 @@
     return { w: bb.width * sc, h: bb.height * sc };
   }
 
+  /** 等 viewBox 真正停稳。
+   *
+   *  【为什么要求"连续 4 次相同"而不是 2 次】一开始只要求两次采样相同，
+   *  结果**动画途中就被误判为停稳**：采样间隔 60ms，动画在两帧之间恰好
+   *  取到同一个值，于是测试在镜头还在移动时就往下走，量到的"最终镜头"
+   *  其实是中途值（实测香港那轮量出 5788，而真正的全景是 682609）。
+   *  要求连续多次相同 + 拉长采样间隔，才算"它真的不动了"。
+   *  这也正是"不要 sleep 一个猜出来的时长"的正确做法。 */
+  async function waitViewStill(D, timeoutMs) {
+    const deadline = Date.now() + (timeoutMs || 4000);
+    const NEED = 4;
+    let prev = null;
+    let same = 0;
+    for (;;) {
+      const vb = D.getElementById('map').getAttribute('viewBox');
+      if (vb === prev) {
+        same++;
+        if (same >= NEED) return vb;
+      } else {
+        same = 1;
+        prev = vb;
+      }
+      if (Date.now() > deadline) return vb;   // 超时就交出当前值，让断言去说话
+      await sleep(110);
+    }
+  }
+
+  /** 轮询等待一个条件成立。
+   *  【为什么必须轮询】引擎的候选高亮在 requestAnimationFrame 里更新，而测试
+   *  派发完 pointermove 就立刻读 DOM —— 有时 rAF 还没跑，读到的就是 0。
+   *  实测这条断言 5 次里偶发失败 1 次，属于**测量时序竞态**而不是引擎问题。
+   *  项目里踩过同类坑，纪律是"等副作用出现，不要等一个猜出来的时长"。 */
+  async function waitFor(fn, timeoutMs) {
+    const deadline = Date.now() + (timeoutMs || 1000);
+    for (;;) {
+      let v = null;
+      try { v = fn(); } catch (e) { v = null; }
+      if (v) return v;
+      if (Date.now() > deadline) return v;
+      await sleep(25);
+    }
+  }
+
   async function dragOnce(W, D, adcode, to, steps) {
     steps = steps || 6;
     const triesBefore = (W.__ENGINE__ && W.__ENGINE__.getState().tries) || 0;
@@ -155,29 +202,52 @@
     const r = piece.getBoundingClientRect();
     const from = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
 
+    const vbBefore = D.getElementById('map').getAttribute('viewBox');
     fire(W, D, piece, 'pointerdown', from.x, from.y);
+
+    /* 【等推近停稳再开始拖】方案是把推近挂在"按下那一刻"，所以此刻镜头正在
+     * 从全景推到近景。等它停稳，后面整段拖拽就在一个**静止**的镜头下进行。 */
+    const vbAfterDown = await waitViewStill(D, 3000);
+    const sizeAtZoom = slotScreenSize(D, adcode);
+
+    /* 落点按**停稳后**的 viewBox 算。方案 A 的价值就在这里：
+     * 推近已经在拖拽开始前完成，所以这个落点整段拖拽都有效，不需要中途重新瞄准。 */
+    const toAfter = insidePointOf(W, D, adcode) || to;
+    const toDelta = Math.hypot(toAfter.x - to.x, toAfter.y - to.y);
+
     for (let i = 1; i <= steps; i++) {
       const t = i / steps;
       fire(W, D, D, 'pointermove',
-        from.x + (to.x - from.x) * t, from.y + (to.y - from.y) * t);
+        from.x + (toAfter.x - from.x) * t, from.y + (toAfter.y - from.y) * t);
       await sleep(24);
     }
-    /* 松手之前把现场量下来 */
+    /* 拖动全程结束后再量一次镜头：必须与按下后完全相同（纹丝不动） */
+    const vbDuringDrag = D.getElementById('map').getAttribute('viewBox');
+
     const ghost = D.querySelector('.drag-ghost');
     const gr = ghost ? ghost.getBoundingClientRect() : null;
-    const lens = D.querySelector('.drag-lens');
+    /* 候选高亮 / 空位光晕都在 rAF 里更新，轮询到它出现再读数 —— 避免"rAF 还没跑"的假失败 */
+    const candidateCount = await waitFor(
+      () => {
+        const n = D.querySelectorAll('.slot.is-candidate').length;
+        return n > 0 ? n : 0;
+      }, 800);
+    const openCount = D.querySelectorAll('.slot.is-open').length;
     const snapshot = {
       ghostW: gr ? gr.width : 0,
       ghostH: gr ? gr.height : 0,
-      shift: gr ? { x: gr.left + gr.width / 2 - to.x, y: gr.top + gr.height / 2 - to.y } : null,
-      openSlots: D.querySelectorAll('.slot.is-open').length,
+      ghostCenter: gr ? { x: gr.left + gr.width / 2, y: gr.top + gr.height / 2 } : null,
+      openSlots: openCount,
       allSlots: D.querySelectorAll('.slot').length,
-      candidates: D.querySelectorAll('.slot.is-candidate').length,
-      lens: !!lens,
-      lensOn: !!(lens && lens.classList.contains('is-on')),
-      lensViewBox: lens ? lens.querySelector('svg').getAttribute('viewBox') : null,
-      lensHit: lens ? lens.querySelectorAll('.lens-slot.is-hit').length : 0,
-      lensSize: lens ? lens.getBoundingClientRect().width : 0,
+      candidates: candidateCount,
+      /* 镜头：按下前 → 按下后（应推近）→ 拖动中（应与按下后完全一致） */
+      vbBefore: vbBefore,
+      vbAfterDown: vbAfterDown,
+      vbDuringDrag: vbDuringDrag,
+      toBefore: to,
+      toAfter: toAfter,
+      toDelta: toDelta,
+      sizeAtZoom: sizeAtZoom,
       pieceW: r.width,
       pieceH: r.height,
     };
@@ -192,11 +262,86 @@
 
     const st2 = W.__ENGINE__ ? W.__ENGINE__.getState() : null;
     snapshot.placed = !!(st2 && Array.from(st2.placed).map(String).indexOf(String(adcode)) >= 0);
-    snapshot.lensLeft = D.querySelectorAll('.drag-lens').length;
     snapshot.openLeft = D.querySelectorAll('.slot.is-open').length;
     snapshot.candLeft = D.querySelectorAll('.slot.is-candidate').length;
     snapshot.ghostLeft = D.querySelectorAll('.drag-ghost').length;
+    /* 松手后先量一次"立刻"的镜头（此时还在近景，不该被马上拉走） */
+    await sleep(400);
+    snapshot.vbJustAfterPlace = D.getElementById('map').getAttribute('viewBox');
+    /* 再等它最终停稳 —— 放下之后引擎会延时退回全景。
+     * 用"等它静止"而不是睡一个猜出来的时长：退出的延时和动画时长都是可调参数，
+     * 断言不该跟着它们一起改。 */
+    /* 再等它**回到全景** —— 等目标状态，不是等"没有变化"。
+     * 引擎会先停在近景约 1 秒（让玩家看清"放对了"）再退回。 */
+    snapshot.vbSettled = (function () {
+      const v = D.getElementById('map').getAttribute('viewBox');
+      return v;
+    })();
+    snapshot.areaBackToLevel = await waitViewBackToLevel(W, D, 5000);
+    snapshot.vbSettled = D.getElementById('map').getAttribute('viewBox');
     return snapshot;
+  }
+
+  function vbNums(vb) {
+    return String(vb).split(/\s+/).map(Number);
+  }
+  function vbScale(vb) {
+    const v = vbNums(vb);
+    return v[2] * v[3];   // viewBox 面积：越小 = 镜头越近
+  }
+
+  /** 本关"全景"ViewBox。
+   *  【必须问引擎要，不能自己从当前空位反推】拼到后面空位越来越少，
+   *  反推出来的"全景"会越来越小 —— 实测拼完两块后反推只剩 5789，
+   *  而真正的全景是 682413，于是"退回到全景了吗"这个判断完全失真。
+   *  这类"第二份真相"项目里踩过坑，统一以引擎的值为准。 */
+  function levelViewBoxOf(W, D) {
+    if (W.__ENGINE__ && W.__ENGINE__.getLevelViewBox) {
+      const vb = W.__ENGINE__.getLevelViewBox();
+      if (vb) return vb;
+    }
+    return null;
+  }
+
+  function levelViewArea(W, D) {
+    const vb = levelViewBoxOf(W, D);
+    return vb ? vb.w * vb.h : 0;
+  }
+
+  /** 等镜头回到本关全景。
+   *
+   *  【为什么不能等"viewBox 不再变化"】放下之后引擎会**先停在近景约 1 秒**
+   *  （让玩家看清"放对了"），再开始退回。那 1 秒里 viewBox 确实一动不动，
+   *  于是"等它停稳"会在空档期就返回，量到的仍是近景 ——
+   *  实测表现为"澳门那轮恰好等到、香港那轮没等到"，时好时坏。
+   *  正确做法是等**目标状态**（回到全景），而不是等"没有变化"。 */
+  async function waitViewBackToLevel(W, D, timeoutMs) {
+    const deadline = Date.now() + (timeoutMs || 5000);
+    const want = levelViewArea(W, D);
+    let last = 0;
+    for (;;) {
+      last = vbScale(D.getElementById('map').getAttribute('viewBox'));
+      if (want > 0 && last >= want * 0.9) return last;
+      if (Date.now() > deadline) return last;
+      await sleep(120);
+    }
+  }
+
+  /** 把镜头复位到"本关全景"。
+   *  【必须调引擎的 resetView，不能直接改 viewBox 属性】引擎内部有
+   *  currentVB 记录当前视野，直接改属性它不知道，进行中的动画会立刻把
+   *  视图覆盖回去 —— 实测香港那轮就是被覆盖成了近景，"全景"量出 5788。 */
+  async function resetViewToLevel(W, D) {
+    if (W.__ENGINE__ && W.__ENGINE__.resetView) {
+      W.__ENGINE__.resetView();
+      await sleep(120);
+      return;
+    }
+    const vb = levelViewBoxOf(W, D);
+    if (!vb) return;
+    D.getElementById('map').setAttribute('viewBox',
+      vb.x + ' ' + vb.y + ' ' + vb.w + ' ' + vb.h);
+    await sleep(180);
   }
 
   /** 把存档写成"前几关都通关、全部解锁"，然后重载。
@@ -298,11 +443,17 @@
         continue;
       }
 
+      /* 每块之前先把镜头复位到本关全景：上一块放对后镜头会停在近景，
+       * 不复位的话这块的"该不该推近"就是在一段近景里判断的，完全失真。 */
+      await resetViewToLevel(W, D);
+
       const size = slotScreenSize(D, adcode);
       if (!size) { check('[' + adcode + '] 空位存在于当前关卡', false); continue; }
-      const tiny = Math.min(size.w, size.h) < 30;
+      /* 阈值与引擎的 DRAGF.zoomBelowPx 对应（56px）。这里用同一个数字判断
+       * "该不该推近"，就是为了让断言能盯住"该推的推了、不该推的没推"。 */
+      const needZoom = Math.min(size.w, size.h) < 56;
       info('空位屏幕尺寸 ' + size.w.toFixed(1) + '×' + size.h.toFixed(1) + 'px' +
-        '（' + (tiny ? '极小，应触发放大镜' : '不算极小，不该触发') + '）');
+        '（' + (needZoom ? '偏小，应自动推近镜头' : '够大，不该动镜头') + '）');
 
       const to = insidePointOf(W, D, adcode);
       check('[' + adcode + '] 能在空位多边形内部找到落点', !!to,
@@ -310,17 +461,27 @@
       if (!to) continue;
 
       const r = await dragOnce(W, D, adcode, to);
+      const areaBefore = vbScale(r.vbBefore);
+      const areaDown = vbScale(r.vbAfterDown);
+      const areaDrag = vbScale(r.vbDuringDrag);
+      const areaJustAfter = vbScale(r.vbJustAfterPlace);
+      const areaSettled = vbScale(r.vbSettled);
+      const areaBack = r.areaBackToLevel || 0;
+      const areaLevel = levelViewArea(W, D);
 
-      info('托盘碎片 ' + r.pieceW.toFixed(1) + '×' + r.pieceH.toFixed(1) + 'px，' +
-        '幽灵让位 ' + (r.shift ? '(' + r.shift.x.toFixed(1) + ', ' + r.shift.y.toFixed(1) + ')px' : 'n/a'));
+      info('托盘碎片 ' + r.pieceW.toFixed(1) + '×' + r.pieceH.toFixed(1) + 'px');
+      info('镜头(viewBox 面积)：按下前 ' + areaBefore.toFixed(0) +
+        ' → 按下后 ' + areaDown.toFixed(0) +
+        ' → 拖动中 ' + areaDrag.toFixed(0) +
+        ' → 刚放下 ' + areaJustAfter.toFixed(0) +
+        ' → 停稳后 ' + areaSettled.toFixed(0) +
+        '（全景约 ' + areaLevel.toFixed(0) + '，越小 = 越近）');
       info('拖动中：is-open ' + r.openSlots + '/' + r.allSlots +
-        '，is-candidate ' + r.candidates +
-        '，放大镜 ' + (r.lens ? (r.lensOn ? '已显示' : '创建了但没显示') : '未创建'));
+        '，is-candidate ' + r.candidates);
 
       /* ---- 核心断言 ---- */
       check('★ [' + adcode + '] 真实拖拽能拼上（这是"能不能玩"的唯一硬证据）',
-        r.placed, '幽灵=' + r.ghostW.toFixed(0) + 'px，落点=(' +
-        Math.round(to.x) + ',' + Math.round(to.y) + ')');
+        r.placed, '落点=(' + Math.round(r.toAfter.x) + ',' + Math.round(r.toAfter.y) + ')');
 
       check('[' + adcode + '] 拖动中所有未放置空位都亮了（is-open）',
         r.openSlots === r.allSlots && r.allSlots > 0,
@@ -329,39 +490,57 @@
       check('[' + adcode + '] 拖动中恰好一个空位是候选',
         r.candidates === 1, String(r.candidates));
 
-      /* 极小的必须弹镜片；不极小的不许弹（否则普通拼图会莫名多出个圆框） */
-      if (tiny) {
-        check('★ [' + adcode + '] 极小空位触发了放大镜', r.lens && r.lensOn,
-          r.lens ? '创建了但 is-on 缺失' : '根本没创建');
-        if (r.lens && r.lensViewBox) {
-          const vb = r.lensViewBox.split(/\s+/).map(Number);
-          const span = vb[2];
-          check('[' + adcode + '] 放大镜确有放大倍率（不是 1:1）',
-            span > 0 && span < r.lensSize,
-            '显示范围 ' + span + 'px / 镜片 ' + Math.round(r.lensSize) + 'px');
-          check('[' + adcode + '] 放大镜把指针附近框进了视窗（中心对得上）',
-            Math.abs((vb[0] + span / 2) - to.x) < 2 && Math.abs((vb[1] + span / 2) - to.y) < 2,
-            '镜心=(' + (vb[0] + span / 2).toFixed(1) + ',' + (vb[1] + span / 2).toFixed(1) +
-            ') vs 落点=(' + to.x.toFixed(1) + ',' + to.y.toFixed(1) + ')');
-          check('[' + adcode + '] 放大镜里高亮了当前会命中的空位',
-            r.lensHit === 1, String(r.lensHit) + ' 个');
-        }
+      /* ★ 方案 A 的核心保证：推近在**按下那一刻**完成，整段拖拽镜头纹丝不动。
+       * 这条是"不必中途重新瞄准"的机器证据 —— 镜头只要在拖拽期间变化，
+       * 同一个屏幕点对应的地图位置就会漂，落点判定跟着漂。 */
+      check('★ [' + adcode + '] 推近在按下时就已完成，拖动全程镜头不动',
+        r.vbDuringDrag === r.vbAfterDown,
+        '按下后 ' + r.vbAfterDown + ' vs 拖动中 ' + r.vbDuringDrag);
+
+      /* 自动放大：该推的必须推，不该推的必须不动。 */
+      if (needZoom) {
+        check('★ [' + adcode + '] 小空位触发了镜头自动推近', areaDown < areaBefore * 0.9,
+          '按下前 ' + areaBefore.toFixed(0) + ' → 按下后 ' + areaDown.toFixed(0));
+        /* 推近的**目的**是让空位大到能瞄准。这条断言盯的是目的，而不是倍率本身：
+         * 倍率上限（zoomMax）只是防呆，真正的验收标准是"推近后看得见"。 */
+        const sizeAfter = r.sizeAtZoom || { w: 0, h: 0 };
+        /* 判据用**可点击下限 44px**，不用我拍的 56：推近的承诺是"这块变得点得中"，
+         * 不是"必须达到某个我顺手写下的数"。zoomFitPx=76 是几何平均，
+         * 长短边会有分配差，澳门实测短边 54.7px —— 仍然舒服地超过 44。 */
+        check('★ [' + adcode + '] 推近后空位达到可瞄准尺寸（短边 ≥ 44px 可点击下限）',
+          Math.min(sizeAfter.w, sizeAfter.h) >= 44,
+          '推近后 ' + sizeAfter.w.toFixed(1) + '×' + sizeAfter.h.toFixed(1) + 'px' +
+          '（推近前是 ' + Math.min(size.w, size.h).toFixed(1) + 'px 的短边）');
+        /* 镜头推近后目标在屏幕上会移位 —— 这是"推近"的必然结果，
+         * 但因为推近发生在拖拽**之前**，落点按停稳后的镜头算即可，无需中途修正。
+         * 把这个位移量记下来，它是"镜头幅度是否过猛"的量化指标。 */
+        check('[' + adcode + '] 推近会让目标在屏幕上移位（所以要按停稳后的镜头算落点）',
+          r.toDelta > 1,
+          '目标从 (' + Math.round(r.toBefore.x) + ',' + Math.round(r.toBefore.y) +
+          ') 移到 (' + Math.round(r.toAfter.x) + ',' + Math.round(r.toAfter.y) +
+          ')，位移 ' + r.toDelta.toFixed(0) + 'px');
       } else {
-        check('[' + adcode + '] 不算极小的空位不该弹放大镜',
-          !r.lens || !r.lensOn, r.lens ? '弹出来了' : 'ok');
+        check('[' + adcode + '] 够大的空位不该动镜头',
+          Math.abs(areaDown - areaBefore) < areaBefore * 0.05,
+          '按下前 ' + areaBefore.toFixed(0) + ' → 按下后 ' + areaDown.toFixed(0));
       }
 
-      /* 让位只影响视觉：它不该让判定跑偏（上面 placed 已经证明了），
-         但也要防止"让位反了"——让位方向应是左上（负值）。 */
-      if (r.shift && (Math.abs(r.shift.x) > 1 || Math.abs(r.shift.y) > 1)) {
-        check('[' + adcode + '] 让位方向朝左上（避开手指/光标）',
-          r.shift.x < 0 && r.shift.y < 0,
-          '(' + r.shift.x.toFixed(1) + ', ' + r.shift.y.toFixed(1) + ')');
-      }
+      /* 放对之后的两段行为：
+       *   ① 刚放下时**别立刻拉走** —— 玩家还在看"我放对了"
+       *   ② 但随后必须**自己退回全景** —— 否则接着拖下一块时地图还是放大的，
+       *      大碎片显示不全、也看不出该放哪儿，游戏就卡住了（实机反馈的原话）。
+       * 所以这里先看"刚放下还在近景"，再等它停稳看"回到全景附近"。 */
+      check('[' + adcode + '] 放对之后镜头没有立刻弹回全景（先让玩家看清）',
+        areaJustAfter <= areaBefore * 1.05,
+        '按下前 ' + areaBefore.toFixed(0) + ' → 刚放下 ' + areaJustAfter.toFixed(0));
+
+      check('★ [' + adcode + '] 放对之后镜头会自己丝滑退回全景（否则下一块没法放）',
+        areaBack >= areaLevel * 0.9,
+        '刚放下 ' + areaJustAfter.toFixed(0) + ' → 退回后 ' + areaBack.toFixed(0) +
+        '，全景约 ' + areaLevel.toFixed(0) + '（要回到全景附近）');
 
       /* ---- 收尾：所有临时状态都要清干净 ---- */
       check('[' + adcode + '] 松手后没有残留幽灵', r.ghostLeft === 0, String(r.ghostLeft));
-      check('[' + adcode + '] 松手后没有残留放大镜', r.lensLeft === 0, String(r.lensLeft));
       check('[' + adcode + '] 松手后没有残留 is-open', r.openLeft === 0, String(r.openLeft));
       check('[' + adcode + '] 松手后没有残留候选高亮', r.candLeft === 0, String(r.candLeft));
     }

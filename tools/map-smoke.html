@@ -193,9 +193,26 @@
     const from = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
 
     fire(W, D, piece, 'pointerdown', from.x, from.y);
+
+    /* 【等镜头静止，再按当前镜头重算落点】
+     * 引擎会在按下极小碎片时把镜头推近（自动放大）。推近一旦开始，
+     * "同一个屏幕点对应地图哪儿"就在变 —— 用推近**之前**算好的 to 去落，
+     * 会落到隔壁（实测：安徽的铜陵被判成池州）。
+     * 所以按下之后先等 viewBox 不再变化，再用**那时的**镜头重算落点。
+     * 这不改变被测行为，只是让测试的落点与它松手那一刻的镜头对齐。 */
+    let vbPrev = null;
+    for (let i = 0; i < 40; i++) {
+      const vb = D.getElementById('map').getAttribute('viewBox');
+      if (vbPrev === vb) break;
+      vbPrev = vb;
+      await sleep(60);
+    }
+    const to2 = (typeof insidePointOf === 'function' && insidePointOf(W, D, adcode)) || to;
+
     for (let i = 1; i <= steps; i++) {
       const t = i / steps;
-      fire(W, D, D, 'pointermove', from.x + (to.x - from.x) * t, from.y + (to.y - from.y) * t);
+      fire(W, D, D, 'pointermove',
+        from.x + (to2.x - from.x) * t, from.y + (to2.y - from.y) * t);
       await sleep(24);
     }
 
@@ -207,7 +224,7 @@
       const gr = ghostEl.getBoundingClientRect();
       ghostCenter = { x: gr.left + gr.width / 2, y: gr.top + gr.height / 2 };
     }
-    fire(W, D, D, 'pointerup', to.x, to.y);
+    fire(W, D, D, 'pointerup', to2.x, to2.y);
 
     // 三种结局耗时不同（拼对 300ms / 放错 420ms 抖动 / 没落上立即），所以轮询而不是定时
     try {

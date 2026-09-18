@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>EXP · 坐标系换算验证</title>
+<style>
+  body { font: 13px/1.5 -apple-system, sans-serif; margin: 0; padding: 8px; }
+  iframe { width: 1600px; height: 1000px; border: 0; display: block; background: #fff; }
+  #result { white-space: pre-wrap; font-family: ui-monospace, monospace; font-size: 12px; }
+</style>
+</head>
+<body>
+<form id="rform" method="post" target="rsink" style="display:none"></form>
+<iframe name="rsink" style="display:none" title="report sink"></iframe>
+<div id="frames"></div>
+<pre id="result">…</pre>
+
+<script>
+/* 验证：给定一个地图内容坐标，screen→content→screen 往返是否回到原点，
+   以及"内容坐标"在 viewBox 变化后是否保持不变（这才是自动放大的地基）。 */
+(function () {
+  'use strict';
+  const PORT = new URLSearchParams(location.search).get('port');
+  const out = [];
+  let reported = false;
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  function line(s) { out.push(s); }
+  function report() {
+    if (reported) return;
+    reported = true;
+    document.getElementById('result').textContent = out.join('\n');
+    const form = document.getElementById('rform');
+    form.action = 'http://127.0.0.1:' + PORT + '/report';
+    const i = document.createElement('input');
+    i.type = 'hidden'; i.name = 'd'; i.value = JSON.stringify({ log: out.join('\n') });
+    form.appendChild(i); form.submit();
+  }
+  async function waitFor(fn, ms, label) {
+    const dl = Date.now() + (ms || 10000);
+    for (;;) {
+      let v = null;
+      try { v = fn(); } catch (e) { v = null; }
+      if (v) return v;
+      if (Date.now() > dl) throw new Error('超时：' + (label || ''));
+      await sleep(50);
+    }
+  }
+
+  async function run() {
+    const frame = document.createElement('iframe');
+    frame.src = '../index.html?map=china';
+    document.getElementById('frames').appendChild(frame);
+    await new Promise((r) => frame.addEventListener('load', r, { once: true }));
+    await waitFor(() => frame.contentDocument.documentElement.getAttribute('data-map-ready') === 'china',
+      30000, '就绪');
+    const W = frame.contentWindow;
+    const D = frame.contentDocument;
+    const map = D.getElementById('map');
+
+    const intro = D.getElementById('intro');
+    if (intro && !intro.hidden) { intro.click(); await sleep(700); }
+    await sleep(600);
+
+    function toContent(x, y) {
+      const m = map.getScreenCTM();
+      const p = map.createSVGPoint(); p.x = x; p.y = y;
+      return p.matrixTransform(m.inverse().multiply(map.getCTM()));
+    }
+    function toScreen(x, y) {
+      const m = map.getScreenCTM();
+      const p = map.createSVGPoint(); p.x = x; p.y = y;
+      return p.matrixTransform(map.getCTM().inverse().multiply(m));
+    }
+
+    const vbBefore = map.getAttribute('viewBox');
+    line('viewBox(初始) = ' + vbBefore);
+
+    /* 取一个屏幕点，往返验证 */
+    const probe = { x: 700, y: 480 };
+    const c1 = toContent(probe.x, probe.y);
+    const s1 = toScreen(c1.x, c1.y);
+    line('往返：(' + probe.x + ',' + probe.y + ') → content(' +
+      c1.x.toFixed(2) + ',' + c1.y.toFixed(2) + ') → (' +
+      s1.x.toFixed(2) + ',' + s1.y.toFixed(2) + ')');
+    const err = Math.hypot(s1.x - probe.x, s1.y - probe.y);
+    line('往返误差 = ' + err.toFixed(4) + 'px  ' + (err < 0.01 ? '✅' : '❌ 换算写错了'));
+
+    /* 关键验证：把 viewBox 推近后，同一个 content 坐标应该映射到一个**新的屏幕点**，
+       而 content 坐标本身保持不变（它不依赖 viewBox）。 */
+    const vb = vbBefore.split(/\s+/).map(Number);
+    const zoomed = [vb[0] + vb[2] * 0.25, vb[1] + vb[3] * 0.25, vb[2] * 0.5, vb[3] * 0.5];
+    map.setAttribute('viewBox', zoomed.join(' '));
+    await sleep(120);
+
+    const s2 = toScreen(c1.x, c1.y);
+    line('viewBox 推近 ' + zoomed.map((n) => n.toFixed(1)).join(' ') + ' 后：');
+    line('  同一 content 点 → 屏幕 (' + s2.x.toFixed(2) + ',' + s2.y.toFixed(2) + ')');
+    line('  它应当移动（因为镜头变了）：移动距离 = ' +
+      Math.hypot(s2.x - probe.x, s2.y - probe.y).toFixed(1) + 'px');
+    line('  而 content 坐标不变：' + c1.x.toFixed(2) + ',' + c1.y.toFixed(2) + ' ✅（定义如此）');
+
+    /* 反向：推近后从新屏幕点取 content，应当仍指向同一个地图位置 */
+    const c2 = toContent(s2.x, s2.y);
+    const back = Math.hypot(c2.x - c1.x, c2.y - c1.y);
+    line('  推近后 screen→content 回到同一处，误差 = ' + back.toFixed(4) +
+      (back < 0.01 ? ' ✅' : ' ❌'));
+
+    /* 再验证"屏幕位移 → 地图位移"的换算（拖动用得到） */
+    const m2 = map.getScreenCTM();
+    const ptA = map.createSVGPoint(); ptA.x = probe.x; ptA.y = probe.y;
+    const ptB = map.createSVGPoint(); ptB.x = probe.x + 40; ptB.y = probe.y + 25;
+    const a = ptA.matrixTransform(m2.inverse());
+    const b = ptB.matrixTransform(m2.inverse());
+    line('推近后 屏幕位移(40,25) → 地图位移(' +
+      (b.x - a.x).toFixed(3) + ',' + (b.y - a.y).toFixed(3) + ')');
+    line('  缩放系数 ≈ ' + (1 / Math.abs(m2.a)).toFixed(4) + '（viewBox 越小这个数越大）');
+
+    map.setAttribute('viewBox', vbBefore);
+    report();
+  }
+
+  run().catch((e) => { line('!! 异常：' + (e && e.stack ? e.stack : e)); report(); });
+})();
+</script>
+</body>
+</html>
