@@ -300,6 +300,10 @@ async function main() {
   /* 单文件离线打包的自测：打包器坏了不会报错，只会产出一个
    * "能打开、切地图就崩"的 HTML —— 而那份文件是要发给别人的。 */
   const bundleResult = runOfflineTest('test-bundle.js');
+  /* 中国图专项：它是唯一"下级全是省级"的图，也是唯一关卡按地理分区手工编排的图。
+   * 它的两类问题都不会报错、只会静默出错：文案漏项（卡片空白）与
+   * registry 悬空 children（面包屑点过去 404）。 */
+  const chinaProvResult = runOfflineTest('test-china-provinces.js');
   console.log('  ' + (wktResult.failed ? '✘' : '✔') +
     ' WKT → GeoJSON 转换（' + wktResult.passed + ' 通过 / ' + wktResult.failed + ' 失败）' +
     (wktResult.failed ? '：' + wktResult.failures.join('、') : ''));
@@ -414,9 +418,9 @@ async function main() {
 
   // ---- 汇总 ----
   const totalPassed = results.reduce((n, r) => n + (r.result.passed || 0), 0) +
-    wktResult.passed + mapsResult.passed + verifyResult.passed + areaPickResult.passed + progressResult.passed + shareResult.passed + scoreResult.passed + contributeResult.passed + bundleResult.passed;
+    wktResult.passed + mapsResult.passed + verifyResult.passed + areaPickResult.passed + progressResult.passed + shareResult.passed + scoreResult.passed + contributeResult.passed + bundleResult.passed + chinaProvResult.passed;
   const totalFailed = results.reduce((n, r) => n + (r.result.failed || 0), 0) +
-    wktResult.failed + mapsResult.failed + verifyResult.failed + areaPickResult.failed + progressResult.failed + shareResult.failed + scoreResult.failed + contributeResult.failed + bundleResult.failed;
+    wktResult.failed + mapsResult.failed + verifyResult.failed + areaPickResult.failed + progressResult.failed + shareResult.failed + scoreResult.failed + contributeResult.failed + bundleResult.failed + chinaProvResult.failed;
   const broken = results.filter((r) => r.result.crashed).map((r) => r.suite.name);
 
   console.log('\n══════════════ 汇总 ══════════════');
@@ -429,6 +433,7 @@ async function main() {
   console.log(`  ${scoreResult.failed ? '✘' : '✔'} 离线检查 · 计分规则（平衡）：${scoreResult.passed} 通过 / ${scoreResult.failed} 失败`);
   console.log(`  ${contributeResult.failed ? '✘' : '✔'} 离线检查 · 众包纠错文案与链接：${contributeResult.passed} 通过 / ${contributeResult.failed} 失败`);
   console.log(`  ${bundleResult.failed ? '✘' : '✔'} 离线检查 · 单文件离线打包：${bundleResult.passed} 通过 / ${bundleResult.failed} 失败`);
+  console.log(`  ${chinaProvResult.failed ? '✘' : '✔'} 离线检查 · 中国图省级条目与链接：${chinaProvResult.passed} 通过 / ${chinaProvResult.failed} 失败`);
   results.forEach(({ suite, result }) => {
     const mark = result.crashed ? '✘ 未收到结果' : (result.failed ? '✘' : '✔');
     const secs = result.elapsedMs ? `（${(result.elapsedMs / 1000).toFixed(1)}s）` : '';

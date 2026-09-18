@@ -23,6 +23,33 @@
  *   · 不碰页脚审图号/来源声明
  *   断言：改写后除 DISTRICTS 的文案字段与 LEVELS 块外，其余字节完全一致。
  *
+ * 【这个脚本只改两样东西】
+ *   1. DISTRICTS 里每条的 landmark / tagline / funFact 三个**文案字段**
+ *   2. LEVELS 关卡分组块
+ *   其它一律不碰。三条硬保证（都写成断言，不满足就直接中止、不落笔）：
+ *     · **原始 area 做字节级校验**：area 是从源文件逐条搬过来的，
+ *       落笔前后各断言一次；实测改写后 area 行 **零 diff**。
+ *     · **块外字节完全一致**：把 DISTRICTS 与 LEVELS 两块替换成占位符后
+ *       逐字节比对，不一致就报错退出 —— 防止"顺手"改到别的地方。
+ *     · **条目一一对应**：内容表与文件里的 adcode 必须完全一致，
+ *       多一条或少一条都拒绝执行。
+ *
+ * 【怎么改分区（比如把山东划到华北）】
+ *   只改本文件下面的 `LEVELS` 表，然后重跑一次：
+ *     node tools/fill-china-provinces.js            # 先预览，看清会改成什么
+ *     node tools/fill-china-provinces.js --write    # 确认无误再落笔
+ *     node tools/test-china-provinces.js            # 断言"不重不漏 + 每关 3~7 块"
+ *   注意两条约束：
+ *     · 34 个 adcode 必须不重不漏；
+ *     · 关卡 id **不要**改成 `l1`/`l2` 这类形式 —— 现在是语义名
+ *       （dongbei / huabei / …），靠它才能让 tools/regroup-levels.js 的
+ *       "手写关卡"守卫整体跳过、不覆盖人工分区。
+ *
+ * 【怎么改某个省的文案】
+ *   改下面 `CONTENT` 表里对应的那一条，同样重跑脚本。
+ *   注意：**事实类内容（数字、地标、时效表述）需要人工终审后才改**，
+ *   这份表的来源与待核项见 CHANGELOG.md 的"待人工终审"一节。
+ *
  * 用法：
  *   node tools/fill-china-provinces.js            # 预览（只报告会改什么）
  *   node tools/fill-china-provinces.js --write    # 落笔
