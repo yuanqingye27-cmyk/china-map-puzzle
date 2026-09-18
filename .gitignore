@@ -14,6 +14,11 @@ out/
 # （重建方式见 docs/部署到Cloudflare.md）
 deploy/
 deploy-sichuan/
+# deploy-pack.js 生成的按范围裁剪的部署包，也是可丢弃产物
+deploy-*/
+# ⚠ 反向例外：deploy-templates/ 是**源文件**（Cloudflare 的 _headers/_redirects 模板），
+# 必须入库。上面那条 `deploy-*/` 会连它一起匹配掉，所以这里要显式取消。
+!deploy-templates/
 
 # 临时下载的二进制（例如隧道工具），不入库
 tools/bin/

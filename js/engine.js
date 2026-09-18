@@ -95,6 +95,23 @@
     const DISTRICT_INFO = CONFIG.districts || {};
     const LEVELS = CONFIG.levels || [];
 
+    /* ============ 玩法模式的通用开关（全部可选，缺省＝原有行为） ============
+     * 引擎**不认识"模式"这个概念** —— 它只认下面这几个通用配置。
+     * 六套模式（普通/计时/教学/考试/儿童/双人）由 js/modes.js 翻译成这几个值，
+     * 所以以后加第七套模式**不需要改引擎**。
+     * ==================================================================== */
+    /** 'never'（默认，原行为）| 'always'：碎片上是否常显地名（教学模式要用） */
+    const PIECE_NAMES = (CONFIG.pieceNames === 'always') ? 'always' : 'never';
+    /** 提示次数上限：null=不限（原行为）｜数字｜Infinity（等于不限） */
+    const HINT_LIMIT = (CONFIG.hintLimit === undefined || CONFIG.hintLimit === null)
+      ? null : CONFIG.hintLimit;
+    /** 放错时的反馈是否放软（儿童模式）：不出现"连击中断"这类挫败向说法 */
+    const SOFT_FEEDBACK = CONFIG.softenFeedback === true;
+    /** 是否跳过引擎自己的动画（考试模式）：与系统的"减少动态效果"是同一个开关 */
+    const DISABLE_MOTION = CONFIG.disableMotion === true;
+    /** 每次放置后回调一次，供宿主页做回合/错题集/正确率统计（引擎不关心用途） */
+    const ON_PLACEMENT = typeof CONFIG.onPlacement === 'function' ? CONFIG.onPlacement : null;
+
     /* 文案：只放"会因城市而变"的部分 */
     const TEXTS = withDefaults(CONFIG.texts, {
       cityName: '',
@@ -160,6 +177,9 @@
 
     /** 系统是否开了"减少动态效果"。动画和过渡都该尊重这个偏好 */
     function prefersReducedMotion() {
+      /* 两个来源：① 系统的"减少动态效果"偏好 ② 模式配置（考试模式要求关动画）。
+       * 合并成一个判断，后面所有动画门都用它，就不必到处写两遍。 */
+      if (DISABLE_MOTION) return true;
       return !!(window.matchMedia &&
         window.matchMedia('(prefers-reduced-motion: reduce)').matches);
     }
@@ -838,17 +858,32 @@
 
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = 'piece';
+      btn.className = 'piece' + (PIECE_NAMES === 'always' ? ' is-named' : '');
       btn.dataset.adcode = adcode;
       btn.style.setProperty('--c', color);
-      btn.setAttribute('aria-label', `拖动这块碎片，放到地图上正确的位置`);
+      /* 无障碍标签：
+       *   · 教学模式（碎片常显地名）→ 直接报出名字，屏幕阅读器才"看得见"
+       *   · 其它模式 → 报出序号，加上"第几块/共几块"，键盘用户才能定位自己在第几块
+       *     （不报名字是刻意的：考试/困难模式就是不许看答案，
+       *      但"第 2 块，共 7 块"不泄露任何答案信息） */
+      const pieceIndex = el.tray.querySelectorAll('.piece').length + 1;
+      const pieceTotal = currentLevel() ? currentLevel().adcodes.length : 0;
+      btn.setAttribute('aria-label', PIECE_NAMES === 'always'
+        ? `碎片：${shape.name}，第 ${pieceIndex} 块，共 ${pieceTotal} 块。按回车选中，再选地图上的位置`
+        : `碎片，第 ${pieceIndex} 块，共 ${pieceTotal} 块。按回车选中，再选地图上的位置`);
+      btn.setAttribute('aria-describedby', 'trayHint');
       // 碎片 svg 的 viewBox 直接复用该区县在地图上的包围盒，
       // 于是"碎片"和"地图上的那块"用的是同一份 path 数据，形状保证一致
       btn.innerHTML =
         `<svg width="${size.w.toFixed(1)}" height="${size.h.toFixed(1)}" ` +
         `viewBox="${shape.bbox.x} ${shape.bbox.y} ${shape.bbox.w} ${shape.bbox.h}" ` +
         `preserveAspectRatio="none" aria-hidden="true">` +
-        `<path d="${shape.d}"></path></svg>`;
+        `<path d="${shape.d}"></path></svg>` +
+        /* 地名标签：只在教学模式渲染。
+         * 用 aria-hidden 避免屏幕阅读器把名字读两遍（aria-label 里已经有了）。 */
+        (PIECE_NAMES === 'always'
+          ? `<span class="piece-name" aria-hidden="true">${shape.name}</span>`
+          : '');
 
       el.tray.appendChild(btn);
       state.pieces.set(adcode, btn);
@@ -1048,8 +1083,12 @@
         }
         const rightName = shapes.get(draggedAdcode).name;
         const wrongName = shapes.get(hit.adcode).name;
-        // 连击断了要明确告诉玩家，否则'清零'是静默的、没有惩罚感
-        if (state.combo >= 2) {
+        /* 反馈措辞分两档：
+         *   普通（原行为）：连击断了要明确说，否则"清零"是静默的、没有惩罚感
+         *   放软（儿童模式）：不提连击、不问责，只提示再找找 */
+        if (SOFT_FEEDBACK) {
+          showToast(`这里不是${rightName}哦，再找找看～`, 'bad');
+        } else if (state.combo >= 2) {
           showToast(`连击中断（${state.combo} 连）· 这里是${wrongName}，${rightName}还在别处`, 'bad');
         } else {
           showToast(`这里是${wrongName}，${rightName}还在别处`, 'bad');
@@ -1057,6 +1096,19 @@
         state.combo = 0;
         SFX.bad();
         updateStats();
+        /* 宿主页回调：回合切换 / 错题集 / 正确率 都靠这一条。
+         * 引擎不知道宿主拿它做什么，所以这里只报"发生了什么"。 */
+        if (ON_PLACEMENT) {
+          try {
+            ON_PLACEMENT({
+              adcode: draggedAdcode,
+              name: rightName,
+              correct: false,
+              landedOn: hit.adcode,
+              landedOnName: wrongName,
+            });
+          } catch (e) { /* 宿主回调出错不该把游戏弄崩 */ }
+        }
         if (ghost) {
           ghost.classList.add('is-shaking');
           // 抖两下再飞回去
@@ -1089,6 +1141,20 @@
       const MS = global.MapScore;
       state.score += MS ? MS.forPlacement(state.combo) : 100 * Math.min(state.combo, 5);
       updateStats();
+
+      /* 宿主页回调（放对）。与放错那条对称，回调里报"发生了什么"，
+       * 具体用来做回合切换、错题集还是正确率，引擎不关心。 */
+      if (ON_PLACEMENT) {
+        try {
+          ON_PLACEMENT({
+            adcode: adcode,
+            name: shape.name,
+            correct: true,
+            landedOn: adcode,
+            landedOnName: shape.name,
+          });
+        } catch (e) { /* 宿主回调出错不该把游戏弄崩 */ }
+      }
 
       if (ghost && target) {
         // 幽灵从"托盘尺寸"平滑过渡到"地图上的真实尺寸"。
@@ -1225,7 +1291,41 @@
     }
 
     /* ============================ 提示 ============================ */
+    /** 提示次数用完了吗（null/Infinity = 不限） */
+    function hintsExhausted() {
+      if (HINT_LIMIT === null || HINT_LIMIT === Infinity) return false;
+      return state.hints >= HINT_LIMIT;
+    }
+
+    /** 提示按钮的可用状态：用完就禁用并把原因写在 title 上（而不是点了没反应） */
+    function updateHintButton() {
+      if (!el.btnHint) return;
+      const left = (HINT_LIMIT === null || HINT_LIMIT === Infinity)
+        ? null : Math.max(0, HINT_LIMIT - state.hints);
+      const done = left === 0;
+      el.btnHint.disabled = done;
+      el.btnHint.setAttribute('aria-disabled', done ? 'true' : 'false');
+      el.btnHint.title = left === null
+        ? '提示：帮你点亮一块（本模式不限次数）'
+        : (done ? '这个难度的提示已经用完了' : '提示：帮你点亮一块（还剩 ' + left + ' 次）');
+      /* 只改文字那一层：宿主页把文案包在 [data-hint-label] 里，
+       * 直接写 textContent 会把按钮左边的 SVG 图标一起清掉。
+       * 找不到那个 span 时（别的宿主页可能没包）才退回整个按钮。 */
+      const label = el.btnHint.querySelector('[data-hint-label]');
+      const text = left === null
+        ? '提示'
+        : (done ? '提示已用完' : '提示（剩 ' + left + '）');
+      if (label) label.textContent = text;
+      else el.btnHint.textContent = text;
+    }
+
     function doHint() {
+      if (hintsExhausted()) {
+        /* 明确告诉他为什么点不动，而不是静默失败 */
+        showToast(HINT_LIMIT === 0 ? '这个难度不给提示哦' : '提示次数用完了', 'bad');
+        updateHintButton();
+        return;
+      }
       const remaining = currentLevel().adcodes.filter((a) => !state.placed.has(a));
       if (!remaining.length) return;
 
@@ -1245,7 +1345,10 @@
         pieceEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         setTimeout(() => pieceEl.classList.remove('is-hinted'), 2300);
       }
-      showToast(`提示：找一找 ${shapes.get(adcode).name}`, 'ok');
+      showToast(SOFT_FEEDBACK
+        ? `看看 ${shapes.get(adcode).name} 在哪里呀～`
+        : `提示：找一找 ${shapes.get(adcode).name}`, 'ok');
+      updateHintButton();
     }
 
     /* ============================ 信息卡 ============================ */
@@ -1551,6 +1654,10 @@
     }
 
     function updateStats() {
+      /* 统计一变，提示按钮的"还剩几次"也要跟着变。
+       * 挂在这里而不是散落在各处，是为了保证"按钮状态永远等于真实状态"——
+       * 换关、重开、用掉一次提示，都会经过 updateStats。 */
+      if (typeof updateHintButton === 'function') updateHintButton();
       const level = currentLevel();
       const total = level.adcodes.length;
       const done = state.placed.size;
@@ -1603,6 +1710,9 @@
     /* ============================ 全局事件 ============================ */
     function bindGlobalEvents() {
       el.btnHint.addEventListener('click', doHint);
+      /* 进关时就把提示额度显示在按钮上（"剩 N 次"），
+       * 而不是等玩家点了才发现没额度了 */
+      updateHintButton();
       el.btnRestart.addEventListener('click', () => startLevel(state.levelIndex));
       el.map.addEventListener('click', onMapClick);
 

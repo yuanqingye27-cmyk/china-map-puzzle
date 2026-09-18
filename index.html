@@ -325,6 +325,17 @@ try {
           <span class="map-picker-text">切换地图</span>
           <select class="map-select" id="mapSelect" aria-label="选择地图"></select>
         </label>
+        <!-- 玩法模式：六套模式全部本地离线实现，选择结果记在 localStorage。
+             引擎不认识"模式"，它只认 js/modes.js 翻译出来的几个通用开关。 -->
+        <label class="map-picker">
+          <span class="map-picker-text">玩法</span>
+          <select class="map-select" id="modeSelect" aria-label="选择玩法模式"></select>
+        </label>
+        <!-- 难度：只有"计时挑战"用得上，其它模式下整块隐藏 -->
+        <label class="map-picker" id="diffPicker" hidden>
+          <span class="map-picker-text">难度</span>
+          <select class="map-select" id="diffSelect" aria-label="选择难度"></select>
+        </label>
       </div>
       <!-- 每日一图：日期做种子、全国同题、当天锁定（见 js/progress.js 的 pickDaily）。
            放在关卡那一行之上 —— 它是"今天玩什么"的入口，层级高于"这一关怎么打"。 -->
@@ -344,6 +355,9 @@ try {
            文案由 js/game.js 按【当前地图数据自己的来源】渲染 —— 见 MAP_GEO_META。
            为什么不写死：数据是 DataV 却标天地图的审图号，是伪造合规声明，比不写更糟。 -->
       <p class="map-source" id="mapSource" role="note"></p>
+      <!-- 模式信息条：计时/最佳成绩/正确率/回合比分/教学工具都在这一行。
+           内容由 js/game.js 按当前模式渲染，模式不用的块不会出现。 -->
+      <div class="mode-bar" id="modeBar" role="status" aria-live="polite" hidden></div>
       <!-- 众包入口（地图级）：不知道该点哪个区县时，直接反馈整张图的问题。
            全国 3200+ 个区县，靠一个人查资料查不完 —— 让看到的人顺手报错是唯一的零成本解法。 -->
       <button class="report-chip" id="reportChip" type="button">
@@ -421,8 +435,11 @@ try {
       <div class="card info-card" id="infoCard" aria-live="polite"></div>
 
       <div class="actions">
+        <!-- 文案单独包一层 span：引擎要改"剩 N 次"这段字，
+             直接写 textContent 会把左边的灯泡图标一起抹掉。
+             引擎优先找 [data-hint-label]，找不到才退回 textContent。 -->
         <button class="btn btn-ghost" id="btnHint" type="button">
-          <svg class="btn-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-bulb"/></svg>提示
+          <svg class="btn-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-bulb"/></svg><span data-hint-label>提示</span>
         </button>
         <button class="btn btn-ghost" id="btnRestart" type="button">
           <svg class="btn-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-restart"/></svg>重开本关
@@ -459,6 +476,15 @@ try {
      逻辑全在 js/contribute.js（纯函数，有单测）。 -->
 <div class="report-panel" id="reportPanel" role="dialog" aria-modal="true"
      aria-label="纠错与补资料" hidden></div>
+
+<!-- ==================== 模式面板（教学选区 / 练习报告 / 错题清单）====================
+     三件事共用一个覆盖层，按当前模式决定标题与内容：
+       · 教学学习：勾选要练的行政区、导出 Markdown 练习报告
+       · 考试刷题：正确率与错题清单
+       · 计时挑战：个人最佳成绩与易错行政区（薄弱练习集）
+     由 js/game.js 的 renderModePanel() 渲染，逻辑在 js/modes.js（纯函数）。 -->
+<div class="report-panel" id="modePanel" role="dialog" aria-modal="true"
+     aria-label="玩法面板" hidden></div>
 
 <!-- ==================== 开场欢迎动画 ====================
      覆盖整屏，展示五个成都元素（熊猫 / 竹子 / 银杏 / 脸谱 / 盖碗茶），
@@ -514,6 +540,10 @@ try {
 <script src="js/share.js"></script>
 <!-- 计分规则：纯函数，可单测（见 js/score.js 的平衡说明） -->
 <script src="js/score.js"></script>
+<!-- 玩法模式：纯逻辑层（六套模式的开关声明 + 最佳成绩/错题集/报告/回合，可单测）。
+     引擎不认识"模式"，只认它翻译出来的 pieceNames / hintLimit / softenFeedback /
+     disableMotion / onPlacement 这几个通用配置项。 -->
+<script src="js/modes.js"></script>
 <!-- 众包纠错：把资料卡拼成结构化文本，交给用户已有的通道发出去（纯函数，有单测）。
      repo / email 留空也能跑 —— 按钮自动降级成"复制到剪贴板"，不会给出死链。
      填法：把下面两个字段换成自己的仓库和邮箱，一行代码都不用改。 -->

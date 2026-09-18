@@ -272,7 +272,99 @@ curl -sS -x http://127.0.0.1:7890 -o /dev/null -w "%{http_code}\\n" https://<项
 
 ---
 
-## 七、三条必须知道的事
+## 七、两条部署路线：单文件 vs 裁剪包
+
+`deploy/`（全国版，1100 个文件）**拖不上网页端**（上限 1000）。除了用 Wrangler，
+还有一条更省事的：**用 `tools/deploy-pack.js` 裁出一个小于 1000 文件的部署包**。
+
+```bash
+# 一个省（含其下级）：81 个文件 / 2.9 MB —— 可以直接拖拽上传
+node tools/deploy-pack.js --province=sichuan
+
+# 指定几张图
+node tools/deploy-pack.js --maps=chengdu,leshan
+
+# 全国（会提示超限并中止；确实要生成加 --force）
+node tools/deploy-pack.js --all
+```
+
+产物目录形如 `deploy-四川省/`，结构就是正常的**多文件站点**（不是单文件内联）：
+
+```
+deploy-四川省/
+├── index.html
+├── css/style.css
+└── js/            外壳 8 个脚本 + loader/registry + 22 张地图 × 3 个文件
+```
+
+它和 `tools/bundle.js` 的分工：
+
+| | `bundle.js`（单文件） | `deploy-pack.js`（多文件） |
+| --- | --- | --- |
+| 产物 | **1 个** `.html`（全部内联） | 一个目录（正常结构） |
+| 适合 | 微信/QQ 发文件、离线双击 | 传静态托管、要正常的站点 |
+| 首屏 | 一次加载全部（18.5MB 全国版偏慢） | 只载 226KB，换省再下载 |
+| 能玩到 | 按 `--province` / `--all` 裁剪 | 同左 |
+
+**两个工具都会裁剪 registry**（`pruneRegistry`）—— 这是关键：
+registry 登记了全部 363 张地图，只删文件不裁 registry 的话，
+菜单里照样列出 363 张、点开没打进包的会 404。
+`deploy-pack.js` 生成后会自动断言：引用完整 / 三件套齐全 / registry 已裁 / 无越界目录。
+
+### 路线选择建议
+
+| 目标 | 用哪个 |
+| --- | --- |
+| 今晚就发个链接给人试玩 | `bundle.js --province=<省>`（1 个文件，最快） |
+| 传静态托管、想留正常结构 | `deploy-pack.js --province=<省>`（81 个文件，可直接拖拽） |
+| 上线全国版 | `wrangler pages deploy deploy/`（1100 个文件，命令行上限 20000） |
+
+---
+
+## 八、`_headers` 与 `_redirects` 模板
+
+仓库里 `deploy-templates/` 放了两份现成模板，**复制到部署根目录**（和 `index.html` 同级、
+文件名原样）即可生效。
+
+### `_headers` —— 安全头与缓存策略
+
+```bash
+cp deploy-templates/_headers deploy/          # 或在 deploy-<范围>/ 里
+```
+
+要点：
+
+- 补上 `X-Content-Type-Options` / `Referrer-Policy` / `X-Frame-Options` /
+  `Permissions-Policy` 四个安全头
+- **缓存策略刻意保守**：HTML / JS / CSS 一律 `max-age=0, must-revalidate`，
+  只有体积最大、改动最少的 `*.geo.js` 给一天缓存。
+  原因是文件名**没有内容 hash**，同一个 URL 的内容会随部署变化 ——
+  激进缓存会让老访客一直看到旧版本（这个坑我们踩过：部署完自己打开是旧页面，
+  以为没部署成功）。模板里附了一份"激进版"注释块，内容稳定后再考虑启用。
+
+### `_redirects` —— 短链接与 404 兜底
+
+```bash
+cp deploy-templates/_redirects deploy/
+```
+
+里面已经写好这些短链接，**老师发给学生特别有用**：
+
+```
+/sichuan       → /?map=sichuan
+/china/exam    → /?map=china&mode=exam
+/china/teach   → /?map=china&mode=teach
+```
+
+以及一条 `/* → /index.html 404` 兜底（未知路径不再显示 Cloudflare 自带的 404 页）。
+状态码用 302 而不是 301：短链接没有 SEO 需求，而 301 会被长期记住、很难改回来。
+
+> 本站**不需要** SPA 的 history fallback —— 所有状态都在 URL 查询串里
+> （`?map=` / `?mode=` / `?diff=` / `?pick=`），没有客户端路由。
+
+---
+
+## 九、三条必须知道的事
 
 ### 1. `pages.dev` 在国内的访问速度是"看运气"
 
@@ -290,7 +382,7 @@ Cloudflare 在中国大陆没有节点。**这不是你配置错了。**
 
 ---
 
-## 八、`deploy/` 怎么重建
+## 十、`deploy/` 怎么重建
 
 源文件改了之后，在**项目根目录**（不是 `deploy/` 里）跑：
 
@@ -301,8 +393,9 @@ cd /Users/apple/Desktop/deepseekharness
 rm -rf deploy && mkdir -p deploy/css deploy/js/maps
 cp index.html deploy/
 cp css/style.css deploy/css/
-cp js/contribute.js js/engine.js js/game.js js/geomap.js js/progress.js js/score.js js/share.js deploy/js/
-cp js/maps/loader.js js/maps/registry.js js/maps/china.js js/maps/china.geo.js js/maps/china.data.js deploy/js/maps/
+cp js/*.js deploy/js/          # 通配：新加脚本不用改这条命令（手写清单漏过一次）
+cp js/maps/loader.js js/maps/registry.js js/maps/china*.js deploy/js/maps/
+#   ↑ 用通配而不是逐个列：新加脚本时不会漏（手写清单漏过一次，见 SOP 坑 #44）
 cp -R js/maps/china deploy/js/maps/china
 
 # 单文件精简版（1 个文件 / 1.3MB）

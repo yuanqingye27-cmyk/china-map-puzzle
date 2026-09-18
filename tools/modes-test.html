@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>地图拼图 · 玩法模式套件</title>
+<style>
+  body { margin: 0; font-family: ui-monospace, Menlo, monospace; background: #111; color: #ddd; }
+  iframe { width: 1600px; height: 1000px; border: 0; display: block; }
+  #result { padding: 16px; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<pre id="result">RUNNING…</pre>
+<div id="frames"></div>
+
+<iframe name="rsink" style="display:none" title="report sink"></iframe>
+<form id="rform" method="POST" action="" target="rsink" style="display:none"></form>
+
+<script>
+/* =====================================================================
+ * 玩法模式套件
+ * ---------------------------------------------------------------------
+ * 为什么单独一个套件、而不是塞进冒烟里：
+ *   冒烟套件对每张地图跑的是"默认模式下能不能玩"；而模式是**页面级**的
+ *   行为（引擎配置在创建时读一次，换模式要重新加载页面），
+ *   跟"哪张地图"无关。所以这里固定用 china 和 chengdu 两张图，
+ *   把六套模式 × 各自的界面/引擎开关都验一遍。
+ *
+ * 覆盖三件事：
+ *   ① 模式选择器本身（选项、当前值、切模式会重新加载）
+ *   ② 每个模式真的改变了该改变的东西（藏地名/不给提示/关动画/信息条内容）
+ *   ③ 新增界面没有引入回归（hidden 真的隐藏、390px 不溢出、a11y 标签齐全）
+ * ===================================================================== */
+(function () {
+  'use strict';
+
+  const PORT = new URLSearchParams(location.search).get('port');
+  const out = [];
+  let passed = 0;
+  let failed = 0;
+  const failures = [];
+
+  function check(name, cond, detail) {
+    if (cond) { passed++; out.push('  ✔ ' + name); }
+    else { failed++; failures.push(name); out.push('  ✘ ' + name + (detail ? '  → ' + detail : '')); }
+  }
+  function section(title) { out.push('\n【' + title + '】'); }
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  async function waitFor(fn, timeoutMs, label) {
+    const deadline = Date.now() + (timeoutMs || 25000);
+    for (;;) {
+      let v = null;
+      try { v = fn(); } catch (e) { v = null; }
+      if (v) return v;
+      if (Date.now() > deadline) throw new Error('等待超时：' + (label || '条件未满足'));
+      await sleep(50);
+    }
+  }
+
+  let reported = false;
+  function report(payload) {
+    if (reported) return;
+    reported = true;
+    out.push('\n合计：' + payload.passed + ' 通过 / ' + payload.failed + ' 失败');
+    if (payload.failed) out.push('失败项：' + (payload.failures || []).join('、'));
+    document.getElementById('result').textContent = out.join('\n');
+    document.title = 'TESTRESULT ' + payload.passed + 'P/' + payload.failed + 'F';
+    try {
+      const form = document.getElementById('rform');
+      form.action = 'http://127.0.0.1:' + PORT + '/report';
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'd';
+      input.value = JSON.stringify(payload);
+      form.appendChild(input);
+      form.submit();
+    } catch (e) {
+      out.push('上报失败：' + e.message);
+    }
+  }
+
+  /* 打开一个模式页，等它就绪，返回 { frame, W, D } */
+  async function openMode(query, width, height) {
+    const frame = document.createElement('iframe');
+    frame.style.cssText = 'width:' + (width || 1600) + 'px;height:' + (height || 1000) + 'px;border:0;display:block';
+    frame.src = '../index.html' + query;
+    document.getElementById('frames').appendChild(frame);
+    await new Promise((r) => frame.addEventListener('load', r, { once: true }));
+    const W = frame.contentWindow;
+    const D = frame.contentDocument;
+    try {
+      await waitFor(() => D.documentElement.getAttribute('data-map-ready'), 30000, query + ' 就绪');
+    } catch (e) { /* 交给断言报 */ }
+    await sleep(320);   // 让开场动画/骨架屏让位
+    return { frame, W, D };
+  }
+
+  /** 页面级错误监听（模式页是新开的 iframe，各自独立收集） */
+  function watchErrors(W) {
+    const errs = [];
+    W.addEventListener('error', (e) => errs.push(String(e.message || e)));
+    return errs;
+  }
+
+  /* 宽度诊断：溢出的根因往往在祖先链上，所以把链上每一层的宽度和
+   * 关键计算样式都打出来（"是谁下不去"比"溢出了多少"更难查）。 */
+  function chain(D) {
+    const parts = [];
+    const w = (el, label) => {
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      parts.push(label + '=' + Math.round(r.width));
+    };
+    w(D.body, 'body');
+    w(D.querySelector('.app'), '.app');
+    w(D.querySelector('.topbar'), '.topbar');
+    w(D.querySelector('.brand'), '.brand');
+    w(D.getElementById('mapbar'), '#mapbar');
+    w(D.querySelector('.mapbar-row'), '.mapbar-row');
+    w(D.getElementById('modeBar'), '.mode-bar');
+    w(D.querySelector('.level-tabs'), '.level-tabs');
+    w(D.querySelector('.mapbar-levels'), '.mapbar-levels');
+    w(D.querySelector('.stage'), '.stage');
+    w(D.querySelector('.board-column'), '.board-column');
+    w(D.querySelector('.tray-panel'), '.tray-panel');
+    const cs = (sel, label) => {
+      const el = D.querySelector(sel);
+      if (!el) return;
+      const g = D.defaultView.getComputedStyle(el);
+      parts.push(label + '{w:' + g.width + ' minW:' + g.minWidth +
+        ' flex:' + g.flexBasis + '/' + g.flexGrow + '/' + g.flexShrink +
+        ' ov:' + g.overflowX + '}');
+    };
+    cs('.topbar', 'topbarCS');
+    cs('#mapbar', 'mapbarCS');
+    cs('.mapbar-row', 'row1CS');
+    cs('.mapbar-levels', 'row2CS');
+    cs('.level-tabs', 'tabsCS');
+    cs('.brand', 'brandCS');
+    cs('#modeSelect', 'modeSelCS');
+    cs('.breadcrumb', 'crumbCS');
+    const mb = D.getElementById('mapbar');
+    if (mb) {
+      [...mb.children].forEach((c, i) => {
+        parts.push('mapbar.child' + i + '=' + Math.round(c.getBoundingClientRect().width) +
+          '(' + (c.id || String(c.className).split(' ')[0]) + ')');
+      });
+    }
+    const r1 = D.querySelector('.mapbar-row');
+    if (r1) {
+      [...r1.children].forEach((c, i) => {
+        parts.push('row1.child' + i + '=' + Math.round(c.getBoundingClientRect().width) +
+          '(' + (c.id || String(c.className).split(' ')[0]) + ')');
+      });
+    }
+    return parts.join(' ');
+  }
+
+  async function run() {
+    /* ================================================================
+     * 一、模式选择器本身
+     * ============================================================== */
+    section('1 · 模式选择器');
+    {
+      const { frame, D } = await openMode('?map=chengdu');
+      const sel = D.getElementById('modeSelect');
+      check('顶栏有玩法模式选择器', !!sel);
+      if (sel) {
+        const opts = [...sel.options].map((o) => o.value);
+        check('模式选择器列出六套模式',
+          opts.length === 6 &&
+          ['normal', 'timed', 'teach', 'exam', 'kids', 'duel'].every((x) => opts.indexOf(x) >= 0),
+          opts.join(','));
+        const labels = [...sel.options].map((o) => o.textContent);
+        check('模式名是中文（不是 id）',
+          labels.every((t) => /[\u4e00-\u9fa5]/.test(t)),
+          labels.join(' / '));
+        check('默认选中「普通模式」', sel.value === 'normal', sel.value);
+        check('模式选择器有无障碍标签',
+          !!sel.getAttribute('aria-label'), String(sel.getAttribute('aria-label')));
+      }
+      check('普通模式不显示难度选择器（难度是计时挑战专有）',
+        D.getElementById('diffPicker').hidden === true);
+      check('普通模式不显示模式信息条（没什么可显示的）',
+        D.getElementById('modeBar').hidden === true);
+      check('模式面板初始是关闭的', D.getElementById('modePanel').hidden === true);
+      frame.remove();
+    }
+
+    /* ================================================================
+     * 二、教学模式：碎片常显地名 + 教学工具
+     * ============================================================== */
+    section('2 · 教学学习模式');
+    {
+      const { frame, W, D } = await openMode('?map=china&mode=teach');
+      const errs = watchErrors(W);
+      check('[教学] body 上打了模式标记', D.documentElement.getAttribute('data-mode') === 'teach',
+        String(D.documentElement.getAttribute('data-mode')));
+
+      const pieces = [...D.querySelectorAll('.piece')];
+      const named = [...D.querySelectorAll('.piece .piece-name')];
+      check('[教学] 碎片上显示了地名（' + named.length + ' 个）', named.length > 0);
+      check('[教学] 每一块都有地名，没有漏的',
+        named.length === pieces.length, named.length + ' / ' + pieces.length);
+      const firstName = named.length ? named[0].textContent.trim() : '';
+      check('[教学] 地名是中文', /[\u4e00-\u9fa5]/.test(firstName), firstName);
+
+      /* 无障碍：教学模式碎片要直接报出名字 */
+      check('[教学] 碎片的 aria-label 里带上了名字',
+        pieces.length > 0 && pieces[0].getAttribute('aria-label').indexOf(firstName) >= 0,
+        pieces.length ? pieces[0].getAttribute('aria-label') : '没有碎片');
+      check('[教学] 碎片 aria-label 里也报了"第几块/共几块"',
+        pieces.length > 0 && /第 \d+ 块，共 \d+ 块/.test(pieces[0].getAttribute('aria-label')),
+        pieces.length ? pieces[0].getAttribute('aria-label') : '');
+
+      const bar = D.getElementById('modeBar');
+      check('[教学] 模式信息条显示了', !!bar && !bar.hidden);
+      const barText = bar ? bar.textContent : '';
+      check('[教学] 信息条里有「选要练的行政区」', barText.indexOf('选要练的行政区') >= 0, barText);
+      check('[教学] 信息条里有「导出练习报告」', barText.indexOf('导出练习报告') >= 0, barText);
+      check('[教学] 信息条里有「课堂大屏」', barText.indexOf('课堂大屏') >= 0, barText);
+      check('[教学] 不显示难度选择器', D.getElementById('diffPicker').hidden === true);
+
+      /* 练习报告面板：打开 → 有 Markdown → 关掉 */
+      D.getElementById('mbReport').click();
+      await sleep(120);
+      const panel = D.getElementById('modePanel');
+      check('[教学] 点「导出练习报告」能打开面板', !!panel && !panel.hidden);
+      const ta = panel && panel.querySelector('#teachMd');
+      const md = ta ? ta.value : '';
+      check('[教学] 报告是 Markdown（有标题）',
+        md.indexOf('# 地图拼图练习报告') === 0, md.slice(0, 50));
+      check('[教学] 报告里含当前地图名', md.indexOf('中华人民共和国') >= 0);
+      check('[教学] 报告列出了本关的行政区', md.indexOf('| 行政区 | 面积 | 结果 | 尝试 |') >= 0);
+      check('[教学] 报告没有 undefined', md.indexOf('undefined') < 0);
+      check('[教学] 报告面板有无障碍标签',
+        !!panel && panel.getAttribute('aria-label') === '玩法面板',
+        panel ? String(panel.getAttribute('aria-label')) : '');
+      const closeBtn = panel && panel.querySelector('.sp-close');
+      if (closeBtn) closeBtn.click();
+      await sleep(80);
+      check('[教学] 报告面板能关掉', panel.hidden);
+
+      /* 选区面板 */
+      D.getElementById('mbPick').click();
+      await sleep(120);
+      check('[教学] 点「选要练的行政区」能打开面板', !panel.hidden);
+      const boxes = panel.querySelectorAll('.pk-item input');
+      check('[教学] 选区面板列出了全部行政区（34 个）', boxes.length === 34, String(boxes.length));
+      const applyBtn = panel.querySelector('#pkApply');
+      check('[教学] 选区面板有「套用」按钮', !!applyBtn);
+      if (closeBtn) panel.querySelector('.sp-close').click();
+      await sleep(60);
+
+      /* 课堂大屏 */
+      D.getElementById('mbBig').click();
+      await sleep(80);
+      check('[教学] 点「课堂大屏」会给 html 打上 bigscreen 标记',
+        D.documentElement.getAttribute('data-bigscreen') === '1');
+      check('[教学] 大屏状态下按钮变成「退出大屏」',
+        D.getElementById('modeBar').textContent.indexOf('退出大屏') >= 0);
+
+      check('[教学] 运行期没有未捕获异常', errs.length === 0, errs.join(' | '));
+      frame.remove();
+    }
+
+    /* ================================================================
+     * 三、考试刷题：不给提示、不显地名、关动画
+     * ============================================================== */
+    section('3 · 考试刷题模式');
+    {
+      const { frame, W, D } = await openMode('?map=china&mode=exam');
+      const errs = watchErrors(W);
+      check('[考试] body 上打了模式标记', D.documentElement.getAttribute('data-mode') === 'exam');
+      check('[考试] 碎片上没有地名', D.querySelectorAll('.piece-name').length === 0);
+      check('[考试] 不显示难度选择器', D.getElementById('diffPicker').hidden === true);
+
+      const hint = D.getElementById('btnHint');
+      check('[考试] 提示按钮被禁用（这个模式不给提示）', !!hint && hint.disabled === true,
+        hint ? 'disabled=' + hint.disabled + ' 文案=' + hint.textContent.trim() : '没有按钮');
+      check('[考试] 提示按钮的 aria-disabled 同步了',
+        !!hint && hint.getAttribute('aria-disabled') === 'true');
+      check('[考试] 提示按钮写了为什么点不动',
+        !!hint && /用完/.test(String(hint.title)), hint ? String(hint.title) : '');
+      check('[考试] 提示按钮的图标没被抹掉（文案只改 span）',
+        !!hint && !!hint.querySelector('.btn-ico') && !!hint.querySelector('[data-hint-label]'));
+
+      const bar = D.getElementById('modeBar');
+      check('[考试] 信息条显示了正确率', !!bar && bar.textContent.indexOf('正确率') >= 0,
+        bar ? bar.textContent : '');
+      check('[考试] 引擎跳过了"飞入地图"的过渡（关动画）',
+        /* SNAP_MS 的过渡是 CSS transition；考试模式靠 html[data-mode=exam] 把它压到 0.001ms。
+         * 这里断言那条规则真的存在且生效（getComputedStyle 拿到的是压过的值）。 */
+        (() => {
+          const ghostRule = [...D.styleSheets].some((ss) => {
+            try {
+              return [...ss.cssRules].some((r) =>
+                r.selectorText && r.selectorText.indexOf('data-mode="exam"') >= 0 &&
+                r.style && r.style.transitionDuration);
+            } catch (e) { return false; }
+          });
+          return ghostRule;
+        })(), '没找到 exam 模式的去动画规则');
+
+      check('[考试] 运行期没有未捕获异常', errs.length === 0, errs.join(' | '));
+      frame.remove();
+    }
+
+    /* ================================================================
+     * 四、计时挑战：计时 + 最佳成绩 + 三档难度
+     * ============================================================== */
+    section('4 · 计时挑战模式');
+    {
+      const { frame, D } = await openMode('?map=chengdu&mode=timed&diff=hard');
+      check('[计时] 显示了难度选择器', D.getElementById('diffPicker').hidden === false);
+      const dsel = D.getElementById('diffSelect');
+      check('[计时] 难度选择器有三档',
+        !!dsel && dsel.options.length === 3, dsel ? String(dsel.options.length) : '没有');
+      check('[计时] 当前难度是困难', !!dsel && dsel.value === 'hard', dsel ? dsel.value : '');
+      check('[计时] 困难难度下不给提示（按钮禁用）',
+        D.getElementById('btnHint').disabled === true);
+
+      const bar = D.getElementById('modeBar');
+      check('[计时] 信息条显示了计时', !!bar && !!bar.querySelector('#mbTimer'),
+        bar ? bar.textContent : '');
+      check('[计时] 信息条显示了最佳成绩（还没成绩时说清楚）',
+        !!bar && bar.textContent.indexOf('最佳') >= 0, bar ? bar.textContent : '');
+
+      /* 切难度 → 必须重新加载（模式/难度都是创建时读一次） */
+      let navigated = false;
+      const win = D.defaultView;
+      const before = win.location.href;
+      check('[计时] 切难度前的 URL 带着 mode/diff 参数',
+        before.indexOf('mode=timed') >= 0 && before.indexOf('diff=hard') >= 0, before);
+      frame.remove();
+    }
+
+    /* ================================================================
+     * 五、儿童模式：简化统计
+     * ============================================================== */
+    section('5 · 儿童模式');
+    {
+      const { frame, W, D } = await openMode('?map=chengdu&mode=kids');
+      const errs = watchErrors(W);
+      check('[儿童] body 上打了模式标记', D.documentElement.getAttribute('data-mode') === 'kids');
+      check('[儿童] 打了"简化统计"标记', D.documentElement.getAttribute('data-simple-stats') === '1');
+      const bar = D.getElementById('modeBar');
+      check('[儿童] 信息条用大白话说进度',
+        !!bar && /已经放好|还剩/.test(bar.textContent), bar ? bar.textContent : '');
+      check('[儿童] 不计分：得分那一格被隐藏',
+        (() => {
+          const el = D.querySelector('.stat-score');
+          if (!el) return true;                      // 这个宿主页没有也就无所谓
+          return D.defaultView.getComputedStyle(el).display === 'none';
+        })());
+      check('[儿童] 连击提示被隐藏',
+        (() => {
+          const el = D.getElementById('comboChip') || D.querySelector('.combo-chip');
+          if (!el) return true;
+          return D.defaultView.getComputedStyle(el).display === 'none';
+        })());
+      check('[儿童] 提示按钮可用（这个模式提示不限）',
+        D.getElementById('btnHint').disabled === false);
+      check('[儿童] 运行期没有未捕获异常', errs.length === 0, errs.join(' | '));
+      frame.remove();
+    }
+
+    /* ================================================================
+     * 六、本地双人对战
+     * ============================================================== */
+    section('6 · 本地双人对战');
+    {
+      const { frame, W, D } = await openMode('?map=chengdu&mode=duel');
+      const errs = watchErrors(W);
+      check('[双人] body 上打了模式标记', D.documentElement.getAttribute('data-mode') === 'duel');
+      const bar = D.getElementById('modeBar');
+      const txt = bar ? bar.textContent : '';
+      check('[双人] 信息条显示"轮到谁"', txt.indexOf('轮到') >= 0, txt);
+      check('[双人] 信息条显示玩家 1', txt.indexOf('玩家 1') >= 0, txt);
+      check('[双人] 信息条显示玩家 2', txt.indexOf('玩家 2') >= 0, txt);
+      check('[双人] 开局比分是 0 : 0',
+        (bar && bar.innerHTML.indexOf('>0<') >= 0), txt);
+
+      /* 点「对战说明」看规则 */
+      const more = D.getElementById('mbMore');
+      check('[双人] 有「对战说明」入口', !!more);
+      if (more) {
+        more.click();
+        await sleep(120);
+        const panel = D.getElementById('modePanel');
+        check('[双人] 对战说明能打开', !!panel && !panel.hidden);
+        check('[双人] 说明里写了"不需要联网"',
+          !!panel && panel.textContent.indexOf('不需要联网') >= 0,
+          panel ? panel.textContent.slice(0, 120) : '');
+        const c = panel && panel.querySelector('.sp-close');
+        if (c) c.click();
+        await sleep(60);
+        check('[双人] 说明面板能关掉', panel.hidden);
+      }
+      check('[双人] 运行期没有未捕获异常', errs.length === 0, errs.join(' | '));
+      frame.remove();
+    }
+
+    /* ================================================================
+     * 七、回归：hidden 真的隐藏 / 390px 不溢出 / a11y
+     * ============================================================== */
+    section('7 · 新增界面的回归检查');
+    {
+      /* hidden 必须真的隐藏：.map-picker/.daily-chip 等自带 display:flex，
+       * 类选择器优先级高于 UA 的 [hidden]{display:none} —— 踩过这个坑 */
+      const { frame, D } = await openMode('?map=china&mode=teach');
+      const hid = [];
+      ['diffPicker'].forEach((id) => {
+        const el = D.getElementById(id);
+        if (el && el.hidden) {
+          const disp = D.defaultView.getComputedStyle(el).display;
+          if (disp !== 'none') hid.push(id + '=' + disp);
+        }
+      });
+      check('[回归] 标了 hidden 的元素真的看不见（display:none）',
+        hid.length === 0, hid.join('、'));
+
+      /* a11y：模式信息条是个 live region，换手/计时变化能被读出来 */
+      const bar = D.getElementById('modeBar');
+      check('[回归] 模式信息条是 aria-live 区域',
+        !!bar && bar.getAttribute('aria-live') === 'polite',
+        bar ? String(bar.getAttribute('aria-live')) : '');
+      check('[回归] 模式选择器有无障碍标签',
+        !!D.getElementById('modeSelect').getAttribute('aria-label'));
+
+      /* 键盘可达：选中一块碎片后，空位应当变成可 Tab 聚焦 */
+      const piece = D.querySelector('.piece');
+      if (piece) {
+        piece.focus();
+        piece.dispatchEvent(new D.defaultView.KeyboardEvent('keydown',
+          { key: 'Enter', bubbles: true }));
+        await sleep(100);
+        const tabbable = [...D.querySelectorAll('.slot path')].filter((p) => p.getAttribute('tabindex') === '0');
+        check('[回归] 键盘选中碎片后，空位变成可 Tab 聚焦（纯键盘能玩）',
+          tabbable.length > 0, '可聚焦空位=' + tabbable.length);
+        check('[回归] 空位有无障碍标签',
+          tabbable.length > 0 && !!tabbable[0].getAttribute('aria-label'));
+      }
+      frame.remove();
+    }
+
+    /* 390px 窄屏：先确认"改动前就有的基线"——普通模式 + 中国图（7 个关卡标签）。
+     * 加这一条是因为：新增的模式界面可能是**新**的溢出源，
+     * 也可能只是把一个**早就存在**的溢出暴露了出来。分不清这两者就没法归因。 */
+    {
+      const { frame, D } = await openMode('?map=china', 390, 844);
+      check('[窄屏基线] 普通模式 + 中国图在 390px 下不横向溢出（改动前就应当成立）',
+        D.body.scrollWidth <= 391,
+        'scrollWidth=' + D.body.scrollWidth + ' ｜ 祖先链：' + chain(D));
+      frame.remove();
+    }
+
+    /* 390px 窄屏：新增的模式信息条不能把页面撑出横向滚动 */
+    {
+      const { frame, D } = await openMode('?map=china&mode=teach', 390, 844);
+      const vw = 390;
+      check('[窄屏] 教学模式在 390px 下就绪', !!D.documentElement.getAttribute('data-map-ready'));
+      /* 溢出诊断：不只报"溢出了"，还要报**是谁**溢出的。
+       * 排查横向溢出时最难的一步就是"找到那个宽的"，让测试直接说出来。 */
+      function chain() {
+        const parts = [];
+        const w = (el, label) => {
+          if (!el) return;
+          const r = el.getBoundingClientRect();
+          parts.push(label + '=' + Math.round(r.width));
+        };
+        w(D.body, 'body');
+        w(D.querySelector('.app'), '.app');
+        w(D.querySelector('.topbar'), '.topbar');
+        w(D.querySelector('.brand'), '.brand');
+        w(D.getElementById('mapbar'), '#mapbar');
+        w(D.querySelector('.mapbar-row'), '.mapbar-row');
+        w(D.getElementById('modeBar'), '.mode-bar');
+        w(D.querySelector('.level-tabs'), '.level-tabs');
+        w(D.querySelector('.mapbar-levels'), '.mapbar-levels');
+        w(D.querySelector('.stage'), '.stage');
+        w(D.querySelector('.board-column'), '.board-column');
+        w(D.querySelector('.tray-panel'), '.tray-panel');
+        /* 计算样式：光看宽度分不清"是谁下不去"，把关键属性也打出来 */
+        const cs = (sel, label) => {
+          const el = D.querySelector(sel);
+          if (!el) return;
+          const g = D.defaultView.getComputedStyle(el);
+          parts.push(label + '{w:' + g.width + ' minW:' + g.minWidth +
+            ' flex:' + g.flexBasis + '/' + g.flexGrow + '/' + g.flexShrink +
+            ' ov:' + g.overflowX + '}');
+        };
+        cs('.topbar', 'topbarCS');
+        cs('#mapbar', 'mapbarCS');
+        cs('.mapbar-row', 'row1CS');
+        cs('.mapbar-levels', 'row2CS');
+        cs('.level-tabs', 'tabsCS');
+        cs('.brand', 'brandCS');
+        cs('#modeSelect', 'modeSelCS');
+        cs('.breadcrumb', 'crumbCS');
+        const mb = D.getElementById('mapbar');
+        if (mb) {
+          [...mb.children].forEach((c, i) => {
+            parts.push('mapbar.child' + i + '=' + Math.round(c.getBoundingClientRect().width) +
+              '(' + (c.id || String(c.className).split(' ')[0]) + ')');
+          });
+        }
+        const r1 = D.querySelector('.mapbar-row');
+        if (r1) {
+          [...r1.children].forEach((c, i) => {
+            parts.push('row1.child' + i + '=' + Math.round(c.getBoundingClientRect().width) +
+              '(' + (c.id || String(c.className).split(' ')[0]) + ')');
+          });
+        }
+        return parts.join(' ');
+      }
+      function widest() {
+        const bad = [];
+        [...D.querySelectorAll('*')].forEach((el) => {
+          const r = el.getBoundingClientRect();
+          if (r.width > 0 && r.right > vw + 1) {
+            const id = el.id ? '#' + el.id : '';
+            const cls = el.className && typeof el.className === 'string'
+              ? '.' + el.className.trim().split(/\s+/).slice(0, 2).join('.') : '';
+            bad.push(el.tagName.toLowerCase() + id + cls + '→' + Math.round(r.right) +
+              '(w' + Math.round(r.width) + ')');
+          }
+        });
+        bad.sort((a, b) => Number(b.split('→')[1].split('(')[0]) - Number(a.split('→')[1].split('(')[0]));
+        return bad.slice(0, 6);
+      }
+      const over = [];
+      ['.mode-bar', '#mapbar', '.topbar', '#modeSelect'].forEach((sel) => {
+        const el = D.querySelector(sel);
+        if (!el) return;
+        const r = el.getBoundingClientRect();
+        if (r.right > vw + 1) over.push(sel + ' → ' + Math.round(r.right));
+      });
+      check('[窄屏] 模式信息条 / 导航 / 模式选择器都没溢出 390px',
+        over.length === 0, over.join('、') +
+        ' ｜ 祖先链宽度：' + chain(D) +
+        ' ｜ 最宽的元素：' + widest().join(' , '));
+      check('[窄屏] 页面没有横向溢出',
+        D.body.scrollWidth <= vw + 1, 'scrollWidth=' + D.body.scrollWidth + ' vs ' + vw);
+      frame.remove();
+    }
+
+    /* prefers-reduced-motion：新增动画必须全部被尊重 */
+    {
+      const { frame, D } = await openMode('?map=chengdu&mode=duel');
+      const found = [];
+      try {
+        [...D.styleSheets].forEach((ss) => {
+          [...ss.cssRules].forEach((r) => {
+            if (r.media && String(r.media.mediaText).indexOf('prefers-reduced-motion') >= 0) {
+              found.push(String(r.cssText).slice(0, 200));
+            }
+          });
+        });
+      } catch (e) { /* 跨源读不了就算了 */ }
+      const blob = found.join('\n');
+      check('[动效] 存在 prefers-reduced-motion 规则块', found.length > 0, String(found.length));
+      check('[动效] 新增的 mode-bar 动画被关掉', blob.indexOf('mode-bar') >= 0,
+        blob.slice(0, 200));
+      frame.remove();
+    }
+
+    report({ passed: passed, failed: failed, failures: failures, log: out.join('\n') });
+  }
+
+  run().catch((err) => {
+    failed++;
+    failures.push('测试脚本自身异常');
+    out.push('\n!! 测试执行出错：' + (err && err.stack ? err.stack : err));
+    report({ passed: passed, failed: failed, failures: failures, log: out.join('\n') });
+  });
+})();
+</script>
+</body>
+</html>

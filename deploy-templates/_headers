@@ -1,0 +1,46 @@
+# =====================================================================
+# Cloudflare Pages 响应头模板
+# ---------------------------------------------------------------------
+# 用法：把这个文件复制到部署根目录（和 index.html 同级），
+#       Cloudflare Pages 会自动读取并应用。文件名就叫 `_headers`（无扩展名）。
+#
+# 这份是**保守版**：除了体积最大、改动最少的边界数据外，一律要求回源校验。
+# 为什么保守：站点是纯静态、没有构建 hash 的文件名，同一个 URL 的内容
+# 会随部署变化。激进缓存会让老访客一直看到旧版本（我们踩过这个：
+# 部署完自己打开是旧页面，以为没部署成功）。
+# =====================================================================
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: SAMEORIGIN
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), interest-cohort=()
+
+# HTML 永远回源校验：保证"部署完刷新就能看到新版"
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+# 边界数据体积最大（单张几百 KB ~ 1.6MB）、改动频率最低，给一天缓存。
+# 换来的是省流量；代价是数据更新后最多一天才生效。
+# ⚠ 想保证"改完立刻生效"，把这一段删掉或改成 max-age=0。
+/js/maps/*.geo.js
+  Cache-Control: public, max-age=86400
+
+/js/*.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+/css/*.css
+  Cache-Control: public, max-age=0, must-revalidate
+
+
+# =====================================================================
+# 激进版（可选，只在"内容已经稳定、不再频繁更新"时用）
+# 注意：文件名没有内容 hash，所以部署新版本后老访客可能长时间看到旧版。
+# 启用前请想清楚，并在需要时手动刷新（Cmd/Ctrl + Shift + R）。
+# =====================================================================
+# /js/maps/*.geo.js
+#   Cache-Control: public, max-age=31536000, immutable
+# /js/*.js
+#   Cache-Control: public, max-age=31536000, immutable
+# /css/*.css
+#   Cache-Control: public, max-age=31536000, immutable

@@ -53,6 +53,10 @@ const SUITES = [
    * 超时按"批"算，一批 60 张 ≈ 90 s，给 5 分钟余量足够。 */
   { name: '多地图冒烟 · 登记册里的每一张地图', page: 'map-smoke.html', timeoutMs: 300000,
     batchable: true },
+  /* 玩法模式是**页面级**行为（引擎配置创建时读一次，换模式要重新加载页面），
+   * 跟"哪张地图"无关，所以单独一个套件、固定用 china + chengdu 两张图，
+   * 把六套模式各自的界面与引擎开关都验一遍。 */
+  { name: '玩法模式 · 六套模式的界面与开关', page: 'modes-test.html', timeoutMs: 300000 },
 ];
 
 /* ---------- 命令行开关（诊断用）----------
@@ -60,6 +64,7 @@ const SUITES = [
  * 排查某几张地图时不该被迫跑全量，所以给两个开关：
  *   --only-maps=beijing,dongcheng   只跑这几张地图（透传给 map-smoke.html 的 ?maps=）
  *   --only-suite=smoke              只跑冒烟套件（跳过成都回归/引擎套件）
+ *   --only-suite=modes              只跑玩法模式套件（六套模式，固定用 china+chengdu）
  *   --only-suite=offline            只跑离线检查（不启浏览器，秒级）
  *   --smoke-batch=60                冒烟每批多少张地图（默认 60；给 0 以外的小值方便调试）
  *   --verbose                       把通过的日志也全打出来（默认只打失败套件的日志）
@@ -304,6 +309,10 @@ async function main() {
    * 它的两类问题都不会报错、只会静默出错：文案漏项（卡片空白）与
    * registry 悬空 children（面包屑点过去 404）。 */
   const chinaProvResult = runOfflineTest('test-china-provinces.js');
+  /* 玩法模式的规则全在 js/modes.js 里（哪个模式藏地名、给几次提示、
+   * 成绩怎么算、对战怎么轮、报告长什么样）。算错了页面不会崩，
+   * 只会安静地给出错误结果，所以每条规则都要被断言钉住。 */
+  const modesResult = runOfflineTest('test-modes.js');
   console.log('  ' + (wktResult.failed ? '✘' : '✔') +
     ' WKT → GeoJSON 转换（' + wktResult.passed + ' 通过 / ' + wktResult.failed + ' 失败）' +
     (wktResult.failed ? '：' + wktResult.failures.join('、') : ''));
@@ -401,6 +410,7 @@ async function main() {
     if (ONLY_SUITE && ONLY_SUITE !== 'all') {
       const want = ONLY_SUITE === 'smoke' ? 'map-smoke.html'
         : ONLY_SUITE === 'selftest' ? 'selftest.html'
+        : ONLY_SUITE === 'modes' ? 'modes-test.html'
         : ONLY_SUITE === 'engine' ? 'engine-test.html' : null;
       if (want && suite.page !== want) continue;
       if (!want) continue;   // offline 等未知值 → 不跑任何浏览器套件
@@ -418,9 +428,9 @@ async function main() {
 
   // ---- 汇总 ----
   const totalPassed = results.reduce((n, r) => n + (r.result.passed || 0), 0) +
-    wktResult.passed + mapsResult.passed + verifyResult.passed + areaPickResult.passed + progressResult.passed + shareResult.passed + scoreResult.passed + contributeResult.passed + bundleResult.passed + chinaProvResult.passed;
+    wktResult.passed + mapsResult.passed + verifyResult.passed + areaPickResult.passed + progressResult.passed + shareResult.passed + scoreResult.passed + contributeResult.passed + bundleResult.passed + chinaProvResult.passed + modesResult.passed;
   const totalFailed = results.reduce((n, r) => n + (r.result.failed || 0), 0) +
-    wktResult.failed + mapsResult.failed + verifyResult.failed + areaPickResult.failed + progressResult.failed + shareResult.failed + scoreResult.failed + contributeResult.failed + bundleResult.failed + chinaProvResult.failed;
+    wktResult.failed + mapsResult.failed + verifyResult.failed + areaPickResult.failed + progressResult.failed + shareResult.failed + scoreResult.failed + contributeResult.failed + bundleResult.failed + chinaProvResult.failed + modesResult.failed;
   const broken = results.filter((r) => r.result.crashed).map((r) => r.suite.name);
 
   console.log('\n══════════════ 汇总 ══════════════');
@@ -434,6 +444,7 @@ async function main() {
   console.log(`  ${contributeResult.failed ? '✘' : '✔'} 离线检查 · 众包纠错文案与链接：${contributeResult.passed} 通过 / ${contributeResult.failed} 失败`);
   console.log(`  ${bundleResult.failed ? '✘' : '✔'} 离线检查 · 单文件离线打包：${bundleResult.passed} 通过 / ${bundleResult.failed} 失败`);
   console.log(`  ${chinaProvResult.failed ? '✘' : '✔'} 离线检查 · 中国图省级条目与链接：${chinaProvResult.passed} 通过 / ${chinaProvResult.failed} 失败`);
+  console.log(`  ${modesResult.failed ? '✘' : '✔'} 离线检查 · 玩法模式规则：${modesResult.passed} 通过 / ${modesResult.failed} 失败`);
   results.forEach(({ suite, result }) => {
     const mark = result.crashed ? '✘ 未收到结果' : (result.failed ? '✘' : '✔');
     const secs = result.elapsedMs ? `（${(result.elapsedMs / 1000).toFixed(1)}s）` : '';

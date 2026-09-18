@@ -27,6 +27,16 @@
 
   /** 当前地图 id。boot() 里赋值；分享/进度等跨函数逻辑要用到它 */
   let CURRENT_ID = DEFAULT_MAP;
+  /* 玩法模式（js/modes.js 是纯逻辑层）。MODE_DOC 是整份本机存档：
+   * 模式偏好 + 各图最佳成绩 + 错题集 + 对战战绩 + 教学选区。 */
+  let MODE_DOC = null;
+  let CURRENT_MODE = 'normal';
+  let CURRENT_DIFF = 'normal';
+  /* 本局的临时统计（不进存档，换关就重来）：
+   * perTry 用来生成练习报告的"逐项明细"，duel 是双人回合状态。 */
+  let SESSION = null;
+  /* 教学模式裁剪前的完整关卡列表（"选要练的行政区"面板要按它列全部） */
+  let FULL_LEVELS = null;
 
   function showFatal(message) {
     /* 出错时也要把骨架屏摘掉，否则它会盖住错误提示 */
@@ -36,6 +46,60 @@
   }
 
   /** URL 里指定的地图 id，没有就用默认值 */
+  /* ==================================================================
+   * 地图包校验（错误边界加固）
+   * ------------------------------------------------------------------
+   * 地图是按需注入脚本加载的：脚本 404、geo 文件被截断、关卡字段写错，
+   * 都可能让引擎拿着半成品配置去画图，然后**静默卡死**（白屏、控制台只有
+   * 一句看不懂的类型错误）。这里在交给引擎之前先验一遍必填项，
+   * 不合法就给出"哪张图、缺什么、怎么修"的人话提示。
+   * ================================================================ */
+  function validateConfig(config, id) {
+    const where = '地图「' + id + '」';
+    const pkg = global.MAP_PACKAGES && global.MAP_PACKAGES[id];
+
+    if (!config) {
+      return { ok: false, reason: where + '的脚本没有登记到 window.MAP_PACKAGES。' +
+        '检查 js/maps/' + id + '.js 末尾是否执行了 PACKAGES["' + id + '"] = CONFIG；' +
+        '以及 js/maps/registry.js 里这张图的 dir 是否正确。' };
+    }
+    const geo = config.geo;
+    if (!geo || !Array.isArray(geo.features)) {
+      return { ok: false, reason: where + '的边界数据（geo）缺失或格式不对：' +
+        '期望 { type:"FeatureCollection", features:[…] }，实际拿到 ' +
+        (geo === undefined ? 'undefined' : typeof geo) + '。' +
+        '重新生成：node tools/add-map.js --adcode=<6位> --name=' + id + ' --parent=<父id>' };
+    }
+    if (!geo.features.length) {
+      return { ok: false, reason: where + '的边界数据是空的（features 长度 0）。' +
+        '多半是 .geo.js 生成到一半失败或文件被截断，重新生成一次即可。' };
+    }
+    if (!Array.isArray(config.levels) || !config.levels.length) {
+      return { ok: false, reason: where + '没有关卡（levels 为空）。' +
+        '检查 js/maps/' + (id === 'china' ? 'china' : id) + '.data.js 里的 LEVELS 是否有 adcodes。' };
+    }
+    const emptyLevel = config.levels.filter((l) => !Array.isArray(l.adcodes) || !l.adcodes.length);
+    if (emptyLevel.length) {
+      return { ok: false, reason: where + '有 ' + emptyLevel.length + ' 个关卡是空的（adcodes 长度 0）：' +
+        emptyLevel.map((l) => l.id || '(无 id)').join('、') + '。' };
+    }
+    /* 关卡里的 adcode 必须在 geo 里存在，否则那块永远拼不上（静默卡住） */
+    const have = new Set(geo.features.map((f) => Number(f.properties.adcode)));
+    const ghost = [];
+    config.levels.forEach((l) => (l.adcodes || []).forEach((a) => {
+      if (!have.has(Number(a))) ghost.push(l.id + ':' + a);
+    }));
+    if (ghost.length) {
+      return { ok: false, reason: where + '的关卡里出现了 geo 里不存在的 adcode（' +
+        ghost.slice(0, 6).join('、') + '）—— 这些块永远拼不上。' +
+        '多半是 .data.js 的 LEVELS 与 .geo.js 不同源，两边对不上。' };
+    }
+    if (!pkg) {
+      return { ok: false, reason: where + '注册到了 MAP_PACKAGES 但取不到，可能被别的脚本覆盖了。' };
+    }
+    return { ok: true };
+  }
+
   function pickMapId() {
     let fromUrl = null;
     try {
@@ -75,6 +139,477 @@
     } catch (e) {
       /* CustomEvent 不可用时忽略：属性标记已经足够 */
     }
+  }
+
+  /* ==================================================================
+   * 玩法模式（宿主层）· 逻辑全在 js/modes.js，这里只负责接线
+   * ------------------------------------------------------------------
+   * 六套模式：普通 / 计时挑战 / 教学学习 / 考试刷题 / 儿童模式 / 本地双人对战。
+   * 它们共用同一套引擎，区别只是 js/modes.js 翻译出来的几个开关。
+   * ================================================================ */
+
+  const M = () => global.MapModes;
+
+  function initModes() {
+    if (!M()) return;
+    MODE_DOC = M().load();
+    /* URL 参数优先于存档：?mode=exam 方便老师直接把某套模式的链接发给学生。
+     * 这也是"零成本传播"的一部分 —— 老师不用口头教学生怎么点。 */
+    const q = new URLSearchParams(global.location.search);
+    const mq = q.get('mode');
+    if (mq && M().isModeId(mq)) CURRENT_MODE = mq;
+    else CURRENT_MODE = MODE_DOC.mode;
+    const dq = q.get('diff');
+    CURRENT_DIFF = (dq && M().DIFFICULTIES.some((d) => d.id === dq)) ? dq : MODE_DOC.difficulty;
+
+    /* 大屏适配（教学用）也能从 URL 直接开：?big=1 */
+    if (q.get('big') === '1') document.documentElement.setAttribute('data-bigscreen', '1');
+
+    SESSION = newSession();
+    renderModeSelect();
+    bindModeUI();
+    applyModeChrome();
+  }
+
+  /** 教学模式：按 ?pick= 裁剪本张图的关卡（只影响本次会话，不改源数据文件） */
+  function applyTeachPick(cfg) {
+    if (!cfg || !Array.isArray(cfg.levels)) return;
+    /* 完整列表只有教学模式要用（选择面板）；其它模式不必留 */
+    if (CURRENT_MODE !== 'teach') return;
+    FULL_LEVELS = cfg.levels.map((l) => ({ id: l.id, name: l.name, adcodes: l.adcodes.slice() }));
+
+    const raw = new URLSearchParams(global.location.search).get('pick');
+    if (!raw) return;
+    const want = raw.split(',').map((x) => Number(x.trim())).filter((x) => x > 0);
+    if (!want.length) return;
+
+    /* 把选中的行政区重新编成"一关"。刻意只留一关：
+     * 自选练习的意图就是"把这一批练熟"，再分关反而添乱。 */
+    const picked = cfg.levels
+      .reduce((acc, l) => acc.concat(l.adcodes), [])
+      .filter((a) => want.indexOf(Number(a)) >= 0);
+    if (!picked.length) return;
+    cfg.levels = [{
+      id: 'pick',
+      name: '自选练习 · ' + picked.length + ' 个行政区',
+      short: '自选',
+      color: (cfg.levels[0] && cfg.levels[0].color) || '#3fb08a',
+      blurb: '这是老师/自己挑出来的一组行政区。想换一批，点上面的「选要练的行政区」。',
+      adcodes: picked,
+    }];
+  }
+
+  function newSession() {
+    return { perTry: {}, duel: M().duelInit(), startedAt: Date.now() };
+  }
+
+  /** 把当前模式写回存档（切模式/切难度时调） */
+  function persistModes() {
+    if (!MODE_DOC) return;
+    MODE_DOC.mode = CURRENT_MODE;
+    MODE_DOC.difficulty = CURRENT_DIFF;
+    M().save(MODE_DOC);
+  }
+
+  function renderModeSelect() {
+    const sel = document.getElementById('modeSelect');
+    if (sel) {
+      sel.innerHTML = M().MODES.map((m) =>
+        '<option value="' + m.id + '">' + m.name + '</option>').join('');
+      sel.value = CURRENT_MODE;
+    }
+    const dsel = document.getElementById('diffSelect');
+    if (dsel) {
+      dsel.innerHTML = M().DIFFICULTIES.map((d) =>
+        '<option value="' + d.id + '">' + d.name + ' · ' + d.desc + '</option>').join('');
+      dsel.value = CURRENT_DIFF;
+    }
+  }
+
+  function bindModeUI() {
+    const sel = document.getElementById('modeSelect');
+    if (sel && !sel.dataset.bound) {
+      sel.dataset.bound = '1';
+      sel.addEventListener('change', () => {
+        CURRENT_MODE = sel.value;
+        persistModes();
+        /* 模式会影响引擎配置（藏不藏地名、给不给提示、关不关动画），
+         * 而引擎配置是创建时读一次的。所以**换模式 = 重新加载这一页**，
+         * 而不是运行时改配置 —— 这样引擎不必支持"热切换"，
+         * 也不会出现"改了一半、状态不一致"的中间态。 */
+        const u = new URL(global.location.href);
+        u.searchParams.set('mode', CURRENT_MODE);
+        u.searchParams.set('diff', CURRENT_DIFF);
+        global.location.href = u.toString();
+      });
+    }
+    const dsel = document.getElementById('diffSelect');
+    if (dsel && !dsel.dataset.bound) {
+      dsel.dataset.bound = '1';
+      dsel.addEventListener('change', () => {
+        CURRENT_DIFF = dsel.value;
+        persistModes();
+        const u = new URL(global.location.href);
+        u.searchParams.set('mode', CURRENT_MODE);
+        u.searchParams.set('diff', CURRENT_DIFF);
+        global.location.href = u.toString();
+      });
+    }
+  }
+
+  /** 模式带来的"页面级"变化：难度选择器显隐、body 上的模式标记 */
+  function applyModeChrome() {
+    const flags = M().uiFlags(CURRENT_MODE);
+    const dp = document.getElementById('diffPicker');
+    if (dp) dp.hidden = !flags.difficulty;
+    /* 模式标记挂到 <html> 上，CSS 就能按模式微调（儿童模式简化统计、
+     * 考试模式去动画、教学大屏放大字号）—— 不改 JS 结构。 */
+    document.documentElement.setAttribute('data-mode', CURRENT_MODE);
+    if (flags.simpleStats) document.documentElement.setAttribute('data-simple-stats', '1');
+    else document.documentElement.removeAttribute('data-simple-stats');
+  }
+
+  /* ---------------- 放置回调：回合 / 错题集 / 练习明细 ---------------- */
+
+  /** 引擎每放一块都会调这里（正确与否都会）。引擎只报"发生了什么"。 */
+  function onPlacement(p) {
+    if (!M()) return;
+    const flags = M().uiFlags(CURRENT_MODE);
+    const rec = SESSION.perTry[p.adcode] || (SESSION.perTry[p.adcode] = { tries: 0, correct: false });
+    rec.tries += 1;
+    if (p.correct) rec.correct = true;
+
+    /* 错题集：记的是"玩家没能放对的那一块"（p.adcode 是碎片本身，
+     * 也就是正确位置还没被认出来的那个行政区）。这正是要重点练的。 */
+    if (!p.correct) {
+      M().recordWrong(MODE_DOC, CURRENT_ID, [p.adcode]);
+      M().save(MODE_DOC);
+    }
+
+    /* 双人对战：每放一块算一轮，不管对错都换手 */
+    if (flags.duel) {
+      SESSION.duel = M().duelAfterTurn(SESSION.duel, !!p.correct);
+      renderModeBar();
+      flashTurnOwner(p.correct);
+    } else {
+      renderModeBar();
+    }
+  }
+
+  /** 换手时给个视觉提示：谁刚动过手 */
+  function flashTurnOwner(correct) {
+    const bar = document.getElementById('modeBar');
+    if (!bar) return;
+    bar.classList.remove('is-hit', 'is-miss');
+    void bar.offsetWidth;                 // 强制重排，让动画能重播
+    bar.classList.add(correct ? 'is-hit' : 'is-miss');
+  }
+
+  /* ---------------- 模式信息条 ---------------- */
+
+  function renderModeBar() {
+    const bar = document.getElementById('modeBar');
+    if (!bar || !M()) return;
+    const flags = M().uiFlags(CURRENT_MODE);
+    const eng = global.__ENGINE__;
+    const st = eng && eng.getState ? eng.getState() : {};
+    const parts = [];
+
+    if (flags.timer) {
+      parts.push('<span class="mb-item"><b>⏱</b> <span id="mbTimer">' +
+        M().fmtMs(st.elapsed || 0) + '</span></span>');
+    }
+    if (flags.best) {
+      const best = M().bestOf(MODE_DOC, CURRENT_ID, CURRENT_DIFF);
+      parts.push('<span class="mb-item">' +
+        (best ? '<b>🏆</b> 最佳 ' + M().fmtMs(best.ms) + '（' + M().difficultyById(CURRENT_DIFF).short + '）'
+              : '<b>🏆</b> 还没有最佳成绩') + '</span>');
+    }
+    if (flags.accuracy) {
+      const r = M().examResult((st.piecesLeft || 0) + (st.placed || []).length, st.tries || 0);
+      parts.push('<span class="mb-item"><b>🎯</b> 正确率 ' + r.accuracy + '%</span>');
+    }
+    if (flags.duel) {
+      const d = SESSION.duel;
+      const pa = M().playerById('a');
+      const pb = M().playerById('b');
+      parts.push('<span class="mb-item is-turn">轮到 <b>' +
+        M().playerById(d.turn).name + '</b></span>');
+      parts.push('<span class="mb-item">' + pa.name + ' <b>' + d.scores.a + '</b></span>');
+      parts.push('<span class="mb-item">' + pb.name + ' <b>' + d.scores.b + '</b></span>');
+    }
+    if (flags.teachTools) {
+      parts.push('<button type="button" class="mb-btn" id="mbPick">选要练的行政区</button>');
+      parts.push('<button type="button" class="mb-btn" id="mbReport">导出练习报告</button>');
+      parts.push('<button type="button" class="mb-btn" id="mbBig">' +
+        (document.documentElement.getAttribute('data-bigscreen') === '1' ? '退出大屏' : '课堂大屏') +
+        '</button>');
+    }
+    if (flags.simpleStats) {
+      parts.push('<span class="mb-item">已经放好 <b>' + (st.placed || []).length +
+        '</b> 块，还剩 <b>' + (st.piecesLeft || 0) + '</b> 块</span>');
+    }
+    if (flags.duel || flags.best || flags.accuracy || flags.teachTools) {
+      parts.push('<button type="button" class="mb-btn" id="mbMore">' +
+        (flags.duel ? '对战说明' : '看更多') + '</button>');
+    }
+
+    bar.hidden = parts.length === 0;
+    bar.innerHTML = parts.join('');
+    bindModeBarButtons();
+  }
+
+  function bindModeBarButtons() {
+    const on = (id, fn) => {
+      const el = document.getElementById(id);
+      if (el && !el.dataset.bound) { el.dataset.bound = '1'; el.addEventListener('click', fn); }
+    };
+    on('mbPick', openPickPanel);
+    on('mbReport', openReportPanel);
+    on('mbMore', openReportPanel);
+    on('mbBig', toggleBigScreen);
+  }
+
+  function toggleBigScreen() {
+    const cur = document.documentElement.getAttribute('data-bigscreen') === '1';
+    if (cur) document.documentElement.removeAttribute('data-bigscreen');
+    else document.documentElement.setAttribute('data-bigscreen', '1');
+    renderModeBar();
+  }
+
+  /* ---------------- 模式面板（选区 / 报告 / 错题清单 / 对战说明） ---------------- */
+
+  function openPanel(html) {
+    const panel = document.getElementById('modePanel');
+    if (!panel) return;
+    panel.hidden = false;
+    panel.innerHTML = html;
+    const close = panel.querySelector('.sp-close');
+    if (close) close.addEventListener('click', () => { panel.hidden = true; });
+    panel.addEventListener('click', (ev) => { if (ev.target === panel) panel.hidden = true; });
+    return panel;
+  }
+
+  const panelHead = (title) =>
+    '<div class="sp-head"><h2>' + title + '</h2>' +
+    '<button type="button" class="sp-close" aria-label="关闭">✕</button></div>';
+
+  /** 当前这张图本关的全部行政区（教学选区用） */
+  function currentDistricts() {
+    const eng = global.__ENGINE__;
+    const st = eng && eng.getState ? eng.getState() : {};
+    const entry = global.MapLoader.entry(CURRENT_ID) || {};
+    return { placed: st.placed || [], levelId: st.levelId };
+  }
+
+  /** 教学：勾选要练的行政区 */
+  function openPickPanel() {
+    const cfg = global.MAP_PACKAGES && global.MAP_PACKAGES[CURRENT_ID];
+    if (!cfg) return;
+    const all = [];
+    (FULL_LEVELS || cfg.levels || []).forEach((lv) => (lv.adcodes || []).forEach((a) => {
+      if (all.indexOf(a) < 0) all.push(a);
+    }));
+    const picked = M().getPick(MODE_DOC, CURRENT_ID).map(Number);
+    const nameOf = (ad) => {
+      const f = (cfg.geo && cfg.geo.features || []).filter((x) => Number(x.properties.adcode) === Number(ad))[0];
+      return f ? f.properties.name : String(ad);
+    };
+    const panel = openPanel(
+      panelHead('选要练的行政区') +
+      '<p class="rp-tip">勾选后点「套用」会重新加载本页，只保留选中的行政区。' +
+      '全不勾＝练全部（共 ' + all.length + ' 个）。</p>' +
+      '<div class="pk-list">' +
+      all.map((ad) =>
+        '<label class="pk-item"><input type="checkbox" value="' + ad + '"' +
+        (picked.indexOf(Number(ad)) >= 0 ? ' checked' : '') + '> ' + nameOf(ad) + '</label>'
+      ).join('') +
+      '</div>' +
+      '<div class="sp-actions">' +
+      '<button type="button" class="btn btn-primary" id="pkApply">套用</button>' +
+      '<button type="button" class="btn btn-ghost" id="pkAll">全选</button>' +
+      '<button type="button" class="btn btn-ghost" id="pkNone">全不选</button>' +
+      '</div>');
+    if (!panel) return;
+    panel.querySelector('#pkAll').addEventListener('click', () => {
+      panel.querySelectorAll('.pk-item input').forEach((i) => { i.checked = true; });
+    });
+    panel.querySelector('#pkNone').addEventListener('click', () => {
+      panel.querySelectorAll('.pk-item input').forEach((i) => { i.checked = false; });
+    });
+    panel.querySelector('#pkApply').addEventListener('click', () => {
+      const sel = [...panel.querySelectorAll('.pk-item input:checked')].map((i) => i.value);
+      M().setPick(MODE_DOC, CURRENT_ID, sel);
+      M().save(MODE_DOC);
+      /* 选区是"关卡内容"级别的改动，同样用重新加载来避免中间态 */
+      const u = new URL(global.location.href);
+      if (sel.length) u.searchParams.set('pick', sel.join(','));
+      else u.searchParams.delete('pick');
+      global.location.href = u.toString();
+    });
+  }
+
+  /** 计时/考试/双人：成绩、错题、说明 都在这一个面板里 */
+  function openReportPanel() {
+    const flags = M().uiFlags(CURRENT_MODE);
+    if (flags.duel) {
+      const d = SESSION.duel;
+      const pa = M().playerById('a');
+      const pb = M().playerById('b');
+      const hist = MODE_DOC.duel[CURRENT_ID] || { a: 0, b: 0 };
+      openPanel(
+        panelHead('本地双人对战') +
+        '<p class="rp-tip">同一台设备上两人轮流拼，每放一块换一次手。' +
+        '放对 +' + M().DUEL_HIT + ' 分，放错 -' + M().DUEL_MISS + ' 分（不低于 0）。' +
+        '<br>全程离线，不需要联网，也不需要账号。</p>' +
+        '<dl class="mb-facts">' +
+        '<div><dt>本局比分</dt><dd>' + pa.name + ' ' + d.scores.a + ' : ' + d.scores.b + ' ' + pb.name + '</dd></div>' +
+        '<div><dt>已进行</dt><dd>' + d.rounds + ' 轮</dd></div>' +
+        '<div><dt>这张图历史战绩</dt><dd>' + pa.name + ' ' + (hist.a || 0) + ' 胜 · ' +
+        pb.name + ' ' + (hist.b || 0) + ' 胜 · 平 ' + (hist.tie || 0) + '</dd></div>' +
+        '</dl>');
+      return;
+    }
+    if (flags.teachTools) { openTeachReport(); return; }
+    openBestPanel();
+  }
+
+  /** 教学：导出 Markdown 练习报告 */
+  function openTeachReport() {
+    const cfg = global.MAP_PACKAGES && global.MAP_PACKAGES[CURRENT_ID];
+    if (!cfg) return;
+    const eng = global.__ENGINE__;
+    const st = eng && eng.getState ? eng.getState() : {};
+    const entry = global.MapLoader.entry(CURRENT_ID) || {};
+    const all = [];
+    (cfg.levels || []).forEach((lv) => (lv.adcodes || []).forEach((a) => {
+      if (all.indexOf(a) < 0) all.push(a);
+    }));
+    const picked = M().getPick(MODE_DOC, CURRENT_ID).map(Number);
+    const scope = picked.length ? picked : all;
+    const byAd = {};
+    (cfg.geo && cfg.geo.features || []).forEach((f) => { byAd[Number(f.properties.adcode)] = f.properties.name; });
+    const items = scope.map((ad) => ({
+      name: byAd[Number(ad)] || String(ad),
+      area: (cfg.districts && cfg.districts[ad] && cfg.districts[ad].area) || null,
+      correct: !!(SESSION.perTry[ad] && SESSION.perTry[ad].correct),
+      tries: (SESSION.perTry[ad] && SESSION.perTry[ad].tries) || 0,
+    }));
+    const md = M().markdownReport({
+      mapName: entry.name || CURRENT_ID,
+      scopeLabel: M().scopeLabel(picked, all),
+      total: scope.length,
+      tries: st.tries || 0,
+      hints: st.hints || 0,
+      elapsed: st.elapsed || 0,
+      items: items,
+    });
+    const panel = openPanel(
+      panelHead('练习报告（Markdown）') +
+      '<p class="rp-tip">可以直接复制去备课，或下载成 .md 文件。</p>' +
+      '<textarea class="rp-text" id="teachMd" readonly rows="12"></textarea>' +
+      '<div class="sp-actions">' +
+      '<button type="button" class="btn btn-primary" id="teachCopy">复制</button>' +
+      '<button type="button" class="btn btn-ghost" id="teachDl">下载 .md</button>' +
+      '</div>' +
+      '<p class="sp-tip" id="teachTip">报告里含每个行政区的面积与作答结果</p>');
+    if (!panel) return;
+    panel.querySelector('#teachMd').value = md;
+    const tip = panel.querySelector('#teachTip');
+    panel.querySelector('#teachCopy').addEventListener('click', () => {
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(md).then(
+            () => { tip.textContent = '已复制到剪贴板'; },
+            () => { tip.textContent = '浏览器不让自动复制，请手动选中上面的文本'; });
+          return;
+        }
+      } catch (e) { /* 落到下面的兜底 */ }
+      tip.textContent = '请手动选中上面的文本复制';
+    });
+    panel.querySelector('#teachDl').addEventListener('click', () => {
+      const blob = new global.Blob([md], { type: 'text/markdown;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = global.URL.createObjectURL(blob);
+      a.download = '地图拼图-练习报告-' + (entry.name || CURRENT_ID) + '.md';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      tip.textContent = '已开始下载';
+    });
+  }
+
+  /** 计时 / 考试：最佳成绩、易错行政区、错题清单 */
+  function openBestPanel() {
+    const flags = M().uiFlags(CURRENT_MODE);
+    const eng = global.__ENGINE__;
+    const st = eng && eng.getState ? eng.getState() : {};
+    const entry = global.MapLoader.entry(CURRENT_ID) || {};
+    const best = M().bestOf(MODE_DOC, CURRENT_ID, CURRENT_DIFF);
+    const weak = M().weakSet(MODE_DOC, CURRENT_ID, 12);
+    const cfg = global.MAP_PACKAGES && global.MAP_PACKAGES[CURRENT_ID];
+    const byAd = {};
+    if (cfg) (cfg.geo && cfg.geo.features || []).forEach((f) => { byAd[Number(f.properties.adcode)] = f.properties.name; });
+
+    const rows = M().DIFFICULTIES.map((d) => {
+      const b = M().bestOf(MODE_DOC, CURRENT_ID, d.id);
+      return '<div><dt>' + d.name + '</dt><dd>' + (b ? M().fmtMs(b.ms) : '—') + '</dd></div>';
+    }).join('');
+
+    const res = M().examResult((st.piecesLeft || 0) + (st.placed || []).length, st.tries || 0);
+    const panel = openPanel(
+      panelHead(flags.accuracy ? '测验结果' : '个人最佳成绩') +
+      (flags.accuracy
+        ? '<dl class="mb-facts">' +
+          '<div><dt>正确率</dt><dd><b>' + res.accuracy + '%</b>（' + res.grade + '）</dd></div>' +
+          '<div><dt>放错次数</dt><dd>' + res.wrongTries + '</dd></div>' +
+          '<div><dt>本关用时</dt><dd>' + M().fmtMs(st.elapsed || 0) + '</dd></div>' +
+          '</dl>'
+        : '<dl class="mb-facts">' + rows + '</dl>') +
+      '<h3 class="mb-sub">易错行政区（薄弱练习集）</h3>' +
+      (weak.length
+        ? '<ol class="mb-weak">' + weak.map((w) =>
+            '<li>' + (byAd[Number(w.adcode)] || w.adcode) + ' <span>错了 ' + w.times + ' 次</span></li>').join('') + '</ol>'
+        : '<p class="rp-tip">还没有错题记录。这张图拼得不错。</p>') +
+      '<div class="sp-actions">' +
+      (weak.length ? '<button type="button" class="btn btn-ghost" id="mbClear">清空错题记录</button>' : '') +
+      '</div>');
+    if (!panel) return;
+    const clr = panel.querySelector('#mbClear');
+    if (clr) clr.addEventListener('click', () => {
+      M().clearWrong(MODE_DOC, CURRENT_ID);
+      M().save(MODE_DOC);
+      panel.hidden = true;
+      renderModeBar();
+    });
+  }
+
+  /* ---------------- 结算时的模式附加动作 ---------------- */
+
+  function onModeMapSolved(result) {
+    if (!M()) return;
+    const flags = M().uiFlags(CURRENT_MODE);
+
+    if (flags.best) {
+      const r = M().recordBest(MODE_DOC, CURRENT_ID, CURRENT_DIFF, {
+        ms: result.elapsed, tries: result.tries, hints: result.hints,
+      });
+      if (r.isNewBest) {
+        showBadgeToast([{ icon: '🏆', name: '新纪录', desc: '这张图的最佳成绩被刷新了' }]);
+      }
+      M().save(MODE_DOC);
+    }
+    if (flags.duel) {
+      SESSION.duel = M().duelFinish(SESSION.duel);
+      M().recordDuel(MODE_DOC, CURRENT_ID, SESSION.duel.winner);
+      M().save(MODE_DOC);
+      const w = SESSION.duel.winner;
+      showBadgeToast([{
+        icon: '🤝', name: w === 'tie' ? '平局！' : M().playerById(w).name + ' 获胜',
+        desc: SESSION.duel.scores.a + ' : ' + SESSION.duel.scores.b,
+      }]);
+    }
+    renderModeBar();
   }
 
   /* ================== 地图导航（宿主层） ==================
@@ -291,6 +826,7 @@
     const id = pickMapId();
     CURRENT_ID = id;
     bindReportChip();
+    initModes();
 
     /* 先把"这是哪张图"显示出来 —— 名字在 registry 里就有，不必等 geo 下载完。
      * 【为什么值得单独做】地图包是按需加载的，中国图的 geo 有 1.6MB；
@@ -851,6 +1387,21 @@
     try { input.focus(); } catch (e) { /* 移动端可能不给焦点，忽略 */ }
   }
 
+  /* 计时走一个轻量定时器，只更新信息条里那一格，
+   * 不整条重渲染（否则每秒重建 DOM，按钮会掉焦点）。 */
+  function startModeTicker() {
+    if (global.__MODE_TICKER__) clearInterval(global.__MODE_TICKER__);
+    global.__MODE_TICKER__ = setInterval(() => {
+      const bar = document.getElementById('modeBar');
+      const eng = global.__ENGINE__;
+      if (!bar || bar.hidden || !eng || !eng.getState) return;
+      const st = eng.getState();
+      if (st.solved) return;
+      const t = bar.querySelector('#mbTimer');
+      if (t) t.textContent = global.MapModes.fmtMs(st.elapsed || 0);
+    }, 1000);
+  }
+
   global.MapLoader.load(id)
       .then((config) => {
         /* 通关整张地图时记账 + 发成就。
@@ -858,6 +1409,8 @@
          * 这样引擎保持可移植，进度逻辑也能被别的宿主复用。 */
         config.onMapSolved = (result) => {
           recordMapSolved(config, id, result);
+          /* 模式相关的结算：刷新最佳成绩 / 结算双人比分 */
+          onModeMapSolved(result);
           /* 整张地图拼完 → 在结算画面上补一个"分享成绩"入口。
            * 【为什么在这里加按钮，而不是改引擎】按钮属于宿主层 UI；
            * 引擎只要在合适的时机回调一次，宿主接住就行（引擎保持可移植）。 */
@@ -873,11 +1426,35 @@
           }
         };
 
-        // 配置缺失时引擎内部会兜底并提示（不会抛）
+        /* 交给引擎之前先验一遍：不合法就给人话提示，别让它静默卡死 */
+        const v = validateConfig(config, id);
+        if (!v.ok) {
+          console.error('[地图拼图] 地图包校验失败 · ' + id, {
+            reason: v.reason,
+            config: config ? Object.keys(config) : null,
+            featureCount: config && config.geo && config.geo.features
+              ? config.geo.features.length : 0,
+            levelCount: config && config.levels ? config.levels.length : 0,
+          });
+          showFatal(v.reason + '<br><br>这是个数据文件的问题，不是浏览器的问题。');
+          return;
+        }
+
         // 注意 start() 不返回任何东西，实例要先接住再启动
         /* 纠错通道：引擎只管把"用户点了哪条资料"抛出来，
          * 具体怎么提交（Issue / 邮件 / 剪贴板）是宿主层的自由。
          * 这样引擎不依赖 js/contribute.js，将来挪到别的站点也能用。 */
+        /* 模式 → 引擎配置。引擎只认这几个通用开关（见 js/modes.js 的 engineOverrides），
+         * 所以这里注入的是"开关"而不是"模式名"。 */
+        Object.assign(config, global.MapModes.engineOverrides(CURRENT_MODE, CURRENT_DIFF));
+        config.onPlacement = onPlacement;
+        /* 教学模式的选区裁剪必须在**这里**：initModes() 跑在 boot() 开头，
+         * 那时候地图包还没加载（MAP_PACKAGES[CURRENT_ID] 是 undefined），
+         * 所以位置只能放在 load().then() 里、create() 之前。
+         * 顺带留一份完整关卡列表，供"选要练的行政区"面板使用 ——
+         * 否则面板看到的是裁过的列表，用户就再也加不回来了。 */
+        applyTeachPick(config);
+
         config.onReportIssue = (target) => {
           showReportPanel({
             mapId: id,
@@ -899,13 +1476,25 @@
         renderDaily();
         renderHometown();
         bindProgressChip();
+        renderModeBar();
+        startModeTicker();
 
         markReady(id);
       })
       .catch((err) => {
+        /* 脚本 404 / 语法错误都会落到这里。
+         * 控制台留结构化信息，页面上留人话 —— 排查的人两边都能用。 */
+        console.error('[地图拼图] 地图加载失败 · ' + id, {
+          message: err && err.message,
+          stack: err && err.stack,
+          hint: '检查 js/maps/registry.js 里这张图的 dir，以及三个包文件是否都在',
+        });
         showFatal(
-          '地图「' + id + '」没加载出来：' + err.message +
-          '<br>检查一下 js/maps/registry.js 里这张地图登记的脚本路径。'
+          '地图「' + id + '」没加载出来：' + (err && err.message ? err.message : '未知错误') +
+          '<br><br>最可能的两个原因：<br>' +
+          '① js/maps/registry.js 里这张图登记的路径不对（或文件被删了）<br>' +
+          '② 打开控制台看具体是哪个脚本 404 —— 通常是缺少 ' + id +
+          '.geo.js / .data.js / .js 三者之一。'
         );
       });
   }
