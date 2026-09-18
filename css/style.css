@@ -625,6 +625,29 @@ body {
   opacity: 1;
 }
 
+/* 拖拽中：所有**还没放上**的空位都加一圈可见光晕。
+ * 类名由引擎在拖拽开始时加上、结束时摘掉（见 engine.js 的 markOpenSlots）。
+ * 不用 :has() —— 它的支持面还不够宽，而拖拽恰恰是最不能"某些浏览器没效果"的地方。
+ *
+ * 【为什么用光晕而不是描边】托盘碎片有"短边下限"归一化，地图上的空位却是
+ * 真实比例。中国图第 5 关实测：澳门的空位只有 0.8×1.6px —— 默认那圈 1px
+ * 虚线在这个尺度上等于不存在，玩家根本看不见该往哪放。
+ * 模糊出来的光圈比 1px 细线在极小尺度下明显得多，而且对"点状"（澳门）
+ * 和"狭长形"（台湾）一视同仁。pointer-events 在 .slot 上本来就是 none，
+ * 这里只动视觉，不碰拖拽判定。 */
+.slot.is-open path {
+  opacity: 0.55;
+  filter: drop-shadow(0 0 5px rgb(var(--c-jade) / 0.95))
+          drop-shadow(0 0 11px rgb(var(--c-jade) / 0.55));
+}
+
+/* 当前命中的那个空位：光晕更强 + 主色 */
+.slot.is-open.is-candidate path {
+  opacity: 1;
+  filter: drop-shadow(0 0 7px var(--jade))
+          drop-shadow(0 0 16px rgb(var(--c-jade) / 0.8));
+}
+
 /* 放错位置时凹槽闪红 */
 .slot.is-wrong path {
   fill: rgb(var(--c-rose) / 0.2);
@@ -913,6 +936,69 @@ body {
 
 /* 回托盘 */
 .drag-ghost.is-returning { transition: transform 0.26s var(--ease-out), opacity 0.26s; }
+
+/* ============================ 拖拽放大镜 ============================ */
+/* JS 动态创建，只在"空位小到偏移也露不出来"时出现（见 engine.js 的 isTinyPiece）。
+ * 定位只用 transform（合成层）；镜内的图形靠换 viewBox 缩放，不触发重排。
+ *
+ * 【为什么需要它】幽灵偏移只能把"被挡住的"目标露出来，救不了"本来就看不见"的：
+ * 澳门在图上 0.8×1.6px，怎么让位都还是看不见。放大镜把指针附近真正放大，
+ * 目标才第一次变得可瞄准 —— 这是极小碎片唯一靠谱的解法。 */
+.drag-lens {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;                 /* 高于 .drag-ghost(999)，碎片本体不遮镜片 */
+  pointer-events: none;
+  border-radius: 50%;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.14s var(--ease-out);
+  border: 1px solid rgb(var(--c-jade) / 0.55);
+  /* 半透明底 + 深色垫底：既压住背后的页面，又还能透出一点位置感 */
+  background: rgb(8 24 20 / 0.72);
+  box-shadow: 0 10px 28px rgb(0 0 0 / 0.5), inset 0 0 18px rgb(0 0 0 / 0.35);
+  will-change: transform;
+}
+
+.drag-lens.is-on { opacity: 1; }
+
+.drag-lens svg { display: block; }
+
+/* 镜片里的空位几何。fill-rule 跟着地图那边走，避免带洞的形状画错 */
+.drag-lens .lens-slot {
+  fill: rgb(var(--c-jade) / 0.14);
+  stroke: rgb(var(--c-jade) / 0.75);
+  stroke-width: 0.6;
+  opacity: 0.85;
+}
+
+/* 镜片里"当前会命中"的那个空位 */
+.drag-lens .lens-slot.is-hit {
+  fill: rgb(var(--c-jade) / 0.34);
+  stroke: var(--jade);
+  stroke-width: 1.1;
+  opacity: 1;
+}
+
+/* 手里这块碎片的轮廓：虚线，方便肉眼比对形状 */
+.drag-lens .lens-carried {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 0.8;
+  stroke-dasharray: 3 2.5;
+  opacity: 0.75;
+}
+
+/* 窄屏降级：和拖拽幽灵同一套理由 —— 大面积 filter 每帧重算最费。
+ * 这里去掉毛玻璃与发光，只留描边（镜片本身很小，纯色完全够看）。 */
+@media (max-width: 620px) {
+  .drag-lens {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: 0 6px 16px rgb(0 0 0 / 0.55);
+  }
+}
 
 /* ============================ 侧边栏 ============================ */
 .sidebar {

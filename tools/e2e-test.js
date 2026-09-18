@@ -57,6 +57,13 @@ const SUITES = [
    * 跟"哪张地图"无关，所以单独一个套件、固定用 china + chengdu 两张图，
    * 把六套模式各自的界面与引擎开关都验一遍。 */
   { name: '玩法模式 · 六套模式的界面与开关', page: 'modes-test.html', timeoutMs: 300000 },
+  /* 极小碎片（真实数据）。为什么必须单独一套、且必须用真数据：
+   *   engine-test.html 的虚构 tiny-city 在屏幕上每块都接近满屏，
+   *   **永远不会触发放大镜**，只能守"不该触发时别触发"。
+   *   而"极小碎片到底放不放得进去"正是中国图上最要命的体验问题
+   *   （澳门空位实测 0.8×1.6px），必须拿真几何量。 */
+  { name: '极小碎片拖拽 · 真实中国图（澳门/香港/台湾）', page: 'tiny-drag-test.html',
+    timeoutMs: 180000 },
 ];
 
 /* ---------- 命令行开关（诊断用）----------
@@ -411,6 +418,7 @@ async function main() {
       const want = ONLY_SUITE === 'smoke' ? 'map-smoke.html'
         : ONLY_SUITE === 'selftest' ? 'selftest.html'
         : ONLY_SUITE === 'modes' ? 'modes-test.html'
+        : ONLY_SUITE === 'tiny' ? 'tiny-drag-test.html'
         : ONLY_SUITE === 'engine' ? 'engine-test.html' : null;
       if (want && suite.page !== want) continue;
       if (!want) continue;   // offline 等未知值 → 不跑任何浏览器套件

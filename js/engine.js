@@ -66,6 +66,40 @@
     const DRAG_THRESHOLD = 5;      // 移动超过这个距离才算"拖拽"，否则算"点击"
     const SNAP_MS = 300;           // 吸附动画时长，要和 CSS 里的 transition 对上
 
+    /* ---------- 拖拽手感：极小碎片的可见性与容错 ----------
+     * 【要解决的问题】托盘碎片有"短边下限"归一化（见 pieceSize），而地图上的空位
+     * 是**真实比例**。中国图第 5 关实测：澳门那块碎片在托盘里 47×78px，
+     * 而地图上的空位只有 **0.8×1.6px** —— 相差 59 倍。手指/鼠标往那儿一放，
+     * 空位被碎片完全盖住（遮挡率 100%），玩家根本看不见该往哪放。
+     *
+     * 三层配合，缺一层都不够：
+     *   ① 幽灵偏移：碎片不再正压着抓取点，往左上让开，露出下方的空位
+     *   ② 触屏校准：判定点相对触点再上移一点（手指遮在触点下方、视线在触点上方）
+     *   ③ 放大镜：空位小到"偏移也露不出来"时（澳门的 0.8px 就是），
+     *      在屏幕角落放大指针附近，把看不见的目标变成看得见
+     *
+     * 这些都是**通用体验参数**，不含任何具体地图数据，也不含模式分支。 */
+    const DRAGF = withDefaults(CONFIG.drag, {
+      /* 幽灵让位：屏幕上"碎片的短边"超过空位短边这么多倍才启动。
+       * 小于这个倍数时碎片本来就不怎么挡，硬让位反而显得"碎片乱跑"。 */
+      revealRatio: 2.2,
+      /* 启动后的让位量（屏幕像素）：往左上各让这么多，上限不超过碎片短边的一半 */
+      revealMin: 14,
+      revealMax: 64,
+      /* 触屏：判定点相对视觉触点再上移这么多（负值 = 往上） */
+      touchLift: 8,
+      /* 放大镜触发：空位短边的屏幕像素数小于这个值就启动 */
+      lensBelowPx: 30,
+      lensScale: 3,
+      lensSize: 132,
+      lensOffset: 26,   // 镜心相对触点的位移（左上），避开手指
+    });
+
+    /* 判断"这次拖拽是不是触屏/触控笔"。用 pointerType 而不是 UA sniffing：
+     * UA 会被魔改系统骗，而事件里的 pointerType 是浏览器自己填的事实。 */
+    const isTouchPointer = (ev) =>
+      !!ev && (ev.pointerType === 'touch' || ev.pointerType === 'pen');
+
     /* 配色：主色调由城市决定 —— 这就是"不同城市不同主色调"的入口 */
     const PALETTE = withDefaults(CONFIG.palette, {
       hueByLevel: {},    // 关卡 id → HSL 色相
@@ -906,27 +940,77 @@
 
       const pieceEl = state.pieces.get(adcode);
       const rect = pieceEl.getBoundingClientRect();
+      const touch = isTouchPointer(ev);
+      const rawX = ev.clientX;
+      const rawY = ev.clientY;
 
       // 指针相对碎片中心的偏移：拖动时保持它，碎片就不会"跳"到指针中心
       drag = {
         adcode,
         pieceEl,
-        startX: ev.clientX,
-        startY: ev.clientY,
-        offX: ev.clientX - (rect.left + rect.width / 2),
-        offY: ev.clientY - (rect.top + rect.height / 2),
+        startX: rawX,
+        startY: rawY,
+        offX: rawX - (rect.left + rect.width / 2),
+        offY: rawY - (rect.top + rect.height / 2),
         w: rect.width,
         h: rect.height,
         ghost: null,
         moved: false,
         hitAdcode: null,
-        lastX: ev.clientX,
-        lastY: ev.clientY,
+        lastX: rawX,
+        lastY: rawY,
+        /* 是否触屏：决定要不要做触点校准（见下面 CALIB_* 的推导） */
+        touch,
+        /* 抓取时的原始触点（未校准）。校准量一旦定下就不再随移动改变，
+         * 否则玩家会感觉"判定点在自己跑"。 */
+        rawStartX: rawX,
+        rawStartY: rawY,
+        /* 幽灵让位量（屏幕像素，正数 = 往左上让）。spawnGhost 时按碎片/空位
+         * 尺寸比算一次并锁定 —— 拖动中不变，避免视觉上"忽大忽小"。 */
+        shiftX: 0,
+        shiftY: 0,
+        /* 放大镜：只在空位小到偏移也露不出来时才创建 */
+        lens: null,
+        lensScale: 1,
       };
 
       document.addEventListener('pointermove', onPointerMove);
       document.addEventListener('pointerup', onPointerUp);
       document.addEventListener('pointercancel', onPointerUp);
+    }
+
+    /** 这次拖拽的判定点（真实落点）。
+     *  与"幽灵画在哪"分开：幽灵要让位、放大镜要看它附近，
+     *  但判定点绝不能跟着让位漂，否则会判定错位。
+     *
+     *  触屏额外做一次"上抬校准"：手指的接触面有大小，玩家瞄准的是**手指上方**
+     *  的落点而不是接触点本身；实测手指遮挡永远在触点下方。抬起量一旦定下就
+     *  不再随移动改变，否则会感觉"判定点在自己跑"。 */
+    function dragHitPoint() {
+      const lift = drag.touch ? DRAGF.touchLift : 0;
+      return {
+        x: drag.lastX - drag.offX,
+        y: drag.lastY - drag.offY - lift,
+      };
+    }
+
+    /** 幽灵要画在哪（= 判定点再往左上让开 shift） */
+    function dragGhostCenter() {
+      const p = dragHitPoint();
+      return { x: p.x - drag.shiftX, y: p.y - drag.shiftY };
+    }
+
+    /** 某个空位在屏幕上的尺寸（像素）。CTM 无旋转/镜像时，"地图坐标长度 ×
+     *  CTM 缩放"就是屏幕长度 —— 和 pieces 那边用 getBoundingClientRect 得到
+     *  的效果一致，但不必等布局，拖动中每帧算也不贵。 */
+    function slotScreenSize(adcode) {
+      const slot = state.slots.get(adcode);
+      const shape = shapes.get(adcode);
+      if (!slot || !slot.path || !shape) return null;
+      const m = slot.path.getScreenCTM();
+      if (!m) return null;
+      const scale = Math.sqrt(Math.abs(m.a * m.d - m.b * m.c)) || 0;
+      return { w: shape.bbox.w * scale, h: shape.bbox.h * scale, scale };
     }
 
     function onPointerMove(ev) {
@@ -948,9 +1032,26 @@
       requestAnimationFrame(() => {
         if (!drag) return;
         drag.rafPending = false;
-        applyGhostTransform();
-        updateCandidate();
+        /* 【每帧只解析一次落点】"幽灵画哪 / 哪个空位是候选 / 放大镜框哪"三件事
+         * 都要用到同一个命中结果。第一版各自算了一次，于是每帧要把全部空位
+         * 遍历三遍、还各做一轮 isPointInFill —— 中国图第一关有 34 个空位，
+         * 这是白白多出来的两倍开销。算一次传下去，行为完全一致。 */
+        const hit = resolveDrop(drag.lastX - drag.offX, drag.lastY - drag.offY);
+        applyGhostTransform(hit);
+        updateCandidate(hit);
+        updateMagnifier(hit);
       });
+    }
+
+    /** 拖动开始时，把所有"还没放上"的空位标记成 is-open。
+     *  目的：给每个空位加一圈可见光晕，让极小目标（澳门 0.8×1.6px）也看得见。
+     *  拖动结束统一 clearOpenSlots 摘掉。 */
+    function markOpenSlots() {
+      state.slots.forEach((slot) => slot.g.classList.add('is-open'));
+    }
+
+    function clearOpenSlots() {
+      state.slots.forEach((slot) => slot.g.classList.remove('is-open', 'is-candidate'));
     }
 
     function spawnGhost() {
@@ -969,24 +1070,158 @@
       drag.ghost = ghost;
 
       drag.pieceEl.classList.add('is-taken');
+      /* 空位光晕：让"能不能看见目标"这件事不再取决于形状大小 */
+      markOpenSlots();
+      /* 放大镜值不值得开，在抓起来那一刻就定下来（= 这块碎片是不是"极小"），
+       * 拖动中不再反复判断，避免镜头忽有忽无。 */
+      drag.lensWanted = isTinyPiece(drag.adcode);
       applyGhostTransform();
     }
 
-    /** 幽灵中心 = 指针位置 - 抓取偏移 */
-    function applyGhostTransform() {
-      if (!drag || !drag.ghost) return;
-      const cx = drag.lastX - drag.offX;
-      const cy = drag.lastY - drag.offY;
-      drag.ghost.style.transform =
-        `translate3d(${(cx - drag.w / 2).toFixed(1)}px, ${(cy - drag.h / 2).toFixed(1)}px, 0)`;
+    /** 这块碎片的空位是不是小到"偏移也露不出来"。
+     *  判据用**空位的屏幕尺寸**而不是碎片面积：玩家看不见的东西是空位，
+     *  不是碎片 —— 碎片在手里，多大都看得见。 */
+    function isTinyPiece(adcode) {
+      const size = slotScreenSize(adcode);
+      if (!size) return false;
+      return Math.min(size.w, size.h) < DRAGF.lensBelowPx;
     }
 
-    /** 拖动过程中点亮"可能的目标"凹槽 */
-    function updateCandidate() {
+    /** 让位量：碎片比空位大得越多，让得越多。
+     *  【为什么要按"碎片短边 vs 空位短边"的比值】托盘碎片有短边下限归一化，
+     *  小空位对应的碎片会被放大得最厉害 —— 比值正好量化了"这块碎片会挡住多少"。 */
+    function revealShiftFor(adcode) {
+      const size = slotScreenSize(adcode);
+      if (!size) return { x: 0, y: 0 };
+      const pieceShort = Math.min(drag.w, drag.h);
+      const slotShort = Math.max(1, Math.min(size.w, size.h));
+      const ratio = pieceShort / slotShort;
+      if (ratio < DRAGF.revealRatio) return { x: 0, y: 0 };
+      const s = Math.min(DRAGF.revealMax, Math.max(DRAGF.revealMin, pieceShort * 0.45));
+      // 往左上让：手指/鼠标在右下，让开后空位落在触点的左上方视野里
+      return { x: s, y: s };
+    }
+
+    /** 幽灵中心 = 判定点 - 让位量。拖动中每帧更新让位量：
+     *  没靠近任何空位时不让位（碎片老实跟着手指），靠近了才让开露出目标。
+     *  @param {{adcode:(string|number)}|null} hit 本帧解析到的目标空位（由调用方算好） */
+    function applyGhostTransform(hit) {
       if (!drag || !drag.ghost) return;
-      const cx = drag.lastX - drag.offX;
-      const cy = drag.lastY - drag.offY;
-      const hit = resolveDrop(cx, cy);
+      let shift = { x: 0, y: 0 };
+      if (hit) {
+        const cand = revealShiftFor(hit.adcode);
+        /* 只在"让位确实会让更多空位露出来"时让 —— 否则碎片本来就没挡住什么，
+         * 让位反而像是碎片不跟手。 */
+        if (cand.x > 0) shift = cand;
+      }
+      drag.shiftX = shift.x;
+      drag.shiftY = shift.y;
+
+      const g = dragGhostCenter();
+      drag.ghost.style.transform =
+        `translate3d(${(g.x - drag.w / 2).toFixed(1)}px, ${(g.y - drag.h / 2).toFixed(1)}px, 0)`;
+    }
+
+    /* ---------- 放大镜：把"小到看不见的目标"变成看得见 ---------- */
+
+    /** 屏幕角落的镜片：内容 = 空位层几何 + 拖动中碎片轮廓。
+     *  【为什么不用 foreignObject 去镜像页面】那会触发一次布局并克隆整棵 SVG，
+     *  拖动中每帧做一次必然掉帧。这里只把"空位 + 碎片轮廓"两组 path 画进镜片，
+     *  它们都是静态几何，很便宜 —— 而且看得更清楚（没有底图的干扰）。 */
+    function ensureMagnifier() {
+      if (drag.lens) return drag.lens;
+      const size = DRAGF.lensSize;
+      const outer = document.createElement('div');
+      outer.className = 'drag-lens';
+      outer.setAttribute('aria-hidden', 'true');
+      outer.style.width = `${size}px`;
+      outer.style.height = `${size}px`;
+
+      const NS = 'http://www.w3.org/2000/svg';
+      const svg = document.createElementNS(NS, 'svg');
+      svg.setAttribute('width', String(size));
+      svg.setAttribute('height', String(size));
+      svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
+
+      const gAll = document.createElementNS(NS, 'g');
+      /* 1) 当前关卡的所有空位（浅色填充 + 描边，和地图上同一套语义） */
+      for (const [adcode, slot] of state.slots) {
+        const shape = shapes.get(adcode);
+        if (!shape) continue;
+        const p = document.createElementNS(NS, 'path');
+        p.setAttribute('d', shape.d);
+        p.setAttribute('class', 'lens-slot');
+        p.dataset.adcode = String(adcode);
+        gAll.appendChild(p);
+      }
+      /* 2) 正在拖的这块碎片的轮廓（虚线），方便肉眼比对形状 */
+      const carried = document.createElementNS(NS, 'path');
+      carried.setAttribute('d', shapes.get(drag.adcode).d);
+      carried.setAttribute('class', 'lens-carried');
+      gAll.appendChild(carried);
+
+      svg.appendChild(gAll);
+      outer.appendChild(svg);
+      document.body.appendChild(outer);
+
+      drag.lens = outer;
+      drag.lensSvg = svg;
+      drag.lensGroup = gAll;
+      return outer;
+    }
+
+    /** 镜片内容 = "地图真实比例"的一块窗口，以判定点为中心。
+     *  【关键】镜片用的是**屏幕坐标系**的 viewBox，也就是把地图外层容器上
+     *  那个 getScreenCTM 原样搬过来当 viewBox —— 于是镜片里的图形与地图上
+     *  同一位置逐像素对应，不需要任何换算，也不会和动画中的 viewBox 抢节奏。
+     *  @param {{adcode:(string|number)}|null} hit 本帧解析到的目标空位 */
+    function updateMagnifier(hit) {
+      if (!drag || !drag.ghost) return;
+      const tiny = drag.lensWanted && isTinyPiece(drag.adcode);
+      if (!tiny) {
+        if (drag.lens) drag.lens.classList.remove('is-on');
+        return;
+      }
+      const outer = ensureMagnifier();
+      const p = dragHitPoint();
+      const size = DRAGF.lensSize;
+      const scale = DRAGF.lensScale;
+      /* 镜片中心落在触点的左上方（避开手指和碎片本体） */
+      const lensCx = drag.lastX - DRAGF.lensOffset - size / 2;
+      const lensCy = drag.lastY - DRAGF.lensOffset - size / 2;
+      outer.style.transform = `translate3d(${lensCx.toFixed(1)}px, ${lensCy.toFixed(1)}px, 0)`;
+      /* 显示区域：以判定点为中心、边长 = 镜片边长 / 倍率 */
+      const span = size / scale;
+      drag.lensSvg.setAttribute('viewBox',
+        `${(p.x - span / 2).toFixed(2)} ${(p.y - span / 2).toFixed(2)} ${span.toFixed(2)} ${span.toFixed(2)}`);
+      outer.classList.add('is-on');
+      /* 镜片内高亮当前会被命中的那个空位，和地图上的 is-candidate 呼应 */
+      const want = hit ? String(hit.adcode) : null;
+      if (want !== drag.lensHit) {
+        drag.lensHit = want;
+        const marked = drag.lensGroup.querySelectorAll('.lens-slot.is-hit');
+        for (let i = 0; i < marked.length; i++) marked[i].classList.remove('is-hit');
+        if (want !== null) {
+          const el = drag.lensGroup.querySelector('.lens-slot[data-adcode="' + want + '"]');
+          if (el) el.classList.add('is-hit');
+        }
+      }
+    }
+
+    /** 摘掉镜片。传 ctx 而不是读 drag —— onPointerUp 里 drag 已经置空了。 */
+    function removeMagnifier(ctx) {
+      if (!ctx || !ctx.lens) return;
+      if (ctx.lens.parentNode) ctx.lens.parentNode.removeChild(ctx.lens);
+      ctx.lens = null;
+      ctx.lensSvg = null;
+      ctx.lensGroup = null;
+      ctx.lensHit = null;
+    }
+
+    /** 拖动过程中点亮"可能的目标"凹槽。
+     *  @param {{adcode:(string|number)}|null} hit 本帧解析到的目标空位（由调用方算好） */
+    function updateCandidate(hit) {
+      if (!drag || !drag.ghost) return;
       const next = hit ? hit.adcode : null;
       if (next === drag.hitAdcode) return;
 
@@ -1009,6 +1244,7 @@
 
       const ctx = drag;
       drag = null;
+      removeMagnifier(ctx);
 
       // 没越过阈值 → 视为"点击"，切换选中状态（点击模式的入口）
       if (!ctx.moved) {
@@ -1017,13 +1253,11 @@
         return;
       }
 
-      if (ctx.hitAdcode !== null) {
-        const cur = state.slots.get(ctx.hitAdcode);
-        if (cur) cur.g.classList.remove('is-candidate');
-      }
+      /* 空位光晕与候选高亮统一在这里摘掉（clearOpenSlots 同时清掉两个类） */
+      clearOpenSlots();
 
       const cx = ctx.lastX - ctx.offX;
-      const cy = ctx.lastY - ctx.offY;
+      const cy = ctx.lastY - ctx.offY - (ctx.touch ? DRAGF.touchLift : 0);
       tryPlace(ctx.adcode, resolveDrop(cx, cy), ctx.ghost, ctx.pieceEl, { cx, cy });
     }
 
@@ -1055,7 +1289,16 @@
       }
       if (best !== null) {
         const shape = shapes.get(best);
-        const limit = clamp(Math.min(shape.bbox.w, shape.bbox.h) * 0.85, 34, 110);
+        /* 【容错半径为什么按尺寸放大】原先是固定的 0.85 倍短边（clamp 34~110）。
+         * 但"形状小"不等于"好瞄准"：澳门的地图坐标短边只有 0.1 个单位，
+         * 就算取到 34px 下限也远远不够 —— 玩家根本看不见它，全靠容错兜住。
+         * 改成随尺寸衰减的倍率：越小的形状给越宽的容错。
+         * 对照（中国图，短边以地图坐标计）：
+         *   澳门 0.1 → 上限 2.0 倍　香港 0.4 → 1.58 倍　台湾 4.1 → 0.4 倍（下限）
+         * 取对数是为了让"数量级"起决定作用，而不是线性地越放大越离谱。 */
+        const short = Math.max(1e-6, Math.min(shape.bbox.w, shape.bbox.h));
+        const mult = clamp(0.85 + 0.3 * Math.log10(3 / short), 0.4, 2.0);
+        const limit = clamp(short * mult, 34, 150);
         if (bestDist <= limit) return { adcode: best, exact: false };
       }
       return null;

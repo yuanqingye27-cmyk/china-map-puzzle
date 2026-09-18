@@ -440,6 +440,72 @@
     check('这次尝试也被计入', W.__ENGINE__.getState().tries === Number(s.tries), s.tries);
 
     /* ================================================================ */
+    section('8.5 · 拖拽中的可见性辅助与状态清理');
+    /* 这一节守的是"极小碎片看不见"那套改动的**通用**部分。
+       具体尺寸阈值（多大算"极小"）在有真实小碎片的地图上验，
+       这里只保证：状态该加就加、该清就清，且让位不会把判定带偏。
+       用第二关的丙县：它是这块 fixture 里唯一的空位，且尺寸很大
+       （近满屏），正好用来守"不该让位时别乱让、不该弹镜片时别弹"。 */
+
+    const targetB1 = insidePointOf(B1);
+    check('能找到落在丙县多边形内部的落点', !!targetB1,
+      targetB1 ? 'ok' : '凹槽内找不到落点');
+
+    if (targetB1) {
+      const piecesBefore = stats().pieces;
+      const pieceB1 = D.querySelector(pieceSel(B1));
+      const fromB1 = centerOf(pieceSel(B1));   // centerOf 收的是选择器，不是元素
+
+      fire(pieceB1, 'pointerdown', fromB1.x, fromB1.y);
+      for (let i = 1; i <= 6; i++) {
+        const t = i / 6;
+        fire(D, 'pointermove',
+          fromB1.x + (targetB1.x - fromB1.x) * t,
+          fromB1.y + (targetB1.y - fromB1.y) * t);
+        await sleep(24);
+      }
+
+      /* 拖拽进行中：所有未放置空位都该亮起来 */
+      check('拖动中每个未放置空位都带 is-open（光晕）',
+        D.querySelectorAll('.slot.is-open').length === D.querySelectorAll('.slot').length,
+        D.querySelectorAll('.slot.is-open').length + ' / ' + D.querySelectorAll('.slot').length);
+      check('拖动中有且只有一个空位被标成 is-candidate',
+        D.querySelectorAll('.slot.is-candidate').length === 1,
+        String(D.querySelectorAll('.slot.is-candidate').length));
+
+      /* 幽灵与判定点相互独立：让位不能把"落哪"带偏。
+         丙县的空位接近满屏，比值远低于让位门槛，所以让位量应当是 0。 */
+      const ghostEl = D.querySelector('.drag-ghost');
+      const ghostRect = ghostEl ? ghostEl.getBoundingClientRect() : null;
+      const ghostShift = ghostRect
+        ? Math.hypot(ghostRect.left + ghostRect.width / 2 - targetB1.x,
+                     ghostRect.top + ghostRect.height / 2 - targetB1.y)
+        : NaN;
+      check('大空位不该触发让位（幽灵仍跟着触点）', ghostShift < 2,
+        '让位量 ' + (isFinite(ghostShift) ? ghostShift.toFixed(1) : '?') + 'px');
+      const lensEl = D.querySelector('.drag-lens');
+      check('大空位不该弹放大镜（阈值没被误触发）',
+        !lensEl || !lensEl.classList.contains('is-on'));
+
+      fire(D, 'pointerup', targetB1.x, targetB1.y);
+      await sleep(1000);
+
+      const after = stats();
+      check('★ 让位/校准没有导致判定错位：碎片照常落在丙县',
+        after.pieces === piecesBefore - 1,
+        '托盘 ' + piecesBefore + ' → ' + after.pieces);
+      check('落位后空位不再是 is-open',
+        D.querySelectorAll('.slot.is-open').length === 0,
+        String(D.querySelectorAll('.slot.is-open').length));
+      check('落位后没有残留候选高亮',
+        D.querySelectorAll('.slot.is-candidate').length === 0);
+      check('落位后没有残留放大镜',
+        D.querySelectorAll('.drag-lens').length === 0);
+      check('落位后没有残留幽灵',
+        D.querySelectorAll('.drag-ghost').length === 0);
+    }
+
+    /* ================================================================ */
     section('9 · 进度持久化（存档 key 由配置决定）');
 
     // 回到第一关（已完成也可以重玩），只拼一块就停手，看能不能恢复"没拼完"的进度

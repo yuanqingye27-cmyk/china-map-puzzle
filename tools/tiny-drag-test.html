@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>极小碎片拖拽套件 · 真实中国图（澳门 / 香港 / 台湾）</title>
+<style>
+  body { font: 13px/1.5 -apple-system, sans-serif; margin: 0; padding: 8px; }
+  /* 被测 iframe 必须留在正常文档流里 —— 拖拽要把 getBoundingClientRect
+     （iframe 视口坐标）和 getScreenCTM（可能带 iframe 在父页里的偏移）混用，
+     一旦 iframe 被挪远，两个坐标系就差出十万八千里。这条在别处踩过。 */
+  iframe { width: 1600px; height: 1000px; border: 0; display: block; background: #fff; }
+  #result { white-space: pre-wrap; font-family: ui-monospace, monospace; font-size: 12px; }
+</style>
+</head>
+<body>
+<form id="rform" method="post" target="rsink" style="display:none"></form>
+<iframe name="rsink" style="display:none" title="report sink"></iframe>
+
+<div id="frames"></div>
+<pre id="result">运行中…</pre>
+
+<script>
+/* =====================================================================
+ * 极小碎片拖拽套件（真实数据）
+ * ---------------------------------------------------------------------
+ * 【为什么要有这一套】托盘碎片有"短边下限"归一化（js/engine.js 的 pieceSize），
+ * 地图上的空位却是真实比例。中国图第 5 关·华南实测：
+ *     澳门空位 0.8×1.6px ／ 香港 7.9×6.1px ／ 台湾 73.8×63.3px
+ * 而托盘里那三块碎片都是 47~78px —— 手指/鼠标往上一放就把目标整个盖住。
+ * 引擎为此加了三件事：幽灵让位、触屏校准、极小空位放大镜。
+ *
+ * 引擎套件（engine-test.html）用的是虚构 tiny-city，那一套的形状在屏幕上
+ * 都接近满屏，**永远不会触发放大镜** —— 所以那里只能守"不该触发时别触发"。
+ * 正面断言必须落在真实数据上，也就是这一套。
+ *
+ * 为什么选中国图而不是别的：中国图是默认入口图（P0-1），而且按省级拼的时候
+ * 视野要装下好几个省，是"小空位"最容易出现的场景。
+ * ===================================================================== */
+(function () {
+  'use strict';
+
+  const PORT = new URLSearchParams(location.search).get('port');
+  /* 目标关卡与碎片都可在命令行覆盖，便于换图排查（见 e2e-test.js 的 --only-maps 用法） */
+  const MAP = new URLSearchParams(location.search).get('map') || 'china';
+  const WANT = (new URLSearchParams(location.search).get('tinies') ||
+    '820000,810000,710000').split(',').map((s) => s.trim()).filter(Boolean);
+
+  const out = [];
+  let passed = 0;
+  let failed = 0;
+  const failures = [];
+  let reported = false;
+
+  function check(name, cond, detail) {
+    if (cond) { passed++; out.push('  ✔ ' + name); }
+    else { failed++; failures.push(name); out.push('  ✘ ' + name + (detail ? '  → ' + detail : '')); }
+  }
+  function section(title) { out.push('\n【' + title + '】'); }
+  function info(text) { out.push('  · ' + text); }
+
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  function report(payload) {
+    if (reported) return;
+    reported = true;
+    out.push('\n合计：' + payload.passed + ' 通过 / ' + payload.failed + ' 失败');
+    if (payload.failed) out.push('失败项：' + (payload.failures || []).join('、'));
+    document.getElementById('result').textContent = out.join('\n');
+    document.title = 'TESTRESULT ' + payload.passed + 'P/' + payload.failed + 'F';
+    try {
+      const form = document.getElementById('rform');
+      form.action = 'http://127.0.0.1:' + PORT + '/report';
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'd';
+      input.value = JSON.stringify(payload);
+      form.appendChild(input);
+      form.submit();
+    } catch (e) { out.push('上报失败：' + e.message); }
+  }
+
+  async function waitFor(fn, timeoutMs, label) {
+    const deadline = Date.now() + (timeoutMs || 10000);
+    for (;;) {
+      let v = null;
+      try { v = fn(); } catch (e) { v = null; }
+      if (v) return v;
+      if (Date.now() > deadline) throw new Error('等待超时：' + (label || '条件未满足'));
+      await sleep(50);
+    }
+  }
+
+  /* 等关卡视野动画停下来，否则 getScreenCTM 每帧都在变，量出来的坐标会过期 */
+  async function waitViewStable(D) {
+    let prev = null;
+    for (let i = 0; i < 80; i++) {
+      const el = D.getElementById('map');
+      const m = el && el.getScreenCTM ? el.getScreenCTM() : null;
+      const key = m ? [m.a, m.d, m.e, m.f].join(',') : 'null';
+      if (prev === key) return true;
+      prev = key;
+      await sleep(100);
+    }
+    return false;
+  }
+
+  function fire(W, D, target, type, x, y) {
+    target.dispatchEvent(new W.PointerEvent(type, {
+      bubbles: true, cancelable: true, composed: true,
+      clientX: x, clientY: y, pointerId: 1, pointerType: 'mouse',
+      isPrimary: true, button: 0, buttons: type === 'pointerup' ? 0 : 1,
+    }));
+  }
+
+  /** 在凹槽形状内部找一个确实落在多边形里的点（做法与其余两套一致） */
+  function insidePointOf(W, D, adcode) {
+    const pathEl = D.querySelector('.slot[data-adcode="' + adcode + '"] path');
+    if (!pathEl) return null;
+    const bb = pathEl.getBBox();
+    const ctm = pathEl.getScreenCTM();
+    const pt = pathEl.ownerSVGElement.createSVGPoint();
+    const hit = (dx, dy) => {
+      pt.x = bb.x + bb.width * dx;
+      pt.y = bb.y + bb.height * dy;
+      if (!pathEl.isPointInFill(pt)) return null;
+      const s = pt.matrixTransform(ctm);
+      return { x: s.x, y: s.y };
+    };
+    const center = hit(0.5, 0.5);
+    if (center) return center;
+    const N = 41;
+    for (let iy = 1; iy < N; iy++) {
+      for (let ix = 1; ix < N; ix++) {
+        const p = hit(ix / N, iy / N);
+        if (p) return p;
+      }
+    }
+    return null;
+  }
+
+  /** 凹槽在屏幕上的尺寸（像素） */
+  function slotScreenSize(D, adcode) {
+    const pathEl = D.querySelector('.slot[data-adcode="' + adcode + '"] path');
+    if (!pathEl) return null;
+    const bb = pathEl.getBBox();
+    const m = pathEl.getScreenCTM();
+    const sc = Math.sqrt(Math.abs(m.a * m.d - m.b * m.c)) || 0;
+    return { w: bb.width * sc, h: bb.height * sc };
+  }
+
+  async function dragOnce(W, D, adcode, to, steps) {
+    steps = steps || 6;
+    const triesBefore = (W.__ENGINE__ && W.__ENGINE__.getState().tries) || 0;
+    const piece = D.querySelector('.piece[data-adcode="' + adcode + '"]');
+    const r = piece.getBoundingClientRect();
+    const from = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+
+    fire(W, D, piece, 'pointerdown', from.x, from.y);
+    for (let i = 1; i <= steps; i++) {
+      const t = i / steps;
+      fire(W, D, D, 'pointermove',
+        from.x + (to.x - from.x) * t, from.y + (to.y - from.y) * t);
+      await sleep(24);
+    }
+    /* 松手之前把现场量下来 */
+    const ghost = D.querySelector('.drag-ghost');
+    const gr = ghost ? ghost.getBoundingClientRect() : null;
+    const lens = D.querySelector('.drag-lens');
+    const snapshot = {
+      ghostW: gr ? gr.width : 0,
+      ghostH: gr ? gr.height : 0,
+      shift: gr ? { x: gr.left + gr.width / 2 - to.x, y: gr.top + gr.height / 2 - to.y } : null,
+      openSlots: D.querySelectorAll('.slot.is-open').length,
+      allSlots: D.querySelectorAll('.slot').length,
+      candidates: D.querySelectorAll('.slot.is-candidate').length,
+      lens: !!lens,
+      lensOn: !!(lens && lens.classList.contains('is-on')),
+      lensViewBox: lens ? lens.querySelector('svg').getAttribute('viewBox') : null,
+      lensHit: lens ? lens.querySelectorAll('.lens-slot.is-hit').length : 0,
+      lensSize: lens ? lens.getBoundingClientRect().width : 0,
+      pieceW: r.width,
+      pieceH: r.height,
+    };
+
+    fire(W, D, D, 'pointerup', to.x, to.y);
+    try {
+      await waitFor(() => {
+        const st = W.__ENGINE__ ? W.__ENGINE__.getState() : null;
+        return st && st.tries > triesBefore && !D.querySelector('.drag-ghost');
+      }, 5000, '拖拽结算');
+    } catch (e) { /* 让断言去报 */ }
+
+    const st2 = W.__ENGINE__ ? W.__ENGINE__.getState() : null;
+    snapshot.placed = !!(st2 && Array.from(st2.placed).map(String).indexOf(String(adcode)) >= 0);
+    snapshot.lensLeft = D.querySelectorAll('.drag-lens').length;
+    snapshot.openLeft = D.querySelectorAll('.slot.is-open').length;
+    snapshot.candLeft = D.querySelectorAll('.slot.is-candidate').length;
+    snapshot.ghostLeft = D.querySelectorAll('.drag-ghost').length;
+    return snapshot;
+  }
+
+  /** 把存档写成"前几关都通关、全部解锁"，然后重载。
+   *  走的正是玩家真实通关后会拥有的那份状态；格式照抄 engine.js 的 saveProgress，
+   *  关卡指纹用引擎自己的公式现算，避免手写一份会过期的 JSON。 */
+  async function unlockAll(W, D, frame, cfg, id) {
+    const fp = (cfg.levels || []).map((l) => l.id + ':' + l.adcodes.length).join('|');
+    const save = {
+      v: cfg.storage.saveVersion,
+      levelFingerprint: fp,
+      unlocked: (cfg.levels || []).length,
+      finished: [],
+      levelIndex: 0,
+      placed: [], elapsed: 0, tries: 0, hints: 0,
+    };
+    W.localStorage.setItem(cfg.storage.save, JSON.stringify(save));
+    W.localStorage.setItem(cfg.storage.intro, '1');   // 别让开场动画挡住
+    const readBack = W.localStorage.getItem(cfg.storage.save);
+    const loaded = new Promise((r) => frame.addEventListener('load', r, { once: true }));
+    frame.contentWindow.location.reload();
+    await loaded;
+    await waitFor(() => frame.contentDocument.documentElement.getAttribute('data-map-ready') === id,
+      30000, id + ' 重载后就绪');
+    return readBack === JSON.stringify(save);
+  }
+
+  async function run() {
+    section('真实地图 · ' + MAP + ' 的极小碎片');
+
+    const frame = document.createElement('iframe');
+    frame.src = '../index.html?map=' + encodeURIComponent(MAP);
+    document.getElementById('frames').appendChild(frame);
+    await new Promise((r) => frame.addEventListener('load', r, { once: true }));
+
+    const pageErrors = [];
+    frame.contentWindow.addEventListener('error', (e) => pageErrors.push(e.message));
+
+    await waitFor(() => frame.contentDocument.documentElement.getAttribute('data-map-ready') === MAP,
+      30000, MAP + ' 就绪');
+
+    let W = frame.contentWindow;
+    let D = frame.contentDocument;
+    const cfg = W.MAP_PACKAGES[MAP];
+    const levels = cfg.levels || [];
+    const lastLv = levels.length - 1;
+
+    /* 找出这些目标碎片在第几关（不写死关卡号 —— 关卡分组以后可能重排） */
+    const lvOf = {};
+    WANT.forEach((a) => {
+      const i = levels.findIndex((l) => l.adcodes.map(String).indexOf(a) >= 0);
+      lvOf[a] = i;
+    });
+    info('目标碎片所在关卡：' +
+      WANT.map((a) => a + '→第' + (lvOf[a] >= 0 ? lvOf[a] + 1 : '?') + '关').join('，'));
+
+    const needLv = Math.max.apply(null, WANT.map((a) => lvOf[a]));
+    check('目标碎片都能在配置的关卡里找到', WANT.every((a) => lvOf[a] >= 0),
+      JSON.stringify(lvOf));
+    if (!WANT.every((a) => lvOf[a] >= 0)) {
+      report({ passed: passed, failed: failed, failures: failures, log: out.join('\n') });
+      return;
+    }
+
+    /* 跳到目标关卡。默认只解锁第一关，所以先写入"全部解锁"的合法存档。 */
+    if (needLv > 0) {
+      const wrote = await unlockAll(W, D, frame, cfg, MAP);
+      check('写入的解锁存档能被读回（存档写不进去就没法验证高关卡）', wrote);
+      W = frame.contentWindow;
+      D = frame.contentDocument;
+      const intro = D.getElementById('intro');
+      if (intro && !intro.hidden) { intro.click(); await sleep(600); }
+      await waitViewStable(D);
+      const tabs = [].slice.call(D.querySelectorAll('.level-tab'));
+      const tab = tabs[needLv];
+      check('第 ' + (needLv + 1) + ' 关已解锁（标签可点）', !!tab && !tab.disabled,
+        '标签数=' + tabs.length + '，禁用=' + tabs.filter((b) => b.disabled).length);
+      if (tab && !tab.disabled) {
+        tab.click();
+        await sleep(700);
+        await waitViewStable(D);
+      }
+      const st = W.__ENGINE__.getState();
+      check('已切到目标关卡', st.levelIndex === needLv,
+        'levelIndex=' + st.levelIndex + '，期望 ' + needLv + '（' + st.levelId + '）');
+    } else {
+      const intro = D.getElementById('intro');
+      if (intro && !intro.hidden) { intro.click(); await sleep(600); }
+      await waitViewStable(D);
+    }
+
+    /* 逐块：几何 → 真实拖拽 → 辅助是否按预期出现 */
+    for (const adcode of WANT) {
+      const name = (cfg.geo.features.find((f) => String(f.properties.adcode) === adcode) || {})
+        .properties.name || adcode;
+      section(name + '（' + adcode + '）');
+
+      if (W.__ENGINE__.getState().levelIndex !== lvOf[adcode]) {
+        info('跳过：当前不在这一关');
+        continue;
+      }
+
+      const size = slotScreenSize(D, adcode);
+      if (!size) { check('[' + adcode + '] 空位存在于当前关卡', false); continue; }
+      const tiny = Math.min(size.w, size.h) < 30;
+      info('空位屏幕尺寸 ' + size.w.toFixed(1) + '×' + size.h.toFixed(1) + 'px' +
+        '（' + (tiny ? '极小，应触发放大镜' : '不算极小，不该触发') + '）');
+
+      const to = insidePointOf(W, D, adcode);
+      check('[' + adcode + '] 能在空位多边形内部找到落点', !!to,
+        to ? 'ok' : '加密网格也找不到');
+      if (!to) continue;
+
+      const r = await dragOnce(W, D, adcode, to);
+
+      info('托盘碎片 ' + r.pieceW.toFixed(1) + '×' + r.pieceH.toFixed(1) + 'px，' +
+        '幽灵让位 ' + (r.shift ? '(' + r.shift.x.toFixed(1) + ', ' + r.shift.y.toFixed(1) + ')px' : 'n/a'));
+      info('拖动中：is-open ' + r.openSlots + '/' + r.allSlots +
+        '，is-candidate ' + r.candidates +
+        '，放大镜 ' + (r.lens ? (r.lensOn ? '已显示' : '创建了但没显示') : '未创建'));
+
+      /* ---- 核心断言 ---- */
+      check('★ [' + adcode + '] 真实拖拽能拼上（这是"能不能玩"的唯一硬证据）',
+        r.placed, '幽灵=' + r.ghostW.toFixed(0) + 'px，落点=(' +
+        Math.round(to.x) + ',' + Math.round(to.y) + ')');
+
+      check('[' + adcode + '] 拖动中所有未放置空位都亮了（is-open）',
+        r.openSlots === r.allSlots && r.allSlots > 0,
+        r.openSlots + ' / ' + r.allSlots);
+
+      check('[' + adcode + '] 拖动中恰好一个空位是候选',
+        r.candidates === 1, String(r.candidates));
+
+      /* 极小的必须弹镜片；不极小的不许弹（否则普通拼图会莫名多出个圆框） */
+      if (tiny) {
+        check('★ [' + adcode + '] 极小空位触发了放大镜', r.lens && r.lensOn,
+          r.lens ? '创建了但 is-on 缺失' : '根本没创建');
+        if (r.lens && r.lensViewBox) {
+          const vb = r.lensViewBox.split(/\s+/).map(Number);
+          const span = vb[2];
+          check('[' + adcode + '] 放大镜确有放大倍率（不是 1:1）',
+            span > 0 && span < r.lensSize,
+            '显示范围 ' + span + 'px / 镜片 ' + Math.round(r.lensSize) + 'px');
+          check('[' + adcode + '] 放大镜把指针附近框进了视窗（中心对得上）',
+            Math.abs((vb[0] + span / 2) - to.x) < 2 && Math.abs((vb[1] + span / 2) - to.y) < 2,
+            '镜心=(' + (vb[0] + span / 2).toFixed(1) + ',' + (vb[1] + span / 2).toFixed(1) +
+            ') vs 落点=(' + to.x.toFixed(1) + ',' + to.y.toFixed(1) + ')');
+          check('[' + adcode + '] 放大镜里高亮了当前会命中的空位',
+            r.lensHit === 1, String(r.lensHit) + ' 个');
+        }
+      } else {
+        check('[' + adcode + '] 不算极小的空位不该弹放大镜',
+          !r.lens || !r.lensOn, r.lens ? '弹出来了' : 'ok');
+      }
+
+      /* 让位只影响视觉：它不该让判定跑偏（上面 placed 已经证明了），
+         但也要防止"让位反了"——让位方向应是左上（负值）。 */
+      if (r.shift && (Math.abs(r.shift.x) > 1 || Math.abs(r.shift.y) > 1)) {
+        check('[' + adcode + '] 让位方向朝左上（避开手指/光标）',
+          r.shift.x < 0 && r.shift.y < 0,
+          '(' + r.shift.x.toFixed(1) + ', ' + r.shift.y.toFixed(1) + ')');
+      }
+
+      /* ---- 收尾：所有临时状态都要清干净 ---- */
+      check('[' + adcode + '] 松手后没有残留幽灵', r.ghostLeft === 0, String(r.ghostLeft));
+      check('[' + adcode + '] 松手后没有残留放大镜', r.lensLeft === 0, String(r.lensLeft));
+      check('[' + adcode + '] 松手后没有残留 is-open', r.openLeft === 0, String(r.openLeft));
+      check('[' + adcode + '] 松手后没有残留候选高亮', r.candLeft === 0, String(r.candLeft));
+    }
+
+    check('极小碎片套件运行期没有未捕获异常', pageErrors.length === 0, pageErrors.join(' | '));
+    report({ passed: passed, failed: failed, failures: failures, log: out.join('\n') });
+  }
+
+  run().catch((err) => {
+    failed++;
+    failures.push('套件自身异常');
+    out.push('\n!! 执行出错：' + (err && err.stack ? err.stack : err));
+    report({ passed: passed, failed: failed, failures: failures, log: out.join('\n') });
+  });
+})();
+</script>
+</body>
+</html>
