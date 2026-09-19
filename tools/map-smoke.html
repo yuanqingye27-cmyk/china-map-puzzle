@@ -571,6 +571,49 @@
   async function checkNarrow() {
     section('窄屏专项（390×844 · 导航条最容易被挤出屏幕）');
 
+    /* ---------------------------------------------------------------
+     * 先查"手机横屏"这条 —— 它是本轮修掉的一个真 bug：
+     * 844×390 下顶栏+导航+每日一图+我的家乡+关卡标签+来源+纠错
+     * 一层层叠到约 280px，而视口只有 390px，**地图完全在屏幕外**：
+     * 用户把手机横过来反而看不到拼图区。
+     * 修法是矮屏时收起"有则更好"的三块并压扁留白（审图号与来源保留）。
+     * 这里把"地图必须在首屏内"钉成断言，防止再退回去。
+     * ------------------------------------------------------------- */
+    {
+      const lf = document.createElement('iframe');
+      lf.style.cssText = 'width:844px;height:390px;border:0;display:block';
+      lf.src = '../index.html?map=china';
+      document.getElementById('frames').appendChild(lf);
+      await new Promise((r) => lf.addEventListener('load', r, { once: true }));
+      let lOk = true;
+      try {
+        await waitFor(() => lf.contentDocument.documentElement.getAttribute('data-map-ready'),
+          25000, '横屏地图就绪');
+      } catch (e) { lOk = false; }
+      if (!lOk) {
+        check('[横屏] 地图能加载', false, '超时');
+      } else {
+        const LW = lf.contentWindow, LD = lf.contentDocument;
+        /* 等开场动画退场，否则量到的是被遮罩盖住的状态 */
+        await sleep(900);
+        const b = LD.getElementById('board');
+        const br = b ? b.getBoundingClientRect() : null;
+        check('[横屏] 地图落在首屏内（曾经整块在屏幕外）',
+          !!br && br.top < LW.innerHeight * 0.9 && br.bottom > 0 && br.height > 40,
+          br ? ('board top=' + Math.round(br.top) + ' 高=' + Math.round(br.height) +
+            '，视口高=' + LW.innerHeight) : '找不到 #board');
+        /* 收起的是"锦上添花"，不是合规声明：审图号必须还在 */
+        const src = LD.querySelector('.map-source');
+        check('[横屏] 资料来源与审图号仍然显示（没被矮屏规则藏掉）',
+          !!src && LW.getComputedStyle(src).display !== 'none',
+          src ? ('display=' + LW.getComputedStyle(src).display) : '找不到 .map-source');
+        check('[横屏] 仍然没有横向溢出',
+          LD.body.scrollWidth <= LW.innerWidth + 1,
+          LD.body.scrollWidth + ' vs ' + LW.innerWidth);
+      }
+      lf.remove();
+    }
+
     const frame = document.createElement('iframe');
     frame.style.cssText = 'width:390px;height:844px;border:0;display:block';
     frame.src = '../index.html?map=chengdu';
