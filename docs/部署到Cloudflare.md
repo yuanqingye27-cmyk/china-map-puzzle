@@ -60,7 +60,7 @@ cd /Users/apple/Desktop/deepseekharness/deploy
 python3 -m http.server 8000
 ```
 
-浏览器打开 <http://localhost:8000/> ，应当能看到成都地图拼图正常玩。
+浏览器打开 <http://localhost:8000/> ，应当能看到**中国地图**正常玩（默认图已从成都改为中国）。
 
 **已验证结果**（真实浏览器，不是估计）：
 
@@ -68,6 +68,7 @@ python3 -m http.server 8000
 | --- | --- |
 | `http://127.0.0.1:8000/` | 200，27629 字节 |
 | 打开 `?map=sichuan` 后页面标题 | 「四川省地图拼图」 |
+| 打开 `/`（无参数）后的地图 | **中国**（34 个省级，第 1 关东北） |
 | 地图选择器条目数 | **363**（全部地图都在） |
 | 四川省关卡碎片 / 槽位 | **18 / 18** |
 | 9 个脚本 + 样式 + 地图数据 | 全部 200 |
@@ -107,7 +108,7 @@ python3 -m http.server 8000
 
 | 链接 | 打开的是 |
 | --- | --- |
-| `https://xxx.pages.dev/` | 成都（默认） |
+| `https://xxx.pages.dev/` | **中国（默认）** —— 完整 34 个省级，按地理分 7 关 |
 | `https://xxx.pages.dev/?map=sichuan` | 四川省（21 个市州） |
 | `https://xxx.pages.dev/?map=chengdu` | 成都市（20 个区县） |
 | `https://xxx.pages.dev/?map=china` | 中国（34 个省级，按地理分 7 关） |
