@@ -868,7 +868,21 @@
       // 视图聚焦到本关范围（首次进入直接定位，之后切关卡才做推近动画）
       const vb = computeLevelViewBox(level.adcodes);
       levelViewBox = vb;   // 记住"本关全景"，自动放大要退回这里
-      animateViewBox(vb, hasRenderedOnce ? 640 : 0);
+      /* 【根级地图（如中国图）首屏先亮全貌，再聚焦到第 1 关】
+       * 中国图的第 1 关是"东北"（只有 3 个省），而首次进入原本是
+       * duration=0 直接定位 —— 于是打开中国图看到的是东北一角，
+       * 全图视野只覆盖 79%×50%，"这是全国拼图"这件事反而看不出来。
+       *
+       * 这里让国家图开头先给一眼完整版图（地图本身就承载"这是哪"的信息），
+       * 再平滑推到第 1 关。只有一关的图（很多市级图）不绕这一趟：
+       * 先亮全貌再拉回同一处，等于白动一次镜头。 */
+      const isCountryMap = !CONFIG.parent && LEVELS.length > 1;
+      if (!hasRenderedOnce && isCountryMap) {
+        animateViewBox(computeLevelViewBox([...shapes.keys()]), 0);
+        setTimeout(() => animateViewBox(vb, 900), 260);
+      } else {
+        animateViewBox(vb, hasRenderedOnce ? 640 : 0);
+      }
       hasRenderedOnce = true;
 
       renderTabs();

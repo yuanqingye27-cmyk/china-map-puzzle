@@ -11,7 +11,8 @@
  *
  * 用法：
  *   node tools/exp-run.js --page=tiny-drag-test.html --map=china
- *   node tools/exp-run.js --page=exp-coord.html --map=china
+ *   node tools/exp-run.js --page=exp-coord.html --map=china          # 坐标换算往返验证
+ *   node tools/exp-run.js --page=exp-boot-timeline.html --map=china  # 启动与首屏视野时序
  */
 
 const http = require('http');

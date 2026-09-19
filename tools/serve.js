@@ -48,7 +48,10 @@ function argOf(k, d) {
 }
 
 const PORT = Number(argOf('port', '8000'));
-const MAP = argOf('map', 'chengdu');
+/* 默认跟产品默认入口一致（js/game.js 的 DEFAULT_MAP = china）。
+ * 这个工具的目的是"把东西发给人玩"，默认图应当等于对方打开官网看到的那张，
+ * 否则你发出去的链接和产品第一印象就是两回事。 */
+const MAP = argOf('map', 'china');
 
 /** 找出本机所有可用的局域网 IPv4（手机要连的就是这些地址） */
 function lanAddresses() {

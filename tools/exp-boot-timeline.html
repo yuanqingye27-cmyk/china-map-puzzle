@@ -1,0 +1,56 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>EXP fit2</title>
+<style>body{margin:0;padding:8px;font:13px monospace}iframe{width:1600px;height:1000px;border:0;display:block}</style>
+</head><body>
+<form id="rform" method="post" target="rsink" style="display:none"></form>
+<iframe name="rsink" style="display:none"></iframe>
+<div id="frames"></div><pre id="result">…</pre>
+<script>
+(function(){
+  var PORT=new URLSearchParams(location.search).get('port');
+  var out=[],reported=false;
+  function line(s){out.push(s);}
+  function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
+  function report(){ if(reported)return; reported=true;
+    document.getElementById('result').textContent=out.join('\n');
+    var f=document.getElementById('rform'); f.action='http://127.0.0.1:'+PORT+'/report';
+    var i=document.createElement('input'); i.type='hidden'; i.name='d';
+    i.value=JSON.stringify({log:out.join('\n')}); f.appendChild(i); f.submit(); }
+
+  async function trace(mapId){
+    var frame=document.createElement('iframe');
+    frame.src='../index.html?map='+encodeURIComponent(mapId);
+    document.getElementById('frames').appendChild(frame);
+    await new Promise(function(r){frame.addEventListener('load',r,{once:true});});
+    var W=frame.contentWindow,D=frame.contentDocument;
+    var t0=performance.now();
+    var samples=[], last=null;
+    // 高频采样 viewBox，记录变化轨迹
+    for(var i=0;i<90;i++){
+      var vb=D.getElementById('map')?D.getElementById('map').getAttribute('viewBox'):null;
+      if(vb && vb!==last){ samples.push({t:performance.now()-t0, vb:vb}); last=vb; }
+      await sleep(30);
+    }
+    // 全图范围
+    var x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
+    D.querySelectorAll('.layer-base path').forEach(function(p){
+      var bb=p.getBBox();
+      x0=Math.min(x0,bb.x); y0=Math.min(y0,bb.y);
+      x1=Math.max(x1,bb.x+bb.width); y1=Math.max(y1,bb.y+bb.height);
+    });
+    line('===== ' + mapId + ' =====  全图 ' + (x1-x0).toFixed(0) + 'x' + (y1-y0).toFixed(0));
+    line('  viewBox 变化 ' + samples.length + ' 次（前 12 次 + 最后 1 次）');
+    var show = samples.slice(0,12).concat(samples.length>12?[samples[samples.length-1]]:[]);
+    show.forEach(function(s){
+      var v=s.vb.split(/\s+/).map(Number);
+      var covW=v[2]/(x1-x0)*100, covH=v[3]/(y1-y0)*100;
+      var full = (v[0]<=x0+1 && v[1]<=y0+1 && v[0]+v[2]>=x1-1 && v[1]+v[3]>=y1-1);
+      line('  [+' + Math.round(s.t) + 'ms] 覆盖 ' + covW.toFixed(0) + '%x' + covH.toFixed(0) +
+        '%  ' + (full?'✅完整':'') + '  vb=' + v[2].toFixed(0)+'x'+v[3].toFixed(0));
+    });
+    document.getElementById('frames').innerHTML='';
+    await sleep(600);
+  }
+  async function run(){ await trace('china'); await trace('chengdu'); report(); }
+  run().catch(function(e){line('!! '+e.stack);report();});
+})();
+</script></body></html>

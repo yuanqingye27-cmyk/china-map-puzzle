@@ -11,7 +11,10 @@
 </head>
 <body>
 <pre id="result">RUNNING…</pre>
-<iframe id="frame" src="../index.html"></iframe>
+<!-- 显式带 ?map=chengdu：这一套测的是"成都这张图 + 页面整体"，
+     不能依赖"默认地图是成都"。默认图已改成中国图（见 js/game.js 的 DEFAULT_MAP），
+     不写死参数的话，这里会加载中国图、再拿成都的断言去量它。 -->
+<iframe id="frame" src="../index.html?map=chengdu"></iframe>
 
 <!-- 用来接收结果上报的隐藏目标：表单提交是最可靠的跨源回传方式，
      不受 CORS / Private Network Access 的限制，也不吃 URL 长度 -->

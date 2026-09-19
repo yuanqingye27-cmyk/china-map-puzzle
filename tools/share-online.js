@@ -46,7 +46,9 @@ function argOf(k, d) {
 }
 
 const PORT = Number(argOf('port', '8000'));
-const MAP = argOf('map', 'chengdu');
+/* 默认跟产品默认入口一致（js/game.js 的 DEFAULT_MAP = china）。
+ * 这个工具生成的链接是直接发给真人的，默认图必须等于产品第一印象。 */
+const MAP = argOf('map', 'china');
 
 /** 隧道服务：换一个就改这里（都是 ssh -R 形式，不需要装东西） */
 const TUNNEL = { host: 'nokey@localhost.run', label: 'localhost.run' };

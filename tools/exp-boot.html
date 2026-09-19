@@ -1,0 +1,70 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>EXP boot</title>
+<style>body{margin:0;padding:8px;font:13px monospace}iframe{width:1600px;height:1000px;border:0;display:block}#frames{position:relative;z-index:0}</style>
+</head><body>
+<form id="rform" method="post" target="rsink" style="display:none"></form>
+<iframe name="rsink" style="display:none"></iframe>
+<div id="frames"></div><pre id="result">…</pre>
+<script>
+(function(){
+  var PORT=new URLSearchParams(location.search).get('port');
+  var out=[],reported=false;
+  function line(s){out.push(s);}
+  function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
+  function report(){ if(reported)return; reported=true;
+    document.getElementById('result').textContent=out.join('\n');
+    var f=document.getElementById('rform'); f.action='http://127.0.0.1:'+PORT+'/report';
+    var i=document.createElement('input'); i.type='hidden'; i.name='d';
+    i.value=JSON.stringify({log:out.join('\n')}); f.appendChild(i); f.submit(); }
+
+  async function probe(mapId){
+    var frame=document.createElement('iframe');
+    document.getElementById('frames').appendChild(frame);
+    var t0=performance.now();
+    var p=new Promise(function(res){ frame.addEventListener('load',res,{once:true}); });
+    frame.src='../index.html?map='+encodeURIComponent(mapId);
+    await p;
+    // 导航完成：在 iframe 自己的 document 上继续观察
+    var D=frame.contentDocument, W=frame.contentWindow;
+    var marks=[];
+    function snap(tag){
+      var sk=D.getElementById('bootSkeleton');
+      marks.push({t:performance.now()-t0, tag:tag, ready:D.documentElement.getAttribute('data-map-ready'),
+        skel: sk ? (sk.hidden?'hidden':(sk.classList.contains('is-gone')?'gone':'visible')) : 'none',
+        title:D.title});
+    }
+    snap('load');
+    await new Promise(function(res){
+      var mo=new MutationObserver(function(){ snap('mut'); });
+      mo.observe(D.documentElement,{subtree:true,childList:true,attributes:true,characterData:true});
+      var iv=setInterval(function(){
+        if(D.documentElement.getAttribute('data-map-ready')){ clearInterval(iv); mo.disconnect(); res(); }
+      },20);
+      setTimeout(function(){ clearInterval(iv); mo.disconnect(); res(); },40000);
+    });
+    await sleep(400);
+    snap('settled');
+    return marks;
+  }
+
+  async function run(){
+    for (var i=0;i<2;i++){
+      var id = i===0 ? 'chengdu' : 'china';
+      line('===== ' + id + ' =====');
+      var marks=await probe(id);
+      // 只打关键节点，避免刷屏
+      var keep=marks.filter(function(m,ix){
+        return ix===0 || m.ready!==marks[ix-1].ready || m.skel!==marks[ix-1].skel;
+      });
+      keep.forEach(function(m){
+        line('  [+' + Math.round(m.t) + 'ms] ' + m.tag + ' ready=' + JSON.stringify(m.ready) +
+          ' 骨架屏=' + m.skel + ' title=' + JSON.stringify(m.title));
+      });
+      line('  总变化节点 ' + keep.length + ' / 原始采样 ' + marks.length);
+      document.getElementById('frames').innerHTML='';
+      await sleep(800);
+    }
+    report();
+  }
+  run().catch(function(e){line('!! '+e.stack);report();});
+})();
+</script></body></html>

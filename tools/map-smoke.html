@@ -260,6 +260,7 @@
     section('地图 ' + id + '（' + entry.name + '，parent=' + (entry.parent || '根') + '）');
 
     const frame = document.createElement('iframe');
+    const bootT0 = Date.now();
     frame.src = '../index.html?map=' + encodeURIComponent(id);
     document.getElementById('frames').appendChild(frame);
 
@@ -291,6 +292,20 @@
     const D = frame.contentDocument;
 
     check('[' + id + '] 就绪标记正确', ready === id, '实际 ' + ready);
+
+    /* 启动耗时：从建 iframe 到 data-map-ready。这条断言的价值不在"数字漂亮"，
+     * 而在**挡住首屏退步** —— 地图是按需注入的（首屏只载通用代码），
+     * 一旦有人把某个大文件的加载提到首屏、或把按需加载改回同步，
+     * 这里会立刻变红。阈值给得很宽松（本地实测 65~85ms，留了 4 秒余量），
+     * 只拦"数量级"的退步，不会因为机器快慢而假红。 */
+    const bootMs = Date.now() - bootT0;
+    check('[' + id + '] 首屏加载没有数量级退步（< 4000ms）', bootMs < 4000,
+      '实测 ' + bootMs + 'ms');
+    /* 就绪之后骨架屏必须已摘掉 —— 否则它会是一层永远盖在游戏上的遮罩 */
+    const skel = D.getElementById('bootSkeleton');
+    check('[' + id + '] 就绪后加载骨架屏已摘掉',
+      !skel || skel.hidden || skel.classList.contains('is-gone'),
+      skel ? ('hidden=' + skel.hidden + ' is-gone=' + skel.classList.contains('is-gone')) : '没有骨架屏');
 
     const config = W.MAP_PACKAGES[id];
     check('[' + id + '] 配置已登记到 MAP_PACKAGES', !!config);
