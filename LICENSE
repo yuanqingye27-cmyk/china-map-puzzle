@@ -19,19 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-> **附加说明（不影响上面 MIT 条款的适用范围）**
->
-> 这份 MIT 许可**只覆盖本项目的代码**（HTML / CSS / JavaScript / 构建脚本 / 文档）。
->
-> `js/maps/**/*.geo.js` 里的行政区划边界数据**不适用 MIT 许可**，它来自：
->
-> - **来源**：国家地理信息公共服务平台（天地图）· 服务中心行政区划
-> - **审图号**：GS(2024)0650号
->
-> 这些是官方测绘成果，使用需遵守其自身的规定。数据与代码的许可**是两回事**，
-> 请不要把上面的 MIT 误当成对地图数据的授权。
->
-> 若要把本项目用于公开发布或商业用途，**请自行确认**地图数据的使用合规性。
