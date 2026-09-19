@@ -1,70 +1,239 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><title>EXP boot</title>
-<style>body{margin:0;padding:8px;font:13px monospace}iframe{width:1600px;height:1000px;border:0;display:block}#frames{position:relative;z-index:0}</style>
-</head><body>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>EXP 探针 · 启动 / 视野 / 帧率 / 内存 / 窄屏</title>
+<style>
+  body { font: 12px/1.5 ui-monospace, monospace; margin: 0; padding: 8px; }
+  iframe { border: 0; display: block; }
+  #result { white-space: pre-wrap; }
+</style>
+</head>
+<body>
 <form id="rform" method="post" target="rsink" style="display:none"></form>
 <iframe name="rsink" style="display:none"></iframe>
-<div id="frames"></div><pre id="result">…</pre>
+<div id="frames"></div>
+<pre id="result">…</pre>
 <script>
-(function(){
-  var PORT=new URLSearchParams(location.search).get('port');
-  var out=[],reported=false;
-  function line(s){out.push(s);}
-  function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
-  function report(){ if(reported)return; reported=true;
-    document.getElementById('result').textContent=out.join('\n');
-    var f=document.getElementById('rform'); f.action='http://127.0.0.1:'+PORT+'/report';
-    var i=document.createElement('input'); i.type='hidden'; i.name='d';
-    i.value=JSON.stringify({log:out.join('\n')}); f.appendChild(i); f.submit(); }
+/* =====================================================================
+ * 一次性探针（诊断用，不参与正式测试）
+ * ---------------------------------------------------------------------
+ * 把"启动耗时 / 首屏视野 / 拖拽帧率 / 切图内存 / 窄屏降级"这几类
+ * 需要真浏览器才能量的东西收在一个页面里，用 ?what= 选一项： 
+ *   ?what=fit    首屏视野时序（能不能完整看到全国）
+ *   ?what=perf   拖拽帧率（可配 ?w= &h= 指定视口）
+ *   ?what=mem    连续切图的内存与耗时
+ *   ?what=mobile 窄屏降级是否生效（与桌面对照）
+ *
+ * 【为什么合并成一个】一开始每种测量各写一个 exp-*.html，很快就有 7 个 ——
+ * 那等于把同一件事的真相分散在多份文件里，改一处忘一处。
+ * 项目里踩过"维护第二份真相"的坑（SOP 坑 #44），所以收成一个。
+ *
+ * 用法：
+ *   node tools/exp-run.js --page=exp-boot.html --map=china --what=perf
+ *   node tools/exp-run.js --page=exp-boot.html --map=china --what=perf --w=390 --h=844
+ * ===================================================================== */
+(function () {
+  'use strict';
+  const Q = new URLSearchParams(location.search);
+  const PORT = Q.get('port');
+  const MAPID = Q.get('map') || 'china';
+  const WHAT = Q.get('what') || 'fit';
+  const VW = Number(Q.get('w')) || 1600;
+  const VH = Number(Q.get('h')) || 1000;
 
-  async function probe(mapId){
-    var frame=document.createElement('iframe');
+  const out = [];
+  let reported = false;
+  function line(s) { out.push(s); }
+  function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
+  function report() {
+    if (reported) return;
+    reported = true;
+    document.getElementById('result').textContent = out.join('\n');
+    const f = document.getElementById('rform');
+    f.action = 'http://127.0.0.1:' + PORT + '/report';
+    const i = document.createElement('input');
+    i.type = 'hidden'; i.name = 'd'; i.value = JSON.stringify({ log: out.join('\n') });
+    f.appendChild(i); f.submit();
+  }
+  function mb(n) { return n === null || n === undefined ? 'n/a' : (n / 1048576).toFixed(1) + 'MB'; }
+
+  /** 开一个被测 iframe 并等到就绪，返回 {frame, W, D, readyMs} */
+  async function open(id, w, h) {
+    const frame = document.createElement('iframe');
+    if (w) frame.style.width = w + 'px';
+    if (h) frame.style.height = h + 'px';
+    const t0 = performance.now();
+    frame.src = '../index.html?map=' + encodeURIComponent(id);
     document.getElementById('frames').appendChild(frame);
-    var t0=performance.now();
-    var p=new Promise(function(res){ frame.addEventListener('load',res,{once:true}); });
-    frame.src='../index.html?map='+encodeURIComponent(mapId);
-    await p;
-    // 导航完成：在 iframe 自己的 document 上继续观察
-    var D=frame.contentDocument, W=frame.contentWindow;
-    var marks=[];
-    function snap(tag){
-      var sk=D.getElementById('bootSkeleton');
-      marks.push({t:performance.now()-t0, tag:tag, ready:D.documentElement.getAttribute('data-map-ready'),
-        skel: sk ? (sk.hidden?'hidden':(sk.classList.contains('is-gone')?'gone':'visible')) : 'none',
-        title:D.title});
+    await new Promise((r) => frame.addEventListener('load', r, { once: true }));
+    const D = frame.contentDocument, W = frame.contentWindow;
+    for (let i = 0; i < 240; i++) {
+      if (D.documentElement.getAttribute('data-map-ready') === id) break;
+      await sleep(25);
     }
-    snap('load');
-    await new Promise(function(res){
-      var mo=new MutationObserver(function(){ snap('mut'); });
-      mo.observe(D.documentElement,{subtree:true,childList:true,attributes:true,characterData:true});
-      var iv=setInterval(function(){
-        if(D.documentElement.getAttribute('data-map-ready')){ clearInterval(iv); mo.disconnect(); res(); }
-      },20);
-      setTimeout(function(){ clearInterval(iv); mo.disconnect(); res(); },40000);
-    });
-    await sleep(400);
-    snap('settled');
-    return marks;
+    return { frame, W, D, readyMs: performance.now() - t0 };
+  }
+  async function closeAll() {
+    document.getElementById('frames').innerHTML = '';
+    await sleep(150);
+  }
+  function skipIntro(W, D) {
+    const intro = D.getElementById('intro');
+    if (intro && !intro.hidden) { intro.click(); }
   }
 
-  async function run(){
-    for (var i=0;i<2;i++){
-      var id = i===0 ? 'chengdu' : 'china';
-      line('===== ' + id + ' =====');
-      var marks=await probe(id);
-      // 只打关键节点，避免刷屏
-      var keep=marks.filter(function(m,ix){
-        return ix===0 || m.ready!==marks[ix-1].ready || m.skel!==marks[ix-1].skel;
-      });
-      keep.forEach(function(m){
-        line('  [+' + Math.round(m.t) + 'ms] ' + m.tag + ' ready=' + JSON.stringify(m.ready) +
-          ' 骨架屏=' + m.skel + ' title=' + JSON.stringify(m.title));
-      });
-      line('  总变化节点 ' + keep.length + ' / 原始采样 ' + marks.length);
-      document.getElementById('frames').innerHTML='';
-      await sleep(800);
+  /* ---------- fit：首屏视野时序 ---------- */
+  async function runFit() {
+    const { W, D, readyMs } = await open(MAPID, VW, VH);
+    line('首屏视野时序 · ' + MAPID + '（就绪 ' + Math.round(readyMs) + 'ms）');
+    const t0 = performance.now();
+    const samples = [];
+    let last = null;
+    for (let i = 0; i < 90; i++) {
+      const el = D.getElementById('map');
+      const vb = el && el.getAttribute('viewBox');
+      if (vb && vb !== last) { samples.push({ t: performance.now() - t0, vb }); last = vb; }
+      await sleep(30);
     }
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    D.querySelectorAll('.layer-base path').forEach((p) => {
+      const bb = p.getBBox();
+      x0 = Math.min(x0, bb.x); y0 = Math.min(y0, bb.y);
+      x1 = Math.max(x1, bb.x + bb.width); y1 = Math.max(y1, bb.y + bb.height);
+    });
+    line('  全图范围 ' + (x1 - x0).toFixed(0) + 'x' + (y1 - y0).toFixed(0));
+    samples.slice(0, 8).concat(samples.length > 8 ? [samples[samples.length - 1]] : []).forEach((s) => {
+      const v = s.vb.split(/\s+/).map(Number);
+      const full = v[0] <= x0 + 1 && v[1] <= y0 + 1 && v[0] + v[2] >= x1 - 1 && v[1] + v[3] >= y1 - 1;
+      line('  [+' + Math.round(s.t) + 'ms] 覆盖 ' + (v[2] / (x1 - x0) * 100).toFixed(0) + '%x' +
+        (v[3] / (y1 - y0) * 100).toFixed(0) + '%' + (full ? ' ✅完整' : '') +
+        '  vb=' + v[2].toFixed(0) + 'x' + v[3].toFixed(0));
+    });
+    line('  viewBox 变化次数 = ' + samples.length);
+    await closeAll();
+  }
+
+  /* ---------- perf：拖拽帧率 ---------- */
+  async function runPerf() {
+    const { W, D, readyMs } = await open(MAPID, VW, VH);
+    skipIntro(W, D);
+    await sleep(1200);
+    const st = W.__ENGINE__.getState();
+    line('拖拽帧率 · ' + MAPID + ' 第' + (st.levelIndex + 1) + '关，视口 ' + VW + 'x' + VH +
+      '（就绪 ' + Math.round(readyMs) + 'ms）');
+    line('  空位 ' + D.querySelectorAll('.slot').length + ' 个，底图 path ' +
+      D.querySelectorAll('.layer-base path').length + ' 个，DOM 节点 ' +
+      D.getElementsByTagName('*').length);
+
+    const piece = D.querySelector('.piece');
+    const pr = piece.getBoundingClientRect();
+    const from = { x: pr.left + pr.width / 2, y: pr.top + pr.height / 2 };
+    function fire(t, type, x, y) {
+      t.dispatchEvent(new W.PointerEvent(type, {
+        bubbles: true, cancelable: true, composed: true, clientX: x, clientY: y,
+        pointerId: 1, pointerType: 'mouse', isPrimary: true, button: 0,
+        buttons: type === 'pointerup' ? 0 : 1,
+      }));
+    }
+    fire(piece, 'pointerdown', from.x, from.y);
+    await sleep(700);
+
+    const frames = [];
+    let last = performance.now();
+    function loop(now) { frames.push(now - last); last = now;
+      if (frames.length < 130) requestAnimationFrame(loop); }
+    requestAnimationFrame(loop);
+    for (let i = 0; i < 120; i++) {
+      const t = i / 120;
+      fire(D, 'pointermove', from.x + Math.sin(t * 6.28) * 120, from.y - t * 260);
+      await sleep(16);
+    }
+    fire(D, 'pointerup', from.x, from.y);
+    await sleep(300);
+
+    const f = frames.slice(5).sort((a, b) => a - b);
+    const avg = f.reduce((a, b) => a + b, 0) / f.length;
+    line('  帧间隔：平均 ' + avg.toFixed(1) + 'ms ≈ ' + (1000 / avg).toFixed(0) + ' fps' +
+      '，p95 ' + f[Math.floor(f.length * 0.95)].toFixed(1) + 'ms' +
+      '，最差 ' + f[f.length - 1].toFixed(1) + 'ms');
+    line('  超过 33ms（<30fps）的帧数 = ' + f.filter((x) => x > 33).length + ' / ' + f.length);
+    await closeAll();
+  }
+
+  /* ---------- mem：连续切图 ---------- */
+  async function runMem() {
+    const pool = ['china', 'sichuan', 'chengdu', 'leshan', 'beijing', 'shanghai',
+      'guangdong', 'henan', 'zhejiang', 'hubei', 'shandong', 'fujian'];
+    line('连续切换 ' + pool.length + ' 张地图（每次整页重载）');
+    const times = [], heaps = [], doms = [];
+    for (let k = 0; k < pool.length; k++) {
+      document.getElementById('frames').innerHTML = '';
+      const r = await open(pool[k]);
+      const h = r.W.performance && r.W.performance.memory
+        ? r.W.performance.memory.usedJSHeapSize : null;
+      times.push(r.readyMs); heaps.push(h);
+      doms.push(r.D.getElementsByTagName('*').length);
+      line('  ' + (k + 1) + '. ' + pool[k].padEnd(10) + ' 就绪 ' + Math.round(r.readyMs) + 'ms' +
+        (h !== null ? '  堆 ' + mb(h) : '') + '  DOM ' + doms[doms.length - 1]);
+      await sleep(150);
+    }
+    const s = times.slice().sort((a, b) => a - b);
+    line('  就绪耗时：最快 ' + Math.round(s[0]) + '  中位 ' + Math.round(s[Math.floor(s.length / 2)]) +
+      '  最慢 ' + Math.round(s[s.length - 1]) + ' ms');
+    line('  DOM 节点：' + Math.min.apply(null, doms) + ' ~ ' + Math.max.apply(null, doms));
+    const known = heaps.filter((h) => h !== null);
+    if (known.length > 2) {
+      const delta = known[known.length - 1] - known[0];
+      line('  堆：首次 ' + mb(known[0]) + ' → 末次 ' + mb(known[known.length - 1]) +
+        '  增量 ' + mb(delta) + (delta > 20 * 1048576 ? ' ⚠ 增长偏大' : ' ✅ 无明显泄漏'));
+    } else {
+      line('  堆：headless 下 performance.memory 不可用，以"就绪耗时无退化"判断');
+    }
+    await closeAll();
+  }
+
+  /* ---------- mobile：窄屏降级对照 ---------- */
+  async function runMobile() {
+    const panels = ['.tray-panel', '.card', '.level-tabs', '.board-toast', '.sound-btn', '.modal'];
+    for (const [w, h, label] of [[390, 844, '手机竖屏'], [1440, 900, '桌面']]) {
+      const { W, D } = await open(MAPID, w, h);
+      skipIntro(W, D);
+      await sleep(900);
+      line('===== ' + label + '（' + w + 'x' + h + '）=====');
+      line('  横向溢出 = ' + (D.body.scrollWidth <= W.innerWidth + 1 ? '无 ✅' : '有 ❌ ' +
+        D.body.scrollWidth + ' vs ' + W.innerWidth));
+      const on = [], off = [];
+      panels.forEach((s) => {
+        const el = D.querySelector(s);
+        if (!el) return;
+        const cs = W.getComputedStyle(el);
+        const v = cs.backdropFilter || cs.webkitBackdropFilter;
+        (v && v !== 'none' ? on : off).push(s);
+      });
+      line('  backdrop-filter 开启: ' + (on.join(', ') || '（无）'));
+      line('  backdrop-filter 关闭: ' + (off.join(', ') || '（无）'));
+      const deco = D.querySelector('.bg-deco');
+      line('  .bg-deco display = ' + (deco ? W.getComputedStyle(deco).display : '（无该元素）'));
+      const map = D.getElementById('map');
+      const r = map ? map.getBoundingClientRect() : null;
+      line('  地图尺寸 = ' + (r ? Math.round(r.width) + 'x' + Math.round(r.height) : '?'));
+      await closeAll();
+    }
+  }
+
+  const RUNNERS = { fit: runFit, perf: runPerf, mem: runMem, mobile: runMobile };
+
+  async function run() {
+    line('EXP 探针 · what=' + WHAT + ' · map=' + MAPID + ' · 视口 ' + VW + 'x' + VH);
+    line('（诊断工具，不参与正式测试）');
+    const fn = RUNNERS[WHAT];
+    if (!fn) { line('未知的 what=' + WHAT + '，可用：' + Object.keys(RUNNERS).join(' / ')); report(); return; }
+    await fn();
     report();
   }
-  run().catch(function(e){line('!! '+e.stack);report();});
+  run().catch((e) => { line('!! ' + (e && e.stack ? e.stack : e)); report(); });
 })();
-</script></body></html>
+</script>
+</body>
+</html>
