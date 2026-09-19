@@ -35,9 +35,9 @@ SOFTWARE.
 
 **这些声明是怎么呈现的**（改动代码时请勿破坏）：
 
-- 来源与审图号存在 `.geo.js` 里的 `MAP_GEO_META[<地图 id>]`（由构建脚本
-  从天地图官方副本自动写入，见 `tools/replace-geo-source.js`）
-- `js/game.js` 的 `renderMapSource()` 读取它并渲染到页面页脚 `#mapSource`
+- 来源与审图号存在 `.geo.js` 里的 `MAP_GEO_META[<地图 id>]`，与边界数据
+  写在同一个文件里（写入逻辑见 `tools/lib/inline-geo.js`）
+- `js/game.js` 的 `renderSourceNotice()` 读取它并渲染到页面页脚 `#mapSource`
 - 换句话说：**页脚文案不是硬编码的**，改地图数据源时它会自动跟着变 ——
   这也是一条防伪造的设计（数据是天地图却标别家的审图号，比不写更糟）
 
