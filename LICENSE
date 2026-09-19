@@ -19,3 +19,28 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+<!--
+【附加说明 · 不影响上面的 MIT 条款】
+
+这份 MIT 许可只覆盖本项目的**代码**（HTML / CSS / JavaScript / 构建脚本 / 文档）。
+
+js/maps/**/*.geo.js 里的行政区划边界数据**不适用 MIT 许可**，它来自：
+  · 来源：国家地理信息公共服务平台（天地图）· 服务中心行政区划
+  · 审图号：GS(2024)0650号
+
+这些是官方测绘成果，使用需遵守其自身的规定。数据与代码的许可**是两回事**，
+请不要把上面的 MIT 误当成对地图数据的授权。
+
+若要把本项目用于公开发布或商业用途，请自行确认地图数据的使用合规性。
+
+【这些声明在页面上如何呈现（改动代码时请勿破坏）】
+  · 来源与审图号存在 .geo.js 里的 MAP_GEO_META[<地图 id>]，
+    与边界数据写在同一个文件里（写入逻辑见 tools/lib/inline-geo.js）
+  · js/game.js 的 renderSourceNotice() 读取它并渲染到页脚 #mapSource
+  · 也就是说页脚文案不是硬编码的 —— 改数据源时声明会自动跟着变，
+    这本身就是一条防伪造设计（数据是天地图却标别家审图号，比不写更糟）
+
+【为什么这段放在注释里】GitHub 的许可识别器一遇到 MIT 正文之外的内容
+就判成 NOASSERTION，仓库侧栏会少一个 MIT 徽章。用注释既保住了说明，
+又让识别器只看到标准 MIT 文本 —— 实测这两种写法分别是 MIT / NOASSERTION。
+-->
