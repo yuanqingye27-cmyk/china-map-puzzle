@@ -713,7 +713,77 @@
     frame.remove();
   }
 
-  /* ---------------- 主流程 ---------------- */
+  /* ---------------- 错误边界专项 ----------------
+   * 提示词要求"地图脚本加载失败 / geo 数据损坏 / 存储不可用（隐私模式）时
+   * 页面给友好提示而不是白屏或静默卡死"。这三条**都实测过**，但此前只存在于
+   * 手工验证里 —— 没有断言守着就等于下次改坏了没人知道。这里钉住两条：
+   *
+   *   ① registry 里不存在的地图：必须给人话提示，不许白屏
+   *   ② 存储不可用（隐私模式 / 站点数据被禁）：核心玩法必须照常，
+   *      只是进度存不下来 —— 存储出问题绝不该让游戏不能玩
+   *
+   * 为什么不用"真的删掉一个 geo 文件"来测：那要动工作区里的真实文件，
+   * 测试不该有破坏性副作用。geo 缺失走的是同一条 validateConfig 分支
+   * （手工实测过会提示"边界数据缺失或格式不对 + 重新生成命令"），
+   * 这里用"不存在的 id"覆盖"加载失败 → 人话提示"这条主路径。
+   * ------------------------------------------------- */
+  async function checkErrorBoundary() {
+    section('错误边界专项（不许白屏 / 存储坏了也要能玩）');
+
+    // ① 不存在的图：必须给人话提示，不许白屏
+    {
+      const frame = document.createElement('iframe');
+      frame.src = '../index.html?map=__no_such_map__';
+      document.getElementById('frames').appendChild(frame);
+      await new Promise((r) => frame.addEventListener('load', r, { once: true }));
+      await sleep(2500);
+      const D = frame.contentDocument;
+      const text = (D.body.textContent || '').replace(/\s+/g, ' ').trim();
+      check('[错误边界] 请求不存在的图不会白屏（有可见文字）', text.length > 20,
+        '可见文字长度 ' + text.length);
+      check('[错误边界] 请求不存在的图给的是人话提示（含"没有地图"或"加载"）',
+        /没有地图|没加载|加载失败|不存在/.test(text), text.slice(0, 120));
+      const skel = D.getElementById('bootSkeleton');
+      check('[错误边界] 出错时骨架屏也被摘掉（不会永远转）',
+        !skel || skel.hidden || skel.classList.contains('is-gone'),
+        skel ? ('hidden=' + skel.hidden) : '没有骨架屏');
+      frame.remove();
+    }
+
+    // ② 存储不可用：核心玩法必须照常
+    {
+      const frame = document.createElement('iframe');
+      document.getElementById('frames').appendChild(frame);
+      frame.src = '../index.html?map=chengdu';
+      await new Promise((r) => frame.addEventListener('load', r, { once: true }));
+      const W = frame.contentWindow, D = frame.contentDocument;
+      /* 在**导航之后**把 localStorage 打壞：模拟隐私模式 / 站点数据被禁。
+       * 用 defineProperty 覆盖成会抛异常的 getter，比直接改 setItem 更接近真实。 */
+      const boom = () => { throw new Error('storage disabled'); };
+      try {
+        Object.defineProperty(W, 'localStorage', {
+          configurable: true,
+          get() {
+            return { getItem: boom, setItem: boom, removeItem: boom,
+              length: 0, key: boom, clear: boom };
+          },
+        });
+      } catch (e) { /* 覆盖不了就算了，后面断言会体现 */ }
+
+      let ready = null;
+      try {
+        ready = await waitFor(
+          () => frame.contentDocument.documentElement.getAttribute('data-map-ready'),
+          20000, '存储不可用时就绪');
+      } catch (e) { /* 交给断言 */ }
+      check('[错误边界] 存储不可用时地图照常就绪（不因存储而白屏）', ready === 'chengdu',
+        'data-map-ready=' + ready);
+      check('[错误边界] 存储不可用时凹槽与碎片照常渲染',
+        D.querySelectorAll('.slot').length > 0 && D.querySelectorAll('.piece').length > 0,
+        '凹槽 ' + D.querySelectorAll('.slot').length + ' 碎片 ' + D.querySelectorAll('.piece').length);
+      frame.remove();
+    }
+  }
 
   async function run() {
     const registry = window.MAP_REGISTRY || { maps: {} };
@@ -741,6 +811,7 @@
 
     await checkNarrow();
     await checkSwitch();
+    await checkErrorBoundary();
 
     report({ passed: passed, failed: failed, failures: failures, log: out.join('\n') });
   }
