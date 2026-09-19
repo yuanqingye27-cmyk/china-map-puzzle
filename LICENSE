@@ -1,0 +1,37 @@
+MIT License
+
+Copyright (c) 2026 地图拼图项目作者
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+## 关于地图数据（重要，与代码许可是两回事）
+
+上面这份 MIT 许可**只覆盖本项目的代码**（HTML / CSS / JavaScript / 构建脚本 / 文档）。
+
+`js/maps/**/*.geo.js` 里的行政区划边界数据**不适用 MIT 许可**，它来自：
+
+- **来源**：国家地理信息公共服务平台（天地图）· 服务中心行政区划
+- **审图号**：GS(2024)0650号
+
+这些是官方测绘成果，使用需遵守其自身的规定。本项目已按要求在页面页脚完整显示
+来源与审图号（由 `js/engine.js` 依 `MAP_GEO_META` 渲染，**任何情况下都不要删除或改写**）。
+
+若你要把本项目用于任何形式的公开发布或商业用途，**请自行确认**地图数据的使用合规性。
