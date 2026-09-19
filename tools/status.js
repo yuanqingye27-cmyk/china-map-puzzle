@@ -166,7 +166,11 @@ if (scope) {
 }
 console.log('');
 console.log('══════════ 下一步（选一条） ══════════');
-console.log('  基线自检      node tools/e2e-test.js --only-suite=offline 2>&1 | tail -12   （应为 2053 通过 / 0 失败）');
+/* 基线数字是**快照**，不是真相 —— 真相是 `node tools/e2e-test.js` 的实际输出。
+ * 这里曾经写着 2053，而真实值是 2202（差 149），README 又记了第三个数，
+ * 三份文档互相矛盾。记在这里的价值只有一个：跑出来比它小就说明**掉了断言**，
+ * 值得停下来查。所以改动测试套件后请顺手同步这一行。 */
+console.log('  基线自检      node tools/e2e-test.js --only-suite=offline 2>&1 | tail -12   （基线 2202 通过 / 0 失败）');
 console.log('  地图包自检    node tools/test-maps.js 2>&1 | tail -4');
 console.log('  P0 补资料卡   面积：node tools/area-from-geo.js --parent=<省 adcode> --write');
 console.log('                文字：编辑 js/maps/china/sichuan/<市>.data.js 的 landmark/tagline/funFact');
