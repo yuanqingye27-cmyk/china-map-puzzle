@@ -546,12 +546,17 @@ try {
 <script src="js/modes.js"></script>
 <!-- 众包纠错：把资料卡拼成结构化文本，交给用户已有的通道发出去（纯函数，有单测）。
      repo / email 留空也能跑 —— 按钮自动降级成"复制到剪贴板"，不会给出死链。
-     填法：把下面两个字段换成自己的仓库和邮箱，一行代码都不用改。 -->
+     填法：把 repo 换成自己的仓库，一行代码都不用改。
+
+     site 刻意留空：让它从**当前页面地址**自动推断（见 js/contribute.js 的 siteBase）。
+     写死站点地址会腐烂 —— 实测踩过：这里曾写 `map-puzzle-89v.pages.dev`，
+     而那其实是**另一个项目**的域名（真实站点在 -1v6 后缀上），
+     于是纠错报告会链到别人的旧站。 -->
 <script>
   window.MAP_PUZZLE_CONTRIB = {
-    repo: 'Michael-YE666/map-puzzle',  // 众包纠错提交到这里（私有仓库也收得到 Issue）
-    email: '',                          // 留空则隐藏"用邮件发"按钮
-    site: 'https://map-puzzle-89v.pages.dev/'  // 报告里会带上"我是在哪看到的"深链
+    repo: 'yuanqingye27-cmyk/china-map-puzzle',  // 众包纠错提交到这里
+    email: '',                                   // 留空则隐藏"用邮件发"按钮
+    site: ''                                     // 留空 = 自动用当前页面地址（推荐）
   };
 </script>
 <script src="js/contribute.js"></script>

@@ -229,24 +229,38 @@ if (DO_DEPLOY) {
   /* 【部署后必须验证"打开的是自己的内容"】
    * 这是本轮最贵的教训：project-name 撞名时 wrangler **不报错**，
    * 部署"成功"，但网址指向别人的站 —— 我因此把别人的站点当成了你的。
-   * 唯一可靠的判据是：线上产物里的内容与本地一致。 */
+   *
+   * ⚠️ 而且**别自己拼域名**：Cloudflare 可能给项目分配一个带后缀的域名
+   * （本项目就是 `map-puzzle-89v-1v6.pages.dev`，而不是项目名直拼的
+   * `map-puzzle-89v.pages.dev` —— 后者属于账号下另一个同名旧项目！
+   * 第一版这里就是自己拼的，于是拿着一份"别人的旧站"报了假警报）。
+   * 正确做法：**先问 Cloudflare 要项目的真实域名**，再验。 */
   if (r.code === 0) {
-    console.log('  … 验证线上内容是不是自己的（防撞名）');
-    const url = 'https://' + PROJECT + '.pages.dev';
-    const probe = run('curl', ['-sSL', '-m', '25', url + '/js/game.js']);
-    if (probe.code !== 0 || !probe.out) {
-      bad('线上验证失败：抓不到 ' + url + '/js/game.js（可能还没部署完，等一分钟重试）');
+    console.log('  … 查出项目的真实域名（不自己拼）');
+    let prodUrl = null;
+    const listed = run('npx', ['wrangler@latest', 'pages', 'project', 'list']);
+    const re = new RegExp('\\b' + PROJECT.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') +
+      '\\s*│\\s*([^│\\s]+)');
+    const hit = re.exec(listed.out || '');
+    if (hit) prodUrl = 'https://' + hit[1].trim();
+    if (!prodUrl) {
+      bad('查不到 ' + PROJECT + ' 的域名，跳过线上验证（手动确认一下 project list）');
     } else {
-      const want = fs.readFileSync(path.join(DEPLOY, 'js/game.js'), 'utf8');
-      const wantMap = (want.match(/DEFAULT_MAP\s*=\s*'([a-z]+)'/) || [])[1];
-      const gotMap = (probe.out.match(/DEFAULT_MAP\s*=\s*'([a-z]+)'/) || [])[1];
-      if (!gotMap) {
-        bad('线上 js/game.js 里找不到 DEFAULT_MAP —— 这很可能**不是你的站**（撞名了）');
-      } else if (gotMap !== wantMap) {
-        bad('线上默认图是 "' + gotMap + '"，本地产物是 "' + wantMap +
-          '" —— 线上是旧版本，或这个项目名属于别人');
+      info('真实域名：' + prodUrl);
+      const probe = run('curl', ['-sSL', '-m', '25', prodUrl + '/js/game.js']);
+      if (probe.code !== 0 || !probe.out) {
+        bad('线上验证失败：抓不到 ' + prodUrl + '/js/game.js（刚部署完可能要等一会儿）');
       } else {
-        ok('线上内容确认是自己的（默认图 = ' + gotMap + '）');
+        const want = fs.readFileSync(path.join(DEPLOY, 'js/game.js'), 'utf8');
+        const wantMap = (want.match(/DEFAULT_MAP\s*=\s*'([a-z]+)'/) || [])[1];
+        const gotMap = (probe.out.match(/DEFAULT_MAP\s*=\s*'([a-z]+)'/) || [])[1];
+        if (!gotMap) {
+          bad('线上 js/game.js 里没有 DEFAULT_MAP —— 这很可能**不是你的站**（撞名了）');
+        } else if (gotMap !== wantMap) {
+          bad('线上默认图是 "' + gotMap + '"，本地产物是 "' + wantMap + '" —— 线上是旧版本');
+        } else {
+          ok('线上内容确认是自己的（' + prodUrl + '，默认图 = ' + gotMap + '）');
+        }
       }
     }
   }

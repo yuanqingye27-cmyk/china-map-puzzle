@@ -129,8 +129,43 @@ const EMPTY = {
   check('站点地址会剥掉原有的查询串和锚点',
     C.siteUrlFor(FULL) === 'https://example.pages.dev/index.html?map=leshan&level=1',
     C.siteUrlFor(FULL));
-  check('没配 site → 返回空串（不乱编网址）',
-    (C.configure({ site: '' }), C.siteUrlFor(FULL) === ''));
+
+  /* 【为什么要测"自动推断"】此前 site 是在 index.html 里写死的，
+   * 结果写成了另一个项目的域名（`map-puzzle-89v.pages.dev`，而真实站点在
+   * `-1v6` 后缀上），纠错报告会链到别人的旧站。
+   * 改成"从当前页面地址推断"之后，部署到哪个域名都自动是对的。
+   * 这条断言就是把那个防腐烂的行为钉住。 */
+  const hadLoc = 'location' in globalThis;
+  const savedLoc = hadLoc ? globalThis.location : undefined;
+  try {
+    Object.defineProperty(globalThis, 'location', {
+      configurable: true,
+      value: { protocol: 'https:', origin: 'https://real-site.pages.dev', pathname: '/index.html' },
+    });
+    C.configure({ site: '' });
+    check('site 留空时从当前页面地址自动推断（防站点地址写死腐烂）',
+      C.siteUrlFor(FULL) === 'https://real-site.pages.dev/index.html?map=leshan&level=1',
+      C.siteUrlFor(FULL));
+
+    /* file:// 下没有可用的 origin，应当老实返回空串而不是编一个 */
+    Object.defineProperty(globalThis, 'location', {
+      configurable: true,
+      value: { protocol: 'file:', origin: 'null', pathname: '/x/index.html' },
+    });
+    check('file:// 打开时不编造地址（返回空串）',
+      C.siteUrlFor(FULL) === '', C.siteUrlFor(FULL));
+    delete globalThis.location;
+    check('没有 location 时也不编造地址（返回空串）',
+      C.siteUrlFor(FULL) === '', C.siteUrlFor(FULL));
+  } finally {
+    if (hadLoc) {
+      Object.defineProperty(globalThis, 'location', { configurable: true, value: savedLoc });
+    } else {
+      delete globalThis.location;
+    }
+  }
+
+  C.configure({ site: '' });
   check('没有 mapId → 返回空串', C.siteUrlFor({}) === '');
 }
 

@@ -151,10 +151,31 @@
     return title(ctx) + '\n\n' + body(ctx);
   }
 
+  /** 报告里要带上的站点地址。
+   *
+   *  【为什么优先从"当前页面地址"推断，而不是读配置里的 site】
+   *  写死站点地址会腐烂，而且我们**实测踩过**：`index.html` 里配的 site 是
+   *  `map-puzzle-89v.pages.dev`，那其实是**另一个项目**的域名
+   *  （真实站点在 `-1v6` 后缀上），于是众包纠错的报告会链到别人的旧站。
+   *  改成从当前页面推断之后：部署到哪个域名、将来绑自有域名、
+   *  甚至在本地 `file://` 打开，全都自动是对的，不需要人维护这个值。
+   *  配置里的 site 保留为**可选覆盖**（例如将来有 OAuth 中转页时用）。 */
+  function siteBase() {
+    const configured = String(CONF.site || '').replace(/[?#].*$/, '');
+    if (configured) return configured;
+    try {
+      const loc = global.location;
+      if (loc && /^https?:$/.test(loc.protocol)) {
+        return loc.origin + loc.pathname.replace(/[?#].*$/, '');
+      }
+    } catch (e) { /* 拿不到地址就不给链接，纠错功能本身不受影响 */ }
+    return '';
+  }
+
   /** 报告里带上面的地址，维护者点进来就能直接看到那一张图 */
   function siteUrlFor(raw) {
     const ctx = safe(raw);
-    const base = String(CONF.site || '').replace(/[?#].*$/, '');
+    const base = siteBase();
     if (!base || !ctx.mapId) return '';
     return base + '?map=' + encodeURIComponent(ctx.mapId) +
       (ctx.levelIndex >= 0 ? '&level=' + encodeURIComponent(ctx.levelIndex + 1) : '');

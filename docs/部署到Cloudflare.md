@@ -2,7 +2,7 @@
 
 > ## 🚀 最快路径（更新已有站点）
 >
-> 项目名是 **`map-puzzle-89v`**（决定网址 `map-puzzle-89v.pages.dev`）。
+> 项目名是 **`map-puzzle-89v`**（决定网址 `map-puzzle-89v-1v6.pages.dev`）。
 > ⚠️ **不要用 `map-puzzle`** —— 那个名字被一个叫 "World Puzzle" 的商业站占了，
 > 而 Cloudflare 的 project-name 是**全局唯一**的，撞名不会报错、你会以为部署成功了，
 > 实际打开的是别人的站（踩过一次）。
@@ -21,7 +21,7 @@
 >
 > 做完用这条验证（应看到 **china**，而不是 chengdu —— 见下面「坑：忘记重建」）：
 > ```bash
-> curl -sSL https://map-puzzle-89v.pages.dev/js/game.js | grep -o "DEFAULT_MAP = '[a-z]*'"
+> curl -sSL https://map-puzzle-89v-1v6.pages.dev/js/game.js | grep -o "DEFAULT_MAP = '[a-z]*'"
 > ```
 
 > ⚠️ **先看第五节「1000 文件上限」** —— 网页端拖拽上传传不了完整版（它有 1100 个文件）。
@@ -144,7 +144,7 @@ python3 -m http.server 8000
 ### ⚠️ 发给别人要用**稳定地址**
 
 Cloudflare 每次部署会额外给一个带哈希的地址，形如
-`https://a846d087.map-puzzle-89v.pages.dev` —— 那是**这次部署专享**的，下次部署就变了。
+`https://a846d087.map-puzzle-89v-1v6.pages.dev` —— 那是**这次部署专享**的，下次部署就变了。
 
 **对外分享一律用不带哈希的那个**：`https://<项目名>.pages.dev`
 
