@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>EXP 探针 · 断点布局与主题（5 断点 × 3 主题）</title>
+<style>
+  body { font: 12px/1.5 ui-monospace, monospace; margin: 0; padding: 8px; }
+  iframe { border: 1px solid #ddd; display: block; }
+  #result { white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<form id="rform" method="post" target="rsink" style="display:none"></form>
+<iframe name="rsink" style="display:none"></iframe>
+<div id="frames"></div>
+<pre id="result">…</pre>
+<script>
+/* =====================================================================
+ * 断点布局与主题探针（诊断用）
+ * ---------------------------------------------------------------------
+ * P0-4 要求"5 个断点逐一截图检查：无横向溢出、无元素重叠、主题正常"。
+ * 截图要靠肉眼，但"有没有溢出/重叠/主题是否真的生效"可以机器判定 —— 这里做后者，
+ * 肉眼那部分交给 docs/ 里的截图。
+ *
+ * 跑法：node tools/exp-run.js --page=exp-layout.html --map=china
+ * ===================================================================== */
+(function () {
+  'use strict';
+  const Q = new URLSearchParams(location.search);
+  const PORT = Q.get('port');
+  const MAPID = Q.get('map') || 'china';
+  const MODE = Q.get('mode') || 'responsive';
+
+  const out = [];
+  let reported = false;
+  function line(s) { out.push(s); }
+  function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
+  function report() {
+    if (reported) return;
+    reported = true;
+    document.getElementById('result').textContent = out.join('\n');
+    const f = document.getElementById('rform');
+    f.action = 'http://127.0.0.1:' + PORT + '/report';
+    const i = document.createElement('input');
+    i.type = 'hidden'; i.name = 'd'; i.value = JSON.stringify({ log: out.join('\n') });
+    f.appendChild(i); f.submit();
+  }
+
+  async function open(id, w, h) {
+    const frame = document.createElement('iframe');
+    frame.style.width = w + 'px';
+    frame.style.height = h + 'px';
+    frame.src = '../index.html?map=' + encodeURIComponent(id);
+    document.getElementById('frames').appendChild(frame);
+    await new Promise((r) => frame.addEventListener('load', r, { once: true }));
+    const D = frame.contentDocument, W = frame.contentWindow;
+    for (let i = 0; i < 240; i++) {
+      if (D.documentElement.getAttribute('data-map-ready') === id) break;
+      await sleep(25);
+    }
+    return { frame, W, D };
+  }
+  async function closeAll() { document.getElementById('frames').innerHTML = ''; await sleep(150); }
+
+  /* 两个矩形的明显重叠（留 4px 容差，避免贴边被判成重叠） */
+  function overlap(a, b) {
+    const ox = Math.min(a.r, b.r) - Math.max(a.l, b.l);
+    const oy = Math.min(a.b, b.b) - Math.max(a.t, b.t);
+    return (ox > 4 && oy > 4) ? { ox: Math.round(ox), oy: Math.round(oy) } : null;
+  }
+
+  const BREAKS = [
+    [390, 844, '手机竖屏'],
+    [620, 900, '手机宽/小竖屏边缘'],
+    [768, 1024, '平板竖'],
+    [1440, 900, '桌面'],
+    [1920, 1080, '教室大屏'],
+  ];
+  const THEMES = ['jade', 'ginkgo', 'shu'];
+
+  /* ---------- mode=space：矮屏竖向空间分配 ----------
+   * 用来回答"某个断点下地图到底有没有落在首屏里"。光看截图分不清是
+   * "被挤到视口下方"还是"高度被压成 0"，这个模式把每个区块的
+   * top/height 和视口高都打出来，直接给答案。 */
+  async function runSpace() {
+    const BLOCKS = [
+      ['.topbar', '顶栏'],
+      ['.mapbar', '地图导航（面包屑+关卡）'],
+      ['.daily-chip', '每日一图'],
+      ['.hometown-chip', '我的家乡'],
+      ['.map-source', '资料来源+审图号'],
+      ['.board', '地图画布'],
+      ['.tray-panel', '碎片托盘'],
+      ['.sidebar', '侧栏'],
+    ];
+    const CASES = [[844, 390, '手机横屏'], [667, 375, '小手机横屏'],
+      [390, 844, '手机竖屏'], [1920, 1080, '教室大屏']];
+    line('矮屏竖向空间分配 · 地图 ' + MAPID);
+    line('');
+    for (const [w, h, label] of CASES) {
+      const { W, D } = await open(MAPID, w, h);
+      const intro = D.getElementById('intro');
+      if (intro && !intro.hidden) intro.click();
+      await sleep(900);
+      line('===== ' + label + '（' + w + '×' + h + '）=====');
+      line('  视口高 ' + W.innerHeight + 'px，文档高 ' + D.documentElement.scrollHeight + 'px');
+      let sum = 0;
+      for (const [sel, name] of BLOCKS) {
+        const el = D.querySelector(sel);
+        if (!el) continue;
+        const cs = W.getComputedStyle(el);
+        const r = el.getBoundingClientRect();
+        if (cs.display === 'none') {
+          line('  ' + name.padEnd(22) + '已收起（display:none）');
+          continue;
+        }
+        sum += r.height;
+        const warn = r.top > W.innerHeight ? ' ⚠ 完全在视口下方' : (r.height < 1 ? ' ⚠ 高度为 0' : '');
+        line('  ' + name.padEnd(22) + 'top=' + String(Math.round(r.top)).padStart(5) +
+          ' 高=' + String(Math.round(r.height)).padStart(5) + warn);
+      }
+      line('  可见区块高度合计 ' + Math.round(sum) + 'px（视口 ' + W.innerHeight + 'px）');
+      const b = D.querySelector('.board');
+      const br = b ? b.getBoundingClientRect() : null;
+      line('  ★ 地图落在首屏内 = ' + (br && br.top < W.innerHeight && br.bottom > 0 && br.height > 40
+        ? '✅ 是' : '❌ 否') + (br ? '（top=' + Math.round(br.top) + ' 高=' + Math.round(br.height) + '）' : ''));
+      await closeAll();
+    }
+  }
+
+  async function run() {
+    if (MODE === 'space') { await runSpace(); report(); return; }
+    line('断点布局 × 主题探针 · 地图 ' + MAPID);
+    line('');
+    for (const [w, h, label] of BREAKS) {
+      const { W, D } = await open(MAPID, w, h);
+      const intro = D.getElementById('intro');
+      if (intro && !intro.hidden) intro.click();
+      await sleep(900);
+
+      line('===== ' + label + '（' + w + '×' + h + '）=====');
+      line('  横向溢出 = ' + (D.body.scrollWidth <= W.innerWidth + 1
+        ? '无 ✅' : '有 ❌ ' + D.body.scrollWidth + ' vs 视口 ' + W.innerWidth));
+
+      const mapEl = D.getElementById('map');
+      const mr = mapEl ? mapEl.getBoundingClientRect() : null;
+      line('  地图 ' + (mr ? Math.round(mr.width) + '×' + Math.round(mr.height) : '?') +
+        '，可用 = ' + (mr && mr.width > 40 && mr.height > 40 ? '✅' : '❌ 太小'));
+
+      const keys = ['.topbar', '.board', '.tray-panel', '.sidebar'];
+      const rects = {};
+      keys.forEach((s) => {
+        const el = D.querySelector(s);
+        if (el) {
+          const r = el.getBoundingClientRect();
+          rects[s] = { l: r.left, t: r.top, r: r.right, b: r.bottom };
+        }
+      });
+      const over = [];
+      const ks = Object.keys(rects);
+      for (let i = 0; i < ks.length; i++) {
+        for (let j = i + 1; j < ks.length; j++) {
+          const o = overlap(rects[ks[i]], rects[ks[j]]);
+          if (o) over.push(ks[i] + ' × ' + ks[j] + ' (' + o.ox + '×' + o.oy + 'px)');
+        }
+      }
+      line('  明显重叠 = ' + (over.length ? '❌ ' + over.join('；') : '无 ✅'));
+
+      /* 三主题轮换：确认切换真的生效，且三者主色互不相同。
+       * 注意主题属性设在 <html>（documentElement）上，不是 body ——
+       * 看错元素会误判成"切换没生效"（我第一版就是这么错的）。 */
+      const seen = [];
+      for (const th of THEMES) {
+        const btn = D.querySelector('.theme-dot[data-theme="' + th + '"]');
+        if (btn) { btn.click(); await sleep(320); }
+        const cur = D.documentElement.getAttribute('data-theme');
+        const jade = W.getComputedStyle(D.documentElement).getPropertyValue('--jade').trim();
+        seen.push({ th, ok: cur === th, jade });
+      }
+      line('  主题 = ' + seen.map((x) => x.th + (x.ok ? '✓' : '✗(实际 ' + '不符)') + ' ' + x.jade).join('  '));
+      const uniq = new Set(seen.map((x) => x.jade));
+      line('  三主题主色互不相同 = ' + (uniq.size === 3 ? '✅' : '❌ 只有 ' + uniq.size + ' 种'));
+      /* 切主题后不该丢布局：再查一次溢出 */
+      line('  切主题后仍无横向溢出 = ' + (D.body.scrollWidth <= W.innerWidth + 1 ? '✅' : '❌'));
+
+      await closeAll();
+    }
+    report();
+  }
+  run().catch((e) => { line('!! ' + (e && e.stack ? e.stack : e)); report(); });
+})();
+</script>
+</body>
+</html>

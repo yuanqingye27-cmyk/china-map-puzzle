@@ -56,6 +56,21 @@
   /* --- 缓动曲线 --- */
   --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  /* --- 动效时长 ---
+   * 【为什么要有这几个令牌】此前时长全是硬编码散落的（0.16 / 0.18 / 0.2 /
+   * 0.22 / 0.25 / 0.26 / 0.3 … 共 70 多处），"统一动效规范"根本无从谈起：
+   * 想整体调快一点得逐个去找。收成四档之后，节奏由这几个数统一决定。
+   *   快：悬停、按下、焦点这类"手指刚碰到"的反馈
+   *   常规：颜色、透明度、位移等状态切换（最常用的一档）
+   *   慢：面板展开、卡片入场这类带位移的较大变化
+   *   入场：整块内容的首次出现
+   * 分档依据是"位移越大、时间越长"，而不是给每个元素单独拍一个数。 */
+  --dur-fast: 0.16s;
+  --dur: 0.2s;
+  --dur-mid: 0.24s;
+  --dur-slow: 0.3s;
+  --dur-enter: 0.45s;
 }
 
 /* =====================================================================
@@ -373,7 +388,7 @@ body {
   cursor: pointer;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  transition: color 0.2s, border-color 0.2s, transform 0.18s var(--ease-pop);
+  transition: color var(--dur), border-color var(--dur), transform var(--dur-fast) var(--ease-pop);
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -408,7 +423,7 @@ body {
   border-radius: 50%;
   border: 1.5px solid rgb(255 255 255 / 0.22);
   cursor: pointer;
-  transition: transform 0.2s var(--ease-pop), box-shadow 0.2s, border-color 0.2s;
+  transition: transform var(--dur) var(--ease-pop), box-shadow var(--dur), border-color var(--dur);
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -513,7 +528,7 @@ body {
   font-weight: 600;
   color: var(--dim);
   background: transparent;
-  transition: color 0.2s, background 0.2s;
+  transition: color var(--dur), background var(--dur);
   white-space: nowrap;
 }
 
@@ -562,7 +577,7 @@ body {
     radial-gradient(120% 96% at 50% 0%, rgb(var(--c-azure) / 0.08), transparent 62%),
     rgb(6 20 17 / 0.62);
   overflow: hidden;
-  transition: box-shadow 0.5s;
+  transition: box-shadow var(--dur-enter);
 }
 
 .board.is-solved {
@@ -608,7 +623,7 @@ body {
   stroke-dasharray: 6 5;
   vector-effect: non-scaling-stroke;
   animation: slot-breathe 2.6s ease-in-out infinite;
-  transition: fill 0.2s, stroke 0.2s;
+  transition: fill var(--dur), stroke var(--dur);
 }
 
 @keyframes slot-breathe {
@@ -678,7 +693,7 @@ body {
   cursor: pointer;
   transform-box: fill-box;
   transform-origin: center;
-  transition: filter 0.22s, opacity 0.22s;
+  transition: filter var(--dur), opacity var(--dur);
 }
 
 .placed path:hover {
@@ -719,7 +734,7 @@ body {
   -webkit-backdrop-filter: blur(10px);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.24s, transform 0.24s var(--ease-pop);
+  transition: opacity var(--dur-mid), transform var(--dur-mid) var(--ease-pop);
   white-space: nowrap;
 }
 
@@ -843,7 +858,7 @@ body {
   user-select: none;
   -webkit-user-select: none;
   animation: piece-in 0.4s var(--ease-pop) backwards;
-  transition: transform 0.18s var(--ease-pop), background 0.18s,
+  transition: transform var(--dur-fast) var(--ease-pop), background var(--dur-fast),
     border-color 0.18s, box-shadow 0.18s;
 }
 
@@ -915,7 +930,7 @@ body {
 
 /* 落位过渡：从当前位置/大小平滑吸附到地图上的真实尺寸 */
 .drag-ghost.is-snapping {
-  transition: transform 0.3s var(--ease-out), opacity 0.3s;
+  transition: transform var(--dur-slow) var(--ease-out), opacity var(--dur-slow);
   /* 阴影不跟着缩放，避免吸附时投影突然变大 */
   filter: none;
 }
@@ -935,7 +950,7 @@ body {
 }
 
 /* 回托盘 */
-.drag-ghost.is-returning { transition: transform 0.26s var(--ease-out), opacity 0.26s; }
+.drag-ghost.is-returning { transition: transform var(--dur-slow) var(--ease-out), opacity var(--dur-slow); }
 
 
 /* ============================ 侧边栏 ============================ */
@@ -996,7 +1011,7 @@ body {
   border-radius: 999px;
   background: linear-gradient(90deg, var(--jade), #7fdcb8);
   box-shadow: 0 0 12px rgb(var(--c-jade) / 0.6);
-  transition: width 0.45s var(--ease-pop);
+  transition: width var(--dur-enter) var(--ease-pop);
 }
 
 .stat-row {
@@ -1166,7 +1181,7 @@ body {
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.16s var(--ease-pop), background 0.2s, border-color 0.2s;
+  transition: transform var(--dur-fast) var(--ease-pop), background var(--dur), border-color var(--dur);
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -1560,10 +1575,6 @@ body.intro-open { overflow: hidden; }
 }
 
 /* ---------- 极矮（投影、分屏）：保底让地图还能用 ---------- */
-@media (max-height: 520px) {
-  .board { min-height: 220px; }
-  .board-intro .intro-title { font-size: 20px; }
-}
 
 /* =====================================================================
  * 地图导航条（宿主层 UI · 面包屑 + 地图选择器）
@@ -1638,7 +1649,7 @@ body.intro-open { overflow: hidden; }
   padding: 3px 8px;
   border-radius: 9px;
   border: 1px solid transparent;
-  transition: color 0.18s, background 0.18s, border-color 0.18s;
+  transition: color var(--dur-fast), background var(--dur-fast), border-color var(--dur-fast);
 }
 
 .crumb-link:hover {
@@ -1700,7 +1711,7 @@ body.intro-open { overflow: hidden; }
   font: inherit;
   font-size: 13px;
   cursor: pointer;
-  transition: border-color 0.18s, background 0.18s;
+  transition: border-color var(--dur-fast), background var(--dur-fast);
 }
 
 .map-select:hover { border-color: rgb(var(--c-jade) / 0.5); }
@@ -1791,7 +1802,7 @@ body.intro-open { overflow: hidden; }
 
 /* 面包屑可点项：hover 时轻微上浮 + 底色亮起（用 padding 的微小变化代替 transform） */
 .crumb-link {
-  transition: color 0.16s ease, background 0.16s ease, border-color 0.16s ease,
+  transition: color var(--dur-fast) ease, background var(--dur-fast) ease, border-color var(--dur-fast) ease,
               box-shadow 0.16s ease;
 }
 .crumb-link:hover {
@@ -1807,7 +1818,7 @@ body.intro-open { overflow: hidden; }
 .map-select:active { background: rgb(8 24 20 / 0.95); }
 
 /* 层级标签 / 主题点 / 音效：统一的轻量反馈（原本只有部分有） */
-.level-tab, .theme-dot, .sound-btn { transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease, box-shadow 0.16s ease; }
+.level-tab, .theme-dot, .sound-btn { transition: background var(--dur-fast) ease, border-color var(--dur-fast) ease, color var(--dur-fast) ease, box-shadow var(--dur-fast) ease; }
 
 /* ---------- 手机性能降级 ----------
  * 手机上这几样东西最吃 GPU：
@@ -2315,7 +2326,7 @@ body.intro-open { overflow: hidden; }
   animation: bs-in 0.25s var(--ease-out) both;
 }
 .boot-skeleton[hidden] { display: none; }
-.boot-skeleton.is-gone { opacity: 0; transition: opacity 0.25s var(--ease-out); }
+.boot-skeleton.is-gone { opacity: 0; transition: opacity var(--dur) var(--ease-out); }
 @keyframes bs-in { from { opacity: 0 } to { opacity: 1 } }
 .boot-skeleton .bs-mark svg {
   width: 46px; height: 46px; color: var(--jade);
@@ -2476,4 +2487,88 @@ html[data-mode="exam"] *::after {
   .mode-bar.is-miss { animation: none; }
   .boot-skeleton .bs-mark svg,
   .boot-skeleton .bs-bar i { animation: none; }
+}
+
+/* =====================================================================
+ * 教室大屏（≥1600px）
+ * ---------------------------------------------------------------------
+ * 【为什么单独一档】提示词要求"放大控件与文字，弱化花哨动画"。
+ * 小于这一档时界面是给"一个人凑近屏幕"设计的：13px 的字、36px 的按钮
+ * 在 1080p 笔记本上正好，但投到教室的投影/大屏上、或者坐在后排看，
+ * 就偏小了；而装饰动画在远处看会显得吵。
+ *
+ * 只做两件事：把"要读、要点"的东西放大，把"只是好看"的东西安静下来。
+ * 刻意不改配色与层级 —— 那属于主题体系，不该被尺寸断点牵连。
+ * ===================================================================== */
+@media (min-width: 1600px) {
+  /* 字号整体提一档。用 zoom 以外的方式（逐项覆盖）是为了不产生模糊渲染，
+     也避免第三方的 zoom 兼容差异。 */
+  body { font-size: 16px; }
+
+  /* 侧栏加宽，让资料卡在远处也能一眼读完一行 */
+  .stage { grid-template-columns: minmax(0, 1fr) 408px; gap: 20px; }
+
+  /* 关卡标签：这是课堂上最常点的一排（切关卡/跳关） */
+  .level-tab { padding: 10px 19px; font-size: 15px; }
+
+  /* 主要按钮（提示/重开） */
+  .btn { padding: 12px 15px; font-size: 15px; }
+
+  /* 资料卡文字：要读的部分 */
+  .card { font-size: 15px; }
+  .info-name { font-size: 21px; }
+  .info-tagline { font-size: 14.5px; }
+  .progress-label, .progress-value, .stat-k, .stat-v { font-size: 14.5px; }
+
+  /* 托盘里的碎片本体 */
+  .piece { padding: 9px; border-radius: 14px; }
+
+  /* 弱化装饰：投影下这些动画只会显得吵，不增加任何信息 */
+  .bg-deco { animation: none; opacity: 0.5; }
+  .boot-skeleton .bs-mark svg { animation: none; }
+}
+
+/* =====================================================================
+ * 矮屏（手机横屏 / 分屏 / 矮笔记本）· 竖向空间不够时的收口
+ * ---------------------------------------------------------------------
+ * 【为什么必须单独处理】实测 844×390 的手机横屏下，地图**完全在屏幕外**：
+ * 顶栏 + 地图导航 + 每日一图 + 我的家乡 + 关卡标签 + 资料来源 + 纠错，
+ * 一层层叠下来约 280px，而视口只有 390px —— 用户横过手机反而看不到拼图区。
+ * 原规则只把 .board 的 min-height 降到 220px，没解决"chrome 占满屏幕"。
+ *
+ * 做法：把"有则更好、缺了也能玩"的收起来，空间让给地图与托盘。
+ * **不动的三样**：
+ *   ① 顶栏（回上级地图、音效、主题都在这里）
+ *   ② 关卡标签（切关的唯一入口）
+ *   ③ 「资料来源 + 审图号」—— 地理合规要求必须显示，不许因为屏幕矮就藏
+ * 所以这里藏的是：每日一图、我的家乡、地图级纠错入口，以及装饰留白。
+ * 纠错并没有完全失去入口：资料卡里的 .info-report 仍可点（真发现了错误时，
+ * 玩家本来就在看那张卡）。
+ * ===================================================================== */
+@media (max-height: 520px) {
+  .board { min-height: 200px; }
+  .board-intro .intro-title { font-size: 20px; }
+
+  /* 竖向留白收紧 */
+  .app { padding: 8px 10px 10px; gap: 7px; }
+
+  /* 品牌副标题（"拖动碎片，拼出…"）横屏时占地又不必读 */
+  .brand-text p { display: none; }
+  .brand-text h1 { font-size: 15px; }
+
+  /* 收起"有则更好"的三块 */
+  .daily-chip,
+  .hometown-chip,
+  .report-chip { display: none; }
+
+  /* 关卡标签与导航条压扁 */
+  .level-tab { padding: 3px 9px; font-size: 12px; }
+  .mapbar { gap: 4px; }
+
+  /* 资料来源留一行、字号缩小，但**不隐藏**（合规要求） */
+  .map-source { font-size: 10.5px; line-height: 1.35; padding: 3px 0; }
+
+  /* 托盘压缩，保证地图先占住该占的高度 */
+  .tray-head { padding: 5px 9px; }
+  .piece { padding: 5px; }
 }

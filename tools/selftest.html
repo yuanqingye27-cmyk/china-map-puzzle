@@ -527,6 +527,54 @@
       D.querySelectorAll('.placed').length === placedBefore + 1,
       placedBefore + ' → ' + D.querySelectorAll('.placed').length);
 
+    /* ================================================================
+     * 15b · 纯键盘把**整张图拼完**
+     * ------------------------------------------------------------------
+     * 上面只验了"一块能用键盘放"。提示词的验收标准是
+     * "保证纯键盘可完整通关任意一张图" —— 单块通过不能推出整关能过：
+     * 中间任何一步焦点丢失、选中态被清、或最后一块放完不触发通关，
+     * 都只有走完全程才会暴露。
+     * 这一节全程只派发 KeyboardEvent，一个鼠标事件都不发。
+     * ================================================================ */
+    D.querySelectorAll('.level-tab')[0].click();
+    await sleep(800);
+
+    let kbPlaced = 0, kbRounds = 0;
+    // 上限取"碎片数 + 余量"：卡住时不能死循环，要让断言报出来
+    const kbBudget = D.querySelectorAll('.piece').length + 6;
+    while (kbRounds < kbBudget) {
+      const piece = D.querySelector('.piece:not(.is-used)');
+      if (!piece) break;
+      kbRounds++;
+      const ad = piece.dataset.adcode;
+      piece.dispatchEvent(new W.KeyboardEvent('keydown',
+        { key: 'Enter', bubbles: true, cancelable: true }));
+      await sleep(90);
+      const slot = D.querySelector('.slot[data-adcode="' + ad + '"] path');
+      if (!slot) break;   // 这一块的空位已经没了，异常状态，交给断言
+      slot.dispatchEvent(new W.KeyboardEvent('keydown',
+        { key: 'Enter', bubbles: true, cancelable: true }));
+      await sleep(420);
+      kbPlaced = D.querySelectorAll('.placed').length;
+    }
+
+    const kbLeft = D.querySelectorAll('.piece:not(.is-used)').length;
+    check('★ 纯键盘能把整关拼完（一个鼠标事件都不发）',
+      kbLeft === 0 && D.querySelectorAll('.slot').length === 0,
+      '还剩碎片 ' + kbLeft + ' 块、空位 ' + D.querySelectorAll('.slot').length +
+      ' 个；已放 ' + kbPlaced + '，共走了 ' + kbRounds + ' 轮');
+
+    /* 通关弹窗在最后一块落位后**延迟 620ms** 才开（见 engine.js 的 finishLevel
+     * 里那个 setTimeout）—— 那是给吸附动画留的时间。所以这里要等它出现，
+     * 而不是立刻断言：我第一版直接读 hidden，读到的是"还没到时间"。 */
+    let modalShown = false;
+    for (let i = 0; i < 30; i++) {
+      if (!D.getElementById('modal').hidden) { modalShown = true; break; }
+      await sleep(100);
+    }
+    check('纯键盘拼完后通关弹窗出现', modalShown,
+      '等了 3 秒仍是 hidden=true');
+
     // 手机端降级不在这里测：file:// 下动态新建的 iframe 会被跨源策略拦住，
     // 读不到它的 computedStyle。改由 tools/e2e-test.js 在 Node 侧静态校验 CSS。
     void 0;

@@ -15,7 +15,8 @@
  *   node tools/exp-run.js --page=exp-boot.html --map=china --what=fit     # 首屏视野时序
  *   node tools/exp-run.js --page=exp-boot.html --map=china --what=perf    # 拖拽帧率
  *   node tools/exp-run.js --page=exp-boot.html --map=china --what=mem     # 切图内存
- *   node tools/exp-run.js --page=exp-boot.html --map=china --what=mobile  # 窄屏降级
+ *   node tools/exp-run.js --page=exp-layout.html --map=china                  # 5 断点 × 3 主题
+ *   node tools/exp-run.js --page=exp-layout.html --map=china --mode=space     # 矮屏竖向空间分配
  */
 
 const http = require('http');
@@ -42,6 +43,7 @@ const TARGETS = argOf('targets', '820000,810000,710000');
 const TARGET = argOf('target', '');
 /* 可选视口尺寸：量窄屏/平板的帧率与布局时用 */
 const WHAT = argOf('what', '');
+const MODE = argOf('mode', '');
 const VW = argOf('w', '');
 const VH = argOf('h', '');
 
@@ -51,6 +53,7 @@ const pageUrl = 'file://' + path.resolve(__dirname, PAGE)
   + '&targets=' + encodeURIComponent(TARGETS)
   + (TARGET ? '&target=' + encodeURIComponent(TARGET) : '')
   + (WHAT ? '&what=' + encodeURIComponent(WHAT) : '')
+  + (MODE ? '&mode=' + encodeURIComponent(MODE) : '')
   + (VW ? '&w=' + encodeURIComponent(VW) : '')
   + (VH ? '&h=' + encodeURIComponent(VH) : '');
 

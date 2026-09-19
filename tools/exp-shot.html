@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>EXP 截图 · 单断点定格（配合 Chrome --screenshot）</title>
+<style>
+  body { margin: 0; padding: 0; background: #fff; }
+  /* 只留被测页面本身，不带任何探针自己的边框/留白，
+     这样截出来的图就是"用户看到的样子" */
+  #frames { position: relative; }
+  iframe { border: 0; display: block; }
+</style>
+</head>
+<body>
+<!-- =====================================================================
+     单断点定格页（配合 Chrome --screenshot 使用）
+     ---------------------------------------------------------------------
+     为什么不直接 --screenshot 打 index.html：那样截不到"加载完成后的状态"
+     （Chrome 会在页面刚加载时就截，地图还没画出来）。
+     这里的做法是：用 iframe 按指定尺寸加载 index.html，等它就绪、跳掉开场动画、
+     停留一会儿，再用 --screenshot 截这一页 —— 此时 iframe 里就是稳定画面。
+
+     用法（由 tools/exp-shot.js 驱动）：
+       ?map=china&w=1920&h=1080&theme=jade
+     ===================================================================== -->
+<div id="frames"></div>
+<script>
+(function () {
+  var Q = new URLSearchParams(location.search);
+  var MAPID = Q.get('map') || 'china';
+  var VW = Number(Q.get('w')) || 1440;
+  var VH = Number(Q.get('h')) || 900;
+  var THEME = Q.get('theme') || 'jade';
+
+  var frame = document.createElement('iframe');
+  frame.style.width = VW + 'px';
+  frame.style.height = VH + 'px';
+  frame.src = '../index.html?map=' + encodeURIComponent(MAPID);
+  document.getElementById('frames').appendChild(frame);
+
+  frame.addEventListener('load', function () {
+    var D = frame.contentDocument, W = frame.contentWindow;
+    var tries = 0;
+    var iv = setInterval(function () {
+      tries++;
+      var ready = D.documentElement.getAttribute('data-map-ready');
+      if (ready === MAPID || tries > 300) {
+        clearInterval(iv);
+        // 跳掉开场动画（它会盖住整页，截图里就只剩它了）
+        var intro = D.getElementById('intro');
+        if (intro && !intro.hidden) intro.click();
+        // 切到指定主题（截图要覆盖三主题时用）
+        setTimeout(function () {
+          var btn = D.querySelector('.theme-dot[data-theme="' + THEME + '"]');
+          if (btn) btn.click();
+          // 标记"已就绪，可以截了"
+          document.title = "SHOT-READY " + MAPID + " " + VW + "x" + VH + " " + THEME;
+        }, 500);
+      }
+    }, 50);
+  }, { once: true });
+})();
+</script>
+</body>
+</html>
