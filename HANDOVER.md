@@ -19,7 +19,12 @@
 - **测试**：**17185 项全绿**（离线 2202 + 浏览器 14946）
 - **内容**：3214 条资料里完成 **116 条（3.6%）** —— 这是唯一的大缺口
 - **用户**：**0 个真人玩过**（已部署上线，但还没发出去）
-- **线上**：`https://map-puzzle-89v.pages.dev`（Cloudflare Pages，已部署过两轮）
+- **线上**：`https://map-puzzle-89v.pages.dev`（Cloudflare Pages）
+  - ⚠️ 项目名是 **`map-puzzle-89v`**。不要用 `map-puzzle` —— 那个名字被一个叫
+    "World Puzzle" 的商业站占了，而 project-name 全局唯一、**撞名不报错**
+    （真踩过：以为部署成功，打开是别人的站）。`tools/release.js` 现在会拦这种情况
+  - ⚠️ 线上曾经长期停在旧版本（默认图还是成都）：只推 GitHub、忘了重建 `deploy/`。
+    所以用 `tools/release.js`，它第 ③ 步会断言"新代码真的进了产物"
 
 > **当前阶段是「验证」，不是「开发」。** 在拿到 10 个真人的反馈之前，
 > 不要再加新功能 —— 详见 §3 的决策说明。
@@ -96,8 +101,8 @@ node tools/share-online.js --map=sichuan     # 生成公网链接，直接发群
 node tools/serve.js --map=sichuan            # 或者局域网（同一 WiFi）
 
 # ② 若要更新线上站点
-npx wrangler@latest pages deploy deploy/ --project-name=<项目名>
-npx wrangler@latest pages project list       # 忘了项目名就跑这个
+node tools/release.js --deploy --project=map-puzzle-89v   # 一键（体检+重建+自检+部署）
+npx wrangler@latest pages project list                        # 忘了项目名就跑这个
 
 # ③ 若决定继续补内容
 node tools/status.js                         # 看总缺口
@@ -226,7 +231,7 @@ node tools/build-registry.js                            # 重新生成登记册
 node tools/deploy-pack.js --province=sichuan            # 裁剪部署包（81 文件，<1000 可直接拖拽）
 node tools/bundle.js --province=sichuan                 # 单文件离线包（1.3MB，发文件用）
 node tools/bundle.js --all                              # 全国单文件（18.5MB）
-npx wrangler@latest pages deploy deploy/ --project-name=<项目名>
+node tools/release.js --deploy --project=map-puzzle-89v   # 一键（体检+重建+自检+部署）
 
 # —— 让别人真的玩到 ——
 node tools/share-online.js --map=sichuan                # 临时公网链接（手机/微信都能开）

@@ -214,11 +214,42 @@ for (const [name, rel, re] of checks) {
 if (DO_DEPLOY) {
   step(4, '发布 · Cloudflare Pages');
   info('项目名：' + PROJECT);
+  if (PROJECT === 'map-puzzle') {
+    bad('"map-puzzle" 这个名字已经被一个叫 "World Puzzle" 的商业站占了。\n' +
+      '      Cloudflare 的 project-name 全局唯一，撞名**不会报错** ——\n' +
+      '      你会以为部署成功，打开却是别人的站（真踩过）。\n' +
+      '      本项目的项目名是 map-puzzle-89v，请改用 --project=map-puzzle-89v');
+  }
   console.log('  … 正在部署（首次会下载 wrangler，可能等一两分钟）');
   const r = run('npx', ['wrangler@latest', 'pages', 'deploy', 'deploy/',
     '--project-name=' + PROJECT, '--commit-dirty=true'], { inherit: true });
   if (r.code === 0) ok('已部署'); else bad('部署失败（退出码 ' + r.code + '）');
   if (NPM_CACHE) info('（用了临时 npm 缓存目录：' + NPM_CACHE + '）');
+
+  /* 【部署后必须验证"打开的是自己的内容"】
+   * 这是本轮最贵的教训：project-name 撞名时 wrangler **不报错**，
+   * 部署"成功"，但网址指向别人的站 —— 我因此把别人的站点当成了你的。
+   * 唯一可靠的判据是：线上产物里的内容与本地一致。 */
+  if (r.code === 0) {
+    console.log('  … 验证线上内容是不是自己的（防撞名）');
+    const url = 'https://' + PROJECT + '.pages.dev';
+    const probe = run('curl', ['-sSL', '-m', '25', url + '/js/game.js']);
+    if (probe.code !== 0 || !probe.out) {
+      bad('线上验证失败：抓不到 ' + url + '/js/game.js（可能还没部署完，等一分钟重试）');
+    } else {
+      const want = fs.readFileSync(path.join(DEPLOY, 'js/game.js'), 'utf8');
+      const wantMap = (want.match(/DEFAULT_MAP\s*=\s*'([a-z]+)'/) || [])[1];
+      const gotMap = (probe.out.match(/DEFAULT_MAP\s*=\s*'([a-z]+)'/) || [])[1];
+      if (!gotMap) {
+        bad('线上 js/game.js 里找不到 DEFAULT_MAP —— 这很可能**不是你的站**（撞名了）');
+      } else if (gotMap !== wantMap) {
+        bad('线上默认图是 "' + gotMap + '"，本地产物是 "' + wantMap +
+          '" —— 线上是旧版本，或这个项目名属于别人');
+      } else {
+        ok('线上内容确认是自己的（默认图 = ' + gotMap + '）');
+      }
+    }
+  }
 } else {
   step(4, '发布 · 跳过');
   info('没有加 --deploy，所以不部署。要发布就再跑一次加 --deploy');

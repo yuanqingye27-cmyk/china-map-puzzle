@@ -1,5 +1,29 @@
 # 部署到 Cloudflare Pages（把网站变成一条永久链接）
 
+> ## 🚀 最快路径（更新已有站点）
+>
+> 项目名是 **`map-puzzle-89v`**（决定网址 `map-puzzle-89v.pages.dev`）。
+> ⚠️ **不要用 `map-puzzle`** —— 那个名字被一个叫 "World Puzzle" 的商业站占了，
+> 而 Cloudflare 的 project-name 是**全局唯一**的，撞名不会报错、你会以为部署成功了，
+> 实际打开的是别人的站（踩过一次）。
+>
+> ```bash
+> # ① 一次性：修 npm 缓存权限（否则 npx 直接 EPERM）
+> sudo chown -R 501:20 ~/.npm
+>
+> # ② 登录（会开浏览器；必须你自己做，登录无法由脚本代劳）
+> cd /Users/apple/Desktop/deepseekharness
+> npx wrangler@latest login
+>
+> # ③ 一键：体检 → 重建 deploy/ → 自检 → 部署
+> node tools/release.js --deploy --project=map-puzzle-89v
+> ```
+>
+> 做完用这条验证（应看到 **china**，而不是 chengdu —— 见下面「坑：忘记重建」）：
+> ```bash
+> curl -sSL https://map-puzzle-89v.pages.dev/js/game.js | grep -o "DEFAULT_MAP = '[a-z]*'"
+> ```
+
 > ⚠️ **先看第五节「1000 文件上限」** —— 网页端拖拽上传传不了完整版（它有 1100 个文件）。
 > 有两条能走通的路，第一条 30 秒就能完成。
 
@@ -204,6 +228,23 @@ npx wrangler@latest pages deploy deploy/ --project-name=map-puzzle
 > export CLOUDFLARE_ACCOUNT_ID='你的account id'
 > npx wrangler@latest pages deploy deploy/ --project-name=map-puzzle
 > ```
+
+---
+
+### ⚠️ 本轮实测踩到的四个坑（都真花过时间）
+
+| 坑 | 现象 | 原因与解法 |
+| --- | --- | --- |
+| **撞名不报错** | 部署显示"成功"，打开却是别人的站 | Cloudflare 的 project-name 是**全局唯一**的。用 `--project=map-puzzle` 时撞上了一个叫 "World Puzzle" 的商业站，而网址打开的就是那个站。**部署后必须验证打开的是自己的内容**（用上面的 curl 命令） |
+| **npx 直接 EPERM** | `npx wrangler` 报 `EPERM: operation not permitted` | `~/.npm` 缓存目录有 root 权限污染。`sudo chown -R 501:20 ~/.npm` 一次修好。不想动系统可临时指定缓存：`npm_config_cache=/tmp/npm-cache npx ...` |
+| **wrangler 写不了日志** | `Failed to write to log file ... EPERM` | wrangler 往 `~/Library/Preferences/.wrangler/logs/` 写日志。可重定向：`WRANGLER_LOG_PATH=/tmp/wrangler-logs` |
+| **token 过期无法自动续** | `auth token has expired and could not be refreshed, and the environment is non-interactive` | 登录态过期后**必须交互式重新登录**（`wrangler login` 会开浏览器）。非交互环境（脚本 / 自动化）做不到，只能人工跑一次。想长期自动化就改用 API Token |
+
+> **最容易踩、代价最大的坑是"忘记重建 `deploy/`"**：
+> 只推了 GitHub、没重建部署包 → GitHub 上是最新的、网站上还是旧的，
+> **而且看起来一切正常**。实测就发生过：线上还停在"成都市地图拼图"，
+> 而我们几轮前就把默认图改成中国了。
+> 所以用 `node tools/release.js`（它第 ③ 步会逐项断言"新代码真的进了产物"），别手抄命令。
 
 ---
 
